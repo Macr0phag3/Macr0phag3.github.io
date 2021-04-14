@@ -1,0 +1,805 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="mysterytwisterc3 的一道 LVII 的题CRACKING SHA1-HASHED PASSWORDS">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>一道 SHA1 暴力破解题 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="一道 SHA1 暴力破解题">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-10-11 15:46" pubdate>
+        星期三, 十月 11日 2017, 3:46 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      867 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      11
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">一道 SHA1 暴力破解题</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期二, 十一月 10日 2020, 3:13 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>mysterytwisterc3 的一道 LVII 的题<br>CRACKING SHA1-HASHED PASSWORDS</p>
+<span id="more"></span>
+<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>题中给出了一段泄露的 SHA1 值：<br><code>67ae1a64661ac8b4494666f58c4822408dd0a3e4</code><br>并给出了管理员输入密码时留下的指纹分布。键盘示意图如下(绿色部分为被按过的键)：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto3/20180917032745037.png!blog" srcset="/img/loading.gif" lazyload alt="键盘指纹"><br>要求还原出密码，并且还原时间不超过 10s(这个是老师另外要求的)</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>SHA1 作为一种散列函数，是单向不可逆的。通过穷举搜索虽然可以找到明文，但是在空间较大时非常困难。<br>而密钥空间较小时穷举搜索的效果比较好。如果花费时间较多，可以考虑多线程，多进程，甚至分布式</p>
+<h3 id="解法"><a href="#解法" class="headerlink" title="解法"></a>解法</h3><p>根据指纹分布，首先确定字符集合：<br><code>Q，q，W，w，%，5，8，(，=，0，I，i，*，+，n，N</code><br>由于题中没说每个按键是否只按了一次，可以假设一个按键只按了一次。那么就有 len(key)=8</p>
+<p>设 <code>keyChars = [(&#39;Q&#39;， &#39;q&#39;)， (&#39;W&#39;， &#39;w&#39;)， (&#39;%&#39;， &#39;5&#39;)， (&#39;8&#39;， &#39;(&#39;)，(&#39;=&#39;， &#39;0&#39;)， (&#39;I&#39;， &#39;i&#39;)， (&#39;*&#39;， &#39;+&#39;)， (&#39;N&#39;， &#39;n&#39;)]</code></p>
+<p>则 keyChars 中，每个元组中只出现一个字符，一共有 <code>2^8</code> 种情况，即 256 种，复杂度是 <code>O(2^n)</code><br>然后对这 256 个字符串中的字符进行 256 次排列，复杂度是 <code>O(n!)</code><br>对于每个排列情况，计算它的 SHA1 后与指定的 SHA1 对比。<br>如果使用单进程，搜索全部 key 需要 16.7s<br>多进程则只需要 7.42s (win10，4 核)</p>
+<h3 id="小优化"><a href="#小优化" class="headerlink" title="小优化"></a>小优化</h3><p>仔细看指纹，其实还是有点线索可以用来优化的。<br>这个键盘有 2 个 shift 键，左右各被按了一次，所以密码至少有 2 个上字符组成。即<br><code>( I = * N % Q W</code> 这些字符最少出现 2 个<br>这样筛选后，256 种情况可以降为 247 种<br>再者，按照输入习惯，右边的 shift 键应该与靠右边的按键配合使用，所以<br><code>( I = * N</code> 至少出现一个，<code>% Q W</code> 至少出现一个<br>则 256 种情况可以再降为 217 种情况。此时代码运行时间为 6.5s(win10，4 核)</p>
+<h2 id="代码及结果"><a href="#代码及结果" class="headerlink" title="代码及结果"></a>代码及结果</h2><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment"># -*- coding: cp936 -*-</span><br><span class="hljs-keyword">import</span> time<br><span class="hljs-keyword">import</span> multiprocessing<br><span class="hljs-keyword">import</span> itertools<br><span class="hljs-keyword">import</span> hashlib<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Func</span>(<span class="hljs-params">C</span>):</span><br>    <span class="hljs-keyword">return</span> [c <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> itertools.permutations(C, <span class="hljs-number">8</span>) <span class="hljs-keyword">if</span> hashlib.sha1(<br>        <span class="hljs-string">&#x27;&#x27;</span>.join(c)).hexdigest() == <span class="hljs-string">&#x27;67ae1a64661ac8b4494666f58c4822408dd0a3e4&#x27;</span>]<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Check</span>(<span class="hljs-params">s</span>):</span><br>    <span class="hljs-keyword">return</span> s[:<span class="hljs-number">3</span>].count(<span class="hljs-string">&#x27;0&#x27;</span>)&gt;<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> s[<span class="hljs-number">3</span>:].count(<span class="hljs-string">&#x27;0&#x27;</span>)&gt;<span class="hljs-number">0</span> <span class="hljs-comment">#( I = * N 至少一个，% Q W 至少一个</span><br>    <span class="hljs-comment">#return s.count(&#x27;0&#x27;)&gt;1</span><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    stime = time.clock()<br>    keyChars = [(<span class="hljs-string">&#x27;Q&#x27;</span>, <span class="hljs-string">&#x27;q&#x27;</span>), (<span class="hljs-string">&#x27;W&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>), (<span class="hljs-string">&#x27;%&#x27;</span>, <span class="hljs-string">&#x27;5&#x27;</span>), (<span class="hljs-string">&#x27;(&#x27;</span>, <span class="hljs-string">&#x27;8&#x27;</span>),(<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-string">&#x27;0&#x27;</span>), (<span class="hljs-string">&#x27;I&#x27;</span>, <span class="hljs-string">&#x27;i&#x27;</span>), (<span class="hljs-string">&#x27;*&#x27;</span>, <span class="hljs-string">&#x27;+&#x27;</span>), (<span class="hljs-string">&#x27;N&#x27;</span>, <span class="hljs-string">&#x27;n&#x27;</span>)]<br>    Choose = <span class="hljs-built_in">filter</span>(Check,[<span class="hljs-built_in">str</span>(<span class="hljs-built_in">bin</span>(i))[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">8</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>)]) <span class="hljs-comment">#列表过滤</span><br><br>    pool = multiprocessing.Pool()<br>    <span class="hljs-keyword">for</span> res <span class="hljs-keyword">in</span> [pool.apply_async(<br>            Func, ([keyChars[j][<span class="hljs-built_in">int</span>(i[j])] <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(i))], )) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> Choose]:<br><br>        <span class="hljs-keyword">if</span> res.get() != []:<br>            <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;The key is:&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>.join(res.get()[<span class="hljs-number">0</span>])<br><br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;Timer:&#x27;</span>, <span class="hljs-built_in">round</span>(time.clock() - stime, <span class="hljs-number">2</span>), <span class="hljs-string">&#x27;s&#x27;</span><br><br></code></pre></div></td></tr></table></figure>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto3/20180917032807838.png!blog" srcset="/img/loading.gif" lazyload alt="代码及结果"></p>
+<h2 id="做完之后"><a href="#做完之后" class="headerlink" title="做完之后"></a>做完之后</h2><p>题中未给出 key 长度，只能猜测每个键没有重复使用，否则搜索空间很大。<br>在实现并发爆破的时候，由于 Python 存在 GIL，导致此类 CPU 密集型的代码使用多线程的时候效率没有提升反而会下降。<br>所以最后使用多进程实现并发，如果是 8 核 CPU，速度会进一步提升。</p>
+<p>老爷机 4 进程好慢，差点用 java 写了…</p>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/">过程记录</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Python/">Python</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/10/11/crypto-course-week1/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Coursera 上密码学公开课的 week1</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/10/06/Crypto2/">
+                        <span class="hidden-mobile">一道 3DES 的暴力破解题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

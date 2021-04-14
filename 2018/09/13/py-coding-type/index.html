@@ -1,0 +1,941 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="用 Python 久了，总会遇到与中文编码相关的问题，不管是打印的时候出现乱码，还是直接报错。而我之前一直是不断使用 encode、decode 进行尝试，今天实在受不了了，彻底摸清楚了，遂整理了一番。">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>一文说清楚如何处理 Python 的编码 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="一文说清楚如何处理 Python 的编码">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-09-13 22:08" pubdate>
+        星期四, 九月 13日 2018, 10:08 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      41
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">一文说清楚如何处理 Python 的编码</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期二, 十一月 10日 2020, 3:13 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>用 Python 久了，总会遇到与中文编码相关的问题，不管是打印的时候出现乱码，还是直接报错。而我之前一直是不断使用 <code>encode</code>、<code>decode</code> 进行尝试，今天实在受不了了，彻底摸清楚了，遂整理了一番。<br><span id="more"></span></p>
+<h2 id="编码种类以及起源"><a href="#编码种类以及起源" class="headerlink" title="编码种类以及起源"></a>编码种类以及起源</h2><p>自行了解</p>
+<h2 id="从-python-2-x-说起"><a href="#从-python-2-x-说起" class="headerlink" title="从 python 2.x 说起"></a>从 python 2.x 说起</h2><h3 id="str-与-unicode"><a href="#str-与-unicode" class="headerlink" title="str 与 unicode"></a>str 与 unicode</h3><h4 id="什么是-str，什么是-unicode"><a href="#什么是-str，什么是-unicode" class="headerlink" title="什么是 str，什么是 unicode"></a>什么是 str，什么是 unicode</h4><p>首先，<code>str</code> 和 <code>unicode</code> 都是 <code>basestring</code> 的子类。<br>那么，我们怎么知道一个变量里到底是 <code>str</code> 还是 <code>unicode</code> 呢？</p>
+<p>Python 提供了 <code>isinstance</code> 函数：</p>
+<ol>
+<li>判断 <code>string</code> 是否为 <code>str</code>：<code>isinstance(string, str)</code></li>
+<li>判断 <code>string</code> 是否为 <code>unicode</code>：<code>isinstance(string, unicode)</code></li>
+</ol>
+<p>以及 <code>type</code> 函数:<br><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">In [<span class="hljs-number">3</span>]: <span class="hljs-built_in">type</span>(<span class="hljs-string">&quot;中文&quot;</span>)<br>Out[<span class="hljs-number">3</span>]: <span class="hljs-built_in">str</span><br><br>In [<span class="hljs-number">4</span>]: <span class="hljs-built_in">type</span>(<span class="hljs-string">u&quot;中文&quot;</span>)<br>Out[<span class="hljs-number">4</span>]: unicode<br></code></pre></div></td></tr></table></figure></p>
+<p>那么，我们常说的 <code>字符串</code>，到底哪个呢？我认为，<strong>看个人</strong>。如果你和我一样觉得直接写在源代码里的（如 <code>a = &quot;123&quot;</code>）就叫字符串，那么 <code>str</code> 就是字符串。如果你觉得 <code>字符串</code> 是由 多个字符 串起来 的，那么 <code>unicode</code> 才是字符串。</p>
+<p>也就是说，unicode 由 多个字符 组成，比如：<br><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: <span class="hljs-built_in">len</span>(<span class="hljs-string">u&#x27;中文&#x27;</span>)<br>Out[<span class="hljs-number">1</span>]: <span class="hljs-number">2</span><br><br>In [<span class="hljs-number">2</span>]: <span class="hljs-built_in">len</span>(<span class="hljs-string">&#x27;中文&#x27;</span>)<br>Out[<span class="hljs-number">2</span>]: <span class="hljs-number">6</span><br></code></pre></div></td></tr></table></figure></p>
+<p>而 <code>&#39;中文&#39;</code> 由 <code>中</code> 与 <code>文</code> 这两个字符组成。明显 <code>unicode</code> 更符合我们求长度的逻辑。</p>
+<p><strong>总结：不管怎么样，对字符串的定义，选一个自己认为合理的，这个无关紧要。我倾向于前者，所以下面默认 <code>字符串</code> 就是 <code>str</code>。</strong></p>
+<h4 id="创造-str-与-unicode"><a href="#创造-str-与-unicode" class="headerlink" title="创造 str 与 unicode"></a>创造 str 与 unicode</h4><p>直接创造 str 与 unicode 的方法都很简单，直接写在源码里：</p>
+<ol>
+<li>str: <code>a = &quot;123&quot;</code></li>
+<li>unicode: <code>a = u&quot;123&quot;</code></li>
+</ol>
+<p>还有那些地方会创造出 str 与 unicode 呢？比如读/写文件，从远程获取（爬虫或 socket）等等。</p>
+<h4 id="str2unicode，unicode2str"><a href="#str2unicode，unicode2str" class="headerlink" title="str2unicode，unicode2str"></a>str2unicode，unicode2str</h4><p>Python 提供了 <code>decode</code>(解码)/<code>encode</code>(编码) 用于两者的转换：</p>
+<ol>
+<li>str -&gt; decode(“某种编码”) -&gt; unicode</li>
+<li>unicode -&gt; encode(“某种编码”) -&gt; str</li>
+</ol>
+<p><strong>总结：<code>unicode</code> 经过编码后形成 <code>str</code>，<code>str</code> 经过解码后形成 <code>unicode</code></strong></p>
+<p>至于如何选择正确的 “某种编码”，下面会说。</p>
+<h3 id="如何正确地编码-解码"><a href="#如何正确地编码-解码" class="headerlink" title="如何正确地编码/解码"></a>如何正确地编码/解码</h3><h4 id="环境编码"><a href="#环境编码" class="headerlink" title="环境编码"></a>环境编码</h4><p>系统默认编码</p>
+<ol>
+<li>Linux，Unix：utf8</li>
+<li>Windows：gbk</li>
+</ol>
+<p>还有输出时，打印到终端的编码</p>
+<h4 id="编辑器的编码"><a href="#编辑器的编码" class="headerlink" title="编辑器的编码"></a>编辑器的编码</h4><p>不管是 IDE 还是 atom 记事本，打开源代码的时候总会按照某一特定的编码打开。基本上，这个编码总是可以设置的，如 atom：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/py-coding-type/20181003020136152.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>保证源代码的文件编码，为避免乱码以及后续处理的方便，<strong>最好统一设置为 <code>utf8</code></strong></p>
+<h4 id="文件头部编码声明"><a href="#文件头部编码声明" class="headerlink" title="文件头部编码声明"></a>文件头部编码声明</h4><p>即 python 解释器读取源代码时的编码。</p>
+<p>python 解释器读取源代码时默认编码是 <code>ASCII</code>。在源代码文件中，如果用到非 ASCII 字符（如中文），需要在文件头部进行编码声明。否则会报错：<br><figure class="highlight stata"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stata"><span class="hljs-keyword">File</span> <span class="hljs-string">&quot;test.py&quot;</span>, <span class="hljs-keyword">line</span> 8<br>SyntaxError: Non-ASCII character &#x27;\xe6&#x27; <span class="hljs-keyword">in</span> <span class="hljs-keyword">file</span> <span class="hljs-keyword">test</span>.py <span class="hljs-keyword">on</span> <span class="hljs-keyword">line</span> 9, but <span class="hljs-keyword">no</span> encoding declared; see http:<span class="hljs-comment">//python.org/dev/peps/pep-0263/ for details</span><br></code></pre></div></td></tr></table></figure></p>
+<p>声明编码方式为：<code># -*- coding: utf-8 -*-</code> 或 <code>#coding=utf-8</code>（<code>-*-</code> 实际上没啥用，只是为了…好看…）。对 Python 来说，无所谓你写的是 <code>utf-8</code> 还是 <code>utf8</code>，它都能认识。</p>
+<p><strong>注意，声明编码必须放在源代码的第一行</strong></p>
+<p>假设代码中有：<code>a = &#39;中文&#39;</code>。若头部声明 <code>utf-8</code>, 则 a 的编码类型为 <code>utf-8</code>；若头部声明 <code>gbk</code>，则 a 的编码类型为 <code>gbk</code>。即，代码中直接声明的字符串编码类型，与此直接相关。</p>
+<p>所以，为了避免乱码以及后续处理的方便，<strong>最好统一头部声明为 <code>utf8</code></strong></p>
+<h4 id="如何选择编码类型"><a href="#如何选择编码类型" class="headerlink" title="如何选择编码类型"></a>如何选择编码类型</h4><p>现在我们知道了：常见编码类型有: ascii, utf8, gbk。</p>
+<p>先做几个<strong>小实验</strong>：  </p>
+<ol>
+<li>文件头部声明对字符串编码类型的影响（<strong>假设声明为 <code>utf8</code></strong>）：<ol>
+<li><code># -*- coding: utf8 -*- -&gt; &quot;任意字符串&quot; -&gt; utf8</code></li>
+<li><code># -*- coding: utf8 -*- -&gt; u&quot;任意字符串&quot; -&gt; unicode</code></li>
+</ol>
+</li>
+<li>unicode 的 encode/decode:<ol>
+<li><code>纯 ascii 的 unicode -&gt; encode(&quot;编码类型 A&quot;) -&gt; 字符串</code></li>
+<li><code>含中文的 unicode -&gt; encode(&quot;任意编码类型&quot;) -&gt; 字符串</code></li>
+<li><code>纯 ascii 的 unicode -&gt; decode(&quot;任意编码类型&quot;) -&gt; unicode</code></li>
+<li><code>含中文的 unicode -&gt; decode(&quot;任意编码类型&quot;) -&gt; &#39;ascii&#39; codec can&#39;t encode characters in position 1-32: ordinal not in range(128)</code></li>
+</ol>
+</li>
+<li>字符串的 encode/decode:<ol>
+<li><code>纯 ascii 的字符串 -&gt; decode(&quot;任意编码类型&quot;) -&gt; unicode</code></li>
+<li><code>含中文的字符串 -&gt; decode(&quot;utf8&quot;) -&gt; unicode</code></li>
+<li><code>含中文的字符串 -&gt; decode(&quot;非 utf8&quot;) -&gt; 乱码 或 UnicodeDecodeError: &#39;非 utf8&#39; codec can&#39;t decode bytes in position 117-118: illegal multibyte sequence</code></li>
+<li><code>纯 ascii 的字符串 -&gt; encode(&quot;任意编码类型&quot;) -&gt; 字符串</code></li>
+<li><code>含中文的字符串 -&gt; encode(&quot;任意编码类型&quot;) -&gt; UnicodeDecodeError: &#39;ascii&#39; codec can&#39;t decode byte 0xe6 in position 115: ordinal not in range(128)</code></li>
+</ol>
+</li>
+</ol>
+<p>文件头部声明为 <code>gbk</code> 时同理。</p>
+<p><strong>于是，我们可以得出结论：</strong></p>
+<ol>
+<li>除非有信心代码不会出现中文（包括硬编码或者数据流）之外，头部一定要声明编码，且最好为 <code>utf8</code>。</li>
+<li><code>ascii</code> 编码类型，随便你怎么搞都没事。</li>
+<li>最好，不要对 <code>str</code> 使用 <code>encode</code>，不要对 <code>unicode</code> 使用 <code>decode</code>。</li>
+<li>编码之间的转换怎么处理呢？用 unicode 搭桥<figure class="highlight vala"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs vala"><span class="hljs-meta"># -*- coding: utf8 -*-</span><br><span class="hljs-keyword">string</span> = <span class="hljs-string">&quot;我&quot;</span><br>print <span class="hljs-keyword">string</span>.decode(<span class="hljs-string">&#x27;utf8&#x27;</span>).encode(<span class="hljs-string">&#x27;gbk&#x27;</span>)<br><span class="hljs-meta"># 先解码为 unicode，再编码为 gbk</span><br><span class="hljs-meta"># 在终端字符设置为 utf8 时，输出为乱码</span><br></code></pre></div></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="网上的一些说法"><a href="#网上的一些说法" class="headerlink" title="网上的一些说法"></a>网上的一些说法</h4><p>利用 sys 解决。方法如下：</p>
+<p>在源代码处添加：<br><figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">import sys<br><span class="hljs-function"><span class="hljs-title">reload</span><span class="hljs-params">(sys)</span></span><br>sys<span class="hljs-selector-class">.setdefaultencoding</span>(<span class="hljs-string">&#x27;utf-8&#x27;</span>)<br></code></pre></div></td></tr></table></figure></p>
+<p>那么，这个方法的原理是什么呢？</p>
+<p>在 python 中，对 <code>str</code> 使用 <code>encode</code> 时，其实是先解码为 unicode ，然后再编码的。但是，这个时候我们并没有声明编码类型，于是 Python 就用默认的编码类型：ascii。改变这一默认编码类型的方式就是上面的那段代码。</p>
+<p>我们还可以做个小实验</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mathematica"><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span><span class="hljs-operator">.</span><span class="hljs-variable">encode</span><span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span><br><span class="hljs-variable">UnicodeDecodeError</span><span class="hljs-operator">:</span> <span class="hljs-operator">&#x27;</span><span class="hljs-variable">ascii</span><span class="hljs-operator">&#x27;</span> <span class="hljs-variable">codec</span> <span class="hljs-variable">can</span><span class="hljs-operator">&#x27;</span><span class="hljs-variable">t</span> <span class="hljs-variable">decode</span> <span class="hljs-variable">byte</span> <span class="hljs-number">0</span><span class="hljs-variable">xe6</span> <span class="hljs-variable">in</span> <span class="hljs-variable">position</span> <span class="hljs-number">0</span><span class="hljs-operator">:</span> <span class="hljs-variable">ordinal</span> <span class="hljs-variable">not</span> <span class="hljs-variable">in</span> <span class="hljs-variable">range</span><span class="hljs-punctuation">(</span><span class="hljs-number">128</span><span class="hljs-punctuation">)</span><br><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-variable">u</span><span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">4</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span><span class="hljs-operator">.</span><span class="hljs-variable">decode</span><span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span><br><span class="hljs-variable">UnicodeEncodeError</span><span class="hljs-operator">:</span> <span class="hljs-operator">&#x27;</span><span class="hljs-variable">ascii</span><span class="hljs-operator">&#x27;</span> <span class="hljs-variable">codec</span> <span class="hljs-variable">can</span><span class="hljs-operator">&#x27;</span><span class="hljs-variable">t</span> <span class="hljs-variable">encode</span> <span class="hljs-variable">character</span> <span class="hljs-variable">u</span><span class="hljs-operator">&#x27;</span>\<span class="hljs-variable">u6211</span><span class="hljs-operator">&#x27;</span> <span class="hljs-variable">in</span> <span class="hljs-variable">position</span> <span class="hljs-number">0</span><span class="hljs-operator">:</span> <span class="hljs-variable">ordinal</span> <span class="hljs-variable">not</span> <span class="hljs-variable">in</span> <span class="hljs-variable">range</span><span class="hljs-punctuation">(</span><span class="hljs-number">128</span><span class="hljs-punctuation">)</span><br><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">5</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">import</span> <span class="hljs-variable">sys</span><br>   <span class="hljs-operator">...:</span> <span class="hljs-variable">reload</span><span class="hljs-punctuation">(</span><span class="hljs-variable">sys</span><span class="hljs-punctuation">)</span><br>   <span class="hljs-operator">...:</span> <span class="hljs-variable">sys</span><span class="hljs-operator">.</span><span class="hljs-variable">setdefaultencoding</span><span class="hljs-punctuation">(</span><span class="hljs-operator">&#x27;</span><span class="hljs-variable">utf</span><span class="hljs-operator">-</span><span class="hljs-number">8</span><span class="hljs-operator">&#x27;</span><span class="hljs-punctuation">)</span><br>   <span class="hljs-operator">...:</span><br><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">6</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-variable">u</span><span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">7</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span><span class="hljs-operator">.</span><span class="hljs-variable">decode</span><span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span><br><span class="hljs-built_in">Out</span><span class="hljs-punctuation">[</span><span class="hljs-number">7</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">u</span><span class="hljs-operator">&#x27;</span>\<span class="hljs-variable">u6211</span><span class="hljs-operator">&#x27;</span><br><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">8</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-built_in">In</span> <span class="hljs-punctuation">[</span><span class="hljs-number">9</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-variable">a</span><span class="hljs-operator">.</span><span class="hljs-variable">encode</span><span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span><br><span class="hljs-built_in">Out</span><span class="hljs-punctuation">[</span><span class="hljs-number">9</span><span class="hljs-punctuation">]</span><span class="hljs-operator">:</span> <span class="hljs-operator">&#x27;</span>\<span class="hljs-variable">xe6</span>\<span class="hljs-variable">x88</span>\<span class="hljs-variable">x91</span><span class="hljs-operator">&#x27;</span><br></code></pre></div></td></tr></table></figure>
+<p>显然这个方法并不彻底，说不定还会造成奇怪的 bug。所以最好别用。</p>
+<p>不过话说回来，这个自动编码，有时候真是大坑：</p>
+<figure class="highlight vhdl"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs vhdl"><span class="hljs-keyword">In</span> [<span class="hljs-number">1</span>]: <span class="hljs-string">&quot;我&quot;</span>+<span class="hljs-string">&quot;我&quot;</span>.decode(<span class="hljs-string">&quot;utf8&quot;</span>)<br>UnicodeDecodeError: <span class="hljs-symbol">&#x27;ascii</span>&#x27; codec can<span class="hljs-symbol">&#x27;t</span> decode byte <span class="hljs-number">0</span>xe6 <span class="hljs-keyword">in</span> position <span class="hljs-number">0</span>: ordinal <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">range</span>(<span class="hljs-number">128</span>)<br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">2</span>]: <span class="hljs-string">&quot;我&quot;</span>+u<span class="hljs-string">&quot;我&quot;</span><br>UnicodeDecodeError: <span class="hljs-symbol">&#x27;ascii</span>&#x27; codec can<span class="hljs-symbol">&#x27;t</span> decode byte <span class="hljs-number">0</span>xe6 <span class="hljs-keyword">in</span> position <span class="hljs-number">0</span>: ordinal <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">range</span>(<span class="hljs-number">128</span>)<br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">3</span>]: <span class="hljs-string">&quot;我&quot;</span> <span class="hljs-keyword">in</span> u<span class="hljs-string">&quot;我&quot;</span><br>UnicodeDecodeError: <span class="hljs-symbol">&#x27;ascii</span>&#x27; codec can<span class="hljs-symbol">&#x27;t</span> decode byte <span class="hljs-number">0</span>xe6 <span class="hljs-keyword">in</span> position <span class="hljs-number">0</span>: ordinal <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">range</span>(<span class="hljs-number">128</span>)<br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">4</span>]: str(u<span class="hljs-string">&quot;我&quot;</span>)<br>UnicodeEncodeError: <span class="hljs-symbol">&#x27;ascii</span>&#x27; codec can<span class="hljs-symbol">&#x27;t</span> encode <span class="hljs-built_in">character</span> u&#x27;\u6211&#x27; <span class="hljs-keyword">in</span> position <span class="hljs-number">0</span>: ordinal <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">range</span>(<span class="hljs-number">128</span>)<br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">5</span>]: u<span class="hljs-string">&quot;%s&quot;</span> % <span class="hljs-string">&quot;我&quot;</span><br>UnicodeDecodeError: <span class="hljs-symbol">&#x27;ascii</span>&#x27; codec can<span class="hljs-symbol">&#x27;t</span> decode byte <span class="hljs-number">0</span>xe6 <span class="hljs-keyword">in</span> position <span class="hljs-number">0</span>: ordinal <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">range</span>(<span class="hljs-number">128</span>)<br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">6</span>]: raw_input(<span class="hljs-string">&quot;编码&quot;</span>)<br>编码<br><span class="hljs-keyword">Out</span>[<span class="hljs-number">7</span>]: &#x27;&#x27;<br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">8</span>]: raw_input(u<span class="hljs-string">&quot;编码&quot;</span>)<br>UnicodeEncodeError: <span class="hljs-symbol">&#x27;ascii</span>&#x27; codec can<span class="hljs-symbol">&#x27;t</span> encode characters <span class="hljs-keyword">in</span> position <span class="hljs-number">0</span>-<span class="hljs-number">1</span>: ordinal <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">range</span>(<span class="hljs-number">128</span>)<br><br>......<br><br></code></pre></div></td></tr></table></figure>
+<p>也难怪很多人用这个方法了吧。。。</p>
+<h3 id="阶段总结"><a href="#阶段总结" class="headerlink" title="阶段总结"></a>阶段总结</h3><p>py2.x:</p>
+<ol>
+<li>规范编码：环境编码 + IDE/文本编辑器 + 文件编码 + 数据库编码+…</li>
+<li>头部编码声明</li>
+<li>不要对 <code>str</code> 使用 <code>encode</code>，不要对 <code>unicode</code> 使用 <code>decode</code></li>
+<li>乱码/报错的时候，先搞清楚编码的类型，查找<strong>小实验</strong>中对应的情况，再进行对应的编码/解码</li>
+<li>强烈建议统一用 utf8，不管网站也好，数据库也好，这是大势所趋。</li>
+</ol>
+<h2 id="痛改前非的-python-3-x"><a href="#痛改前非的-python-3-x" class="headerlink" title="痛改前非的 python 3.x"></a>痛改前非的 python 3.x</h2><h3 id="字符串？str？unicode？bytes？"><a href="#字符串？str？unicode？bytes？" class="headerlink" title="字符串？str？unicode？bytes？"></a>字符串？str？unicode？bytes？</h3><p>py2.x 的非 ascii 编码/解码问题一直被吐槽这么多年后，py3.x 终于下定决心彻底解决这个问题。解决的方式：</p>
+<blockquote>
+<p>文本总是 <code>Unicode</code>，由 <code>str</code> 类型表示，二进制数据则由 <code>bytes</code> 类型表示。Python 3 不会以任意隐式的方式混用 <code>str</code> 和 <code>bytes</code></p>
+</blockquote>
+<p><strong>所以，py3.x 首先统一了表示形式，然后不会再任意隐式的方式混用。</strong></p>
+<p>接下来解释一下：首先，Unicode 是内存编码表示方案（是规范），而 UTF 是如何保存和传输 Unicode 的方案（是实现）。 这也是 UTF 与 Unicode 的区别。py3.X 中只有一种能保存文本信息的数据类型：str，不可变，保存的是 Unicode 码位。Unicode 是离用户更近的数据，bytes 是离计算机更近的数据。</p>
+<p>在 py2.x 中，我们曾经讨论过 <code>什么是 str，什么是 unicode</code>，以及字符串的定义问题，还举了一个例子，说明 unicode 在求长度的时候更符合逻辑。所以，py3.x 认为 <code>unicode</code> 才是 <code>字符串</code>，而在 Py2.x 中的 <code>str</code>，更像是 py3.x 中的 <code>bytes</code>。</p>
+<p>说得有点多，总结一下：</p>
+<ol>
+<li>py2.x<ul>
+<li><code>字符串</code>：<code>str</code> 类型</li>
+<li><code>type(&quot;123&quot;)</code>：<code>str</code></li>
+<li><code>len(&quot;我&quot;)</code>：3</li>
+<li><code>len(&quot;我&quot;.decode(&quot;utf8&quot;))</code>：1</li>
+</ul>
+</li>
+<li>py3.x<ul>
+<li><code>字符串</code>：<code>unicode</code> 类型</li>
+<li><code>type(&quot;123&quot;)</code>：<code>str</code></li>
+<li><code>len(&quot;我&quot;)</code>：1</li>
+<li><code>len(&quot;我&quot;.encode())</code>：3</li>
+</ul>
+</li>
+<li>注意，<code>str</code> 表示的概念都是字符串类型，只不过 Py2.x 的 str 是经过编码的 unicode，而 py3.x 的 str 就是 unicode。 那么，py3.x 的 unicode 经过编码后，是什么呢？就是 <code>bytes</code>。也就是说，py3.x 的字符串默认是 unicode，至于你想把它怎么编码（utf8 或者 gbk），都是你自己的事。</li>
+</ol>
+<p>说清楚 py3.x 的解决方案之后，我们再来看它的编码/解码。</p>
+<h3 id="编码-解码"><a href="#编码-解码" class="headerlink" title="编码/解码"></a>编码/解码</h3><p>对于 <code>str</code> 类型（即 <code>unicode</code>），只有一个 <code>encode</code> 方法将 <code>字符串</code> 转化为一个字节码（即 <code>bytes</code>），而且 <code>bytes</code> 也只有一个 <code>decode</code> 方法将字节码转化为一个文本字符串。</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs livecodeserver"><span class="hljs-keyword">a</span> = <span class="hljs-string">&quot;我&quot;</span> <span class="hljs-comment"># a 是一个 字符串，类型是 str，用 unicode 表达</span><br>print(<span class="hljs-keyword">a</span>) <span class="hljs-comment"># &#x27;我&#x27;</span><br><br><span class="hljs-keyword">a</span> = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span> <span class="hljs-comment"># a 是一个 字节流，类型是 bytes，用 utf8 编码的 unicode 表达</span><br>print(<span class="hljs-keyword">a</span>) <span class="hljs-comment"># b&#x27;\xe6\x88\x91&#x27;</span><br><br><span class="hljs-keyword">a</span> = <span class="hljs-string">&quot;我&quot;</span>.encode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-comment"># 将 a 编码，转为用 utf8 编码的 unicode 表达</span><br>print(<span class="hljs-keyword">a</span>) <span class="hljs-comment"># b&#x27;\xe6\x88\x91&#x27;</span><br><br><span class="hljs-keyword">a</span> = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span>.decode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-comment"># 将 a 解码，转为用 unicode 表达</span><br>print(<span class="hljs-keyword">a</span>) <span class="hljs-comment"># &quot;我&quot;</span><br><br><span class="hljs-keyword">a</span> = <span class="hljs-string">&quot;我&quot;</span>.decode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-comment"># 试图将 unicode 解码</span><br><span class="hljs-comment"># 报错：AttributeError: &#x27;str&#x27; object has no attribute &#x27;decode&#x27;</span><br><br><span class="hljs-keyword">a</span> = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span>.encode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-comment"># 试图将 bytes 编码</span><br><span class="hljs-comment"># 报错：AttributeError: &#x27;bytes&#x27; object has no attribute &#x27;encode&#x27;</span><br><br><span class="hljs-keyword">a</span> = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span>.decode(<span class="hljs-string">&quot;gbk&quot;</span>) <span class="hljs-comment"># 解码的编码类型与原有编码类型不匹配</span><br><span class="hljs-comment"># 报错：UnicodeDecodeError: &#x27;gbk&#x27; codec can&#x27;t decode byte 0x91 in position 2: incomplete multibyte sequence</span><br><br></code></pre></div></td></tr></table></figure>
+<p>基本不会有乱码以及各种奇怪报错的问题了。算是彻底解决了。</p>
+<h3 id="阶段总结-1"><a href="#阶段总结-1" class="headerlink" title="阶段总结"></a>阶段总结</h3><p>py3.x:</p>
+<ol>
+<li>规范编码：环境编码 + IDE/文本编辑器 + 文件编码 + 数据库编码+…</li>
+<li>头部编码声明：不再必要</li>
+<li>乱码/报错的时候，一定是解码的时候，解码的编码类型与原有编码类型不匹配。</li>
+</ol>
+<h2 id="谈谈兼容性"><a href="#谈谈兼容性" class="headerlink" title="谈谈兼容性"></a>谈谈兼容性</h2><p>py2.x 与 3.x 如何进行正确地编码/解码都说好了，现在说说兼容性。回顾 py3.x 的解决方案，我们可以获得启示：<strong>默认使用 unicode，需要的时候再编码</strong>。</p>
+<h3 id="Python-作出的努力"><a href="#Python-作出的努力" class="headerlink" title="Python 作出的努力"></a>Python 作出的努力</h3><p>自从 py3.x 出世，以及官方声明不在对 2.x 进行更新后，兼容性一直是一个大问题。<br>对此，最新的 py2.7.15，支持 py3.x 的一些语法；而 3.x 也保留了一些 py2.x 的语法：</p>
+<ol>
+<li>py2.x:<ul>
+<li><code>a = b&quot;123&quot;</code> # a 依然是 str 而不是 bytes。</li>
+<li>可以进行头部编码声明</li>
+</ul>
+</li>
+<li>py3.x:<ul>
+<li><code>a = u&quot;123&quot;</code> # a 本来就是 unicode</li>
+<li>可以进行头部编码声明</li>
+</ul>
+</li>
+</ol>
+<p>以上语法仅仅是为了兼容，不会起到它们原来的作用。</p>
+<h3 id="我们需要注意的地方"><a href="#我们需要注意的地方" class="headerlink" title="我们需要注意的地方"></a>我们需要注意的地方</h3><p>兼容性靠别人不如靠自己，写代码的时候不妨留意一点编码问题。</p>
+<ol>
+<li>规范编码：环境编码 + IDE/文本编辑器 + 文件编码 + 数据库编码+…</li>
+<li>声明文件头部编码</li>
+<li>硬编码的时候加上 <code>u</code>：<code>a = u&quot;我&quot;</code></li>
+<li>将 Python 代码当做一个杯子，将数据流倒进杯子的时候，一律解码转为 unicode。杯子里一律用 unicode 处理。将数据流倒出杯子的时候，编码为 utf8（当然，看具体使用场景）。</li>
+<li>始终坚持使用 UTF-8 编码，始终坚持使用 UTF-8 编码，始终坚持使用 UTF-8 编码</li>
+</ol>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Python/">Python</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/09/26/email-hacker/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">伪造电子邮件以及制造电子邮件炸弹的攻防探讨</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/06/18/MySQL%E7%9A%84BIGINT%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5/">
+                        <span class="hidden-mobile">MySQL 的 BIGINT 报错注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

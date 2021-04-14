@@ -1,0 +1,897 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="CSRF（Cross-site request forgery），跨站请求伪造经验总结。">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>CSRF 指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="CSRF 指北">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-06-02 11:39" pubdate>
+        星期日, 六月 2日 2019, 11:39 中午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      41
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">CSRF 指北</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期二, 十一月 10日 2020, 3:13 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>CSRF（Cross-site request forgery），跨站请求伪造经验总结。</p>
+<span id="more"></span>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>CSRF 最重要的原理是 Web 的 Cookies 隐式身份验证机制。Web 的身份验证机制虽然可以保证一个请求是来自于某个用户的浏览器，但却无法保证该请求是用户批准发送的，故 CSRF 攻击的一般是由服务端解决。</p>
+<p>常见的利用场景如下：</p>
+<ul>
+<li>合法网站 S1：<a href="https://www.tr0y.wang">https://www.tr0y.wang</a></li>
+<li>合法用户 U1：Tr0y，受害者</li>
+<li>非法网站 S2：<a target="_blank" rel="noopener" href="https://www.hackit.com">https://www.hackit.com</a></li>
+<li>非法用户 U2：Hacker，攻击者</li>
+</ul>
+<h3 id="背地操作"><a href="#背地操作" class="headerlink" title="背地操作"></a>背地操作</h3><p>Tr0y 在 <a href="https://www.tr0y.wang">https://www.tr0y.wang</a> 部署着自己的博客，为了管理的方便，在后台开了一个接口：<code>https://www.tr0y.wang/delete?id=4382</code>。只要 Tr0y 登陆后，访问这个 url，就能把 id 为 4382 的文章删除。</p>
+<p>Tr0y 博客的部署方式被 Hacker 得知后，他发了一份钓鱼邮件给 Tr0y，诱使他点击一个 url。毫无防备的 Tr0y 点击了它，打开一看却是空白的页面，一脸疑惑的 Tr0y 关了页面，很快忘了这件事。</p>
+<p>在这个过程的背后发生了什么呢？Hacker 构造了非法网站 S2，并在其中嵌入了恶意的代码：<br><figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">&lt;img <span class="hljs-attribute">style</span>=<span class="hljs-string">&quot;width:0;&quot;</span> <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;https://www.tr0y.wang/delete?id=4382&quot;</span> /&gt;<br></code></pre></div></td></tr></table></figure></p>
+<p>Tr0y 打开页面后，浏览器会自动加载 img，即访问了这个 url。由于之前 Tr0y 登录过自己的博客，所以浏览器这时一看要访问<code>https://www.tr0y.wang/delete?id=4382</code>，便帮 Tr0y 带上了 Cookies。博客的后台一看 Cookies，这个操作的确经过认证，便放行了，导致文章被删除。而这时 Tr0y 却毫不知情。</p>
+<p>假设这里的删除博文的链接改为银行转账，危害就更大了。</p>
+<h3 id="蠕虫"><a href="#蠕虫" class="headerlink" title="蠕虫"></a>蠕虫</h3><p>假设某交友网站有发私信的接口与查询好友的接口（接口需利用跨域的形式，例如 jsonp，否则拿不到数据），利用 CSRF 即可形成蠕虫，步骤如下：</p>
+<ol>
+<li>Hacker 构造恶意页面，页面中嵌入恶意代码</li>
+<li>寻找某个受害用户作为第一个传播点，诱使他点击恶意页面，触发蠕虫的传播。</li>
+<li>蠕虫查询出的受害用户的所有好友，并将恶意页面放在私信中，发给这些好友</li>
+<li>受害用户的好友打开恶意页面，导致恶意页面通过私信发送给受害用户的好友的好友，完成蠕虫的传播阶段</li>
+</ol>
+<p>实际上，和其他形式的蠕虫一样，CSRF 蠕虫主要做了 2 件事：</p>
+<ul>
+<li>获取更多的传播路径</li>
+<li>触发下一步的传播</li>
+</ul>
+<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><h3 id="攻击条件"><a href="#攻击条件" class="headerlink" title="攻击条件"></a>攻击条件</h3><p>回顾上面的攻击过程，其实需要有以下几个必备条件：</p>
+<ol>
+<li>U1 在 S1 处于登录状态</li>
+<li>浏览器对 S1 发起访问的时候自动带上 S1 的 Cookies</li>
+<li>S1 对请求不经过进一步验证</li>
+<li>U1 访问 S2</li>
+</ol>
+<p>（如果攻击无需 Cookies 的话，仅需要 3、4 两个条件）</p>
+<p>既然 CSRF 危害这么大，那么各方都做出了什么努力来保证安全呢？主要还是围绕 2、3 两个条件进行防御，毕竟第一、四个条件太正常了，必须满足。</p>
+<h3 id="浏览器防御"><a href="#浏览器防御" class="headerlink" title="浏览器防御"></a>浏览器防御</h3><p>浏览器的防御机制主要是针对 Cookies 的保护，此时的防御阵地在第二个条件。</p>
+<p>首先要从浏览器的 Cookies 说起，有 2 种：</p>
+<ul>
+<li>Session Cookie，即临时 cookies</li>
+<li>Third-party Cookie：即本地 cookies</li>
+</ul>
+<p>它们的区别在于，<code>Third-party Cookie</code>在服务器<code>Set-Cookie</code>时指定了 Expire 时间，只有到<br>了 Expire 时间后 Cookie 才会失效，所以这种 Cookie 会保存在本地；而 <code>Session Cookie</code>则没有指定 Expire 时间，保存在浏览器进程的内存中，所以浏览器关闭后就失效了，但是在浏览器进程的生命周期内，即使浏览器新打开了 Tab 页，Session cookie 也是有效的。</p>
+<p>如果浏览器从一个域的页面中，要加载另一个域的资源，由于安全原因，某些浏览器会阻止 Third-party Cookie 的发送。</p>
+<p>在当前的主流浏览器中，默认会拦截 Thid-party Cookie 的有：</p>
+<ul>
+<li>IE 6、7、8、Safari</li>
+</ul>
+<p>不会拦截的有：</p>
+<ul>
+<li>Firefox 2、3</li>
+<li>Opera</li>
+<li>Google Chrome</li>
+<li>Android</li>
+</ul>
+<p>但是，如果 CSRF 攻击的条件不需要使用 Cookie，那么这些限制也就没用了。虽然部分利用场景无需经过认证，但是这个情况相对少见，大部分重要操作还是需要经过认证的。所以浏览器拦截第三方 Cookies 的发送在一定程度上的确缓解了 CSRF 的攻击，但是不咋地靠谱，毕竟你没法要求用户只使用 IE。</p>
+<p>再者，<code>P3P</code> 的出现使得浏览器的防御变得更加不靠谱了。P3P 全称 <code>Platform for Privacy Preferences</code>，隐私设定平台规范。这个规范极其复杂，简言之，就是网站向浏览器声明自己的隐私政策，比如网站是否搜集访问者的个人信息，设置 cookie 的用途等等。浏览器会依据设置，决定在第三方对这个网站进行请求时，是否接受网站的 set-cookie 与是否发送此网站的 Cookies。其实这两个是有关联的，如果能 set-cookie 却不能发送，那 set 有何用呢？</p>
+<p>如果网站返回给浏览器的 HTTP 头中包含有 P3P 头，将允许浏览器发送第三方 Cookie。在 IE 下即使是 <code>&lt;iframe&gt;</code>、<code>&lt;script&gt;</code> 等标签也将不再拦截第三方 Cookie 的发送。在网站的业务中，P3P 头主要用于类似广告等需要跨域访问的页面。但是 P3P 头设置后，对于 Cookie 的影响将扩大到整个域中的所有页面，因为 Cookie 是以域和 path 为单位的。</p>
+<p>所以，<strong>仅仅依赖浏览器来防御 CSRF 是相当不靠谱的</strong>。</p>
+<h3 id="开发防御"><a href="#开发防御" class="headerlink" title="开发防御"></a>开发防御</h3><p>求人不如求己，让开发人员来防御 CSRF 可行么？即将防御阵地转移至第三个条件，既然 CSRF 是在用户不知情的情况下发起的请求，那么强制用户进行交互不就解决了吗？</p>
+<h4 id="强制用户交互"><a href="#强制用户交互" class="headerlink" title="强制用户交互"></a>强制用户交互</h4><h5 id="利用-POST-防御"><a href="#利用-POST-防御" class="headerlink" title="利用 POST 防御"></a>利用 POST 防御</h5><p>由于大多数讲 CSRF 的例子都以 GET 型为例，让人以为重要的操作改为 POST 型就不能进行利用了，实际上是让用户点击按钮，也算强制交互吧。</p>
+<p>这个观点是相当错误的，以 GET 型为例只不过是为了最简化地讲清楚攻击原理罢了，js 能够控制前端的操作太多了。</p>
+<p>这个防御有 2 个主要的问题：</p>
+<ol>
+<li>有些后台不会精确区分 GET 型与 POST 型。例如 PHP 的<code>$_REQUEST</code>。</li>
+<li>未达到强制交互的目的（构造 POST 请求也不难）：<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">&quot;https://www.tr0y.wang/delete&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;api&quot;</span> <span class="hljs-attr">method</span>=<span class="hljs-string">&quot;post&quot;</span> &gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;4382&quot;</span> /&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;submit&quot;</span> /&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><br><span class="javascript"><span class="hljs-keyword">var</span> f = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">&quot;api&quot;</span>);</span><br>f.submit();<br><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+然后再将这个 iframe 隐藏起来，那么对于打开恶意网站的 Tr0y 来说，依旧是被删了博文却毫无所知。</li>
+</ol>
+<p>所以，<strong>利用 POST 来防御 CSRF 是不可行的</strong></p>
+<h5 id="验证码"><a href="#验证码" class="headerlink" title="验证码"></a>验证码</h5><p>验证码被认为是对抗 CSRF 最简洁有效的防御方法，验证码类型也日新月异，强度不断升级：混合符号、数字计算、物品判断、滑动解锁…</p>
+<p>验证码显然需要强制用户进行交互，所以能够很好地抵御 CSRF 攻击。唯一不足的地方就是它太强制了，很多时候处于用户体验的考虑，无法给所有的操作都加上验证码。</p>
+<p>所以，<strong>验证码防御 CSRF 只能作为一种辅助手段，无法大量部署。</strong></p>
+<h4 id="二次验证"><a href="#二次验证" class="headerlink" title="二次验证"></a>二次验证</h4><p>强制用户交互的手段相当地好使，可惜降低了用户体验。之所以需要用户交互，无非是为了验证的确是用户发起的请求，拓宽一下这个思路，便是二次验证防御思路。</p>
+<h5 id="检查请求来源"><a href="#检查请求来源" class="headerlink" title="检查请求来源"></a>检查请求来源</h5><p>检查请求来源的主要方式为 Referer、Origin，就是 HTTP 请求头的那个（两者比较类似，下面仅以 Referer 为例）。Referer 最常见的应用实际上是防盗链。比如我的博客就有。防盗链利用了 referer 检查请求的来源，同样也可以利用来防御 CSRF。</p>
+<p>比如，正常情况下，我要删除一篇博客，首先需要登入到后台，然后再点击“删除”。此时，我的 referer 肯定就是后台地址。那么如果有一天，我的服务器收到了删除的请求，referer 却是<code>https://www.hackit.com</code>，那肯定不正常，直接拒绝请求。这个方法无需用户交互，也很便利。</p>
+<p>可惜的是，服务器并非在所有情况下都能获得 referer：</p>
+<ul>
+<li>用户为了保护隐私，自己阻止了浏览器发送 referer</li>
+<li>攻击者可以让自己的页面不发送 referer：<code>&lt;meta name=&quot;referrer&quot; content=&quot;never&quot;&gt;</code>这个代码告诉浏览器，所有从当前页面中发起的请求都不要携带 referer</li>
+<li>HTTPS 转为 HTTP 的时候，浏览器出于安全的考虑，不发送 referer。例如网站中有<code>&lt;meta name=&quot;referrer&quot; content=&quot;default&quot;&gt;</code>，如果当前页面使用的是 HTTPS，而正要加载的资源使用的是 HTTP，则将 HTTP header 中的 referer 置空。但是如果是 <code>content=&quot;always&quot;</code> 的话，浏览器会把 HTTPS 的 referer 带给 HTTP 的页面。</li>
+</ul>
+<p>顺便说一句，2014 年，W3C 的 Web 应用安全工作组发布了 Referrer Policy 草案，对浏览器该如何发送 Referer 做了详细的规定：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CSRF%E6%8C%87%E5%8C%97/20190603105907120.png" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>上面总结起来就是，CSRF 发生的时候 referer 肯定不对，但是 referer 不对的时候不一定出现了 CSRF。</p>
+<p>（在 302 重定向之后 Origin 也不包含在重定向的请求中，因为 Origin 可能会被认为是其他来源的敏感信息。对于 302 重定向的情况来说都是定向到新的服务器上的 URL，因此浏览器不想将 Origin 泄漏到新的服务器上。）</p>
+<p>就算成功获得了，验证 referer 的代码也要写好，别被钻空子了。最后还有个问题是，基于来源判断来防御 CSRF 不能防御站内发起的攻击，例如论坛，攻击者有权限在发布评论（含链接、图片等，统称 UGC）的地方插入恶意链接诱使受害者点击，那么它可以直接在本域发起攻击（虽然没有“跨站”，也算 CSRF 吧）。</p>
+<p>所以，<strong>依赖 Referer、Origin 也是不可行的，它也是只能作为一种辅助的防御，也可以用于寻找 CSRF 发生的痕迹。</strong></p>
+<h5 id="Token"><a href="#Token" class="headerlink" title="Token"></a>Token</h5><p>再再再拓宽一下思路，referer 的防御思路其实是增加一个攻击者无法伪造的东西。那么我们可以在请求头或者参数中增加一个 Token，这个 Token 只有服务器知道如何生成，那么它就能代替 referer 作为不可伪造的东西，从而防御 CSRF。</p>
+<p>防御方案呼之欲出，这边是 <code>Anti CSRF Token</code>。</p>
+<p>示例：<br>将删除接口 <code>https://www.tr0y.wang/delete?id=4382</code>，改为<code>https://www.tr0y.wang/delete?id=4382&amp;token=f07a7a0390c4a7a29ec9ea30bac80606</code></p>
+<p>当然，这个 token 的值是随机的，满足不可预测性。至于 Token 如何给用户，可以通过 cookies 来设定。Token 需要同时放在表单和 cookies 中。在提交请求时，服务器只需验证表单中的 Token 与用户 Cookies 中的  Token 是否一致，如果一致，则认为是合法请求；如果不<br>一致，或者有一个为空，则认为请求不合法，可能发生了 CSRF 攻击。</p>
+<p>需要注意的是，token 要及时销毁，且不能泄露。比如 token 作为 get 参数出现在 url 里，那么可能会被 referer 泄露出去。例如：<br><code>https://www.tr0y.wang/manage?id=4382&amp;token=f07a7a0390c4a7a29ec9ea30bac80606</code>是博客后台管理地址，Tr0y 在这里点击删除按钮时，js 会将 url 里的 token 取出，放入表单中一起提交。如果在这个页面中攻击者可以放入自己服务器的图片，那么 Tr0y 在打开这个后台管理页面的时候，浏览器会请求加载这个图片，这时攻击者就能看到图片的 referer 中的 token，从而进行 CSRF。</p>
+<p>因此在使用 Token 时，应该尽量把 Token 放在表单中，把敏感操作由 GET 改为 POST，以 form 表单的形式提交，可以避免 Token 泄露。当然，放在请求头里也阔以…只不过一般用于 AJAX 中（毕竟要加请求头），有较大的局限性。</p>
+<p>另外，当网站同时存在 XSS 与 CSRF 时，这个方案也是无效的。因为 XSS 可以模拟浏览器执行任意操作，攻击者可以请求页面后，读出页面内容里的 Token 值，然后再构造出一个合法的请求。这个过程称之为 XSRF，实际上是 XSS 与 CSRF 的组合技。但是，这个场景并不影响这个方案的有效性，防御 CSRF 的方案就是应该解决 CSRF 而不是 XSS，XSS 问题应该由 XSS 的防御方案来解决。</p>
+<p>最后，这个方案也有不足的地方。</p>
+<p>如果 Token 保存在 cookies 里，那么如果用户打开了 2 个页面，这个时候两个页面的 cookie 与 token 均相同。当用户提交了 A 页面后，服务器便销毁 token。然后当用户提交 B 页面时，token 就与 cookies 不一致了。</p>
+<p>如果采用 Session 的方式，又会导致服务器负载加重，且在分布式的系统里，如何共享也是需要考虑的。</p>
+<p>于是还有人提出了 <code>双重 Cookie 验证</code>、<code>Samesite Cookie</code>、<code>JWT</code> 等等来升级这个防御方案。详细的讨论可以看美团技术团队在 freebuf 发的文章，我的博客也有笔记：<a href="https://www.tr0y.wang/2018/11/07/CSRFMeiTuan/#CSRF-Token">传送门🚪</a></p>
+<p>总得来说，<strong>现在业界针对 CSRF 防御的常见方案就是 Token，Token 的生成、放置的位置、验证的方式可能会根据实际情况进行调整，但是二次认证的思路基本没变。</strong></p>
+<h3 id="用户防御"><a href="#用户防御" class="headerlink" title="用户防御"></a>用户防御</h3><p>作为用户，我们可以做些什么呢？</p>
+<ul>
+<li>使用网页版邮件的浏览邮件或者新闻也会带来额外的风险，因为查看邮件或者新闻消息有可能导致恶意代码的攻击。</li>
+<li>尽量不要打开可疑的链接，一定要打开时，使用不常用的浏览器。</li>
+<li>及时手动退出登录，尤其是那些重要的网站</li>
+</ul>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/CSRF/">CSRF</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Web/">Web</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/02/28/%E4%B8%80%E6%9E%9A%E5%86%97%E4%BD%99%E4%BB%A3%E7%A0%81%E7%9A%84webshell%E5%88%86%E6%9E%90/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一枚冗余代码的 webshell 分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/02/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BCSRF/">
+                        <span class="hidden-mobile">OWASP Top10 系列之 CSRF</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

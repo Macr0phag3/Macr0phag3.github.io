@@ -1,0 +1,874 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="隐写在 CTF 中需要经验以及特别需要脑洞…没有系统的学习方式, 只能慢慢积累…以下是我开过的脑洞">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>CTF 杂项之隐写术 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="CTF 杂项之隐写术">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-06-07 16:54" pubdate>
+        星期三, 六月 7日 2017, 4:54 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      28
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">CTF 杂项之隐写术</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期二, 十一月 10日 2020, 3:13 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>隐写在 CTF 中需要经验以及特别需要脑洞…没有系统的学习方式, 只能慢慢积累…以下是我开过的脑洞<br><span id="more"></span></p>
+<h2 id="图片隐写"><a href="#图片隐写" class="headerlink" title="图片隐写"></a>图片隐写</h2><h3 id="图种"><a href="#图种" class="headerlink" title="图种"></a>图种</h3><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>正常的文件一般都有有开始符与结束符的. 以 jpg 为例.<br><code>FF D9</code> 这是 jpg 文件的结束符, 利用 winhex 可以看到正常的 jpg 结尾都是 <code>FF D9</code> 的. 图片查看器会忽视 jpg 结束符之后的内容, 所以我们可以在 jpg 结束符之后插入 flag. 当然, 插入一个 zip 也是没问题的, 既不会影响图片的显示, 还隐藏了文件. 当我们把图片以 zip 方式解压时, 解压软件会找到 zip 头到 zip 尾之间的内容, 然后进行解压. 也就是说, 这时候, zip 头之前的 jpg 部分对 zip 解压同样没有影响.<br>如果你想尝试, 可以利用 <code>copy</code> 命令, 将两个文件以二进制方式连接起来, 生成 output.jpg 的新文件. 首先制作一个 zip(1.zip), 把想要隐藏的东西放进去, 再准备一张 jpg 图片(1.jpg), 然后打开 cmd 可以执行一个命令 <code>copy /b 1.jpg + 1.zip output.jpg</code> 就可以得到一个图种.</p>
+<h4 id="解法"><a href="#解法" class="headerlink" title="解法"></a>解法</h4><p>这种类型的隐写很容易被发现, 用 winhex 打开看一下图片是不是以标准的结束符结尾的. 解法也简单, 如果发现藏着 zip 文件, 无脑点的解法, 把图片改后缀为 zip 解压就行了. 最好是用 winhex 手动提取, 因为有些宿主图片的数据块部分可能会包含 zip 头(如下图), 直接解压会有问题(解压软件先遇到第一个假头). 如果是其他的文件, 可以用 winhex 提取到新的文件里, 再进行下一步处理.<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033101842.png!blog" srcset="/img/loading.gif" lazyload alt="出现混合的情况"></p>
+<h3 id="LSB-像素隐写"><a href="#LSB-像素隐写" class="headerlink" title="LSB 像素隐写"></a>LSB 像素隐写</h3><h4 id="吐槽"><a href="#吐槽" class="headerlink" title="吐槽"></a>吐槽</h4><ul>
+<li>LSB 隐写的原理很简单, 但是我没找到哪个博客把它写清楚了…都是抄来抄去, 没意思…Stegsolve 谁都会用, 但是为什么就能够这样隐写呢? (如果遇到不懂的地方, 建议先往下看, 也许就懂了)</li>
+</ul>
+<h4 id="我们得先知道"><a href="#我们得先知道" class="headerlink" title="我们得先知道"></a>我们得先知道</h4><ul>
+<li>啥叫 LSB? <ul>
+<li>(Least Significant Bit), 即最低有效位. 图片有很多种色彩模式, 其中有一种叫做”RGB”的色彩模式. 具体介绍看这里<a target="_blank" rel="noopener" href="http://baike.baidu.com/link?url=JSLfnr5hR_GwbkksAWnA44RC7y01891OYFub1NriVX17sT6rzaUXL2Ry6aPY3ISFnLrkxVmHmDj-6Nd47Q34wa">百度百科</a>. </li>
+</ul>
+</li>
+<li>能修改其他位么?<ul>
+<li>LSB 修改的是最低位, 也就是 8 位中的最后一位. 要修改其他位也是可以的, 但是, 修改的位数太高会出现问题, 这个后面再提.</li>
+</ul>
+</li>
+</ul>
+<h4 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h4><p>我们举 png 为例好了</p>
+<ol>
+<li><p>LSB 隐写信息藏在哪? </p>
+<p> 在 RGB 色彩模式中, 每个颜色可以取 0~255, 对应的二进制就是 00000000~11111111, 8 位. LSB 隐写就是修改了 RGB 中的某分量(或者说通道)最低的 1bit(如[0, 0, 0]修改为[0, 0, 1], 即 00000000 -&gt; 00000001).见下图.<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033129192.png!blog" srcset="/img/loading.gif" lazyload alt="修改前"></p>
+<p> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033142378.png!blog" srcset="/img/loading.gif" lazyload alt="修改后"><br> 不仅是 0 -&gt; 1, 1 -&gt; 0 也是一样的, 在人眼看来没有区别. 刚才我们修改的是 b 的值, 也就是蓝色通道的值, 当然, 修改红色或者绿色通道的值也是一样的(如[0, 0, 0]修改为[1, 0, 0]). 这个地方先记住, 后面用得着.</p>
+</li>
+<li><p>啰嗦了那么多, 还不如看个栗子.</p>
+<p> 下图是原图. 如果我们知道它是 LSB 隐写, 要怎么提取呢?<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033154880.png!blog" srcset="/img/loading.gif" lazyload alt="lsb.png"></p>
+<p> RGB 既然是 3 个数, 那么一张图片就可以看做是一个很大的 3 维数组(记为 I).这时 I(x, y, 1) == 坐标(x, y)处的 r 值. 我们先提取某个通道, 比如 r 通道(记为 R). 提取后就成了 R(x, y) == 坐标(x, y)处的 r 值.这样, R 矩阵就存放着每个像素点的 r 值.再把 r 值转为 2 进制数, 提取 8 位中的最后一位.上面已经说了原理, LSB 中, 最低位 0 可能变为 1, 0 也可能变为 1.不管怎么变, 总是会周围 r 值不一样.那我们令 1 为白, 0 为黑, 然后画出图像(也就是二值图像).这样就可以很明显的看出隐藏的部分.</p>
+<p> 2.1 MATLAB 实现</p>
+ <figure class="highlight matlab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs matlab">clc;clear;<br>I=imread(<span class="hljs-string">&#x27;lsb.png&#x27;</span>); <span class="hljs-comment">% 读取图片, 返回值为一个 3 维矩阵</span><br>y=bitget(I, <span class="hljs-number">1</span>); <span class="hljs-comment">% 第 1 个位</span><br>imshow(logical(y(:, :, <span class="hljs-number">1</span>))); <span class="hljs-comment">% 红色通道</span><br>title([<span class="hljs-string">&#x27;红色 第 1 个位&#x27;</span>]);<br></code></pre></div></td></tr></table></figure>
+<p> 2.2. 数据截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033209445.png!blog" srcset="/img/loading.gif" lazyload alt="原始 r 通道数据"><br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033223243.png!blog" srcset="/img/loading.gif" lazyload alt="提取最后一位"></p>
+<p> 2.3. 运行截图<br> 细心点会发现, 数据截图里的红色笔迹框起来的部分就是二维码的左上角的一部分. 并且是将最低位变为 0, 也就是 255 -&gt; 254.<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033241666.png!blog" srcset="/img/loading.gif" lazyload alt="提取结果"></p>
+<p> g, b 通道的 LSB 隐写和 r 通道是一样的. 只需要对 r, g, b 分别进行上述操作, 就可以分别提取 3 个通道的图片.</p>
+</li>
+</ol>
+<h4 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h4><ol>
+<li><p>能不能擦除隐写痕迹?<br> 可以. 就以上面的原图为例, 我们对 R 进行遍历, 遇到 254 就换成 255. MATLAB 里只需添加一句 <code>I(I(:, :, 1)==254)=255;</code>. 当然修改二进制也是一样的.<br> 数据截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033252621.png!blog" srcset="/img/loading.gif" lazyload alt="擦除后的数据"></p>
+<p> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033303673.png!blog" srcset="/img/loading.gif" lazyload alt="擦除后的最后一位"></p>
+<p> 结果截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033316522.png!blog" srcset="/img/loading.gif" lazyload alt="擦除"></p>
+</li>
+<li><p>能不能把 r 通道的隐写换成其他通道, 比如 g?<br> 可以. 也是遍历, 修改 g 通道的值为 r 通道的值 并擦除 r 通道的隐写. (不擦除的话这 2 个通道都有隐写). 添加以下代码</p>
+<figure class="highlight matlab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs matlab">[w, h, ~]=<span class="hljs-built_in">size</span>(I);<br><span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span>=<span class="hljs-number">1</span>:w<br>   <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span>=<span class="hljs-number">1</span>:h<br>      <span class="hljs-keyword">if</span>  I(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, <span class="hljs-number">1</span>)==<span class="hljs-number">254</span><br>          I(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, <span class="hljs-number">1</span>)=<span class="hljs-number">255</span>; <br>          I(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, <span class="hljs-number">2</span>)=<span class="hljs-number">254</span>; <span class="hljs-comment">% 转为绿色通道隐写</span><br>      <span class="hljs-keyword">end</span><br>   <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br></code></pre></div></td></tr></table></figure>
+<p> 结果截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033334674.png!blog" srcset="/img/loading.gif" lazyload alt="转移后的 r 通道"><br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033344990.png!blog" srcset="/img/loading.gif" lazyload alt="转移后的 g 通道"></p>
+</li>
+<li><p>以 r 通道隐写为例, 怎么转移到其他位?<br> LSB 是最低位隐写, 要是修改其他位(如 00000000 -&gt; 00000010), 这样应该不算 LSB 隐写, 但是还是挺常见的. 只需要对 R 进行遍历, 遇到 254 改为 255-2^1 就行.</p>
+<p> 结果截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033404817.png!blog" srcset="/img/loading.gif" lazyload alt="移动后的 r 通道第 1 位"></p>
+<p> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033415627.png!blog" srcset="/img/loading.gif" lazyload alt="移动后的 r 通道第 2 位"></p>
+</li>
+<li><p>修改的位数太高, 会怎么样?<br> 之前遗留的一个问题. 修改的位数太高, 会导致与周围像素差别过大, 不用提取用肉眼就可以看出来.</p>
+<p> 结果截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033426705.png!blog" srcset="/img/loading.gif" lazyload alt="修改红色通道第五位"></p>
+</li>
+<li><p>上面的结果和 stegsolve 的一样, 但是 stegsolve 里还有 Alpha 通道, 这是什么?<br> 上面说的都是 RGB 色彩模式. 还有一种色彩模式, 叫<a target="_blank" rel="noopener" href="http://baike.baidu.com/link?url=7XUTj4Ik92pYVCkPyS1XZFocv_zhQR8MSa9LcpIy62Cw0rBJTSCwkWF_Apx7oV8PjgcC-0YspW5Ya1suYhN7Y_">RGBA</a>. 多了一个叫 Alpha 的通道. MATLAB 的 imread 函数返回值其实是 3 个, [I, (没用到), alpha]. 这样, Alpha 的通道的做法其实和 I 一样, 只不过 I 是 3 维的, 而 alpha 是 2 维的.</p>
+<p> 原图如下图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033440554.png!blog" srcset="/img/loading.gif" lazyload alt="hctf.png"><br> 5.1 代码</p>
+<figure class="highlight matlab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs MATLAB">clc;clear;<br>[I, ~, alpha]=imread(<span class="hljs-string">&#x27;hctf.png&#x27;</span>);<br>y=bitget(alpha, <span class="hljs-number">1</span>); <span class="hljs-comment">% 位数</span><br>imshow(logical(y)); <br>title([<span class="hljs-string">&#x27;alpha 第 1 个位&#x27;</span>]);<br></code></pre></div></td></tr></table></figure>
+<p> 5.2 运行结果</p>
+<p> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917033510272.png!blog" srcset="/img/loading.gif" lazyload alt="alpha 通道第 1 位"></p>
+</li>
+<li><p>stegsolve 里还有个叫 <code>Random colour map</code> 的变换.<br> 6.1 代码</p>
+<figure class="highlight matlab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs matlab">clc;clear;<br>[I0, ~, alpha]=imread(<span class="hljs-string">&#x27;hctf.png&#x27;</span>); <span class="hljs-comment">% 特别注意这里要用 3 个参数来接收返回值, 原因看下面.</span><br>imshow(I0);  <br>pause(<span class="hljs-number">1</span>);<br><span class="hljs-keyword">while</span> <span class="hljs-number">1</span><br>    I=I0;<br>    y0=bitget(I, <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span>=<span class="hljs-number">1</span>:<span class="hljs-number">3</span><br>        y=y0(:, :, <span class="hljs-built_in">i</span>);<br>        y(<span class="hljs-built_in">find</span>(y == <span class="hljs-number">0</span>))=randi([<span class="hljs-number">1</span>, <span class="hljs-number">255</span>]);<br>        y(<span class="hljs-built_in">find</span>(y == <span class="hljs-number">1</span>))=randi([<span class="hljs-number">1</span>, <span class="hljs-number">255</span>]);<br>        I(:, :, <span class="hljs-built_in">i</span>)=y;<br>    <span class="hljs-keyword">end</span><br>	imshow(I);  <br>    pause(<span class="hljs-number">0.5</span>)<br><span class="hljs-keyword">end</span><br></code></pre></div></td></tr></table></figure>
+<p> 6.2 为什么要用 3 个参数接收?<br> 以 hctf.png 为例好了<br> RGBA(r1, g1, b1, alpha)转 RGB(r, g, b)的公式为 r=r1*alpha, g=g1*alpha, b=b1*alpha.(alpha 为值域[0, 1]之间的小数)<br> 当使用 <code>[I0, ~, alpha]=imread(&#39;hctf.png&#39;);</code> 时, 由于 hctf.png 为 RGBA 色彩模式. 得到的 I0 实际上是(r1, g1, b1). 这里的 alpha 值域为[1, 255]的整数, 在转为 rgb 的时候要/255 再乘(r1, g1, b1).<br> 当使用 <code>I1=imread(&#39;hctf.png&#39;);</code> 时, 得到 I1 实际上是(r , g , b).<br> 可以用下面的代码检验</p>
+<figure class="highlight gcode"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs gcode">[I<span class="hljs-number">0</span>, ~, alpha]=imread<span class="hljs-comment">(&#x27;hctf.png&#x27;)</span>;<br>I<span class="hljs-number">1</span>=imread<span class="hljs-comment">(&#x27;hctf.png&#x27;)</span>;<br>for i=<span class="hljs-number">1</span>:<span class="hljs-number">3</span><br>	c=ui<span class="hljs-symbol">nt8</span><span class="hljs-comment">(double(I0(:, :, i)</span>).*<span class="hljs-comment">(double(alpha)</span>/<span class="hljs-number">255</span>)); <span class="hljs-meta">%</span>RGBA 转 RGB<br>	isequal<span class="hljs-comment">(c, I1(:, :, i)</span>) <span class="hljs-meta">%</span> 判断矩阵是否相等<br>e<span class="hljs-symbol">nd</span><br></code></pre></div></td></tr></table></figure>
+<p> 结果均为 1.</p>
+<p> RGBA 模式的图片使用 RGB 提取的话, 无法分别体现 r, g, b, alpha 4 个通道,     因为已经经过一次转换了. 换句话说, 会丢失数据.</p>
+</li>
+<li><p>还有个 <code>colour inversion (xor)</code><br>xor 指的是 8 位二进制与 11111111 异或, 实际上就是用 255-像素值.</p>
+<p> 7.1 代码</p>
+<figure class="highlight matlab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs MATLAB">imshow(<span class="hljs-number">255</span>-imread(<span class="hljs-string">&#x27;lsb.png&#x27;</span>))<br></code></pre></div></td></tr></table></figure>
+<p> 7.2 结果<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917034048614.png!blog" srcset="/img/loading.gif" lazyload alt="xor"></p>
+</li>
+<li><p>还有个 <code>Gray bits</code><br> 实际上是当某个点的 RGB3 个值相等时, 变成为白色, 否则变为黑色<br> 8.1 代码</p>
+<figure class="highlight matlab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs MATLAB">clc;clear;<br>[I, ~, alpha]=imread(<span class="hljs-string">&#x27;lsb.png&#x27;</span>);<br>I0=I;<br>[<span class="hljs-built_in">i</span>,<span class="hljs-built_in">j</span>,k]=<span class="hljs-built_in">size</span>(I0);<br><span class="hljs-keyword">for</span> x=<span class="hljs-number">1</span>:<span class="hljs-built_in">i</span><br>   <span class="hljs-keyword">for</span> y =<span class="hljs-number">1</span>:<span class="hljs-built_in">j</span><br>      <span class="hljs-keyword">if</span> <span class="hljs-built_in">isequal</span>(I0(x,y,<span class="hljs-number">1</span>),I0(x,y,<span class="hljs-number">2</span>),I0(x,y,<span class="hljs-number">3</span>))==<span class="hljs-number">1</span> <span class="hljs-comment">%RGB3 个值相等</span><br>          I0(x,y,<span class="hljs-number">1</span>)=<span class="hljs-number">255</span>;<br>          I0(x,y,<span class="hljs-number">2</span>)=<span class="hljs-number">255</span>;<br>          I0(x,y,<span class="hljs-number">3</span>)=<span class="hljs-number">255</span>;<br>      <span class="hljs-keyword">else</span><br>          I0(x,y,<span class="hljs-number">1</span>)=<span class="hljs-number">0</span>;<br>          I0(x,y,<span class="hljs-number">2</span>)=<span class="hljs-number">0</span>;<br>          I0(x,y,<span class="hljs-number">3</span>)=<span class="hljs-number">0</span>;<br>      <span class="hljs-keyword">end</span><br>   <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br>imshow(I0)<br></code></pre></div></td></tr></table></figure>
+<p> 8.2 结果截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917034431850.png!blog" srcset="/img/loading.gif" lazyload alt="Gray bits"></p>
+</li>
+<li><p>最后还有 4 个 <code>Full red</code>, <code>Full green</code>, <code>Full blue</code>, <code>Full alpha</code>. 不过这些都用的少.<br> 9.1 代码</p>
+<figure class="highlight matlab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs MATLAB">[I, ~, alpha] = imread(<span class="hljs-string">&#x27;lsb.png&#x27;</span>);<br>R=I;R(:,:,[<span class="hljs-number">2</span> <span class="hljs-number">3</span>])=<span class="hljs-number">0</span>;<br>G=I;G(:,:,[<span class="hljs-number">1</span> <span class="hljs-number">3</span>])=<span class="hljs-number">0</span>;<br>B=I;B(:,:,[<span class="hljs-number">1</span> <span class="hljs-number">2</span>])=<span class="hljs-number">0</span>;<br>A=alpha;A(:,:,[<span class="hljs-number">2</span> <span class="hljs-number">3</span>])=<span class="hljs-number">0</span>;<br>subplot(<span class="hljs-number">4</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>);imshow(R);<br>subplot(<span class="hljs-number">4</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>);imshow(G);<br>subplot(<span class="hljs-number">4</span>,<span class="hljs-number">1</span>,<span class="hljs-number">3</span>);imshow(B);<br>subplot(<span class="hljs-number">4</span>,<span class="hljs-number">1</span>,<span class="hljs-number">4</span>);imshow(A);<br></code></pre></div></td></tr></table></figure>
+<p> 9.2 结果截图<br> <img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CtfMiscStega/20180917034516468.png!blog" srcset="/img/loading.gif" lazyload alt="full"></p>
+</li>
+</ol>
+<h4 id="代码总结"><a href="#代码总结" class="headerlink" title="代码总结"></a>代码总结</h4><p><a href="http://www.tr0y.wang/2017/06/14/MATLABstegsolve/">MATLAB 实现 stegsolve</a></p>
+<h2 id="字符串隐写"><a href="#字符串隐写" class="headerlink" title="字符串隐写"></a>字符串隐写</h2><h3 id="LSB-字符隐写"><a href="#LSB-字符隐写" class="headerlink" title="LSB 字符隐写"></a>LSB 字符隐写</h3><p>其实和 LSB 像素隐写原理差不多, 有空再更新.</p>
+<h3 id="Base64-隐写"><a href="#Base64-隐写" class="headerlink" title="Base64 隐写"></a>Base64 隐写</h3><p><a href="http://www.tr0y.wang/2017/06/14/Base64steg/">Base64 隐写术</a><br><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/CTF/">CTF</a>
+                    
+                      <a class="hover-with-bg" href="/tags/CTF-Misc/">CTF-Misc</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a>
+                    
+                      <a class="hover-with-bg" href="/tags/MATLAB/">MATLAB</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/06/12/Combine2Pic/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">爱因斯坦还是玛丽莲梦露?</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/06/03/FireFunction/">
+                        <span class="hidden-mobile">模拟退火之函数最值</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

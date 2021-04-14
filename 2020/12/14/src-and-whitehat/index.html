@@ -1,0 +1,817 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="诶…橘友们好啊，我是混元形意公众号号主 — 橘子杀手。上个月有个朋友问我发生甚莫事了，我说怎么回事，给我发了几张截图。我一看，哦，原来是有两个团队，一个是网络尖刀，安全团队，一个是携程 src，厂商应急响应平台">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>src 与白帽子，同路人的爱恨情仇 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                lifeline
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                gallery
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="src 与白帽子，同路人的爱恨情仇">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-12-14 10:38" pubdate>
+        星期一, 十二月 14日 2020, 10:38 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      30
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">src 与白帽子，同路人的爱恨情仇</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：星期一, 十二月 14日 2020, 10:49 上午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>诶…橘友们好啊，我是混元形意公众号号主 — 橘子杀手。上个月有个朋友问我发生甚莫事了，我说怎么回事，给我发了几张截图。我一看，哦，原来是有两个团队，一个是网络尖刀，安全团队，一个是携程 src，厂商应急响应平台</p>
+<span id="more"></span>
+<h2 id="事件背景"><a href="#事件背景" class="headerlink" title="事件背景"></a>事件背景</h2><p>大约一个月前，一篇频繁出现在我的“看一看”列表中的文章引起了我的好奇：《网络尖刀团队关于终止携程 src 漏洞合作公开声明》，于是我便仔细看了一下内容，比较简短，就是声称其要终止与携程 src 的合作。然后接下来又有一个安全团队 ChaMd5 也声称要与携程 src 终止合作，这两件事在那几天动静还是不小的，围观者也不少。为了强迫自己不蹭热度，养成认真观察、冷静思考的习惯，这篇文章我等了很久才开始动笔。</p>
+<h2 id="谈谈-src"><a href="#谈谈-src" class="headerlink" title="谈谈 src"></a>谈谈 src</h2><p>如果我没记错的话，乌云应该是早于各大 src 出现的。在我的印象里，一开始大家都在乌云上交漏洞，厂商认领，回应定级，漏洞详情也会在厂商确认之后一段时间公开（这一点其实非常非常激进）。接下来，各大厂商开始着手收购漏洞，建立了属于自己的 src，那么就有一段时间各家 src 是与乌云并存的，同时也出现过“挖到漏洞，到底直接交给 src 好还是交给乌云这种第三方平台好”的争论。再后来乌云无了，白帽子手里的漏洞，有 src 的交给 src，没有 src 的可能都不挖了，或者卖给黑产了…</p>
+<p>再后来，有些厂商通过 src 对漏洞进行完整地闭环（调整自己安全产品的策略、插件、SDL 缺漏等等），慢慢地把安全建设做得越来越好，src 发现的漏洞漏洞也越来越少，奖金也越来越多，活动、礼物也很足，风评也越来越好，白帽子都愿意与这种霸道总裁型的 src 打交道：不多 bb，收洞打钱就完了。</p>
+<p>再然后呢，厂商对白帽子变得又爱又怕的，爱的是能够协助自己发现漏洞；怕的是白帽们毫不约束自己行为，懒得看法律条文和平台，按自己的行事风格办事；也有不法分子假借安全测试之名行黑产之实（来，骗！来，偷袭！）伤害厂商的感情，还败坏了白帽们的名声。所以就有了后面的所谓 “白帽子协议”，限定了白帽们测试的范围：哪些事可以做，哪些地方不能碰（点到为止，要讲武德）。</p>
+<p>到现在，我感觉某厂商安全做得到底好不好，或者说位于哪一个阶段，就可以通过 src 的状态猜一猜，一般都能猜个八九不离十，角度其实非常多，我举几个例子：</p>
+<ol>
+<li>比如相同的研发相关的漏洞是否经常出现这个维度，可以看出 SDL 做得如何，有个很明显的特征：是否经常可以挖到相同的研发相关的漏洞，比如老是出现类似的 xss。</li>
+<li>再比如一个是漏洞是否有闭环这个维度，可以看出基础安全建设位于初级阶段还是初级阶段基本完成，有个很明显的特征，自动化工具（比如巡风或者 AWVS）容易发现的漏洞，是否经常出现：比如 redis 未授权访问/es 未授权访问。</li>
+<li>再再比如一个是未授权的服务是否开在了常用的端口这个维度，可以看出他们是否有端口规范管理，如果经常出现这样的漏洞，那肯定是没有的。</li>
+<li>再再再比如一家 src 给的钱很少，甚至运营都不咋用心，那么它的安全建设一般不够好，因为花钱买到的漏洞，反馈到安全建设中，价值至少要平衡，所以什么没信心花大价钱去收购漏洞。给的钱多的一般都比较有信心，安全建设做得还算过得去，除非它真的比较有钱。。。</li>
+</ol>
+<p>所以如果你经常挖一家的漏洞，那么你会对这家企业的安全现状有一定的了解。</p>
+<p>你看，上面说的只是白帽子自己通过自己挖到的漏洞能够猜测出的结论。所以如果乌云还在的话，那么多漏洞详情公开，对于白帽子来说当然不错，因为可以借鉴、学习；但是对于企业来说，很容易暴露一家企业的安全状况，这显然并不是什么好事情，尤其是国内现在安全建设做得很好的企业并不多，所以，我感觉大多数厂商都不喜欢乌云，也会出于各种原因，表面上忽略，背地里修复。</p>
+<p>我举个例子，比如我挖到了阿里某分站的 sql 注入，成功拿到数据库权限，但是我没有执行拖库，就列了一下数据库的表名来证明我拿下了。接下来我提交给乌云，阿里也迅速出面认领了，经过紧锣密鼓地响应之后，漏洞修复完毕。但修复完毕之后，漏洞详情被公开，那么大家就都知道阿里的数据库的字段信息。往往厂商不太会去修改数据库名称，字段，因为涉及到多方业务使用，推进起来特别麻烦。还有像 DNS 域传送漏洞（尤其是内网系统的域名），甚至内网很多重要系统都是未授权的，由于各种原因也没法加验证，这类漏洞证明公开的结果带来的次生灾害等同于一次信息泄露的漏洞。以后只要挖到 ssrf，本来是个高危，然后去乌云查一下这家企业有没有“著名”的内网未授权重要系统，如果有，那么定级就很容易升级到严重。</p>
+<p>所以我在上面说，乌云的做法相当激进，在当时被关闭恐怕也是命中注定，真的非常遗憾。至于这个原因是不是乌云被关闭的最核心的原因呢？这篇文章重点不在这，就不多讨论了。</p>
+<h2 id="谈谈白帽子"><a href="#谈谈白帽子" class="headerlink" title="谈谈白帽子"></a>谈谈白帽子</h2><p>说完 src，接下来谈谈白帽们，这里为了说起来方便，我们就不纠结概念了，“白帽子”的范围就限定在那些给 src 提交漏洞的人好了。</p>
+<p>那么不管是在乌云一统天下的时期还是与 src 并存的时期，其实都存在的问题是，白帽子提交的漏洞，是低危还是严重到底由谁说的算呢？白帽子定？肯定不可能；乌云定？扯淡，厂商定？似乎也不太公平。一开始交给乌云，白帽子自己定级，厂商评定，如果厂商耍赖，等到漏洞详情公开之后，群众的眼睛是雪亮的，大家都会指责厂商的不地道：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/src-and-whitehat/20201214104548373.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>如果厂商耍赖的次数越来越多，大家就都不愿意提交了。</p>
+<p>那到现在的 src，白帽子对漏洞的定级权就更小了，厂商完全可以用“内部已知”或者“重复漏洞”打发白帽子，要证据？提案可以伪造嘛。所以这完全看厂商的素质，但是大部分 src 都不会故意降级扣钱，因为这个真的是很 low 的事情，没必要去做。</p>
+<p>所以啊，白帽子与厂商的地位就是有差别嘛，话语权一开始就在厂商手上，厂商是甲方，白帽子是乙方。虽然现在白帽子的地位已经比之前高很多了，有时候甚至都超过厂商了，厂商也不敢轻易得罪白帽子。所以甲方虽然地位比较高，但是也不见得就能舒舒服服地等审核漏洞，随便打发一下白帽子就行，维护与白帽子的关系是很多平台运营的重点之一；并且即使 src 的规则对不同漏洞的评级和奖励写得非常清楚，喜欢扯皮的白帽子也不少，各家 src 备受其扰。没错，会哭的孩子有糖吃，但是经常哭的孩子可就没人喜欢了。</p>
+<p>对于乙方来说，难道白帽子就只能任 src 宰割吗？其实也不见得是这样。我支持白帽子维护自己的权益，毕竟也是实实在在地用劳动力换钱。那么如果你觉得某家 src 很抠又爱耍赖，去别家挖就好了；如果你觉得国内甲方都抠，去国外挖就好了，大家又没签什么合同，很自由。白帽们心里其实也很清楚，<code>到手的钱 = 单价 * 数量</code>。有些甲方的漏洞就是好挖，因为安全建设还在初期阶段，漏洞一堆，虽然便宜但是好挖；有些 src 虽然给的钱一个顶其他家 5 个，但是难挖得要死，专门挖他们家的漏洞可能一个月都开张不了。并且 src 往往只是一个很小的部门，甚至是一个小组，作为这样一个在企业里地位本身就不高的团队来说，预算不能张口就要，真要与国际看齐，给白帽子更多的钱，预算不够了怎么办呢？所以不同的 src 之间（国内厂商与国内厂商之间、国内厂商与国外厂商之间）给的钱不一样我觉得应该很好理解才对。</p>
+<h2 id="事评"><a href="#事评" class="headerlink" title="事评"></a>事评</h2><p>回到这次冲突上来（虽然我对冲突的细节不太了解），如果“网络尖刀”没无理取闹的话，我个人还是挺赞赏“网络尖刀”的拒绝合作声明（虽然从来没听谁说过“这个甲方很傻比我不赚他的钱”…），他们能够勇敢地争取自己的权益，觉得不合理就不合作，很正常。</p>
+<p>但是，就维护利益的方式来说，我对所谓的 “白帽自律委员会” 表示悲观，涉及到各方利益的事情，光凭一委员会就想解决真的很不现实，毕竟就目前来看，这个委员会更多代表的是白帽们，src 若不参与，慢慢就变成自嗨了，甚至可能进一步激化双方之间的矛盾。</p>
+<p>最后，白帽们是可以宣称不挖某家的漏洞，大不了不赚这个钱了；或者说真的只要胆子大，暗地里把挖到的漏洞卖给黑产，变身为黑帽，赚的钱也会更多，但是这要背负道德与接受法律惩罚的压力，说不定什么时候就进去了；而厂商当然也可以高调地说“你们爱挖不挖，不挖拉倒”。但是，双方本可以双赢，何苦变成双输的局面呢？白帽子应该努力提升自己的技术，挖到真正高价值的漏洞，想练技术的练技术，想搞钱的搞钱；src 不要高高在上的，应该维护好与白帽们之间的关系，如果可以就多给点钱拿钱砸，没钱的话多玩暧昧，整点小礼物或者没事多关心关心白帽们，大家都愿意与 src 玩，src 这个平台才能在安全建设中发挥更好的作用。</p>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">安全圈要以和为贵<br>要讲武德<br>不要搞窝里斗<br>谢谢朋友们！</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%80%9D%E8%80%83%E5%90%AF%E5%8F%91/">思考启发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E4%BA%8B%E8%AF%84/">事评</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/02/22/about-dashboard/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">小议 Dashboard</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/11/24/Python-CLI-Trick/">
+                        <span class="hidden-mobile">Python 编写 CLI 的技巧分享</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
