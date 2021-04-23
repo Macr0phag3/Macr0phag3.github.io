@@ -392,7 +392,7 @@
 <li>域名持有者在用户第一次解析域名（即访问 <a target="_blank" rel="noopener" href="http://tr0y.wang">http://tr0y.wang</a> ）之后，立即修改此域名对应的 ip 地址为 127.0.0.1，这样访问 <a target="_blank" rel="noopener" href="http://tr0y.wang/main.js">http://tr0y.wang/main.js</a> 实际上就是访问 <a target="_blank" rel="noopener" href="http://127.0.0.1/main.js">http://127.0.0.1/main.js</a></li>
 </ol>
 <p>对于浏览器来说，整个过程访问的都是同一域名，所以没有同源策略的限制（尤其需要注意端口要一致）。如果攻击者已知目标的一些内网 ip，就可以把第二次解析的 ip 换成这个内网 ip，然后把上面加载 main.js 的逻辑替换为执行恶意的 js 代码，就可以针对这个内网 ip 构造出对应的恶意请求发起攻击。</p>
-<p>以上的流程应该没什么理解上的问题。但是由于这个攻击方式常备用于 CSRF 上，所以我建议橘友们再多与 CSRF 知识联系起来想一想。综合 DNS 重绑定的思路，如果说要实现 CSRF，其实有三种层次：</p>
+<p>以上的流程应该没什么理解上的问题。但是由于这个攻击方式常被用于 CSRF/SSRF 上，所以我建议橘友们再多与 CSRF 知识联系起来想一想。综合 DNS 重绑定的思路，如果说要实现 CSRF，其实有三种层次：</p>
 <ul>
 <li><strong>大前提：用户登录了 bank.com，cookie 还没失效；bank.com 没有做对 csrf 的校验。</strong></li>
 </ul>
