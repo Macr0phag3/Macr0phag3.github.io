@@ -409,9 +409,9 @@
 </ol>
 <h3 id="ldap"><a href="#ldap" class="headerlink" title="ldap://"></a>ldap://</h3><p>ldap 主要有三种协议：</p>
 <ol>
-<li>ldap://: 基础的 LDAP 协议</li>
-<li>ldaps://: SSL/TLS + ldap</li>
-<li>ldapi://: IPC + LDAP</li>
+<li><code>ldap://</code>: 基础的 LDAP 协议</li>
+<li><code>ldaps://</code>: SSL/TLS + ldap</li>
+<li><code>ldapi://</code>: IPC + LDAP</li>
 </ol>
 <p>对于 <code>ldaps://</code> 来说，由于存在 SSL/TLS 握手过程，所以没啥用；而 <code>ldapi</code> 属于 IPC，也没法使用；所以只剩下 <code>ldap://</code>，默认是 <code>389</code> 端口，主要有两种姿势。</p>
 <p>第一种与上面这些协议类似，同样它支持用 <code>\r\n</code> 分割 payload，但是由于 ldap 协议在一开始的时候，会尝试先建立 cleartext 连接（<code>establish cleartext connection</code>），所以它相比 gopher 来说，开头多了一些杂乱的字符。这里给个攻击 redis 的示例：<br><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ldap  <span class="hljs-comment"># pip install python-ldap</span><br><br>conn = ldap.initialize(<span class="hljs-string">&quot;ldap://127.1:6379&quot;</span>)<br>conn.simple_bind_s(<span class="hljs-string">&quot;\r\n&quot;</span>, <span class="hljs-string">&quot;\r\nPING\r\n&quot;</span>)<br></code></pre></div></td></tr></table></figure><br>它会把建立 cleartext 连接的过程与传输用户名密码的过程合并到一个数据包里，而在用户名和密码可以插入 <code>\r\n</code> 并且还不会有其他字符干扰，所以这样可以很方便地利用：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518172449.png!blog#width-zoom6" srcset="/img/loading.gif" lazyload alt=""></p>
