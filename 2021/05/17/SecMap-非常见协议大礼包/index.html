@@ -224,7 +224,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      50
+      51
        分钟
     </span>
   
@@ -266,7 +266,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：16 天前
+                  本文最后更新于：21 天前
                 
               </p>
             
@@ -382,7 +382,8 @@
 </ul>
 <p>phar:// 的利用场景示例：<br><figure class="highlight php"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br>  <span class="hljs-variable">$files</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;file&#x27;</span>];<br>  <span class="hljs-keyword">include</span>(<span class="hljs-variable">$files</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></div></td></tr></table></figure></p>
 <p>对于这样的例子，先上传一个 zip 压缩包，里面是一个 txt 文件，内容是：<code>&lt;?php phpinfo(); ?&gt;</code>，在知道绝对路径（/www/upload/test.zip）之后，可以利用 phar:// 来执行这段代码，payload: <code>phar:///www/upload/test.zip/test.txt</code></p>
-<p>phar:// 还有反序列化的利用方式，等到总结反序列化的时候一起说</p>
+<p>phar:// 还有反序列化的利用方式，见：</p>
+<p><a href="https://www.tr0y.wang/2021/06/01/SecMap-unserialize-php/#%E5%88%A9%E7%94%A8-phar-%E4%BC%AA%E5%8D%8F%E8%AE%AE">https://www.tr0y.wang/2021/06/01/SecMap-unserialize-php/#%E5%88%A9%E7%94%A8-phar-%E4%BC%AA%E5%8D%8F%E8%AE%AE</a></p>
 <h3 id="zip"><a href="#zip" class="headerlink" title="zip://"></a>zip://</h3><ul>
 <li>作用：属于 PHP 伪协议，用于访问 zip 压缩流</li>
 </ul>
@@ -416,13 +417,13 @@
 <p>第一种与上面这些协议类似，同样它支持用 <code>\r\n</code> 分割 payload，但是由于 ldap 协议在一开始的时候，会尝试先建立 cleartext 连接（<code>establish cleartext connection</code>），所以它相比 gopher 来说，开头多了一些杂乱的字符。这里给个攻击 redis 的示例：<br><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ldap  <span class="hljs-comment"># pip install python-ldap</span><br><br>conn = ldap.initialize(<span class="hljs-string">&quot;ldap://127.1:6379&quot;</span>)<br>conn.simple_bind_s(<span class="hljs-string">&quot;\r\n&quot;</span>, <span class="hljs-string">&quot;\r\nPING\r\n&quot;</span>)<br></code></pre></div></td></tr></table></figure><br>它会把建立 cleartext 连接的过程与传输用户名密码的过程合并到一个数据包里，而在用户名和密码可以插入 <code>\r\n</code> 并且还不会有其他字符干扰，所以这样可以很方便地利用：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518172449.png!blog#width-zoom6" srcset="/img/loading.gif" lazyload alt=""></p>
 <p>个人感觉，大多数组件实现的 ldap 协议，应该默认都是这样合并的。有不合并的例子吗？有，比如 curl，如果你直接执行：<code>curl -v ldap://127.1:6379</code>，它会先发送建立cleartext 连接的请求：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518172651.png!blog#width-zoom7" srcset="/img/loading.gif" lazyload alt=""></p>
 <p>并且等待服务端返回这样的响应：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518173454.png!blog#width-zoom6" srcset="/img/loading.gif" lazyload alt=""></p>
-<p>&lt;/br&gt;</p>
+<p><br></p>
 <p>大家可以对比一下客户端的两种行为，上面是没合并的，下面是合并的：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518172829.png!blog#width-zoom7" srcset="/img/loading.gif" lazyload alt=""></p>
 <p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518173108.png!blog#width-zoom7" srcset="/img/loading.gif" lazyload alt=""></p>
 <p>那么对于我们攻击 redis 来说，肯定是要用合并的，因为 redis 不可能会按照 ldap 协议返回响应。</p>
 <p>那么如果我们非要用 curl 来做实验呢？可以用这个命令：<br><figure class="highlight txt"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs txt">curl --negotiate -v --user &quot;<br>&quot;:&quot;<br><br>PING<br><br>&quot; &#x27;ldap://127.0.0.1:6379/&#x27;<br></code></pre></div></td></tr></table></figure></p>
 <p>结果<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518174534.png!blog#width-zoom6" srcset="/img/loading.gif" lazyload alt=""></p>
-<p>&lt;/br&gt;</p>
+<p><br></p>
 <p>第二种稍有些复杂，需要 JNDI 等前置知识，等讲反序列化的时候再补上好了。</p>
 <h3 id="rmi"><a href="#rmi" class="headerlink" title="rmi://"></a>rmi://</h3><p>需要 JNDI 等前置知识，等讲反序列化的时候再补上好了。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210517104415.png!blog#width-zoom7" srcset="/img/loading.gif" lazyload alt=""></p>
