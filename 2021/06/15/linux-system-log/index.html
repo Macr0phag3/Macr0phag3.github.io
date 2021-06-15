@@ -1,0 +1,938 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Tr0y&#39;s Blog">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+  <title>linux-system-log - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/monokai-sublime.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+  
+<link rel="stylesheet" href="/css/tr0y.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/rss.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Tr0y's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/page.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="linux-system-log">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-06-15 10:27" pubdate>
+        星期二, 六月 15日 2021, 10:27 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      50
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">linux-system-log</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：7 分钟前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <span id="more"></span>
+<h1 id="Linux-系统日志小结"><a href="#Linux-系统日志小结" class="headerlink" title="Linux 系统日志小结"></a>Linux 系统日志小结</h1><p>上周近距离观赏了一次 APT 组织的攻击，感受最深的是他们非常有组织，搞办公网和搞生产网的人属于不同的组；有纪律，与攻击目标无关的机器能不动就不动，用到的技术其实大家都会，能不能管好自己的手不乱动是比较难的。不过让我比较惊讶的是，所有被入侵的机器的日志都被清除了（好在这些机器都在云上，厂商有对在云服务器上执行的命令做日志），只有一台机器（恰好还是本地机房）的 lastlog 没有清除，这让我十分不解。如果没有这台机器的 lastlog，那么在梳理攻击的链条时就会在中间断掉，无法准确还原入侵的路线，所以学会给自己擦屁股还是很重要的。</p>
+<p>我本来以为自己对 Linux 的系统日志这个知识点十拿九稳，在翘着二郎腿欣赏的过程中突然发现自己不能准确回答 lastlog 的用途，只有一个模糊的印象（虽然猜对了），之前似乎确实没有完整地过一遍，有点不爽，故有此文。</p>
+<h2 id="日志服务"><a href="#日志服务" class="headerlink" title="日志服务"></a>日志服务</h2><h3 id="syslogd"><a href="#syslogd" class="headerlink" title="syslogd"></a>syslogd</h3><blockquote>
+<p>介绍</p>
+</blockquote>
+<p>说到 Linux 的日志，就不得不提到 <code>syslogd</code>。它是大部分 Linux 发行版默认的日志守护进程，是一个记录日志的服务，子配置文件位于 <code>/etc/syslog</code> 或 <code>/etc/syslogd</code>，默认配置文件为 <code>/etc/syslog.conf</code>。从架构来看，这个服务下面有一系列的子服务，例如 mail、cron 等等，这些子服务对外提供日志记录的功能，当其它的程序或服务需要记录日志的时候，就可以直接调用这些子服务将日志记录到指定的地方。</p>
+<p>我们编写的代码可以通过 syslog 的接口进行 log，syslog 会通过 socket 将 log 发送给 syslogd，syslogd 在获取到 log 后，会对 log 进行处理，然后根据用户配置，将 log 保存到本地或者发送到其他服务器上去。</p>
+<p>最简单的，用 <code>logger -t &#39;[test]&#39; &quot;I&#39;m Tr0y&quot;</code> 就可以直接日志记录到 message 里：<br><figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">Jun</span>  <span class="hljs-number">9</span> <span class="hljs-number">19</span>:<span class="hljs-number">23</span>:<span class="hljs-number">52</span> localhost<span class="hljs-meta"> [test]: I&#x27;m Tr0y</span><br></code></pre></div></td></tr></table></figure></p>
+<p>再举个 python 使用 syslog 的例子吧：<br><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: <span class="hljs-keyword">import</span> syslog<br><br>In [<span class="hljs-number">2</span>]: syslog.openlog(<span class="hljs-string">&#x27;[test]&#x27;</span>)<br><br>In [<span class="hljs-number">3</span>]: syslog.syslog(<span class="hljs-string">&quot;I&#x27;m Tr0y&quot;</span>)<br></code></pre></div></td></tr></table></figure></p>
+<p>然后就可以在 <code>/var/log/messages</code> 里面看到它了：<br><figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">Jun</span>  <span class="hljs-number">9</span> <span class="hljs-number">20</span>:<span class="hljs-number">01</span>:<span class="hljs-number">05</span> localhost<span class="hljs-meta"> [test]: I&#x27;m Tr0y</span><br></code></pre></div></td></tr></table></figure></p>
+<blockquote>
+<p>配置文件详解</p>
+</blockquote>
+<p>作为 syslogd 的配置文件，<code>syslog.conf</code> 指定了：</p>
+<ol>
+<li>什么服务？</li>
+<li>什么日志等级？</li>
+<li>记录在哪里？</li>
+</ol>
+<p>格式如下：<br><figure class="highlight plain"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs plain">服务名称+条件运算符+信息等级    日志保存的位置<br></code></pre></div></td></tr></table></figure></p>
+<p>具体来说：</p>
+<ol>
+<li><p>服务名称</p>
+<ol>
+<li>user：默认值</li>
+<li>auth/authpriv：主要是与认证有关的服务的日志，例如 login、ssh、su 等</li>
+<li>cron：定时任务的日志，包括 cron 和 at</li>
+<li>kern：即 kernel（用户进程是无法生成这种日志的）</li>
+<li><code>*</code>：代表任意服务</li>
+<li><p>…</p>
+<p>举例来说， sendmail 与 postfix 都会通过 syslog 记录日志，服务名称为 LOG_MAIL，所以它们产生的日志在 syslogd 看来就都是 mail 类型的。</p>
+</li>
+</ol>
+</li>
+<li>条件运算符<ol>
+<li><code>.</code>：即 <code>&gt;=</code>，大于等于该等级的日志都要记录下来</li>
+<li><code>.=</code>：即 <code>==</code>，等于该等级的日志都要记录下来</li>
+<li><code>.!</code>：即 <code>!=</code>，除了该等级的日志都要记录下来</li>
+</ol>
+</li>
+<li>信息等级<ol>
+<li>debug：debug 级别的日志，一般用于调试</li>
+<li>info：仅是一些基本的信息说明</li>
+<li>notice：有些信息需要强调一下</li>
+<li>warning：警示，可能会出问题。这个层级以及以下的，基本无需处理，知道就行。</li>
+<li>err：错误信息，导致程序/系统无法运行</li>
+<li>crit：出现了很严重的错误</li>
+<li>alert：出现了非常严重的错误，必须马上解决</li>
+<li>emerg：系统已经无法使用了</li>
+<li>none：无优先级</li>
+<li><code>*</code>：任意优先级</li>
+</ol>
+</li>
+<li>日志保存的位置：通常是保存在本地文件里。当然也可以选择发送给指定的日志服务器保存。</li>
+</ol>
+<p>最后还有 2 点需要注意：</p>
+<ol>
+<li>多个服务，不同等级，要共用记录位置的话，可以用 <code>;</code> 来合并：<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk"><span class="hljs-comment"># 表示 auth 的和 cron 的全部等级的日志都记录在 important 里</span><br><span class="hljs-comment"># 然后再存一份它们 warn 等级的日志在 important.warn 里</span><br><br>auth.*;cron.*　　　　　      <span class="hljs-regexp">/var/</span>log/important<br>auth.=warn;cron.=warn　  <span class="hljs-regexp">/var/</span>log/important.warn<br></code></pre></div></td></tr></table></figure></li>
+<li>多个服务，共用等级的话，可以用 <code>,</code> 来合并：<figure class="highlight livecodeserver"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs livecodeserver"><span class="hljs-comment"># 表示所有日志都存在 messages 里</span><br><span class="hljs-comment"># 然后通过设定 auth、cron 的日志等级为 none 来阻止它们记录日志</span><br><br>*.*;auth,cron.<span class="hljs-literal">none</span>      /var/<span class="hljs-built_in">log</span>/messages<br><br><span class="hljs-comment"># 当然这样也是可以的</span><br>*.*;auth.<span class="hljs-literal">none</span>;cron.<span class="hljs-literal">none</span>　/var/<span class="hljs-built_in">log</span>/messages<br></code></pre></div></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="rsyslogd"><a href="#rsyslogd" class="headerlink" title="rsyslogd"></a>rsyslogd</h3><p>目前不少的 Linux 发行版已经用 rsyslogd 代替了 syslogd。rsyslogd 是 syslogd 的升级版，子配置文件位于 <code>/etc/rsyslog.d</code>，默认配置文件为 <code>/etc/rsyslog.conf</code>，由于其配置语法与 syslogd 的配置文件一致，这里就不重复说了。</p>
+<p>那么在说各个具体的系统日志之前，我们先来看看 rsyslogd 的配置。因为有些系统日志是通过 rsyslogd 记录的，那么正如前面说的，rsyslog.conf 就决定了这些系统日志存放的位置。</p>
+<p>如果你在网上搜索 “linux ssh 日志位置”，很大概率会告诉你是 <code>/var/log/secure</code>。但是这个其实是默认位置，是有可能被改掉的（不同发行版或者是恶意修改）。所以不管是应急也好，做威胁检测也好，最好要通过 rsyslog.conf 来确定特定系统日志真正的位置。</p>
+<p>比如这是我虚拟机的配置：<br><figure class="highlight jboss-cli"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs jboss-cli"><span class="hljs-string">...</span><br><br><span class="hljs-comment">#### RULES ####</span><br><br><span class="hljs-string">...</span><br><br><span class="hljs-comment"># Log anything (except mail) of level info or higher.</span><br><span class="hljs-comment"># Don&#x27;t log private authentication messages!</span><br>*<span class="hljs-string">.info</span>;mail.none;authpriv.none;cron.none                <span class="hljs-string">/var/log/messages</span><br><br><span class="hljs-comment"># The authpriv file has restricted access.</span><br>authpriv.*                                              <span class="hljs-string">/var/log/secure</span><br><br><span class="hljs-string">...</span><br><br><span class="hljs-comment"># Log cron stuff</span><br>cron.*                                                  <span class="hljs-string">/var/log/cron</span><br><br><span class="hljs-string">...</span><br></code></pre></div></td></tr></table></figure></p>
+<p>这下我们才可以确定，messages 存放了除了 mail、authpriv、cron 之外所有的 info 等级的日志（所以这个日志文件通常是比较大的）；authpriv 存在 secure 里；cron 存在 cron 里。</p>
+<p>最后有两个小经验：</p>
+<ol>
+<li>如果攻击者把这类日志删除了的话，那么只要 rsyslogd 进程没有停止过（重启也算停止过），就可以从 <code>/proc/pid/fd/n</code>（pid 和 n 取决于实际情况）恢复日志。步骤非常简单，先用 <code>sudo lsof +L1</code> 看一下有没有被删除的 log 文件，有的话记下 pid，然后 <code>ls -l /proc/pid/fd</code> 找一下日志文件是对应的哪个 fd，直接 cp 即可</li>
+<li>如果用 vim 打开了通过 rsyslogd 记录的日志的文件之后，执行了保存操作（打开后直接 wq 也算），那么该日志会立即停止记录。回想一下 vim 的 wq 原理，其实就是 cp+mv，cp 不用说，会创建一个新的 inode；mv 的文件在同一个分区下时，执行的其实是 rename；这一套流程下来，在 <code>/proc/pid/fd/n</code> 下面的表现就是后面多了一个 <code>(deleted)</code>（这里面的机制有些复杂，不仅仅是 inode 那么简单的，有机会的话详细介绍）。如果要恢复中断的记录，那么就需要从 <code>/proc/pid/fd/n</code> 下面 cp 出来，然后重启 rsyslogd；如果不想找回中断的记录，那么直接重启就行。</li>
+</ol>
+<h2 id="重要系统日志"><a href="#重要系统日志" class="headerlink" title="重要系统日志"></a>重要系统日志</h2><h3 id="messages"><a href="#messages" class="headerlink" title="messages"></a>messages</h3><p>默认路径：<code>/var/log/messages</code></p>
+<p>它是默认的日志文件，记录 Linux 内核消息及各种应用程序的日志信息，包括：启动、IO 错误、网络错误、程序自定义日志等等。</p>
+<p>虽然信息种类会多一些，但是这个一般用得少，就不多说了。</p>
+<h3 id="secure"><a href="#secure" class="headerlink" title="secure"></a>secure</h3><p>默认路径：<code>/var/log/secure</code></p>
+<p>只要牵涉到需要输入帐号密码的程序，包括 login、有图形界面的 Linux 登录的时候、su、sudo、ssh、telnet、groupadd、useradd、passwd 等等，那么当登录时（不管成功或者失败）都会被记录在此。</p>
+<p>secure 是应急响应中最常查看的文件，例如疑似存在 ssh 爆破的时候，我们就可以查看这个文件，这类应急基本上是在考验我们使用 grep、awk、sed 的熟练度。</p>
+<h3 id="cron"><a href="#cron" class="headerlink" title="cron"></a>cron</h3><p>默认路径：<code>/var/log/cron</code></p>
+<p>该日志文件记录了 cron 运行的日志。包含：</p>
+<ol>
+<li>crontab 运行定时任务的记录，包含运行的命令、时间、pid、定时任务所属的用户等</li>
+<li>更新定时任务（关键字 REPLACE/RELOAD）的时间点与用户</li>
+<li>如果定时任务有直接输出的话，也会打到 cron 里去</li>
+</ol>
+<p>cron 的作用比较专一，它一般有两种用途：</p>
+<ol>
+<li>cron 误删之后，可以根据日志直接恢复命令；至于定时任务的调度周期，可以尝试根据定时任务通过每次执行的间隔来尝试还原。</li>
+<li>如果 crontab 被植入了恶意的定时任务，那么在这里可以找到植入后第一次运行的时间，结合调度周期，可以推断出被植入的时间范围。</li>
+</ol>
+<h3 id="登录相关日志"><a href="#登录相关日志" class="headerlink" title="登录相关日志"></a>登录相关日志</h3><p>先来看一下整体的流程。</p>
+<p>在 Linux 中，每当有一个用户登录时，如果有分配 tty，login 命令要负责：</p>
+<ol>
+<li>在文件 lastlog 中查看用户的 UID，如果存在，则把用户上次登录、注销的时间和主机名写到标准输出中</li>
+<li>然后在 lastlog 日志中记录新的登录时间</li>
+<li>接着在 utmp 日志中记录用户新的登陆记录</li>
+<li>接着在 wtmp 日志中记录用户新的登陆记录</li>
+<li>当用户登录退出时</li>
+<li>在 wtmp 日志中记录用户新的注销记录</li>
+<li>最后在 utmp 日志中删除该用户对应的登陆记录</li>
+</ol>
+<p>接下来详细看一下每个日志的用途，这些日志都是二进制格式的日志，用 cat、less 是看不了的。btmp、utmp 和 wtmp，它们的数据结构是一样的，而 lastlog 文件有自己的数据结构，关于它们的具体的数据结构可以使用 man 命令查询，例如 <code>man utmp</code>。</p>
+<h4 id="lastlog"><a href="#lastlog" class="headerlink" title="lastlog"></a>lastlog</h4><p>默认路径：<code>/var/log/lastlog</code></p>
+<p>该日志文件记录了每个用户最近一次成功的登录事件和最后一次不成功的登录事件，每次用户登录的时候都会查一下这个日志的记录。</p>
+<p>一般用 <code>lastlog</code> 命令查看，会根据 UID 排序来显示用户名、tty、IP 和最后登录时间，如果某用户从来没有登录过，就显示为 <code>**Never logged in**</code>：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610163125.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<h4 id="wtmp"><a href="#wtmp" class="headerlink" title="wtmp"></a>wtmp</h4><p>默认路径：<code>/var/log/wtmp</code></p>
+<p>该日志文件记录了每个用户登录、注销及系统的重启等事件，主要用于查看用户的登录记录。</p>
+<p>一般用 <code>last</code> 命令查看，会以反序从后向前显示用户的登录记录，也能根据用户名、tty 或时间显示相应的记录：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610162505.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<h4 id="utmp"><a href="#utmp" class="headerlink" title="utmp"></a>utmp</h4><p>默认路径：<code>/var/run/utmp</code></p>
+<p>该日志文件记录了当前登录的每个用户的信息。因此这个文件会随着用户登录、注销而不断变化，因为它只保留了当前已登录的用户记录，不会为用户保留永久的记录。</p>
+<p>系统中需要查询当前用户状态的程序，如 who、w、users、finger 等其实就是从这个文件获取的信息：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610163049.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<h4 id="btmp"><a href="#btmp" class="headerlink" title="btmp"></a>btmp</h4><p>默认路径：<code>/var/log/btmp</code></p>
+<p>该日志文件记录了失败的登录尝试。默认没有初始化，不会记录，可以执行一次 <code>lastb</code> 开始记录。</p>
+<p>一般用 <code>lastb</code> 命令查看：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610163320.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<h2 id="清理痕迹"><a href="#清理痕迹" class="headerlink" title="清理痕迹"></a>清理痕迹</h2><blockquote>
+<p>清空日志</p>
+</blockquote>
+<p>简单粗暴，但是很容易被发现，除非已经到了收割成果的阶段，被不被发现都无所谓了，那么可以这么做。需要注意的是，清空有两种做法，一种是用空字符串覆盖原文件，这种没什么问题；另一种是直接将文件删除，对于用 rsyslogd 记录的日志来说，如果没有停过 rsyslogd 那么是可以被恢复到，这一点上面也提到过了。</p>
+<blockquote>
+<p>修改日志</p>
+</blockquote>
+<p>对于用 rsyslogd 记录的日志来说，可读性很好，直接修改即可。</p>
+<p>比如篡改自己使用的 ip：<code>sed -i &#39;s/192.168.166.85/192.168.1.1/g&#39; secure</code>；或者直接删掉有 ip 信息的行 <code>sed -i &#39;/192.168.166.85/d&#39; test</code>。</p>
+<p>稍微有些费劲是那些二进制格式的日志。对于登录相关日志来说，由于手动修改比较麻烦，所以我写了一个日志清理的工具：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Macr0phag3/LLC">https://github.com/Macr0phag3/LLC</a></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610163540.png!blog#width-zoom5" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>以 utmp 为例：</p>
+<p>用 w 我们可以看到 macr0phag3 在线：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610164049.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>清除：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610164203.png!blog#width-zoom7" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>再用 w 看看：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610164229.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>macr0phag3 就没有显示在线了。</p>
+<p>如果觉得这样麻烦，其实也有办法避免记录登录日志。登录后，在分配伪 tty（建议看下资料 1）的时候才会出现这些登录日志（btmp 除外），那如果没有分配的话，就不会做记录，这也是这个命令的原理：<br><figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">ssh -T user@host <span class="hljs-regexp">/bin/</span>bash -i<br></code></pre></div></td></tr></table></figure><br><code>-T</code> 代表不要分配 tty，<code>-i</code> 代表要一个交互型的 bash，去掉其实也能用，甚至整个 <code>/bin/bash -i</code> 都可以去掉，就是不太美观，用起来不爽。</p>
+<p>比如我们可以创建一个新的用户来试试，用上述方式登录：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-system-log/20210610180402.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
+<p>可以看到除了爆破失败的记录之外，其他登录日志均无记录。</p>
+<p>当然了，隐藏/清理痕迹的手法有很多，有各种姿势，像这种 ssh 的算烂大街了。等有时间我专门写一篇文章来总结这些知识。</p>
+<p><br></p>
+<p>日志在应急中是非常重要的。现在很多运维在突发事故上吃了亏，都会对日志做备份，甚至有专门的日志备份服务器，但是基本上是出于运维角度的考虑。其实安全事件也算突发事故，如果意识到了日志对于应急响应的作用，应该会有更多人做备份吧。当然如果有实时备份的话，攻击者直接清理日志就没啥用了，但是可以想办法让日志停止记录。</p>
+<p>攻与防，始终是相互促进的嘛</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li>Linux TTY/PTS 概述: <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000009082089">https://segmentfault.com/a/1190000009082089</a></li>
+</ul>
+<p><br><p style="text-align: center;" ><font size="2px" color="gray">如果橘友们是这个 APT 组织的成员<br>会记得清理日志吗？<br>会漏掉那个关键的 lastlog 吗？</font>
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="/img/loading.gif" lazyload style="zoom:30%" />
+</p></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux/">Linux</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/06/01/SecMap-unserialize-php/">
+                        <span class="hidden-mobile">SecMap - 反序列化（PHP）</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="⚠️" data-success="💡"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    <!-- Tr0y -->
+    
+      <!-- APlayer 音乐播放器 -->
+      <div id="aplayer"></div>
+      <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+
+<script type="text/javascript">
+  function snow(icon) {
+    //1、定义一片雪花模板
+    var flake = $("<div>").css({
+        "position": "absolute",
+        "color": "#fff"
+    }).html(icon);
+
+    //获取页面的宽度，利用这个数来算出，雪花开始时left的值
+    var documentWidth = $(document).width();
+
+    //获取页面的高度 相当于雪花下落结束时Y轴的位置
+    var documentHieght = $(document).height();
+
+    //定义生成一片雪花的毫秒数
+    var millisec = 1000;
+    //2、设置第一个定时器，周期性定时器，每隔一段时间（millisec）生成一片雪花；
+    setInterval(function() {
+        //随机生成雪花下落 开始 时left的值，相当于开始时X轴的位置
+        var startLeft = Math.random() * documentWidth;
+
+        //随机生成雪花下落 结束 时left的值，相当于结束时X轴的位置
+        var endLeft = Math.random() * documentWidth;
+
+        //随机生成雪花大小
+        var flakeSize = 20 + 10 * Math.random();
+
+        //随机生成雪花下落持续时间
+        var durationTime = 4000 + 7000 * Math.random();
+
+        //随机生成雪花下落 开始 时的透明度
+        var startOpacity = 0.7 + 0.3 * Math.random();
+
+        //随机生成雪花下落 结束 时的透明度
+        var endOpacity = 0.2 + 0.2 * Math.random();
+
+        //3、克隆一个雪花模板,定义雪花的初始样式，拼接到页面中
+        flake.clone().appendTo($("body")).css({
+            "left": startLeft,
+            "opacity": startOpacity,
+            "font-size": flakeSize,
+            "top": "-25px",
+        }).animate({ //执行动画
+            "left": endLeft,
+            "opacity": endOpacity,
+            "top": documentHieght
+        }, durationTime, function() {
+            //4、当雪花落下后，删除雪花。
+            $(this).remove(); 
+        });
+    }, millisec);
+  };
+
+  function festival_is_coming(d) {
+      var dateEnd = new Date();
+      var year=dateEnd.getFullYear();
+
+      var dateBegin = new Date(year+"-"+d+" 00:00:00");
+      var dateDiff = dateEnd.getTime() - dateBegin.getTime();
+      var dayDiff = Math.abs(Math.floor(dateDiff / (24 * 3600 * 1000)));
+      return dayDiff <= 3
+  }
+
+  var oldLoad = window.onload;
+
+  var autoplay = 'true' === 'true'
+  var loop = 'true' === 'true'
+  var songs = [{"name":"さみしい夜道","artist":"三澤康広","url":"/bgm/main.mp3","cover":"/img/bgm-main.png"}]
+
+    
+    var autoplay = false;
+    var loop = false;
+  
+
+  
+
+  
+
+  
+  window.onload = function () {
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: autoplay,
+      loop: loop,
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: songs
+    });
+    oldLoad && oldLoad();
+  }
+</script>
+
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+
+    var slogan = document.getElementById('subtitle').title;
+    if (slogan == "与地球重修旧好") {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          "与地球重修旧好 (1/3)",
+          "与地球重修旧好 (2/3)",
+          "与地球重修旧好 (3/3)",
+          "地球已离线，重试中..."
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: true,
+      });
+    }
+    else {
+      var typed = new Typed('#subtitle', {
+        strings: [
+          '  ',
+          slogan+"&nbsp;"
+        ],
+        cursorChar: "丨",
+        typeSpeed: 70,
+        loop: false,
+      });
+    }
+
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+
+</script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
