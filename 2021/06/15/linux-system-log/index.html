@@ -14,11 +14,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="Tr0y&#39;s Blog">
+  <meta name="description" content="Linux 系统日志小结，内附清理工具 LLC">
   <meta name="author" content="Tr0y">
   <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
   
-  <title>linux-system-log - Tr0y&#39;s Blog</title>
+  <title>Linux 系统日志小结 - Tr0y&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
@@ -192,7 +192,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="linux-system-log">
+            <span class="h2" id="subtitle" title="Linux 系统日志小结">
               
             </span>
 
@@ -262,16 +262,17 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">linux-system-log</h1>
+            <h1 style="display: none">Linux 系统日志小结</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：7 分钟前
+                  本文最后更新于：37 分钟前
                 
               </p>
             
             <div class="markdown-body">
-              <span id="more"></span>
+              <p>Linux 系统日志小结，内附清理工具 LLC</p>
+<span id="more"></span>
 <h1 id="Linux-系统日志小结"><a href="#Linux-系统日志小结" class="headerlink" title="Linux 系统日志小结"></a>Linux 系统日志小结</h1><p>上周近距离观赏了一次 APT 组织的攻击，感受最深的是他们非常有组织，搞办公网和搞生产网的人属于不同的组；有纪律，与攻击目标无关的机器能不动就不动，用到的技术其实大家都会，能不能管好自己的手不乱动是比较难的。不过让我比较惊讶的是，所有被入侵的机器的日志都被清除了（好在这些机器都在云上，厂商有对在云服务器上执行的命令做日志），只有一台机器（恰好还是本地机房）的 lastlog 没有清除，这让我十分不解。如果没有这台机器的 lastlog，那么在梳理攻击的链条时就会在中间断掉，无法准确还原入侵的路线，所以学会给自己擦屁股还是很重要的。</p>
 <p>我本来以为自己对 Linux 的系统日志这个知识点十拿九稳，在翘着二郎腿欣赏的过程中突然发现自己不能准确回答 lastlog 的用途，只有一个模糊的印象（虽然猜对了），之前似乎确实没有完整地过一遍，有点不爽，故有此文。</p>
 <h2 id="日志服务"><a href="#日志服务" class="headerlink" title="日志服务"></a>日志服务</h2><h3 id="syslogd"><a href="#syslogd" class="headerlink" title="syslogd"></a>syslogd</h3><blockquote>
