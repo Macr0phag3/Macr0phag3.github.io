@@ -224,7 +224,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      33
+      34
        分钟
     </span>
   
@@ -315,11 +315,11 @@
 <li>添加端口可能绕过匹配正则：<code>http://127.0.0.1/</code> 改为 <code>http://127.0.0.1:80/</code></li>
 <li>127.0.0.1 与 localhost 在大部分情况下都是等价的，取决于 hosts 配置</li>
 <li>利用 IPv6：<code>http://[::]:80/</code> 相当于 <code>http://127.0.0.1</code></li>
-<li>利用 <code>@</code> 可能绕过域名限定的正则：<code>http://example.com@127.0.0.1</code> 相当于 <code>http://127.0.0.1</code></li>
+<li>利用 <code>@</code>/<code>#</code> 可能绕过域名限定的正则：<code>http://tr0y.wang@127.0.0.1</code> 相当于 <code>http://127.0.0.1</code>；<code>http://127.0.0.1#tr0y.wang</code> 也是 <code>http://127.0.0.1</code></li>
 <li>利用进制：以 <code>127.0.0.1</code> 为例，首先，ip 可以没 <code>.</code>，比如 <code>2130706433</code>（十进制），<code>0x7F000001</code>（十六进制）；也可以有 <code>.</code>，比如 <code>0x7F.0x000.0x001</code>（十六进制）、<code>0177.0000.0001</code>（八进制），甚至可以混用，比如 <code>0x7F.000.0x001</code>（十六进制 加 十进制）；还可以合并，<code>127.0.0.1 == 127.0.1 == 127.1</code>、<code>127.3.2.1 == 127.3.513 == 127.3.513 == 127.197121</code>，注意这个合并注意只能从前到后合并，具体的计算方式，可以按照 <code>.</code> 分割，分别先转为 8 位二进制，然后从左到右每段直接拼在一起，最后再转为十进制或者十六进制即可，有一个比较特殊的是 <code>0</code>，<code>0.0.0.0 == 0.0.0 == 0.0 == 0</code>，即目标服务器监听了 <code>0.0.0.0</code> 的服务都可以用此方法访问到。以上这几种方式可以随意组合搭配，而且其实各个进制的补 0 可以填很多个：<code>127.0.0000000000000000000000000000000000.1</code>。</li>
 <li>利用跳转：比如，利用短链，<code>http://dlj.bz/kA47FD</code> 相当于 <code>http://127.0.0.1</code>，本质上是利用 301 跳转，所以完全可以自己打一个 301 跳转，想怎么跳就怎么跳，别忘记同时还可以转换协议：<code>Location: file:///etc/passwd</code>。状态码可以是 301、302、307</li>
 <li>利用域名 A 记录：<a target="_blank" rel="noopener" href="http://localhost.tr0y.wang/">http://localhost.tr0y.wang/</a> ，在域名上设置 A 记录，指向 <code>127.0.0.1</code>。如果你实在懒，可以用 <code>xip.io</code>/<code>xip.name</code>，它的子域名前缀就是解析的 ip 地址，比如 <code>127.0.0.1.xip.io</code> 的 A 记录就是 127.0.0.1</li>
-<li>利用 IDN，详见：<a href="https://www.tr0y.wang/2020/08/18/IDN/">https://www.tr0y.wang/2020/08/18/IDN/</a> ，<code>ⓔⓧⓐⓜⓟⓛⓔ.ⓒⓞⓜ</code> 等于 <code>example.com</code>、<code>127。0。0。1</code> 相当于 <code>127.0.0.1</code></li>
+<li>利用 IDN，详见：<a href="https://www.tr0y.wang/2020/08/18/IDN/">https://www.tr0y.wang/2020/08/18/IDN/</a> 。<code>ⓉⓇ⓪ⓨ.ⓦⓐⓝⓖ</code> 等于 <code>tr0y.wang</code>、<code>127。0。0。1</code> 相当于 <code>127.0.0.1</code></li>
 <li>与 CRLF 组合：比较经典的就是 Python 的 CVE（CVE-2016-5699、CVE-2019-9740、CVE-2019-9947、CVE-2019-9948），其实也是由于允许 <code>\r\n</code> 的存在，大大提升了通过 http:// 协议来利用的 ssrf 的杀伤力：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524152422.png!blog" srcset="/img/loading.gif" lazyload alt=""><br><br/><br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524152007.png!blog" srcset="/img/loading.gif" lazyload alt=""></li>
 <li>DNS 重绑定攻击：可见：<a href="https://www.tr0y.wang/2020/11/02/DNS-3-attack-by-dns/#DNS-重绑定攻击">https://www.tr0y.wang/2020/11/02/DNS-3-attack-by-dns/#DNS-重绑定攻击</a></li>
 </ol>
@@ -337,12 +337,12 @@
 <li>过滤返回的信息/统一错误信息：将有回显变成无回显，提升利用难度（比如 file:// 就直接废掉了）</li>
 <li>限制请求的 ip 和端口：一般的业务禁掉私有 ip 完全可行；限制端口可有效降低攻击面</li>
 <li>去除 URL 中的特殊字符：防止因为 url 解析模块造成的问题，往往是 host 提取解析结果存在歧义（<strong>强烈建议阅读 资料 1</strong>）</li>
-<li>只允许 http 协议，必要时强制使用 https 协议，可以很大程度提升攻击难度，因为 SSL/TLS 握手过程无法完成（骚操作请参考 资料 2）</li>
+<li>只允许 http/https 协议：防止攻击者用其他协议绕过。必要时可以强制使用 https 协议，可以很大程度地提升攻击难度，因为 SSL/TLS 握手过程无法完成（也存在骚操作，请参考 资料 2）</li>
 <li>解析/跳转（没必要就别跟随跳转了）后一定要进行检查：防止利用各种形式的 ip、跳转绕过</li>
 <li>完善正则表达式：这个没啥通用的技巧，根据具体的业务需求定，需要经过完善测试（限制 @ 的使用、防止用子域名前缀绕过等等）</li>
-<li>最后真正发起请求去获取资源的时候，可以把域名替换成之前就已经解析好的 ip，这样来避免重复解析带来的 DNS 重绑定攻击问题。</li>
+<li>只解析一次 ip：最后真正发起请求去获取资源的时候，可以把域名替换成之前就已经解析好的 ip，这样来避免重复解析带来的 DNS 重绑定攻击问题。</li>
 </ol>
-<p>最后，还可以考虑建立一个请求代理集群，外网代理集群专门用于业务对外网发起请求；另一个代理集群专门用于业务对内网发起请求。然后在网络上保证外网代理集群无法与内网互通。</p>
+<p>最后，还可以考虑建立一个发起请求的代理集群。外网代理集群专门用于业务对外网发起请求；另一个代理集群专门用于业务对内网发起请求。然后在网络层面上保证外网代理集群无法与内网直接互通，这样最为彻底。</p>
 <h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ol>
 <li>ssrf 利用新纪元：<ul>
 <li><a target="_blank" rel="noopener" href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf">https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf</a></li>
