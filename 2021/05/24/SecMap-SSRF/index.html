@@ -341,8 +341,8 @@
 <li>解析/跳转（没必要就别跟随跳转了）后一定要进行检查：防止利用各种形式的 ip、跳转绕过</li>
 <li>完善正则表达式：这个没啥通用的技巧，根据具体的业务需求定，需要经过完善测试（限制 @ 的使用、防止用子域名前缀绕过等等）</li>
 <li>只解析一次 ip：最后真正发起请求去获取资源的时候，可以把域名替换成之前就已经解析好的 ip，这样来避免重复解析带来的 DNS 重绑定攻击问题。</li>
+<li>可以考虑建立一个发起请求的代理集群。外网代理集群专门用于业务对外网发起请求；另一个代理集群专门用于业务对内网发起请求。然后在网络层面上保证外网代理集群无法与内网直接互通。</li>
 </ol>
-<p>最后，还可以考虑建立一个发起请求的代理集群。外网代理集群专门用于业务对外网发起请求；另一个代理集群专门用于业务对内网发起请求。然后在网络层面上保证外网代理集群无法与内网直接互通，这样最为彻底。</p>
 <h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ol>
 <li>ssrf 利用新纪元：<ul>
 <li><a target="_blank" rel="noopener" href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf">https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf</a></li>
