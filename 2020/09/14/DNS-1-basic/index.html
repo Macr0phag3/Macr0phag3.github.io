@@ -290,7 +290,7 @@
 <h3 id="查询方式"><a href="#查询方式" class="headerlink" title="查询方式"></a>查询方式</h3><p>在说流程之前，先说一下查询方式。很简单，分为 2 种：</p>
 <ol>
 <li>递归查询：A -&gt; B -&gt; C，A 向 B 发起 DNS 解析的请求之后，B 帮 A 去 C 那里查找，拿到结果之后返回给 A，这个时候 A、B 各发起了一次解析请求。</li>
-<li>迭代查询：A -&gt; B, A -&gt; C，A 向 B 发起 DNS 解析的请求之后，B 告诉 A 要去 C 那里查找，A 再向 C 发起 DNS 解析请求，这个时候 A 各发起了两次解析请求，C 没有发起 DNS 解析请求。</li>
+<li>迭代查询：A -&gt; B, A -&gt; C，A 向 B 发起 DNS 解析的请求之后，B 告诉 A 要去 C 那里查找，A 再向 C 发起 DNS 解析请求，这个时候 A 一共发起了两次解析请求，B 没有发起 DNS 解析请求。</li>
 </ol>
 <h3 id="Hosts-文件（静态-DNS-服务器）"><a href="#Hosts-文件（静态-DNS-服务器）" class="headerlink" title="Hosts 文件（静态 DNS 服务器）"></a>Hosts 文件（静态 DNS 服务器）</h3><p>如果你用的是 macOS 或者 Linux，可以看一下这个文件：<code>/etc/hosts</code>：<br><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104053213.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
 <p>其中有我们上小学就知道的 <code>127.0.0.1</code>、<code>localhost</code>。所以你访问 <code>localhost</code> 就是访问 <code>127.0.0.1</code>。</p>
