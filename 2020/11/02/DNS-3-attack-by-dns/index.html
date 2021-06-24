@@ -214,7 +214,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      8.7k 字
+      8.8k 字
     </span>
   
 
@@ -224,7 +224,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      117
+      118
        分钟
     </span>
   
@@ -392,7 +392,7 @@
 <li>域名持有者在用户第一次解析域名（即访问 <a target="_blank" rel="noopener" href="http://tr0y.wang">http://tr0y.wang</a> ）之后，立即修改此域名对应的 ip 地址为 127.0.0.1，这样访问 <a target="_blank" rel="noopener" href="http://tr0y.wang/main.js">http://tr0y.wang/main.js</a> 实际上就是访问 <a target="_blank" rel="noopener" href="http://127.0.0.1/main.js">http://127.0.0.1/main.js</a></li>
 </ol>
 <p>对于浏览器来说，整个过程访问的都是同一域名，所以没有同源策略的限制（尤其需要注意端口要一致）。如果攻击者已知目标的一些内网 ip，就可以把第二次解析的 ip 换成这个内网 ip，然后把上面加载 main.js 的逻辑替换为执行恶意的 js 代码，就可以针对这个内网 ip 构造出对应的恶意请求发起攻击。</p>
-<p>以上的流程应该没什么理解上的问题。但是由于这个攻击方式常被用于 CSRF/SSRF 上，所以我建议橘友们再多与 CSRF 知识联系起来想一想。综合 DNS 重绑定的思路，如果说要实现 CSRF，其实有三种层次：</p>
+<p>以上的流程应该没什么理解上的问题。但是由于这个攻击方式常被用于 CSRF/SSRF 上，所以我建议橘友们再多与 CSRF 知识联系起来想一想。综合 DNS 重绑定的思路，如果说要实现 CSRF，其实有三种层次（假设下面均满足 csrf 所需的条件）：</p>
 <ol>
 <li>在 hack.tr0y.wang 上放一个 js 标签，地址为 <a target="_blank" rel="noopener" href="https://bank.com/transfer/money">https://bank.com/transfer/money</a> ，诱使用户访问 hack.tr0y.wang，浏览器会自己去访问这个转账的地址，实现攻击，偷钱跑路。</li>
 <li>将 hack.tr0y.wang 的 A 记录改为 10.10.10.10，相当于我把自己的域名绑定在了内网的服务器（ip）上，那么这样访问 hack.tr0y.wang 实际上就是访问 10.10.10.10，那么不管是欺骗用户访问 <a target="_blank" rel="noopener" href="http://10.10.10.10/+payload">http://10.10.10.10/+payload</a> 还是诱使用户访问 <a target="_blank" rel="noopener" href="https://hack.tr0y.wang">https://hack.tr0y.wang</a> 并在里面嵌入对 10.10.10.10 的攻击请求，都可以实现攻击。<strong>当然这要有前提，就是 10.10.10.10 没有对 HOST 进行校验</strong>。这个方式相比第一种来说，它完全符合浏览器的同源策略，所以不仅仅只能通过 html 标签发起简单的 get 请求，还可以利用 js 发起更加复杂的请求，也就是拓宽了利用场景。</li>
