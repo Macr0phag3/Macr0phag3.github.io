@@ -323,7 +323,7 @@
 <li>恶意软件与 c2（1.2.3.4）建立通信，传输数据、获取恶意指令等等</li>
 <li>通信结束</li>
 <li>恶意软件再次准备与 c2 建立通信，同样先发起 DNS 查询，由于 TTL 过小，本地缓存的 DNS 记录失效，所以 localDNS 需要再次向权威 DNS 服务器获取 ip 地址，走正常的 DNS 查询的那些流程。</li>
-<li>此次DNS服务器返回了 ip 4.3.2.1，这次的 TTL 仍然很小</li>
+<li>此次 DNS 服务器返回了 ip 4.3.2.1，这次的 TTL 仍然很小</li>
 <li>恶意软件与 c2（4.3.2.1）建立通信，传输数据、获取恶意指令等等</li>
 <li>通信结束</li>
 </ol>
@@ -393,24 +393,21 @@
 </ol>
 <p>对于浏览器来说，整个过程访问的都是同一域名，所以没有同源策略的限制（尤其需要注意端口要一致）。如果攻击者已知目标的一些内网 ip，就可以把第二次解析的 ip 换成这个内网 ip，然后把上面加载 main.js 的逻辑替换为执行恶意的 js 代码，就可以针对这个内网 ip 构造出对应的恶意请求发起攻击。</p>
 <p>以上的流程应该没什么理解上的问题。但是由于这个攻击方式常被用于 CSRF/SSRF 上，所以我建议橘友们再多与 CSRF 知识联系起来想一想。综合 DNS 重绑定的思路，如果说要实现 CSRF，其实有三种层次：</p>
-<ul>
-<li><strong>大前提：用户登录了 bank.com，cookie 还没失效；bank.com 没有做对 csrf 的校验。</strong></li>
-</ul>
 <ol>
 <li>在 hack.tr0y.wang 上放一个 js 标签，地址为 <a target="_blank" rel="noopener" href="https://bank.com/transfer/money">https://bank.com/transfer/money</a> ，诱使用户访问 hack.tr0y.wang，浏览器会自己去访问这个转账的地址，实现攻击，偷钱跑路。</li>
-<li>将 hack.tr0y.wang 的 A 记录改为 10.10.10.10，相当于我把自己的域名绑定在了内网的服务器（ip）上，那么这样访问 hack.tr0y.wang 实际上就是访问 10.10.10.10，那么不管是欺骗用户访问 <a target="_blank" rel="noopener" href="https://hack.tr0y.wang/transfer/money">https://hack.tr0y.wang/transfer/money</a> 还是诱使用户访问 <a target="_blank" rel="noopener" href="https://hack.tr0y.wang">https://hack.tr0y.wang</a> 并在里面嵌入对 <a target="_blank" rel="noopener" href="https://hack.tr0y.wang/transfer/money">https://hack.tr0y.wang/transfer/money</a> 的请求，都可以实现攻击。<strong>当然这要有前提，就是 bank.com 没有对 HOST 进行校验</strong>。这个方式相比第一种来说，它完全符合浏览器的同源策略，所以不仅仅只能通过 html 标签发起简单的 get 请求，还可以利用 js 发起更加复杂的请求，也就是拓宽了利用场景。</li>
+<li>将 hack.tr0y.wang 的 A 记录改为 10.10.10.10，相当于我把自己的域名绑定在了内网的服务器（ip）上，那么这样访问 hack.tr0y.wang 实际上就是访问 10.10.10.10，那么不管是欺骗用户访问 <a target="_blank" rel="noopener" href="http://10.10.10.10/+payload">http://10.10.10.10/+payload</a> 还是诱使用户访问 <a target="_blank" rel="noopener" href="https://hack.tr0y.wang">https://hack.tr0y.wang</a> 并在里面嵌入对 10.10.10.10 的攻击请求，都可以实现攻击。<strong>当然这要有前提，就是 10.10.10.10 没有对 HOST 进行校验</strong>。这个方式相比第一种来说，它完全符合浏览器的同源策略，所以不仅仅只能通过 html 标签发起简单的 get 请求，还可以利用 js 发起更加复杂的请求，也就是拓宽了利用场景。</li>
 <li>DNS 重绑定攻击，与第二种其实是很像的，第 1、2 种能做到它都能做到。重点就在于它使得多次解析的结果不固定。所以利用这一点，它还可以有其他用途，比如用在 SSRF 上，有些 SSRF 防御策略的第一步是先提取域名，然后解析一下看 ip 是不是内网 ip，但是到最后发起请求的时候依旧用的是域名，在第一次判断时进行解析与请求时进行解析，它们之间的时间差就给攻击者留下了可乘之机。</li>
 </ol>
 <p>当然，DNS 重绑定攻击自然也要面对 TTL 相关的问题，在上面 Fast-Flux 已经说过了。这里就说一点，如果你实在懒得写更换 A 记录的代码（比如我），或者担心运营商“反向助攻”，你就配置 2 个 A 记录就完事了，一个是正常的外网 ip，一个是你目标的内网 ip，虽然不会每次都成功，但是可以多执行几次恶意代码，多试几次总会成功的嘛，实现起来也比较方便。</p>
 <p>那怎么让位于目标内网的机器访问这个网站呢？这就得各位各凭本事了，主要是社工；对于某些公司的爬虫，也可以弄个陷阱，等爬虫来爬的时候触发。</p>
 <p>至于防御思路嘛：</p>
 <ol>
-<li>首先 DNS 重绑定攻击自身具有一定的局限性，即 TTL 相关的问题。像 Java JVM 也存在 DNS 缓存机制，默认 TTL 为 10s。</li>
+<li>首先 DNS 重绑定攻击，攻击起来略微复杂，自身也具有一定的局限性，即 TTL 相关的问题（上面提到过 Fast-Flux 的局限性）。像 Java JVM 也存在 DNS 缓存机制，失败默认 TTL 为 10s，成功默认 TTL 为 30s。</li>
 <li>系统放在内网并不意味着安全，要加上权限验证措施</li>
 <li>上 HTTPS，这个没啥好说的</li>
 <li>验证 HOST，即不允许任意域名都能与自己的 ip 绑定且还能够正常使用，浏览器会自己带上 HOST，由于 DNS 重绑定的 HOST 是攻击者所有，所以很容易可以看出异常</li>
 <li>对于上面那种 SSRF 的场景，在第一次解析之后就要保存解析结果给后面的请求执行（相当于维护一份 DNS 缓存），而不是再发出一次 DNS 解析请求</li>
-<li>最后，如果是为了利用 DNS 重绑定攻击完成的 CSRF，那么大部分防御 CSRF 的手段都是适用的（基于同源策略的防御措施是失效的，比如 csrf token）</li>
+<li>最后，如果是为了利用 DNS 重绑定攻击完成的 CSRF，那么大部分防御 CSRF 的手段都是适用的（但是基于同源策略的防御措施是失效的，比如 csrf token）</li>
 </ol>
 <h3 id="DDoS-放大"><a href="#DDoS-放大" class="headerlink" title="DDoS 放大"></a>DDoS 放大</h3><p>DDoS 放大上一篇提过一部分，我们知道 DNS 大部分情况下用的 udp，并且回复数据包大于请求数据包，所以可以被用来放大 DDoS 流量去打别人。上一次讲的是 利用回复数据包大于请求数据包 这一点来攻击 DNS 服务器；而这里侧重的是“利用 DNS 放大 DDos 流量去攻击其他人”，即利用回复数据包大于请求数据包+源地址可以伪造 来攻击其他客户端/服务器：</p>
 <p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-3-attack-by-dns/20201104095050002.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
