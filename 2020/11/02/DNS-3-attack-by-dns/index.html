@@ -404,10 +404,10 @@
 <ol>
 <li>首先 DNS 重绑定攻击，攻击起来略微复杂，自身也具有一定的局限性，即 TTL 相关的问题（上面提到过 Fast-Flux 的局限性）。像 Java JVM 也存在 DNS 缓存机制，失败默认 TTL 为 10s，成功默认 TTL 为 30s。</li>
 <li>系统放在内网并不意味着安全，要加上权限验证措施</li>
-<li>上 HTTPS，在验证证书的时候会出错，因为证书的 subject 应该要与域名一致，而重绑定之后，域名是攻击者的，但是证书却是攻击目标的。</li>
+<li>上 HTTPS，这样在验证证书的时候会出错，因为证书的 subject 应该要与域名一致，而重绑定之后，域名是攻击者的，但是证书却是攻击目标的。</li>
 <li>验证 HOST，即不允许任意域名都能与自己的 ip 绑定且还能够正常使用，浏览器会自己带上 HOST，由于 DNS 重绑定的 HOST 是攻击者所有，所以很容易可以看出异常</li>
 <li>对于上面那种 SSRF 的场景，在第一次解析之后就要保存解析结果给后面的请求执行（相当于维护一份 DNS 缓存），而不是再发出一次 DNS 解析请求</li>
-<li>最后，如果是为了利用 DNS 重绑定攻击完成的 CSRF，那么大部分防御 CSRF 的手段都是适用的（但是基于同源策略的防御措施是失效的，比如 csrf token）</li>
+<li>如果是为了利用 DNS 重绑定攻击完成的 CSRF，那么大部分防御 CSRF 的手段都是适用的（但是基于同源策略的防御措施是失效的，比如 csrf token）</li>
 </ol>
 <h3 id="DDoS-放大"><a href="#DDoS-放大" class="headerlink" title="DDoS 放大"></a>DDoS 放大</h3><p>DDoS 放大上一篇提过一部分，我们知道 DNS 大部分情况下用的 udp，并且回复数据包大于请求数据包，所以可以被用来放大 DDoS 流量去打别人。上一次讲的是 利用回复数据包大于请求数据包 这一点来攻击 DNS 服务器；而这里侧重的是“利用 DNS 放大 DDos 流量去攻击其他人”，即利用回复数据包大于请求数据包+源地址可以伪造 来攻击其他客户端/服务器：</p>
 <p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-3-attack-by-dns/20201104095050002.png!blog" srcset="/img/loading.gif" lazyload alt=""></p>
