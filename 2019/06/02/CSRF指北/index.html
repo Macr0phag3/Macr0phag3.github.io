@@ -331,7 +331,7 @@
 <p>如果网站返回给浏览器的 HTTP 头中包含有 P3P 头，将允许浏览器发送第三方 Cookie。在 IE 下即使是 <code>&lt;iframe&gt;</code>、<code>&lt;script&gt;</code> 等标签也将不再拦截第三方 Cookie 的发送。在网站的业务中，P3P 头主要用于类似广告等需要跨域访问的页面。但是 P3P 头设置后，对于 Cookie 的影响将扩大到整个域中的所有页面，因为 Cookie 是以域和 path 为单位的。</p>
 <p>所以，<strong>仅仅依赖浏览器来防御 CSRF 是相当不靠谱的</strong>。</p>
 <h3 id="开发防御"><a href="#开发防御" class="headerlink" title="开发防御"></a>开发防御</h3><p>求人不如求己，让开发人员来防御 CSRF 可行么？即将防御阵地转移至第三个条件，既然 CSRF 是在用户不知情的情况下发起的请求，那么强制用户进行交互不就解决了吗？</p>
-<h4 id="强制用户交互"><a href="#强制用户交互" class="headerlink" title="强制用户交互"></a>强制用户交互</h4><h5 id="利用-POST-防御"><a href="#利用-POST-防御" class="headerlink" title="利用 POST 防御"></a>利用 POST 防御</h5><p>由于大多数讲 CSRF 的例子都以 GET 型为例，让人以为重要的操作改为 POST 型就不能进行利用了，实际上是让用户点击按钮，也算强制交互吧。</p>
+<h4 id="强制用户交互"><a href="#强制用户交互" class="headerlink" title="强制用户交互"></a>强制用户交互</h4><h5 id="不能利用-POST-防御"><a href="#不能利用-POST-防御" class="headerlink" title="不能利用 POST 防御"></a><strong>不能</strong>利用 POST 防御</h5><p>由于大多数讲 CSRF 的例子都以 GET 型为例，让人以为重要的操作改为 POST 型就不能进行利用了，实际上是让用户点击按钮，也算强制交互吧。</p>
 <p>这个观点是相当错误的，以 GET 型为例只不过是为了最简化地讲清楚攻击原理罢了，js 能够控制前端的操作太多了。</p>
 <p>这个防御有 2 个主要的问题：</p>
 <ol>
