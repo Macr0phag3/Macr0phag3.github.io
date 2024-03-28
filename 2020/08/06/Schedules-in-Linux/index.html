@@ -1,0 +1,1091 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="定时任务作为常见的持久化手段，还是很有必要掌握的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 定时任务详解">
+<meta property="og:url" content="https://www.tr0y.wang/2020/08/06/Schedules-in-Linux/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="定时任务作为常见的持久化手段，还是很有必要掌握的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/linux.jpeg/cover">
+<meta property="article:published_time" content="2020-08-06T09:58:37.000Z">
+<meta property="article:modified_time" content="2024-03-28T03:22:51.847Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/linux.jpeg/cover">
+  
+  
+  
+  <title>Linux 定时任务详解 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 定时任务详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-08-06 09:58" pubdate>
+          2020年8月6日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          6.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          41 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(76)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/11/02/DNS-3-attack-by-dns/" title="DNS 安全（三）：利用 DNS 协议发起的攻与防"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（三）：利用 DNS 协议发起的攻与防</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/30/DNS-2-attack-dns/" title="DNS 安全（二）：针对 DNS 协议的攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（二）：针对 DNS 协议的攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/06/28/ja3/" title="JA3(S)，简单而有效的 TLS 指纹"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">JA3(S)，简单而有效的 TLS 指纹</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux 定时任务详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>定时任务作为常见的持久化手段，还是很有必要掌握的。</p>
+<span id="more"></span>
+<p>在 Linux 一说“定时任务”，想必大家第一反应都是 <code>Crontab</code>。其实定时任务不止有 <code>Crontab</code>，还有 <code>Anacron</code>、<code>at</code>。就算是大家最为熟悉的 crontab，其实还是有很多细节的知识的。比如各位可以问问自己，若攻击者插入了一条恶意的 crontab，该怎么找出来呢？或者说，如何完整地检查一下服务器的 crontab 呢？大家的第一反应可能是 <code>crontab -l</code>，但其实这样只能检查很有限的一部分。<strong>本文以 <code>centos</code> 为例</strong>，介绍一下 Linux 定时任务的检查方式。</p>
+<h2 id="crontab">Crontab</h2>
+<p>大多数人都用过 Crontab：<code>crontab -e / -l</code>，所以这里就不介绍了，也不赘述使用方式了。</p>
+<p>要想完整的列出 crontab，最好还是从 crontab 保存的定时任务文件入手。</p>
+<h3 id="crontab-相关的文件">Crontab 相关的文件</h3>
+<p>Crontab 相关的文件分别在 <code>/etc</code>、<code>/var/spool/cron/</code> 下：</p>
+<ol type="1">
+<li><code>/etc/</code>
+<ol type="1">
+<li><code>/etc/cron.allow</code>: 相当于白名单，限制类配置，不在这里面的用户不能使用 crontab</li>
+<li><code>/etc/cron.deny</code>: 相当于黑名单，限制类配置，在这里面的用户不能使用 crontab</li>
+<li><code>/etc/crontab</code>: 系统级别的定时任务配置，可以理解为大家一起用的定时任务，所有权是系统而不是特定的某用户</li>
+<li><code>/etc/cron.d/</code>: 这个文件夹下的配置同 <code>/etc/crontab</code>。假如你有个定时任务不想直接写到 <code>/etc/crontab</code>里，那么你可以选择新建一个文件，放在 <code>/etc/cron.d/</code> 里面（无需其他配置，直接生效）。
+<ol type="1">
+<li><code>/etc/cron.d/0hourly</code>: 自带的，其实就是用 <code>run-parts</code> 去执行 <code>/etc/cron.hourly</code> 下面的脚本</li>
+<li>...（可能有其他用户把定时任务放在这下面）</li>
+</ol></li>
+<li><code>/etc/cron.hourly/</code>: 被 <code>/etc/cron.d/0hourly</code> 执行。里面是可执行文件或者 shell 脚本。
+<ol type="1">
+<li><code>/etc/cron.hourly/0anacron</code>: <code>anacron</code> 下面会讲</li>
+</ol></li>
+<li><code>/etc/cron.daily</code>、<code>/etc/cron.weekly</code>、<code>/etc/cron.monthly</code>: 看起来和 crontab 有关系？其实是 <code>anacron</code>的！下面会讲</li>
+</ol></li>
+<li><code>/var/spool/cron/</code>: 存放每个用户的 crontab，所有权是特定的用户（注意与 <code>/etc/crontab</code> 对比）。这个就是我们在用 <code>crontab -e</code> 的时候创建/编辑的文件，所以文件名就是用户名，并且执行的时候是用文件名（即用户名）的权限来执行的，例如你在下面建了一个名叫 <code>Tr0y</code>的文件，则会以<code>Tr0y</code>的身份去执行这个文件里的定时任务。需要注意的是，如果你在这个目录下强行创建了一个以不存在的用户名为命名的文件，例如 <code>test</code>，但是你又没有这个用户的话，<code>test</code> 里面的定时任务是不会执行的。另一个需要注意的是，<code>/var/spool/cron/</code> 的所有权是 root，所以普通用户是没办法直接在下面创建文件的，只能加 <code>sudo</code> 或者通过 <code>crontab -e</code>。
+<ol type="1">
+<li>...（各个用户的 crontab）</li>
+</ol></li>
+</ol>
+<p>注意，<code>/etc/cron.allow</code> 的优先级比 <code>/etc/cron.deny</code> 要高，所以配置只需要选择一种来限制即可。一般来说，系统的用户相对可靠，故默认保留的是 <code>/etc/cron.deny</code>，且内容为空，这样所有人都能用 crontab。如果这两个限制文件都不存在，那么只有 root 才能使用 crontab。</p>
+<p>最后需要注意的是，cron 是不会递归文件夹的，所以你在 <code>/etc/cron.d/</code> 和 <code>/var/spool/cron/</code> 下面建文件夹，再在里面放配置文件是没用的。为什么要特别提到这一点？因为我见过有攻击者这么干过...</p>
+<h3 id="防御建议">防御建议</h3>
+<ol type="1">
+<li>使用 <code>/etc/cron.allow</code> 来指定可使用 crontab 的用户（最好不要使用黑名单的<code>/etc/cron.deny</code>）。需要注意的是，<strong>此文件一定要是 root 所有</strong>。</li>
+<li>检查 crontab 的时候，分别检查：<code>/etc/crontab</code>、<code>/etc/cron.d/*</code>、<code>/var/spool/cron/*</code>。</li>
+<li>检查是否有除了 <code>/etc/cron.hourly/0anacron</code> 之外的 anacron 定时任务（下面会提）</li>
+</ol>
+<h2 id="anacron">Anacron</h2>
+<p><code>Anacron</code> 可能大家用的少一点，所以会说的多一些。</p>
+<p>它与 <code>Crontab</code> 最大的不同在于，它会去执行那些落下的定时任务。举个例子，假如你设定了一个 Crontab 定时任务，在每周六晚上 6 点执行。但是正好周六晚上 5 点到 7 点停电了，那么这个定时任务相当于这一轮就没有执行。但是如果你用的是 Anacron，它会去检查并执行那些没有执行过的定时任务。实际上，Anacron 是每个小时被 <code>crond</code>（Crontab 服务）执行一次，然后 Anacron 再去检测相关的定时任务有没有被执行，如果有超期没被执行的工作，就执行该定时任务。</p>
+<p>Anacron 其实仅仅是一个程序，不像 Crontab 那样利用 crond 服务执行。之前在 Crontab 里提到过，有个自带的每一个小时执行一次的定时任务集合：<code>/etc/cron.d/0hourly</code>，而这个定时任务其实就是用 <code>run-parts</code> 去执行 <code>/etc/cron.hourly</code> 下面的脚本，这里面自带一个 <code>0anacron</code>，其实就是这一节提到的 <code>Anacron</code>。所以 <code>Anacron</code> 其实是依托于 Crontab 去定时执行的。<code>0anacron</code> 如下：<br />
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment">#!/bin/sh</span><br><span class="hljs-comment"># Check whether 0anacron was run today already</span><br><span class="hljs-keyword">if</span> test -r <span class="hljs-regexp">/var/</span>spool<span class="hljs-regexp">/anacron/</span>cron.daily; then<br>    day=`cat <span class="hljs-regexp">/var/</span>spool<span class="hljs-regexp">/anacron/</span>cron.daily`<br>fi<br><span class="hljs-keyword">if</span> [ `date +%Y%m%d` = <span class="hljs-string">&quot;$day&quot;</span> ]; then<br>    <span class="hljs-keyword">exit</span> <span class="hljs-number">0</span>;<br>fi<br><br><span class="hljs-comment"># --- 上面这部分就是我说的检测定时任务是否执行过的逻辑 ---</span><br><br><span class="hljs-comment"># Do not run jobs when on battery power</span><br><span class="hljs-keyword">if</span> test -x <span class="hljs-regexp">/usr/</span>bin/on_ac_power; then<br>    <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/on_ac_power &gt;/</span>dev/null <span class="hljs-number">2</span>&gt;&amp;<span class="hljs-number">1</span><br>    <span class="hljs-keyword">if</span> test $? -eq <span class="hljs-number">1</span>; then<br>    <span class="hljs-keyword">exit</span> <span class="hljs-number">0</span><br>    fi<br>fi<br><span class="hljs-regexp">/usr/</span>sbin/anacron -s<br><br><span class="hljs-comment"># 所以这个脚本其实执行的就是 `anacron -s`...</span><br></code></pre></td></tr></table></figure></p>
+<p>各位可能会觉得很奇怪，为啥这个名字最前面要加个 0。根据网上的说法，0 开头的定时任务会排在最前面执行，这样的话，就避免了有些 Crontab 定时任务执行过之后，Anacron 误以为 Crontab 没执行，导致重复执行某些定时任务。包括命令之前加上 <code>nice</code> 让它优先获得 cpu 以便执行，也是出于这个目的。</p>
+<h3 id="anacron-的相关文件">Anacron 的相关文件</h3>
+<ol type="1">
+<li><code>/etc/anacrontab</code>: 与 <code>/etc/crontab</code> 类似，自带，通过 <code>run-parts</code> 执行 <code>/etc/cron.daily</code>、<code>/etc/cron.weekly</code>、<code>/etc/cron.monthly</code>。</li>
+<li><code>/var/spool/anacron/</code>: 记录上面几个的执行时间，内容就是<code>年月日</code>
+<ol type="1">
+<li><code>/var/spool/anacron/cron.daily</code></li>
+<li><code>/var/spool/anacron/cron.monthly</code></li>
+<li><code>/var/spool/anacron/cron.weekly</code></li>
+</ol></li>
+<li>anacrontab 可以通过 <code>-t</code> 参数指定 <code>/etc/anacrontab</code> 的位置，默认就是 <code>/etc/anacrontab</code></li>
+</ol>
+<p>简单解释一下 <code>/etc/anacrontab</code> 的内容吧：<br />
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs ruby"><span class="hljs-variable constant_">SHELL</span>=<span class="hljs-regexp">/bin/sh</span><br><span class="hljs-variable constant_">PATH</span>=<span class="hljs-regexp">/sbin:/bin</span><span class="hljs-symbol">:/usr/sbin</span><span class="hljs-symbol">:/usr/bin</span><br><span class="hljs-variable constant_">MAILTO</span>=root<br><span class="hljs-variable constant_">RANDOM_DELAY</span>=<span class="hljs-number">45</span>         <span class="hljs-comment"># 执行之前随机延迟时间（分钟，可分散服务器的压力）</span><br><span class="hljs-variable constant_">START_HOURS_RANGE</span>=<span class="hljs-number">3</span>-<span class="hljs-number">22</span>  <span class="hljs-comment"># 允许执行命令的时间段（这里是 3 点 - 22 点才能执行）</span><br><br><span class="hljs-number">1</span>                 <span class="hljs-number">5</span>        cron.daily         nice run-parts /etc/cron.daily<br><br><span class="hljs-comment"># 1: 每隔多久执行（天）</span><br><span class="hljs-comment"># 5: 固定延迟时间（分钟）</span><br><span class="hljs-comment"># cron.daily: 定时任务名称，随便设置，主要是看 log （/var/log/cron 的时候可能有用）</span><br><span class="hljs-comment"># nice run-parts /etc/cron.daily: 定时任务的核心 —— 要执行的命令</span><br></code></pre></td></tr></table></figure></p>
+<p>与 <code>/etc/cron.d/0hourly</code> 挺像的，同时名字最前面加 <code>0</code> 这个逻辑也是一样的。</p>
+<p>以 <code>cron.daily</code> 为例，对照上面这个配置，总结一下 Anacron 的运行流程：</p>
+<ol type="1">
+<li>crond 读取 <code>/etc/crontab</code>、<code>/var/spool/cron/*</code>、<code>/etc/cron.d/*</code>，根据设定的时间执行</li>
+<li>执行到 <code>/etc/cron.d/0hourly</code> 的时候，执行 <code>/etc/cron.hourly/</code> 下的所有可执行文件，其中就有 <code>0anacron</code></li>
+<li>0anacron 执行 anacron</li>
+<li>anacron 读取 <code>/etc/anacrontab</code>，它指定了 <code>cron.daily</code> 执行间隔为 1 天</li>
+<li>从 <code>/var/spool/anacron/cron.daily</code> 取出最近一次执行 anacron 的时间</li>
+<li>比较当前时间与上一步获得的时间，若相差 1 天以上 （含 1 天），则准备执行指定的定时任务。</li>
+<li>根据 <code>/etc/anacrontab</code> 的设置，执行之前要先延时 5 分钟 + n 分钟（n 为不超过 45 的随机数）</li>
+<li>延时到点之后，开始执行指定的命令，即 <code>nice run-parts /etc/cron.daily</code></li>
+<li>执行完毕，结束</li>
+</ol>
+<p>最后，<code>anacrontab</code> 仅能用 root 权限配置。</p>
+<h3 id="防御建议-1">防御建议</h3>
+<p>anacrontab 的执行比较佛系，最快也就是一天执行一次（除非加上了<code>-f</code>，强制每轮检查都执行），所以恶意软件通常不想用这个去做持久化。不过也不好说，谁让它比 crontab 隐蔽呢？</p>
+<ol type="1">
+<li>检查 <code>/etc/anacrontab</code> 下是否有疑似恶意的定时任务</li>
+<li>检查 <code>/etc/cron.hourly/0anacron</code> 是否利用<code>-t</code>自定义了 anacrontab 定时任务文件位置，如果有也要检查这个自定义的文件。</li>
+</ol>
+<h2 id="at">at</h2>
+<p><code>at</code> 依赖于 <code>atd</code> 服务执行，这点与 crontab 有点像，但现在似乎不是默认启用 <code>atd</code> 的，所以可能需要手动启动（<code>systemctl start atd</code>）。它与前两个最大的区别在于 <code>at</code> 是一次性的，<strong>设定完之后只会运行一次</strong>。</p>
+<h3 id="at-的相关文件">at 的相关文件</h3>
+<ol type="1">
+<li><code>/etc/at.allow</code>: 相当于白名单，限制类配置，不在这里面的用户不能使用 at</li>
+<li><code>/etc/at.deny</code>: 相当于黑名单，限制类配置，在这里面的用户不能使用 at</li>
+<li><code>/var/spool/at/</code>: 保存定时任务的文件夹。下面用特定格式的文件名存放定时任务详情，包括命令、环境变量、设定定时任务时的路径等。
+<ol type="1">
+<li><code>/var/spool/at/spool</code>: 据说是保存输出的文件夹...至于是什么输出、什么时候会输出到这里就不得而知了...</li>
+<li>示例：<code>a000030196c020</code>。这个文件名的格式暂时没找到资料，不过经过我的测试，格式应该为，<code>a</code>(固定)+<code>00011</code>(任务每加一个这里要+1)+<code>从 1970-01-01 08:00:00 至 任务执行时间 的分钟数(8 位，位数不够在前面补 0)</code> （注意这里面计算都是十六进制的）</li>
+</ol></li>
+</ol>
+<p>上面的两个限制文件个 crontab 类似，也是 allow 的优先级比 deny 要高，如果这两个限制文件都不存在，那么只有 root 才能使用 at。</p>
+<p>当然，你也可以不用 at 来新建定时任务，只要往 <code>/var/spool/at/</code> 下面新建文件，注意权限要有 x，且得是 root 才能这么创建，至于文件名，一定要按照上面的规则才能被识别。示例，若我们想建一个在 <code>2030-01-01 08:00:00</code> 执行的定时任务。先计算一下时间差：<br />
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs perl">In [<span class="hljs-number">27</span>]: import datetime<br><br>In [<span class="hljs-number">28</span>]: delta = datetime.datetime.strptime(<span class="hljs-string">&#x27;2030-01-01 08:00:00&#x27;</span>, <span class="hljs-string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>) - datetime.datetime.strptime(<span class="hljs-string">&#x27;1970-01-01 0</span><br><span class="hljs-string">    ...: 8:00:00&#x27;</span>, <span class="hljs-string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>)<br><br>In [<span class="hljs-number">29</span>]:  <span class="hljs-keyword">hex</span>(delta.days * <span class="hljs-number">24</span> * <span class="hljs-number">60</span>)  <span class="hljs-comment"># 转分钟</span><br>Out[<span class="hljs-number">29</span>]: <span class="hljs-string">&#x27;0x1e187e0&#x27;</span><br></code></pre></td></tr></table></figure><br />
+补齐至 8 位：<code>01e187e0</code>。</p>
+<p>所以这个定时任务的格式应该为 <code>a</code>+<code>00012</code>(上一个任务+1)+<code>01e187e0</code>(时间差) = <code>a0001201e187e0</code>：<br />
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">➜  <span class="hljs-keyword">at</span> atq<br>➜  <span class="hljs-keyword">at</span> vim a0001201e187e0<br>➜  <span class="hljs-keyword">at</span> atq<br><span class="hljs-number">18</span>	Tue Jan  <span class="hljs-number">1</span> <span class="hljs-number">08</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> <span class="hljs-number">2030</span> <span class="hljs-keyword">a</span> root<br></code></pre></td></tr></table></figure></p>
+<p>各位如果比较敏感的话，就会想到 8 位的 hex，会不会出现类似千年虫的 bug 呢？<code>0xffffffff</code> = <code>4294967295</code> 年，43 亿年，嗯，各位是等不到了。</p>
+<p>最后有 3 点要提一下：</p>
+<ol type="1">
+<li>如果 at 定时任务执行没有成功，似乎会变成<code>=</code>开头的定时任务（原来是<code>a</code>开头的）</li>
+<li>执行时间在过去的定时任务是不会被执行的</li>
+<li>在直接写 at 定时任务的时候，要注意开头要有这三行：<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/sh            # shell</span><br><span class="hljs-comment"># atrun uid=0 gid=0  # 应该是表明计划任务的拥有者的权限，未考证</span><br><span class="hljs-comment"># mail root 0        # 触发发邮件的逻辑时，收件人是谁</span><br></code></pre></td></tr></table></figure></li>
+<li>与 at 相关的还有一个 <code>batch</code> 命令，通过它设定的 at 定时任务，只有在 cpu 负载小于 0.8 的时候才会运行，且文件名则会以 <code>b</code> 开头。其实原理都是一样的，batch 也是用 at 来配置定时任务的：<br />
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">➜  at <span class="hljs-keyword">echo</span> &#x27;<span class="hljs-keyword">echo</span> &lt;0001f382&gt; &gt; <span class="hljs-string">/dev/pts/8</span>&#x27; | <span class="hljs-keyword">batch</span> &amp;&amp; <span class="hljs-keyword">ls</span><br>job 32 at Mon Aug  3 17<span class="hljs-function">:35</span><span class="hljs-function">:00</span> 2020<br>b000200195ff5f  spool<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>at 的可读性还是很好的，例如你可以给自己发一个生日祝福：<br />
+<code>echo 'echo &lt;0001f382&gt; &gt; /dev/pts/8' | at 00:00 September 7</code></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs awk">➜  ~ echo <span class="hljs-string">&#x27;echo &lt;0001f382&gt; &gt; /dev/pts/8&#x27;</span> | at <span class="hljs-number">00</span>:<span class="hljs-number">00</span> September <span class="hljs-number">7</span><br>job <span class="hljs-number">1</span> at Mon Aug  <span class="hljs-number">3</span> <span class="hljs-number">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">00</span> <span class="hljs-number">2020</span><br>➜  ~ atq<br><span class="hljs-number">1</span>	Mon Sep  <span class="hljs-number">7</span> <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> <span class="hljs-number">2020</span> a root<br>➜  ~ ls <span class="hljs-regexp">/var/</span>spool<span class="hljs-regexp">/at/</span><br>a000010195fe8a  spool<br>➜  ~ cat <span class="hljs-regexp">/var/</span>spool<span class="hljs-regexp">/at/</span>a000010195fe8a<br><span class="hljs-comment">#!/bin/sh</span><br><span class="hljs-comment"># atrun uid=0 gid=0</span><br><span class="hljs-comment"># mail root 0</span><br>...<br>cd /root || &#123;<br>	 echo <span class="hljs-string">&#x27;Execution directory inaccessible&#x27;</span> &gt;&amp;<span class="hljs-number">2</span><br>	 <span class="hljs-keyword">exit</span> <span class="hljs-number">1</span><br>&#125;<br>...<br>echo 🎂 &gt; <span class="hljs-regexp">/dev/</span>pts/<span class="hljs-number">8</span><br>...<br></code></pre></td></tr></table></figure>
+<p>等到 9 月 7 号，你就会收到你自己给自己发的 🎂 了（前提是你的 tty 没变）。<del>再也不用担心没人送祝福啦...怎么这么凄凉呢...</del></p>
+<h3 id="防御建议-2">防御建议</h3>
+<p>如果说选择 anacrontab 的恶意软件较少，那么选择 at 的恶意软件就更少了，同样也是比较隐蔽，甚至比 anacrontab 要更加隐蔽。</p>
+<ol type="1">
+<li>使用 <code>/etc/at.allow</code> 来指定可使用 at 的用户（最好不要使用黑名单的<code>/etc/at.deny</code>）。需要注意的是，<strong>此文件一定要是 root 所有</strong>。</li>
+<li>检查 <code>/var/spool/at/</code> 下是否有可疑的定时任务</li>
+</ol>
+<h2 id="判断恶意">判断恶意</h2>
+<p>现在已经知道恶意的定时任务可能出现在哪了，剩下的就是如何判断一个定时任务是否为恶意。传统的关键字、正则，启发式的机器学习与深度学习...这就需要大家各显神通了。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 定时任务详解</div>
+      <div>https://www.tr0y.wang/2020/08/06/Schedules-in-Linux/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年8月6日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2024年3月28日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CVE-2020-15778：鸡肋的高危</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/07/31/virus-beat-virus/" title="睡前小故（ying）事（ji）">
+                        <span class="hidden-mobile">睡前小故（ying）事（ji）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
