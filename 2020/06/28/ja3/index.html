@@ -1,0 +1,1027 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="JA3(S)，简单而有效的 TLS 指纹。这是一篇很简单的介绍文章，附带一丢丢技术细节。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JA3(S)，简单而有效的 TLS 指纹">
+<meta property="og:url" content="https://www.tr0y.wang/2020/06/28/ja3/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="JA3(S)，简单而有效的 TLS 指纹。这是一篇很简单的介绍文章，附带一丢丢技术细节。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2020-06-28T14:24:59.000Z">
+<meta property="article:modified_time" content="2025-02-21T02:54:01.960Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="流量分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>JA3(S)，简单而有效的 TLS 指纹 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="JA3(S)，简单而有效的 TLS 指纹"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-06-28 14:24" pubdate>
+          2020年6月28日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          28 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(79)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/11/02/DNS-3-attack-by-dns/" title="DNS 安全（三）：利用 DNS 协议发起的攻与防"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（三）：利用 DNS 协议发起的攻与防</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">JA3(S)，简单而有效的 TLS 指纹</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>JA3(S)，简单而有效的 TLS 指纹。这是一篇很简单的介绍文章，附带一丢丢技术细节。</p>
+<span id="more"></span>
+<h2 id="背景">背景</h2>
+<p>最近在看 <code>Suricata</code>，一个开源的 NIDS。Suricata 自带了很多的规则，然后里面有些比较特殊的规则引起了我的注意：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">alert tls <span class="hljs-variable">$EXTERNAL_NET</span> any -&gt; <span class="hljs-variable">$HOME_NET</span> <span class="hljs-title function_ invoke__">any</span> (<span class="hljs-attr">msg</span>:<span class="hljs-string">&quot;ET JA3 Hash - Suspected Meterpreter Reverse Shell (ja3s) M1&quot;</span>; <span class="hljs-attr">flow</span>:established,from_server; ja3s.hash; <span class="hljs-attr">content</span>:<span class="hljs-string">&quot;e35df3e00ca4ef31d42b34bebaa2f86e&quot;</span>; <span class="hljs-attr">flowbits</span>:<span class="hljs-keyword">isset</span>,ET.meterpreter.ja3; <span class="hljs-attr">metadata</span>: former_category JA3; <span class="hljs-attr">classtype</span>:command-<span class="hljs-keyword">and</span>-control; <span class="hljs-attr">sid</span>:<span class="hljs-number">2028829</span>; <span class="hljs-attr">rev</span>:<span class="hljs-number">2</span>; <span class="hljs-attr">metadata</span>:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, attack_target Server, deployment Perimeter, signature_severity Major, created_at <span class="hljs-number">2019_10_15</span>, malware_family Meterpreter, updated_at <span class="hljs-number">2019_10_15</span>;)<br></code></pre></td></tr></table></figure><br />
+经过 “美化”，去掉没啥用的信息之后，再加点注释，如下：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">alert tls $EXTERNAL_NET <span class="hljs-built_in">any</span> -&gt; $HOME_NET <span class="hljs-built_in">any</span>  <span class="hljs-comment"># 匹配 tls 协议，且源 ip 为 外网 ip+任意端口，目的 ip 为内网 ip+任意端口 的数据包</span><br>(<br>msg: <span class="hljs-string">&quot;ET JA3 Hash - Suspected Meterpreter Reverse Shell (ja3s) M1&quot;</span>; <span class="hljs-comment"># msg 是类似漏洞标题一样的东西</span><br>flow:established,from_server;  <span class="hljs-comment"># flow 指的是 tcp 流，属性为 established，from_server</span><br>ja3s.<span class="hljs-built_in">hash</span>; content:<span class="hljs-string">&quot;e35df3e00ca4ef31d42b34bebaa2f86e&quot;</span>;  <span class="hljs-comment"># 这个就是本文的重点了</span><br>)<br></code></pre></td></tr></table></figure></p>
+<p>这个规则最主要的就是这个 <code>ja3s.hash</code> 了。</p>
+<h2 id="ja3-与-ja3s">ja3 与 ja3s</h2>
+<p><code>ja3(s)</code> 是为特定客户端与服务器之间的加密通信提供了具有更高的识别度的指纹，说白了就是 TLS 协商的指纹。那么这个有什么用呢？</p>
+<p>例如，现在的 C2 服务器与恶意客户端之间的通信往往都是套上 TLS 的，将其流量隐藏在噪声中来躲避 IDS/IPS，这样光从 ip/域名这个维度去检测难免会漏掉一些。如果我们掌握了 C2 服务器与恶意客户端的 ja3(s)，即使恶意流量被加密且不知道 C2 服务器的 IP 地址或域名，我们仍然可以通过 TLS 指纹来识别恶意客户端和服务器之间的 TLS 协商。</p>
+<p>那么难道 ja3(s) 不能改变吗？当然是可以的，但是会提高成本：改个 ip 或者域名，比修改客户端方便多了吧？</p>
+<h3 id="原理">原理</h3>
+<p>回想一下我们在初三就学过的知识，客户端会在 TCP 3 次握手后发送 TLS 客户端的 Hello 数据包，而程（da）序（hei）员（ke）在写客户端的时候其实就已经确定了这个数据包里的一些特定内容会是什么样的，我们只需要将这些特定的内容提取出来，排好队，进行 hash，就是客户端的 TLS 指纹，即 <code>ja3</code>。</p>
+<p>服务器收到 Hello 之后，会构造 TLS Server Hello 数据包进行响应。同样，这个响应数据包中的一些特定内容，也是由服务器应用程序决定的，这就是 <code>ja3s</code>。</p>
+<p>当然，我们初三就知道，上述通信过程的是以明文的方式传输的，所以不存在<code>没法解出 TLS =&gt; 没法计算指纹</code>这样的套娃情况。</p>
+<h3 id="计算-ja3">计算 ja3</h3>
+<p>刚才说了，特定内容，那么这个特定内容到底是哪几个字段呢？一共有 5 个：<code>ClientHello 的版本</code>、<code>可接受的加密算法</code>、<code>扩展列表中的每一个 type 值</code>、<code>支持的椭圆曲线</code>和<code>支持的椭圆曲线格式</code>。然后，用<code>,</code>来分隔各个字段、用使用<code>-</code>来分隔各个字段中的各个值（十进制哦），将这些值串联在一起之后，计算 <code>MD5</code>，就是一个 ja3 了。注意，如果没有某个字段，则这些字段的值为空（连接用的逗号别忘了）。</p>
+<p>举个例子，curl 一下百度：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/ja3/20200628022756065.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这样算下来，指纹应该是：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">771</span>,<span class="hljs-number">49200</span>-<span class="hljs-number">49196</span>-<span class="hljs-number">49192</span>-<span class="hljs-number">49188</span>-<span class="hljs-number">49172</span>-<span class="hljs-number">49162</span>-<span class="hljs-number">159</span>-<span class="hljs-number">107</span>-<span class="hljs-number">57</span>-<span class="hljs-number">52393</span>-<span class="hljs-number">52392</span>-<span class="hljs-number">52394</span>-<span class="hljs-number">65413</span>-<span class="hljs-number">196</span>-<span class="hljs-number">136</span>-<span class="hljs-number">129</span>-<span class="hljs-number">157</span>-<span class="hljs-number">61</span>-<span class="hljs-number">53</span>-<span class="hljs-number">192</span>-<span class="hljs-number">132</span>-<span class="hljs-number">49199</span>-<span class="hljs-number">49195</span>-<span class="hljs-number">49191</span>-<span class="hljs-number">49187</span>-<span class="hljs-number">49171</span>-<span class="hljs-number">49161</span>-<span class="hljs-number">158</span>-<span class="hljs-number">103</span>-<span class="hljs-number">51</span>-<span class="hljs-number">190</span>-<span class="hljs-number">69</span>-<span class="hljs-number">156</span>-<span class="hljs-number">60</span>-<span class="hljs-number">47</span>-<span class="hljs-number">186</span>-<span class="hljs-number">65</span>-<span class="hljs-number">49170</span>-<span class="hljs-number">49160</span>-<span class="hljs-number">22</span>-<span class="hljs-number">10</span>-<span class="hljs-number">255</span>,<span class="hljs-number">0</span>-<span class="hljs-number">11</span>-<span class="hljs-number">10</span>-<span class="hljs-number">13</span>-<span class="hljs-number">16</span>,<span class="hljs-number">29</span>-<span class="hljs-number">23</span>-<span class="hljs-number">24</span>,<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure><br />
+经过 md5 就是 <code>e6573e91e6eb777c0933c5b8f97f10cd</code>。这就是我的 curl 的 ja3 啦。</p>
+<h3 id="计算-ja3s">计算 ja3s</h3>
+<p>ja3s 与 ja3 类似，提取 Server Hello 数据包中的：<code>Server Hello 版本</code>、<code>可接受的加密算法</code>和<code>扩展列表中的每一个 type 值</code>。然后同样用<code>,</code>来分隔各个字段、用使用<code>-</code>来分隔各个字段中的各个值（十进制哦），将这些值串联在一起之后，计算 <code>MD5</code>，就是一个 ja3s 了。</p>
+<h2 id="一些杂谈">一些杂谈</h2>
+<blockquote>
+<p>为什么要用 md5？</p>
+</blockquote>
+<p>md5 的确有点过时了。ja3(s) 开发者（John Althouse）给出的理由是他希望 ja3(s) 在任意硬件上都可以使用：“...即使是最古老的 NetScreen 防火墙也可以支持大批量的MD5计算，所以，我们还是选择了MD5算法...此外，考虑到有限的数据集，这里根本就不需要考虑哈希值的碰撞问题...”。我基本上是赞同他的看法的，用更好的 hash 可以，但是没必要。</p>
+<blockquote>
+<p>ja3(s) 的误报率如何？</p>
+</blockquote>
+<p>说实话，一般只有高度定制化的恶意软件会自己去实现 TLS，也是在这种情况下，ja3 指纹很可能对该恶意软件来说是唯一的。但是现在研发一般都会用第三方的库，不管是诸如 Python 的官方模块还是 win 下的组件，如果是这种情况，那么 ja3 会重复，误报率很高。这其实就是为什么要用 ja3s。</p>
+<p>John Althouse 也举了个例子，翻译如下：</p>
+<p>“...例如，MetaSploit 的 Meterpreter 和 CobaltStrike 的 Beacon 都使用 Windows 套接字来启动 TLS 通信。在 Windows 10 上，<code>JA3=72a589da586844d7f0818ce684948eea</code>（指定 IP 地址），<code>JA3=a0e9f5d64349fb13191bc781f81f42e1</code>（指定域名）。由于 Windows 上的其他普普通通的应用程序也使用相同的套接字，因此，我们很难识别其中的恶意通信。但是，Kali Linux 上的 C2 服务器对该客户端应用程序的响应方式与 Internet 上的普通服务器对该套接字的响应方式相比来说是独一无二的。因此，如果结合 ja3+ja3s，就能够识别这种恶意通信，而不用考虑目的地 IP、域名或证书等细节信息...”</p>
+<p>总而言之，ja3 不是非常准确，所以要用 ja3s；ja3+ja3s 依旧不会非常准确，但是可以丰富我们检测威胁的维度，增加了攻击者的攻击成本，事实上现在很多 nids 都集成了 ja3(s) 的提取与匹配。</p>
+<h2 id="最后">最后</h2>
+<ol type="1">
+<li>这是 John Althouse 的 repo：https://github.com/salesforce/ja3 ，里面有一些工具还有介绍</li>
+<li>👆的工具贼不好用，所以我自己写了一个：https://github.com/Macr0phag3/ja3box</li>
+<li>这是 John Althouse 的 ja3(s) 的文章：https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967</li>
+</ol>
+<p>现在越来越多网址在用这个做反爬。有一个橘友问我有没有什么办法伪造 ja3？</p>
+<p>其实是有的。以 Python 为例，requests 依赖是其实是对 urllib 的一个封装，https 底层还是依赖的 OpenSSL。我尝试找过 OpenSSL 有没有提供修改字段的方法，并没有发现。不过 cipher 的算法倒是可以直接修改，<code>urllib3.util.ssl_.DEFAULT_CIPHERS = 'EECDH+AESGCMEDH+AESGCM'</code> 即可。这样生成的 ja3 就不是 requests 默认的了，但只能骗过不是太高明的反爬机制。</p>
+<p>同时，我尝试过用 scapy 写一个代理，然后劫持 curl/requests 发出的请求，篡改 ClientHello 包里的相关字段，然后再发出，达到伪造的目的。一番尝试之后，我发现这是不可行的，OpenSSL 会校验 extension，如果和自己发出的不一致，则会报错：<code>OpenSSL: error:141B30D9:SSL routines:tls_collect_extensions:unsolicited extension</code>。我的理解是这样的：ServerHello 的 Extension 是作为 ClientHello 的 Extension 的回应，前者应当是后者的子集。如果 Client 发现 ServerHello 中有一个扩展类型不存在与 ClientHello 中，那么它必须用一个 unsupported_extension alert 消息来丢弃此握手响应。显然 OpenSSL 对此是严格遵守的，这一点虽然让人很遗憾，但是我作为安全人员，还是很赞赏这种坚守的。</p>
+<p>所以如果准备用劫持的方式去伪造 ja3，这种依赖 OpenSSL 的库（比如 requests、curl）是不可行的，你只能祈祷 Server 别瞎返回，最好都不要响应任何 Extension。要么就去魔改 OpenSSL 以及 Python 调用 OpenSSL 的那个 .so，非常麻烦，反正我是懒得搞。</p>
+<p>最后我找到几个可以用来伪造 ja3 的库：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/CUCyber/ja3transport"><code>ja3transport</code></a>，golang 的库，这个的原理也是劫持 ClientHello 篡改，我认为不太靠谱。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/lwthiker/curl-impersonate"><code>curl-impersonate</code></a>，魔改的 curl，支持修改 ciphers 以及 curves。至于 extensions，我简单看了下作者的文章，他是通过使用与浏览器相同的 SSL 组件来模拟浏览器的 extensions，例如 Chrome 用的是 <code>BoringSSL</code>，FireFox 用的是 <code>NSS</code>，这个办法很聪明，在大多数场景下这个已经可以满足绕过的需要了，不过它就没办法模拟任意的 ja3 了。基于这个代码，还有一个 Python 版本的 <a target="_blank" rel="noopener" href="https://github.com/yifeikong/curl_cffi/tree/main"><code>curl_cffi</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Danny-Dasilva/CycleTLS"><code>CycleTLS</code></a>，有 golang 和 nodejs 的库，这个看代码是自己实现了 TLS 握手，实在是令人佩服。为了兼容 HTTP2 以及各种复杂的 TLS 参数，这个库目前还在艰难地维护当中， 不过只要不是特殊情况应该还是可以使用的。</li>
+</ul>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">#流量分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>JA3(S)，简单而有效的 TLS 指纹</div>
+      <div>https://www.tr0y.wang/2020/06/28/ja3/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年6月28日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年2月21日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/07/14/webshell-bypass-human/" title="Webshell 过狗没意思，我们要过人！">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Webshell 过狗没意思，我们要过人！</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言">
+                        <span class="hidden-mobile">2020 网鼎杯赛（zi）后（bi）感言</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

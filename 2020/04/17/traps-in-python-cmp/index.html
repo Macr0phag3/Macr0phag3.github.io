@@ -1,0 +1,1023 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="Python 比较运算符有个很有简便的用法，即：1 &lt; x &lt; 10，表示判断 x 是否满足在 (1, 10)之间，通常被人称为 链式比较。最近发现了一个隐藏的坑点，相当有意思。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 比较运算符展开的隐藏坑">
+<meta property="og:url" content="https://www.tr0y.wang/2020/04/17/traps-in-python-cmp/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="Python 比较运算符有个很有简便的用法，即：1 &lt; x &lt; 10，表示判断 x 是否满足在 (1, 10)之间，通常被人称为 链式比较。最近发现了一个隐藏的坑点，相当有意思。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2020-04-17T11:03:12.000Z">
+<meta property="article:modified_time" content="2025-02-21T02:54:01.961Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>Python 比较运算符展开的隐藏坑 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Python 比较运算符展开的隐藏坑"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-04-17 11:03" pubdate>
+          2020年4月17日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(79)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/11/02/DNS-3-attack-by-dns/" title="DNS 安全（三）：利用 DNS 协议发起的攻与防"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（三）：利用 DNS 协议发起的攻与防</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python 比较运算符展开的隐藏坑</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Python 比较运算符有个很有简便的用法，即：<code>1 &lt; x &lt; 10</code>，表示判断 x 是否满足在 <code>(1, 10)</code>之间，通常被人称为 <code>链式比较</code>。最近发现了一个隐藏的坑点，相当有意思。</p>
+<span id="more"></span>
+<p><strong>注意：在本文开始之前需要说明的是，以下内容均在 <code>3.x</code> 测试，<code>2.x</code> 不一定适用。</strong></p>
+<h2 id="一个例子">一个例子 🌰</h2>
+<p>问，按照你以前对 Python 的了解，以下语句中，哪些是 <code>True</code>，哪些是 <code>False</code>？（答案放在本文最下面，放心大胆往下看）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-number">1</span> <span class="hljs-keyword">in</span> (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>) == <span class="hljs-literal">True</span><br><span class="hljs-literal">None</span> <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">in</span> (<span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)<br><span class="hljs-literal">None</span> <span class="hljs-keyword">is</span> <span class="hljs-literal">False</span> <span class="hljs-keyword">in</span> (<span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>, <span class="hljs-literal">None</span>)<br><span class="hljs-literal">None</span> <span class="hljs-keyword">is</span> <span class="hljs-literal">True</span> <span class="hljs-keyword">in</span> (<span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>, <span class="hljs-literal">None</span>)<br></code></pre></td></tr></table></figure>
+<h2 id="比较运算符的展开">比较运算符的展开</h2>
+<p>文章一开始提到，<code>1 &lt; x &lt; 10</code>，表示判断 x 是否满足在 <code>(1, 10)</code>之间。那么 Python 到底是怎么处理这个展开的呢？我们可以用 <code>dis</code> 一探究竟：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: <span class="hljs-keyword">from</span> dis <span class="hljs-keyword">import</span> dis<br><br>In [<span class="hljs-number">2</span>]: x = <span class="hljs-number">5</span><br><br>In [<span class="hljs-number">3</span>]: dis(<span class="hljs-string">&#x27;1 &lt; x &lt; 10&#x27;</span>)<br>  <span class="hljs-number">1</span>           <span class="hljs-number">0</span> LOAD_CONST               <span class="hljs-number">0</span> (<span class="hljs-number">1</span>)<br>              <span class="hljs-number">2</span> LOAD_NAME                <span class="hljs-number">0</span> (x)<br>              <span class="hljs-number">4</span> DUP_TOP<br>              <span class="hljs-number">6</span> ROT_THREE<br>              <span class="hljs-number">8</span> COMPARE_OP               <span class="hljs-number">0</span> (&lt;)<br>             <span class="hljs-number">10</span> JUMP_IF_FALSE_OR_POP    <span class="hljs-number">18</span><br>             <span class="hljs-number">12</span> LOAD_CONST               <span class="hljs-number">1</span> (<span class="hljs-number">10</span>)<br>             <span class="hljs-number">14</span> COMPARE_OP               <span class="hljs-number">0</span> (&lt;)<br>             <span class="hljs-number">16</span> RETURN_VALUE<br>        &gt;&gt;   <span class="hljs-number">18</span> ROT_TWO<br>             <span class="hljs-number">20</span> POP_TOP<br>             <span class="hljs-number">22</span> RETURN_VALUE<br></code></pre></td></tr></table></figure></p>
+<p>Python 代码首先会被“编译“为字节码，然后再由 Python 虚拟机来执行字节码（Python 的字节码是一种类似汇编指令的中间语言，一个 Python 语句会对应若干字节码指令）。<code>dis</code> 这个内置模块是 Python 字节码“反汇编器“，可以帮助我们理解 Python 的代码是怎么执行的。</p>
+<p>那么怎么看这个指令呢？比如上面这段结果，以第一行为例：</p>
+<ol type="1">
+<li>第一列的数字<code>1</code>：表示其对应的源代码的行数</li>
+<li>第二列的<code>0</code>：表示字节码的<code>索引</code>，指令<code>LOAD_CONST</code>在<code>0</code>位置</li>
+<li>第三列：可读性较高的指令名称，告诉我们这个指令是啥意思</li>
+<li>第四列：表示指令参数所在的位置，我的理解是在堆栈里的位置。</li>
+<li>第五列：是参数值。</li>
+<li>上面的结果中，还有个 <code>&gt;&gt;</code>：表示跳转的目标，会配合类似 <code>JUMP</code> 的指令使用。比如 index 为 10 的指令，<code>JUMP_IF_FALSE_OR_POP</code>，后面跟着参数是 <code>18</code>，表明了跳转到索引为 18 的指令，即 <code>ROT_TWO</code></li>
+</ol>
+<p>若有疑问或者想查阅所有的指令，可以查看官方文档：<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/dis.html#python-bytecode-instructions">传送门🚪</a></p>
+<p>那么现在终于可以一探究竟了：</p>
+<ol type="1">
+<li><code>0 LOAD_CONST</code>：将 <code>1</code> 压入栈顶。此时堆栈为：<code>顶[ 1 ]底</code></li>
+<li><code>2 LOAD_NAME</code>：将 <code>x</code> 压入栈顶。此时堆栈为：<code>顶[ x, 1 ]底</code></li>
+<li><code>4 DUP_TOP</code>：复制堆栈顶部的引用。此时堆栈为：<code>顶[ x, x, 1 ]底</code></li>
+<li><code>6 ROT_THREE</code>：将第二个和第三个堆栈项向上提升一个位置，原来的顶项移动到位置三。此时堆栈为：<code>顶[ x, 1, x ]底</code></li>
+<li><code>8 COMPARE_OP</code>：执行布尔运算操作，这里就是 <code>&lt;</code>，执行完之后会把结果压回堆栈，而 <code>1 &lt; x</code>即<code>1&lt;5</code>为<code>True</code>。此时堆栈为：<code>顶[ True, x ]底</code></li>
+<li><code>10 JUMP_IF_FALSE_OR_POP</code>：如果堆栈顶部为 <code>False</code> 就跳，否则就把堆栈顶部弹出，这里明显是要弹出。此时堆栈为：<code>顶[ x ]底</code>。</li>
+<li><code>12 LOAD_CONST</code>：压入 <code>10</code>。此时堆栈为：<code>顶[ 10, x ]底</code>。</li>
+<li><code>14 COMPARE_OP</code>：执行比较 <code>x &lt; 10</code>。此时堆栈为：<code>顶[ True ]底</code>。</li>
+<li><code>16 RETURN_VALUE</code>：返回 <code>True</code>，结束</li>
+</ol>
+<p>可以看出，形如 <code>1 &lt; x &lt; 10</code> 的语句，Python 会利用 <code>DUP_TOP</code> 和 <code>ROT_THREE</code> 展开为 <code>1 &lt; x and x &lt; 10</code>。为什么是 <code>and</code> 呢？从上面的 <code>JUMP_IF_FALSE_OR_POP</code> 可以看出，这是短路运算，如果前面的是 <code>False</code> 就直接返回 <code>False</code> 了，所以是 <code>and</code> 不是 <code>or</code>。</p>
+<p>我们也可以看一下 <code>1 &lt; x and x &lt; 10</code> 的字节码来验证我们的想法：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: dis(<span class="hljs-string">&#x27;1 &lt; x and x &lt; 10&#x27;</span>)<br>  <span class="hljs-number">1</span>           <span class="hljs-number">0</span> LOAD_CONST               <span class="hljs-number">0</span> (<span class="hljs-number">1</span>)<br>              <span class="hljs-number">2</span> LOAD_NAME                <span class="hljs-number">0</span> (x)<br>              <span class="hljs-number">4</span> COMPARE_OP               <span class="hljs-number">0</span> (&lt;)<br>              <span class="hljs-number">6</span> JUMP_IF_FALSE_OR_POP    <span class="hljs-number">14</span><br>              <span class="hljs-number">8</span> LOAD_NAME                <span class="hljs-number">0</span> (x)<br>             <span class="hljs-number">10</span> LOAD_CONST               <span class="hljs-number">1</span> (<span class="hljs-number">10</span>)<br>             <span class="hljs-number">12</span> COMPARE_OP               <span class="hljs-number">0</span> (&lt;)<br>        &gt;&gt;   <span class="hljs-number">14</span> RETURN_VALUE<br></code></pre></td></tr></table></figure></p>
+<p>是不是很像？</p>
+<h2 id="坑点在哪里">坑点在哪里</h2>
+<p>在查找 <code>COMPARE_OP</code>的时候，官方文档有一句话：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/traps-in-python-cmp/20200417115704896.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><code>cmp_op[opname]</code> 在哪呢？<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: <span class="hljs-keyword">import</span> dis<br><br>In [<span class="hljs-number">2</span>]: dis.cmp_op<br>Out[<span class="hljs-number">2</span>]:<br>(<span class="hljs-string">&#x27;&lt;&#x27;</span>,<br> <span class="hljs-string">&#x27;&lt;=&#x27;</span>,<br> <span class="hljs-string">&#x27;==&#x27;</span>,<br> <span class="hljs-string">&#x27;!=&#x27;</span>,<br> <span class="hljs-string">&#x27;&gt;&#x27;</span>,<br> <span class="hljs-string">&#x27;&gt;=&#x27;</span>,<br> <span class="hljs-string">&#x27;in&#x27;</span>,<br> <span class="hljs-string">&#x27;not in&#x27;</span>,<br> <span class="hljs-string">&#x27;is&#x27;</span>,<br> <span class="hljs-string">&#x27;is not&#x27;</span>,<br> <span class="hljs-string">&#x27;exception match&#x27;</span>,<br> <span class="hljs-string">&#x27;BAD&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>可以看到，我们常用的链式比较符都在里面，但是还有一些稍微有点特殊的：<br />
+<code>(not) in</code>、<code>is (not)</code></p>
+<p>这也就引出了前面那几个语句执行方式，实际上也是会被展开的，以 <code>1 in (1, 2) == True</code> 为例：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">94</span>]: dis(<span class="hljs-string">&#x27;1 in (1, 2) == True&#x27;</span>)<br>  <span class="hljs-number">1</span>           <span class="hljs-number">0</span> LOAD_CONST               <span class="hljs-number">0</span> (<span class="hljs-number">1</span>)<br>              <span class="hljs-number">2</span> LOAD_CONST               <span class="hljs-number">1</span> ((<span class="hljs-number">1</span>, <span class="hljs-number">2</span>))<br>              <span class="hljs-number">4</span> DUP_TOP<br>              <span class="hljs-number">6</span> ROT_THREE<br>              <span class="hljs-number">8</span> COMPARE_OP               <span class="hljs-number">6</span> (<span class="hljs-keyword">in</span>)<br>             <span class="hljs-number">10</span> JUMP_IF_FALSE_OR_POP    <span class="hljs-number">18</span><br>             <span class="hljs-number">12</span> LOAD_CONST               <span class="hljs-number">2</span> (<span class="hljs-literal">True</span>)<br>             <span class="hljs-number">14</span> COMPARE_OP               <span class="hljs-number">2</span> (==)<br>             <span class="hljs-number">16</span> RETURN_VALUE<br>        &gt;&gt;   <span class="hljs-number">18</span> ROT_TWO<br>             <span class="hljs-number">20</span> POP_TOP<br>             <span class="hljs-number">22</span> RETURN_VALUE<br></code></pre></td></tr></table></figure></p>
+<p>简直一模一样，<code>1 in (1, 2) == True</code> 会被展开成 <code>1 in (1, 2) and (1, 2) == True</code>。</p>
+<h2 id="答案">答案</h2>
+<p>想必到这里，你应该可以看出，开头的那几个语句均为 <code>False</code> 了吧~</p>
+至于解决方法嘛，当然是加括号啦~<br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Python 比较运算符展开的隐藏坑</div>
+      <div>https://www.tr0y.wang/2020/04/17/traps-in-python-cmp/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年4月17日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年2月21日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/04/25/python%E9%9A%90%E5%BC%8F%E8%A1%8C%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%9D%91/" title="Python 隐式行连接会给你挖什么坑？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Python 隐式行连接会给你挖什么坑？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/03/05/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/" title="MacOS 的 ssl4.plist 挖矿病毒排查记录">
+                        <span class="hidden-mobile">MacOS 的 ssl4.plist 挖矿病毒排查记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
