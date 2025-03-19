@@ -1,0 +1,994 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="parselmouth —— 自动化的 Python 沙箱逃逸 payload bypass 框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="parselmouth 介绍">
+<meta property="og:url" content="https://www.tr0y.wang/2024/03/04/parselmouth/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="parselmouth —— 自动化的 Python 沙箱逃逸 payload bypass 框架">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2024-03-04T20:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-19T11:44:53.499Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>parselmouth 介绍 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="parselmouth 介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-04 20:00" pubdate>
+          2024年3月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="知识输出"
+        id="heading-77f0ee1b8a872569d52f43f678e2970f" role="tab" data-toggle="collapse" href="#collapse-77f0ee1b8a872569d52f43f678e2970f"
+        aria-expanded="true"
+      >
+        知识输出
+        <span class="list-group-count">(15)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-77f0ee1b8a872569d52f43f678e2970f"
+           role="tabpanel" aria-labelledby="heading-77f0ee1b8a872569d52f43f678e2970f">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/13/fake_toa/" title="ChatGPT 指导下的 TOA 伪造之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ChatGPT 指导下的 TOA 伪造之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/14/MATLABstegsolve/" title="MATLAB 实现 stegsolve"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">MATLAB 实现 stegsolve</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/29/ReIPdog/" title="ReIPdog - 查询旁站的脚本"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ReIPdog - 查询旁站的脚本</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/01/28/WlanSniffer/" title="WLANSniffer"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">WLANSniffer</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/04/parselmouth/" title="parselmouth 介绍"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">parselmouth 介绍</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/08/09/SwSpider/" title="书蜗抢座爬虫"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">书蜗抢座爬虫</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/09/26/email-hacker/" title="伪造电子邮件以及制造电子邮件炸弹的攻防探讨"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">伪造电子邮件以及制造电子邮件炸弹的攻防探讨</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/08/09/SwRenew/" title="利用书蜗自动续借图书"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">利用书蜗自动续借图书</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/02/FireTSP/" title="模拟退火之 TSP 问题"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">模拟退火之 TSP 问题</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/03/FireFunction/" title="模拟退火之函数最值"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">模拟退火之函数最值</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%9F%A5%E8%AF%86%E8%BE%93%E5%87%BA/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">parselmouth 介绍</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>parselmouth —— 自动化的 Python 沙箱逃逸 payload bypass 框架</p>
+<span id="more"></span>
+<h2 id="基本介绍">基本介绍</h2>
+<p>自从之前写了 <a target="_blank" rel="noopener" href="https://github.com/Macr0phag3/souse"><code>souce</code></a> 后，算是解决了绝大部分需要手搓 opcode 的情况；通过劫持 Python ast 的解析与生成就可以很方便地自动化进行 bypass，这个手段非常优雅。从那以后我就时不时在想似乎这个原理也可以用在 Python 沙箱逃逸上，这段时间终于下定决心开始抽空写一个 bypass 框架，这就是 <a target="_blank" rel="noopener" href="https://github.com/Macr0phag3/parselmouth"><code>parselmouth</code></a></p>
+<p>我的目标是希望这个框架可以支持将类似 <code>__import__('os').popen('whoami').read()</code>，根据规则转为诸如 <code>getattr(getattr(_＿import_＿(ᶜhr(111) + ᶜhr(115)[::-1][::-1]), ᶜhr(112) + ᶜhr(111) + ᶜhr(112) + ᶜhr(101) + ᶜhr(110)[::-1][::-1])(ᶜhr(119) + ᶜhr(104) + ᶜhr(111) + ᶜhr(97) + ᶜhr(109) + ᶜhr(105)[::-1][::-1]), ᶜhr(114) + ᶜhr(101) + ᶜhr(97) + ᶜhr(100)[::-1][::-1])()</code> 的 payload，这样就不需要人工进行一些无聊的翻译或者是转换了；再此基础上，期望保留较好的扩展性，用来在特定情况下编写自定义的一些 bypass 手段。</p>
+<h2 id="原理">原理</h2>
+<p>这里介绍一下主要的代码逻辑。如果你想自己动手写一个类似的框架，可以参考这里面的细节。</p>
+<h3 id="识别与生成-python-代码">识别与生成 Python 代码</h3>
+<p>对于一段简单的 Python 代码来说，要做转换，最为直接的手段就是通过正则提取关键的代码然后填充到设定好的字符串中。但是这样在面对复杂嵌套的语句时就力不从心了，非常容易出现识别错误。</p>
+<p>Python 的 ast 即抽象语法树，作为 Python 的官方库，ast 不但可以用来解析 Python 代码，还可以用来将抽象语法树还原成 Python 代码。在解析代码的时候可以做到 100% 与执行代码时是一个识别逻辑。通过翻阅 ast 的源码可知，类 <code>NodeVisitor</code> 定义了遍历语法树的方法 <code>visit</code>，这样我们就可以通过继承 <code>NodeVisitor</code> 或者其子类来实现定制化的 Python 代码生成逻辑。</p>
+<p>以获取属性的运算符 <code>.</code> 为例子，我们可以在继承 <code>ast._Unparser</code>（用来生成 python 代码的类） 后写出下述代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">P9H</span>(ast._Unparser):<br>    ...<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">visit_Attribute</span>(<span class="hljs-params">self, node</span>):<br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">_by_raw</span>():<br>            <span class="hljs-variable language_">self</span>.set_precedence(ast._Precedence.ATOM, node.value)<br>            <span class="hljs-variable language_">self</span>.traverse(node.value)<br>            <span class="hljs-comment"># Special case: 3.__abs__() is a syntax error, so if node.value</span><br>            <span class="hljs-comment"># is an integer literal then we need to either parenthesize</span><br>            <span class="hljs-comment"># it or add an extra space to get 3 .__abs__().</span><br>            <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(node.value, ast.Constant) <span class="hljs-keyword">and</span> <span class="hljs-built_in">isinstance</span>(<br>                node.value.value, <span class="hljs-built_in">int</span><br>            ):<br>                <span class="hljs-variable language_">self</span>.write(<span class="hljs-string">&quot; &quot;</span>)<br><br>            <span class="hljs-variable language_">self</span>.write(<span class="hljs-string">&quot;.&quot;</span>)<br>            <span class="hljs-variable language_">self</span>.write(node.attr)<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.try_bypass(<br>            <span class="hljs-built_in">dict</span>(<br>                bypass_tools.Bypass_Attribute(<br>                    BLACK_CHAR,<br>                    node,<br>                    useless_func=<span class="hljs-variable language_">self</span>.useless_func,<br>                    depth=<span class="hljs-variable language_">self</span>.depth,<br>                ).get_map(),<br>                **&#123;<span class="hljs-string">&quot;by_raw&quot;</span>: _by_raw&#125;,<br>            ),<br>            node,<br>        )<br><br>    ...<br></code></pre></td></tr></table></figure>
+<p>其中 <code>_by_raw</code> 是 <code>ast._Unparser</code> 原本的代码生成方法，在发现不需要 bypass 的情况下可以直接使用原有的生成逻辑，这样可以提升效率，还可以避免强制进行 bypass 导致的成功率下降问题。最后 <code>return</code> 的语句中，通过传入 Attribute 专属的 bypass_funcs 进行 bypass 尝试。</p>
+<h3 id="定制化的-bypass-语句">定制化的 bypass 语句</h3>
+<p>生成一个 bypass 语句，本质上是对 Python 代码的生成逻辑进行 hack。</p>
+<h4 id="普通的-bypass-函数">普通的 bypass 函数</h4>
+<p>在 <code>bypass_tools.Bypass_Attribute</code> 中，我们对“获取属性”这个动作进行定制化：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Bypass_Attribute</span>(<span class="hljs-title class_ inherited__">_Bypass</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, *args, **kwargs</span>):<br>        <span class="hljs-built_in">super</span>().__init__(*args, **kwargs)<br>        <span class="hljs-variable language_">self</span>.node._value = [<span class="hljs-built_in">getattr</span>(<span class="hljs-variable language_">self</span>.node, <span class="hljs-string">&quot;value&quot;</span>), <span class="hljs-built_in">getattr</span>(<span class="hljs-variable language_">self</span>.node, <span class="hljs-string">&quot;attr&quot;</span>)]<br><br><span class="hljs-meta">    @recursion_protect</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">by_getattr</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.P9H(<br>            <span class="hljs-string">f&quot;getattr(<span class="hljs-subst">&#123;self.P9H(self.node._value[<span class="hljs-number">0</span>]).visit()&#125;</span>, <span class="hljs-subst">&#123;<span class="hljs-built_in">repr</span>(self.node._value[<span class="hljs-number">1</span>])&#125;</span>)&quot;</span>,<br>        ).visit()<br></code></pre></td></tr></table></figure><br />
+例如 payload 为 <code>str.find</code>，我们就可以通过 <code>getatt</code> 来避免使用 <code>.</code></p>
+<p>其他类型的 bypass 逻辑是大同小异的，按照不同类型的语法树，根据手工 bypass 的经验来制定对应的 bypass 手法即可。</p>
+<h4 id="嵌套-bypass">嵌套 bypass</h4>
+<p>上面的代码中可以发现，<code>by_getattr</code> return 的结果中又出现了 <code>P9H</code>，这是因为由于处理 <code>.</code> 后会引入 <code>getattr</code>，因此就需要一个递归的结构继续处理新生成的 payload。因此对于生成的 payload，需要重新调用我们的 bypass 函数进行处理，这样可以非常优雅地处理需要嵌套 bypass 的情况。</p>
+<p>但显然，这里会出现无限递归的问题。本质上，但这个现象出现的时候，调用链里会出现重复的 bypass 尝试，因此为了解决这个问题，一个最简单的方式就是在执行 bypass 的时候，先获取当前的调用链，分析历史调用中是否出现过相同的 bypass 尝试（主要是方法所属的类、方法名称、方法的参数），如果有的话就返回 None，视为放弃这个 bypass 尝试。由于每个 bypass 函数都需要加上这个逻辑，还需要保持后续新增 bypass 函数的便捷性，那必然使用装饰器就是最好的选择：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_stack</span>():<br>    used_funcs = []<br>    stack = inspect.stack()<br>    <span class="hljs-keyword">for</span> frame_info <span class="hljs-keyword">in</span> stack:<br>        <span class="hljs-comment"># 获取当前层的上下文信息</span><br>        frame = frame_info.frame<br>        arg_info = inspect.getargvalues(frame)<br><br>        class_name = <span class="hljs-string">&quot;&quot;</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;self&quot;</span> <span class="hljs-keyword">in</span> frame.f_locals:<br>            class_name = frame.f_locals[<span class="hljs-string">&quot;self&quot;</span>].__class__.__name__<br><br>        <span class="hljs-comment"># 打印调用链中的函数名和参数</span><br>        used_funcs.append(<br>            (<br>                class_name,<br>                frame_info.function,<br>                &#123;k: arg_info.<span class="hljs-built_in">locals</span>[k] <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> arg_info.args&#125;,<br>            )<br>        )<br><br>    <span class="hljs-keyword">return</span> used_funcs<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">recursion_protect</span>(<span class="hljs-params">func</span>):<br><span class="hljs-meta">    @functools.wraps(<span class="hljs-params">func</span>)</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_protect</span>(<span class="hljs-params">self</span>):<br>        stack = []<br>        <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> get_stack():<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> s[<span class="hljs-number">1</span>].startswith(<span class="hljs-string">&quot;by_&quot;</span>):<br>                <span class="hljs-keyword">continue</span><br><br>            stack.append((s[<span class="hljs-number">0</span>], s[<span class="hljs-number">1</span>], s[<span class="hljs-number">2</span>][<span class="hljs-string">&quot;self&quot;</span>].node._value))<br><br>        <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">self</span>.__class__.__name__, func.__name__, <span class="hljs-variable language_">self</span>.node._value) <span class="hljs-keyword">in</span> stack:<br>            <span class="hljs-comment"># 本轮调用的 函数+参数 在调用链之前就出现过</span><br>            <span class="hljs-comment"># 说明不同的 bypass 函数之间出现了循环依赖</span><br>            <span class="hljs-comment"># 这个时候应该舍弃掉这个 bypass 函数</span><br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br><br>        <span class="hljs-keyword">return</span> func(<span class="hljs-variable language_">self</span>)<br><br>    <span class="hljs-keyword">return</span> _protect<br></code></pre></td></tr></table></figure>
+<p>非常优雅的方案。</p>
+<h4 id="bypass-num">bypass num</h4>
+<p>此外，一个比较有趣的 bypass ast 的类型是数字。我实现了一个有趣的算法，这个算法的本质是解决：“给定一个目标数字、可用的运算符（<code>+</code>、<code>-</code>、<code>*</code>）、可用的单个数字（<code>0-9</code> 中的某几个），求一个运算式使得结果等于目标数字”。</p>
+<p>我认为这种计算式的最简单结构是 <code>(left, op, right)</code>，因此我的思路是先确定 left，然后遍历 op 后算出需要的 right，在递归重新计算如何得出 right，以此类推。op 与数字的遍历顺序从大到小，这样可以迅速地逼近目标数字，从而缩短运算式整体的长度，从而尽可能缩短最终 payload 的长度。在具体的实现上，有很多坑需要解决，例如给定的目标数字是 1，可用数字是 <code>9</code>、<code>2</code>、<code>0</code>，运算符是 <code>-</code>、<code>+</code>，如果不加以控制，非常容易出现无限递归：<code>9 + 2 - 10</code> -&gt; <code>9 + 2 + 2 - 12</code> ... 这个问题可以通过判定与目标数字的距离来解决，我们的计算肯定是希望距离目标数字越来越近的（不过这样的确是会漏掉一些可能性）。以及一些无效的运算：<code>9 + 0 - 8</code> -&gt; <code>9 + 0 + 0 - 8</code> ... 这类问题可以通过人工剪枝来解决。</p>
+<p>最后，我发现我的算法在 left 是大数的情况下会有很大的性能问题。例如目标数字是 <code>1000</code>，可用的数字是 <code>8</code>，运算符为 <code>+</code>，那么可以得出运算式：<code>8 + 8 + 8 + 88 + 888</code>，观察这种情况可以得知，可用的数字可以由单个可用数组组合生成，这样即使只用 <code>+</code> 也可以非常迅速地逼近目标数字，但这个算法在可用数字较多的时候光是遍历所有组合都需要一段时间，并且先前设定的运算逻辑是先会计算 <code>**</code>，这个运算也是比较慢的。因此在具体的实现上我并没有采用这种算法，取而代之是如果发现 right 可以由可用数字组成，那么就直接返回，这样在提高速度的同时也会更高效。</p>
+<p>当然，由于最终的算式可能性比较多，最优解根据实际情况也有所不同（例如是否允许括号？如何实现全局最短的算式长度？...），虽然我实现的算法有一定的局限性，但是我认为过滤数字在实际场景中并不常见，所以应该是够用了。</p>
+<h2 id="定制化开发">定制化开发</h2>
+<p>我在写 parselmouth 的时候，更多是希望写出一个 bypass 框架，因为 Python 沙箱逃逸绕过的手法非常多，对应场景也比较多（如 python 原生的 eval 类型、exec 类型；以及像 mako 等等自定义部分语法的模板；还有 jinja2/flask 这种几乎全部自定义语法的模板）。因此这里会重点做下定制化开发的介绍。</p>
+<h3 id="自定义-bypass-函数">自定义 bypass 函数</h3>
+<p>以字符串 bypass 为例子，假设希望将 <code>macr0phag3</code> 转为自带 base64 解码语句 <code>__import__('base64').b64decode(b'bWFjcjBwaGFnMw==')</code>，则可以给 <code>bypass_tools.py</code> 的 <code>Bypass_String</code> 新增一个方法，命名以 <code>by_</code> 开头：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> parselmouth <span class="hljs-keyword">as</span> p9h<br><span class="hljs-keyword">import</span> bypass_tools<br><br><br><span class="hljs-meta">@bypass_tools.recursion_protect</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">by_base64</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.P9H(<br>        <span class="hljs-string">f&#x27;__import__(&quot;base64&quot;).b64decode(<span class="hljs-subst">&#123;<span class="hljs-built_in">__import__</span>(<span class="hljs-string">&quot;base64&quot;</span>).b64encode(self.node._value.encode())&#125;</span>)&#x27;</span><br>    ).visit()<br><br>bypass_tools.Bypass_String.by_base64 = by_base64<br>bypass_tools.Bypass_String.by_base64.__qualname__ = <span class="hljs-string">&quot;Bypass_String.by_base64&quot;</span><br><br>p9h.BLACK_CHAR = [<span class="hljs-string">&quot;mac&quot;</span>, <span class="hljs-string">&quot;::&quot;</span>, <span class="hljs-string">&#x27;by_char&#x27;</span>, <span class="hljs-string">&quot;bytes&quot;</span>, <span class="hljs-string">&quot;chr&quot;</span>, <span class="hljs-string">&quot;dict&quot;</span>]<br>runner = p9h.P9H(<span class="hljs-string">&quot;&#x27;macr0phag3&#x27;&quot;</span>, specify_bypass_map=&#123;<span class="hljs-string">&quot;white&quot;</span>: &#123;<span class="hljs-string">&quot;Bypass_String&quot;</span>: [<span class="hljs-string">&quot;by_base64&quot;</span>]&#125;&#125;, versbose=<span class="hljs-number">2</span>)<br>result = runner.visit()<br>status, c_result = p9h.color_check(result)<br><span class="hljs-built_in">print</span>(status, c_result, result)<br></code></pre></td></tr></table></figure></p>
+<p>运行结果如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/parselmouth/b0fea94c-6213-4252-a740-c0619753873b.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>同理，如果你想修改自带的 bypass 函数，也是通过 <code>bypass_tools.Bypass_String.by_base64 = by_base64</code> 这样赋值去覆盖即可。</p>
+<h3 id="自定义检查函数">自定义检查函数</h3>
+<p>在 <code>parselmouth.py</code> 中，check 函数用于检查生成的 payload 的可用性：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">check</span>(<span class="hljs-params">payload</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(payload, ast.AST):<br>        payload = ast.unparse(payload)<br><br>    <span class="hljs-comment"># self.cprint(f&quot;检查是否命中黑名单: &#123;payload&#125;&quot;, level=&quot;debug&quot;)</span><br>    <span class="hljs-keyword">return</span> [i <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> BLACK_CHAR <span class="hljs-keyword">if</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">str</span>(payload)]<br><br></code></pre></td></tr></table></figure></p>
+<p>在实际的使用场景中，payload 往往需要通过网络请求的形式进行检查，例如目标是一个 web 应用，此时可能就需要通过 requests 来发送 payload，这个时候就可以继承 <code>P9H</code>，然后覆盖掉 <code>check</code> 方法：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ast<br><span class="hljs-keyword">import</span> time<br><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> parselmouth <span class="hljs-keyword">as</span> p9h<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">check</span>(<span class="hljs-params">payload</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(payload, ast.AST):<br>        payload = ast.unparse(payload)<br><br>    <span class="hljs-comment"># self.cprint(f&quot;检查是否命中黑名单: &#123;payload&#125;&quot;, level=&quot;debug&quot;)</span><br>    result = requests.post(<br>        <span class="hljs-string">&quot;http://127.0.0.1:5000/challenge&quot;</span>,<br>        json=&#123;<br>            <span class="hljs-string">&quot;exp&quot;</span>: payload,<br>        &#125;<br>    ).text<br>    time.sleep(<span class="hljs-number">0.1</span>)  <span class="hljs-comment"># 防止过快导致 DoS</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;hacker&quot;</span> <span class="hljs-keyword">in</span> result:<br>        <span class="hljs-keyword">return</span> [result]<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> []<br><br><br>p9h.check = check<br>runner = p9h.P9H(<span class="hljs-string">&quot;__import__(&#x27;os&#x27;).popen(&#x27;whoami&#x27;).read()&quot;</span>, versbose=<span class="hljs-number">2</span>)<br>result = runner.visit()<br>status, c_result = p9h.color_check(result)<br><span class="hljs-built_in">print</span>(status, c_result, result)<br></code></pre></td></tr></table></figure></p>
+<p>测试用的 flask 代码：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask, request, jsonify<br><br>app = Flask(__name__)<br><br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&quot;/challenge&quot;</span>, methods=[<span class="hljs-string">&quot;POST&quot;</span>]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">check_exp</span>():<br>    data = request.json<br>    exp = <span class="hljs-built_in">str</span>(data.get(<span class="hljs-string">&quot;exp&quot;</span>))<br><br>    <span class="hljs-keyword">if</span> exp <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">return</span> jsonify(&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Missing &#x27;exp&#x27; parameter&quot;</span>&#125;), <span class="hljs-number">400</span><br><br>    forbidden_chars = [<span class="hljs-string">&quot;&#x27;&quot;</span>, <span class="hljs-string">&#x27;&quot;&#x27;</span>, <span class="hljs-string">&quot;.&quot;</span>, <span class="hljs-string">&quot;popen&quot;</span>]<br><br>    <span class="hljs-comment"># 检查 &#x27;exp&#x27; 中是否含有不允许的字符</span><br>    <span class="hljs-keyword">for</span> char <span class="hljs-keyword">in</span> forbidden_chars:<br>        <span class="hljs-keyword">if</span> char <span class="hljs-keyword">in</span> exp:<br>            <span class="hljs-keyword">return</span> jsonify(&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">f&quot;hacker!&quot;</span>&#125;), <span class="hljs-number">400</span><br><br>    <span class="hljs-comment"># 如果检查通过，则返回确认信息</span><br>    <span class="hljs-keyword">return</span> jsonify(&#123;<span class="hljs-string">&quot;message&quot;</span>: <span class="hljs-string">&quot;Expression is valid&quot;</span>&#125;), <span class="hljs-number">200</span><br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    app.run(debug=<span class="hljs-literal">True</span>)<br><br></code></pre></td></tr></table></figure></p>
+<p>结果如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/parselmouth/8930da5c-5846-4656-8514-8e0562c4d08b.jpg!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h2 id="常见-qa">常见 QA</h2>
+<ol type="1">
+<li>为什么叫这个名字：<code>python</code> -&gt; <code>蛇</code>；<code>bypass 沙箱</code> -&gt; <code>逃离密室</code>；<code>特殊的语法</code> -&gt; <code>蛇能听懂的话</code>。这些跳跃的联想很容易关联到《哈利波特与密室》中频繁出现的 <code>parselmouth</code>（<code>蛇佬腔</code>）</li>
+<li>可以用来 bypass flask 的 SSTI exp 么：不能。因为 flask 有自己的语法，参考这个项目其实可以写出类似的工具，后面可能考虑支持。</li>
+<li>后续的工作：主要集中在 bypass 手法的收集，框架基本上是成型了，可能会有一些提高 check 函数效率的方法，等想好了再看怎么优化。</li>
+<li>...</li>
+</ol>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">这似乎是第一个 Python 沙箱 bypass 框架</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%9F%A5%E8%AF%86%E8%BE%93%E5%87%BA/" class="category-chain-item">知识输出</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+      
+        <a href="/tags/CTF/">#CTF</a>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>parselmouth 介绍</div>
+      <div>https://www.tr0y.wang/2024/03/04/parselmouth/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月4日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年3月19日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/03/15/2023/" title="2023 年度总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2023 年度总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/07/xxx-abuse/" title="xxx 滥用 —— 用爱发电的下场">
+                        <span class="hidden-mobile">xxx 滥用 —— 用爱发电的下场</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
