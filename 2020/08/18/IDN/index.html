@@ -1,0 +1,1119 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="从一个绕过长度限制的 XSS &#x3D;&gt; IDN &#x3D;&gt; IDNA &#x3D;&gt; punycode &#x3D;&gt; NFKC，长文警告！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从一个绕过长度限制的 XSS 中，我们能学到什么？">
+<meta property="og:url" content="https://www.tr0y.wang/2020/08/18/IDN/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="从一个绕过长度限制的 XSS &#x3D;&gt; IDN &#x3D;&gt; IDNA &#x3D;&gt; punycode &#x3D;&gt; NFKC，长文警告！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/xss.jpeg/cover">
+<meta property="article:published_time" content="2020-08-18T18:53:41.000Z">
+<meta property="article:modified_time" content="2025-04-10T14:24:06.448Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/xss.jpeg/cover">
+  
+  
+  
+  <title>从一个绕过长度限制的 XSS 中，我们能学到什么？ - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从一个绕过长度限制的 XSS 中，我们能学到什么？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-08-18 18:53" pubdate>
+          2020年8月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          5.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">从一个绕过长度限制的 XSS 中，我们能学到什么？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>从一个绕过长度限制的 XSS =&gt; IDN =&gt; IDNA =&gt; punycode =&gt; NFKC，长文警告！</p>
+<span id="more"></span>
+<h2 id="一个绕过长度限制-xss">一个绕过长度限制 XSS</h2>
+<p>最近收到了一个白帽子提交的 xss，简单来说就是某个展现的值可被 xss，但是这个业务限制了可输入值的长度是 <code>length &lt;= 4</code>，所以 xss payload 是非常受限的，就算是引用外部 js，域名也不会这么短（后缀至少是 2 位，加上一个 <code>.</code> 就三位了，再加前缀以及闭合的字符肯定超过了），所以一直没人发现。而这个白帽子利用 Unicode 域名：<code>⑭.₨</code>（长度为 3，加上闭合 <code>'</code>）绕过了这一限制。对于 <code>⑭.₨</code>，浏览器会将其转为 <code>14.rs</code> 进行访问，从而带入 payload 完成 xss。结合前几期那篇利用不可见字符过人的 webshell 来看，Unicode 再次展现了其威力。</p>
+<h2 id="浏览器到底怎么了">浏览器到底怎么了？</h2>
+<p>经过搜索，这一特性至少在 2016 年就被人用来挖洞了：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065537090.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>虽然上面的推特里加了一个 <code>in MS Edge</code>，但经过测试，我发现 Chrome、Firefox、Safari 都会这么处理。浏览器到底怎么了？为什么要这样处理？一切的一切都要从 IDN 说起。</p>
+<h2 id="idn-与-idna">IDN 与 IDNA</h2>
+<p>许多年前，互联网域名只能由 ascii 字母 <code>a-z</code>、数字和其他一些字符组成。而我们之所以发明域名 + DNS 解析代替 ip 地址就是为了好记。随着整个世界的国际化，以英文为主的域名已经不够满足其他语种的人的需要，国际化域名（<code>Internationalized Domain Name</code>，即 <code>IDN</code>）应运而生。IDN 是指部分或完全使用特殊的文字或字母（包括中文、拉丁字母等等非英文字母）组成的域名。</p>
+<p>大家如果现在去申请域名，就可以选择中文的前缀或者后缀：</p>
+<p>前缀<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065553392.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>后缀<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065608518.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么问题来了，就目前而言，DNS 服务器的解析都由 ascii 码交换，所以 DNS 服务器上并不支持直接的中文域名解析，那怎么办呢？后来，经过专家们对多份方案的讨论与比较之后，<code>IDNA</code>（Internationalizing Domain Names in Applications）被采纳为正式标准（提案 rfc3490：https://tools.ietf.org/html/rfc3490 ），说明了应用程序在遇到非 ASCII 字符的时候，应该如何处理。</p>
+<p>提到 IDNA，就不得不提 <code>punycode</code>。</p>
+<h2 id="punycode">Punycode</h2>
+<p>punycode 的提案见：https://datatracker.ietf.org/doc/html/rfc3492</p>
+<p>目前，所有中文域名的解析都需要转成 punycode，然后通过 DNS 协议解析 punycode，这样 DNS 协议便能够支持非 ASCII 字符了（你可以理解为把非 ASCII 字符的 Unicode 转为特定的 ASCII 码）。</p>
+<p>这里给一个维基百科上 IDNA 处理流程的例子：<br />
+对 <code>Bücher.example</code> 进行 IDNA 编码（此域名具有两个标签，<code>Bücher</code>和<code>example</code>）：</p>
+<ol type="1">
+<li>第二个标签 <code>example</code> 是纯 ASCII，保持不动。</li>
+<li>第一个标签 <code>Bücher</code>，先将其转换小写的 <code>bücher</code>（其实还有其他操作，可以搜索 Nameprep 算法详细了解，这里就不多说了），然后转为 punycode，得到 <code>bcher-kva</code>。接下来加上<code>xn--</code>前缀，得到<code>xn--bcher-kva</code></li>
+<li>最后拼接得到 <code>xn--bcher-kva.example</code></li>
+</ol>
+<p>当然你也可以用 python：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065619841.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><strong>注意，转为 punycode 只是 IDNA 流程中的其中一步。</strong> 如果你不能理解，可以看下这个例子：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065632229.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当然，现在的浏览器都完美支持 Unicode 域名，会自动转码，甚至是 curl 都支持 IDN 域名：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065649450.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当然，这个并非百度官方所有。于是，这就引发了另一个问题，Unicode 七七八八的字符多了去了，要是我申请一个与官方网站视觉相似的域名，岂不是就可以美滋滋地钓鱼？</p>
+<h2 id="lets-go-fishing">Let's go fishing!</h2>
+<p>示例：<br />
+<code>https://www.аррӏе.com/</code>与 <code>https://www.аррle.com/</code></p>
+<p>这就是著名的<code>同形异义词攻击</code></p>
+<p>什么？你一眼就能看出来 <code>l</code> 不一样？那么这个呢？<br />
+<code>https://аpple.com</code>与<code>https://apple.com</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065701672.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><strong>如果你能看出来两个域名的 <code>a</code> 不一样，请您立即联系您所在当地的超能力者协会。</strong></p>
+<h2 id="对抗-idn-钓鱼浏览器做了什么">对抗 IDN 钓鱼，浏览器做了什么？</h2>
+<p>看了上面的例子，你可能会想，这有什么大不了的呢？既然非 ascii 字符，经过 IDNA 协议的流程之后，会转为 punycode，那我统一在浏览器的地址栏显示 punycode 不就得了？<br />
+访问 <code>https://www.аррӏе.com/</code> 显示如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065712936.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>思路不错，但是别忘了我们为什么要发明 IDN？就是为了方便其他语种的人使用，提升他们的体验。如果在地址栏显示 punycode，那还不如 ascii 字符来的直观。开倒车，咱们不干。</p>
+<p>访问 <code>http://百度.公司</code> 显示如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065722336.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么该怎么办呢？以 Chrome 为例，他们在这里（https://www.chromium.org/developers/design-documents/idn-in-google-chrome ）详细介绍了什么时候会显示 punycode，什么时候显示 Unicode 字符。</p>
+<p>Unicode 真的是太多了，所以 Chrome 需要利用很多方式去判断一个域名该用哪种方式显示。这样虽然可能会存在漏掉的情况，但是经过这么多年的发展，Chrome 处理方式已经比较完善了，如果你能发现一个字符绕过了他们的判断，那么这个漏洞的价值保守估计 $2k。</p>
+<p>这里顺便吹一波 Chrome，体验真的很好：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065733427.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+（什么叫国际浏览器啊？战术后仰.gif）</p>
+<p>相比 Chrome，其他的例如 Safari 处理方式就很粗暴了，不在白名单里的域名直接显示 punycode。<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065733428.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>哦我的上帝，看看这个处理方式，什么是用户体验？什么是钓鱼？Safari：“你搁谁这卡 bug 呢？”</p>
+<h2 id="idna-带来的另一个问题">IDNA 带来的另一个问题</h2>
+<p>假如现在有一个终极浏览器，搞定了什么时候显示 punycode 什么时候显示 unicode，彻底解决了钓鱼的问题。也还需要面对另一个问题：Unicode 规范化带来的安全隐患，这就回到了最开始的那个 xss。</p>
+<p>前面和大家提到了 IDNA 的 Nameprep 算法，相关提案是 rfc3491，里面有关于 unicode 规范化的说明：https://tools.ietf.org/html/rfc3491#section-4。<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065847630.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>而大家初二的时候就知道，Unicode 规范化有四种形式：</p>
+<ol type="1">
+<li><code>NFC</code>: Normalization Form Canonical Composition</li>
+<li><code>NFD</code>: Normalization Form Canonical Decomposition</li>
+<li><code>NFKC</code>: Normalization Form Compatibility Composition</li>
+<li><code>NFKD</code>: Normalization Form Compatibility Decomposition</li>
+</ol>
+<p>来看一个例子：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065856665.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，<code>⑭.₨</code> 的规范化有 2 种结果，而后面两种是不是很像浏览器处理的逻辑？rfc3491 采用的正是 <code>NFKC</code>！所以，浏览器采用的 IDNA 协议所使用的 unicode 规范化标准正是 <code>NFKC</code>。</p>
+<p>最后，如果你真的很想深究一下 IDNA 协议到底是怎么规定一个 unicode 域名如何转为 punycode 形式的域名，以及在转为 punycode 之前做了什么事情，我十分建议你去看一下 python 的 encodings 源码，路径是：<code>lib/python3.7/encodings/idna.py</code>，所有的答案都在这里，就看你愿不愿意探索了。</p>
+<h2 id="利用场景">利用场景</h2>
+<p>根据上面所述，IDNA 基于的 NFKC 本身就会导致各种问题，加上 IDNA 的一些流程，可能造成的安全问题就更多了，例如：</p>
+<ol type="1">
+<li>绕过字符过滤</li>
+<li>绕过应用对数据的限制，例如绕过长度限制、绕过黑名单字符过滤、引入恶意字符导致各种注入（例如远古版本的 sqlserver）等等</li>
+<li>可能造成非预期的跨域问题</li>
+<li>越权</li>
+<li>目录穿越</li>
+<li>ssrf</li>
+<li>钓鱼</li>
+<li>...</li>
+</ol>
+<p>举几个例子：</p>
+<blockquote>
+<p>绕过字符过滤</p>
+</blockquote>
+<p>Python3.x 支持了 Unicode 变量名，而根据官方文档，解释器在做代码解析的时候，会对变量名进行规范化，使用的算法是 NFKC：</p>
+<p>https://docs.python.org/3/reference/lexical_analysis.html#identifiers</p>
+<p>这样我们就可以利用特殊字符来绕过关键字符串的过滤，从而执行指定的函数，例如：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">eval</span> == ᵉval<br></code></pre></td></tr></table></figure></p>
+<p>根据同样的思路，我们可以找到以下字符：<br />
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mathematica">ᵃᵇᶜᵈᵉᶠᵍʰᵢʲᵏˡᵐⁿᵒᵖ𝐪ʳˢᵗᵘᵛʷˣʸᶻᴬᴮ<span class="hljs-built_in">C</span>ᴰᴱ<span class="hljs-variable">F</span>ᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾＱᴿ𝖲ᵀᵁⱽᵂⅩ𝖸<span class="hljs-variable">Z</span><br></code></pre></td></tr></table></figure></p>
+<p>当然，这里只列出了其中一种替换情况，Unicode 里还有很多这种规范化之后变成正常字母的字符。</p>
+<blockquote>
+<p>绕过长度限制</p>
+</blockquote>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[47]</span>: <span class="hljs-built_in">print</span>(unicodedata<span class="hljs-selector-class">.normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;⑭.₨&#x27;</span>))<br><span class="hljs-number">14</span><span class="hljs-selector-class">.Rs</span><br><br>In <span class="hljs-selector-attr">[48]</span>: <span class="hljs-built_in">len</span>(<span class="hljs-string">&#x27;⑭.₨&#x27;</span>)<br>Out<span class="hljs-selector-attr">[48]</span>: <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>SQL 注入</p>
+</blockquote>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[20]</span>: <span class="hljs-built_in">print</span>(unicodedata<span class="hljs-selector-class">.normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;＇ or ＇1＇=＇1&#x27;</span>))<br><span class="hljs-string">&#x27; or &#x27;</span><span class="hljs-number">1</span><span class="hljs-string">&#x27;=&#x27;</span><span class="hljs-number">1</span><br>In <span class="hljs-selector-attr">[21]</span>: <span class="hljs-built_in">print</span>(unicodedata<span class="hljs-selector-class">.normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;＂ or ＂1＂=＂1&#x27;</span>))<br><span class="hljs-string">&quot; or &quot;</span><span class="hljs-number">1</span><span class="hljs-string">&quot;=&quot;</span><span class="hljs-number">1</span><br>In <span class="hljs-selector-attr">[22]</span>: <span class="hljs-built_in">print</span>(unicodedata<span class="hljs-selector-class">.normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;admin\&#x27; ﹣﹣&#x27;</span>))<br>admin<span class="hljs-string">&#x27; --</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>模板注入</p>
+</blockquote>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs css">In <span class="hljs-selector-attr">[39]</span>: <span class="hljs-built_in">print</span>(unicodedata.<span class="hljs-built_in">normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;﹛﹛3+3﹜﹜&#x27;</span>))<br>&#123;&#123;<span class="hljs-number">3</span>+<span class="hljs-number">3</span>&#125;&#125;<br>In <span class="hljs-selector-attr">[40]</span>: <span class="hljs-built_in">print</span>(unicodedata.<span class="hljs-built_in">normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;［［5+5］］&#x27;</span>))<br>[[<span class="hljs-number">5</span>+<span class="hljs-number">5</span>]]<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>命令注入</p>
+</blockquote>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs css">In <span class="hljs-selector-attr">[41]</span>: <span class="hljs-built_in">print</span>(unicodedata.<span class="hljs-built_in">normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;＆＆ whoami&#x27;</span>))<br>&amp;&amp; whoami<br>In [<span class="hljs-number">42</span>]: <span class="hljs-built_in">print</span>(unicodedata.<span class="hljs-built_in">normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;｜｜ whoami&#x27;</span>))<br>|| whoami<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>目录穿越</p>
+</blockquote>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gradle">In [<span class="hljs-number">28</span>]: <span class="hljs-keyword">print</span>(unicodedata.normalize(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;‥/‥/‥/‥/etc/passwd&#x27;</span>))<br>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>etc/passwd<br>In [<span class="hljs-number">29</span>]: <span class="hljs-keyword">print</span>(unicodedata.normalize(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;︰/︰/︰/︰/etc/passwd&#x27;</span>))<br>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>etc/passwd<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>ssrf</p>
+</blockquote>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">In <span class="hljs-string">[33]</span>: print(unicodedata.normalize(&#x27;NFKC&#x27;, &#x27;①②⑦.⓪.⓪.①&#x27;))<br><span class="hljs-number">127.0.0.1</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>绕过文件后缀限制</p>
+</blockquote>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css">In <span class="hljs-selector-attr">[34]</span>: <span class="hljs-built_in">print</span>(unicodedata.<span class="hljs-built_in">normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;test.ｐʰｐ&#x27;</span>))<br>test.php<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>url 跳转</p>
+</blockquote>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[38]</span>: <span class="hljs-string">&#x27;tr0y。wang&#x27;</span><span class="hljs-selector-class">.encode</span>(<span class="hljs-string">&#x27;idna&#x27;</span>)<br>Out<span class="hljs-selector-attr">[38]</span>: b<span class="hljs-string">&#x27;tr0y.wang&#x27;</span><br><br>In <span class="hljs-selector-attr">[39]</span>: <span class="hljs-built_in">print</span>(unicodedata<span class="hljs-selector-class">.normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;https://evil.c℀.baidu.com&#x27;</span>))<br>https:<span class="hljs-comment">//evil.ca/c.baidu.com</span><br><br>In <span class="hljs-selector-attr">[40]</span>: <span class="hljs-string">&#x27;https://evil.c℀.baidu.com&#x27;</span><span class="hljs-selector-class">.encode</span>(<span class="hljs-string">&#x27;idna&#x27;</span>)<br>Out<span class="hljs-selector-attr">[40]</span>: b<span class="hljs-string">&#x27;https://evil.ca/c.baidu.com&#x27;</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>越权</p>
+</blockquote>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-keyword">In</span> [46]: <span class="hljs-built_in">print</span>(unicodedata.normalize(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;uname=ªdmin&#x27;</span>))<br><span class="hljs-attribute">uname</span>=admin<br></code></pre></td></tr></table></figure>
+<p>当然，有些 payload 不一定通过浏览器触发（例如最开始的那个 xss），这就要求后端进行了 unicode 规范化，如果后端没有规范化输入，则这些 payload 都是无效的。</p>
+<p><strong>总之，在数据流传的节点中，一定要有一个节点进行了 unicode 规范化，这种攻击方式才有可能生效。</strong></p>
+<p>至于这些字符是怎么找的，推荐一个网站：https://www.compart.com/en/unicode/ 。可以搜索特定字符的相似字符，例如 <code>T</code>：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/IDN/20200818065913116.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css">In <span class="hljs-selector-attr">[51]</span>: <span class="hljs-built_in">print</span>(unicodedata.<span class="hljs-built_in">normalize</span>(<span class="hljs-string">&#x27;NFKC&#x27;</span>, <span class="hljs-string">&#x27;ᵀ&#x27;</span>) == <span class="hljs-string">&#x27;T&#x27;</span>)<br>True<br></code></pre></td></tr></table></figure>
+<p>最后再推荐一个工具，可以用来 fuzz 这种特殊字符：</p>
+<p>https://github.com/h13t0ry/UnicodeToy</p>
+<p>有趣的是，（2022.05.23）我发现了这个 repo，准备在本文中引用它的时候，发现它的 repo 里引了本文，太巧了哈哈。</p>
+<h2 id="一些想法">一些想法</h2>
+<ol type="1">
+<li>Unicode，永远滴神！</li>
+<li>RFC 文档其实对各种细节说的很清楚，但是它就和官方文档一样，一般没人愿意好好看...这两天看了好几份 RFC 文档，人都快傻了...</li>
+<li>深挖技术细节其实很费时间与精力，是场孤独的修行。</li>
+</ol>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从一个绕过长度限制的 XSS 中，我们能学到什么？</div>
+      <div>https://www.tr0y.wang/2020/08/18/IDN/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年8月18日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月10日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/09/04/vulner-in-sec-products/" title="安全产品的灯下黑">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">安全产品的灯下黑</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/08/17/Arithmetic-Expansion-to-RCE/" title="从算数扩展到 RCE">
+                        <span class="hidden-mobile">从算数扩展到 RCE</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

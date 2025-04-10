@@ -1,0 +1,1151 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="用 Python 久了，总会遇到与中文编码相关的问题，不管是打印的时候出现乱码，还是直接报错。而我之前一直是不断使用 encode、decode 进行尝试，今天实在受不了了，彻底摸清楚了，遂整理了一番。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一文说清楚如何处理 Python 的编码">
+<meta property="og:url" content="https://www.tr0y.wang/2018/09/13/py-coding-type/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="用 Python 久了，总会遇到与中文编码相关的问题，不管是打印的时候出现乱码，还是直接报错。而我之前一直是不断使用 encode、decode 进行尝试，今天实在受不了了，彻底摸清楚了，遂整理了一番。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2018-09-13T22:08:05.000Z">
+<meta property="article:modified_time" content="2025-04-10T14:24:06.456Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>一文说清楚如何处理 Python 的编码 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一文说清楚如何处理 Python 的编码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-09-13 22:08" pubdate>
+          2018年9月13日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          44 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">一文说清楚如何处理 Python 的编码</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>用 Python 久了，总会遇到与中文编码相关的问题，不管是打印的时候出现乱码，还是直接报错。而我之前一直是不断使用 <code>encode</code>、<code>decode</code> 进行尝试，今天实在受不了了，彻底摸清楚了，遂整理了一番。<br />
+<span id="more"></span></p>
+<h2 id="编码种类以及起源">编码种类以及起源</h2>
+<p>自行了解</p>
+<h2 id="从-python-2.x-说起">从 python 2.x 说起</h2>
+<h3 id="str-与-unicode">str 与 unicode</h3>
+<h4 id="什么是-str什么是-unicode">什么是 str，什么是 unicode</h4>
+<p>首先，<code>str</code> 和 <code>unicode</code> 都是 <code>basestring</code> 的子类。<br />
+那么，我们怎么知道一个变量里到底是 <code>str</code> 还是 <code>unicode</code> 呢？</p>
+<p>Python 提供了 <code>isinstance</code> 函数：</p>
+<ol type="1">
+<li>判断 <code>string</code> 是否为 <code>str</code>：<code>isinstance(string, str)</code></li>
+<li>判断 <code>string</code> 是否为 <code>unicode</code>：<code>isinstance(string, unicode)</code></li>
+</ol>
+<p>以及 <code>type</code> 函数:<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">3</span>]: <span class="hljs-built_in">type</span>(<span class="hljs-string">&quot;中文&quot;</span>)<br>Out[<span class="hljs-number">3</span>]: <span class="hljs-built_in">str</span><br><br>In [<span class="hljs-number">4</span>]: <span class="hljs-built_in">type</span>(<span class="hljs-string">u&quot;中文&quot;</span>)<br>Out[<span class="hljs-number">4</span>]: unicode<br></code></pre></td></tr></table></figure></p>
+<p>那么，我们常说的 <code>字符串</code>，到底哪个呢？我认为，<strong>看个人</strong>。如果你和我一样觉得直接写在源代码里的（如 <code>a = "123"</code>）就叫字符串，那么 <code>str</code> 就是字符串。如果你觉得 <code>字符串</code> 是由 多个字符 串起来 的，那么 <code>unicode</code> 才是字符串。</p>
+<p>也就是说，unicode 由 多个字符 组成，比如：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: <span class="hljs-built_in">len</span>(<span class="hljs-string">u&#x27;中文&#x27;</span>)<br>Out[<span class="hljs-number">1</span>]: <span class="hljs-number">2</span><br><br>In [<span class="hljs-number">2</span>]: <span class="hljs-built_in">len</span>(<span class="hljs-string">&#x27;中文&#x27;</span>)<br>Out[<span class="hljs-number">2</span>]: <span class="hljs-number">6</span><br></code></pre></td></tr></table></figure></p>
+<p>而 <code>'中文'</code> 由 <code>中</code> 与 <code>文</code> 这两个字符组成。明显 <code>unicode</code> 更符合我们求长度的逻辑。</p>
+<p><strong>总结：不管怎么样，对字符串的定义，选一个自己认为合理的，这个无关紧要。我倾向于前者，所以下面默认 <code>字符串</code> 就是 <code>str</code>。</strong></p>
+<h4 id="创造-str-与-unicode">创造 str 与 unicode</h4>
+<p>直接创造 str 与 unicode 的方法都很简单，直接写在源码里：</p>
+<ol type="1">
+<li>str: <code>a = "123"</code></li>
+<li>unicode: <code>a = u"123"</code></li>
+</ol>
+<p>还有那些地方会创造出 str 与 unicode 呢？比如读/写文件，从远程获取（爬虫或 socket）等等。</p>
+<h4 id="str2unicodeunicode2str">str2unicode，unicode2str</h4>
+<p>Python 提供了 <code>decode</code>(解码)/<code>encode</code>(编码) 用于两者的转换：</p>
+<ol type="1">
+<li>str -&gt; decode("某种编码") -&gt; unicode</li>
+<li>unicode -&gt; encode("某种编码") -&gt; str</li>
+</ol>
+<p><strong>总结：<code>unicode</code> 经过编码后形成 <code>str</code>，<code>str</code> 经过解码后形成 <code>unicode</code></strong></p>
+<p>至于如何选择正确的 "某种编码"，下面会说。</p>
+<h3 id="如何正确地编码解码">如何正确地编码/解码</h3>
+<h4 id="环境编码">环境编码</h4>
+<p>系统默认编码</p>
+<ol type="1">
+<li>Linux，Unix：utf8</li>
+<li>Windows：gbk</li>
+</ol>
+<p>还有输出时，打印到终端的编码</p>
+<h4 id="编辑器的编码">编辑器的编码</h4>
+<p>不管是 IDE 还是 atom 记事本，打开源代码的时候总会按照某一特定的编码打开。基本上，这个编码总是可以设置的，如 atom：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/py-coding-type/20181003020136152.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>保证源代码的文件编码，为避免乱码以及后续处理的方便，<strong>最好统一设置为 <code>utf8</code></strong></p>
+<h4 id="文件头部编码声明">文件头部编码声明</h4>
+<p>即 python 解释器读取源代码时的编码。</p>
+<p>python 解释器读取源代码时默认编码是 <code>ASCII</code>。在源代码文件中，如果用到非 ASCII 字符（如中文），需要在文件头部进行编码声明。否则会报错：<br />
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stata"><span class="hljs-keyword">File</span> <span class="hljs-string">&quot;test.py&quot;</span>, <span class="hljs-keyword">line</span> 8<br>SyntaxError: Non-ASCII character &#x27;\xe6&#x27; <span class="hljs-keyword">in</span> <span class="hljs-keyword">file</span> <span class="hljs-keyword">test</span>.py <span class="hljs-keyword">on</span> <span class="hljs-keyword">line</span> 9, but <span class="hljs-keyword">no</span> encoding declared; see http:<span class="hljs-comment">//python.org/dev/peps/pep-0263/ for details</span><br></code></pre></td></tr></table></figure></p>
+<p>声明编码方式为：<code># -*- coding: utf-8 -*-</code> 或 <code>#coding=utf-8</code>（<code>-*-</code> 实际上没啥用，只是为了...好看...）。对 Python 来说，无所谓你写的是 <code>utf-8</code> 还是 <code>utf8</code>，它都能认识。</p>
+<p><strong>注意，声明编码必须放在源代码的第一行</strong></p>
+<p>假设代码中有：<code>a = '中文'</code>。若头部声明 <code>utf-8</code>, 则 a 的编码类型为 <code>utf-8</code>；若头部声明 <code>gbk</code>，则 a 的编码类型为 <code>gbk</code>。即，代码中直接声明的字符串编码类型，与此直接相关。</p>
+<p>所以，为了避免乱码以及后续处理的方便，<strong>最好统一头部声明为 <code>utf8</code></strong></p>
+<h4 id="如何选择编码类型">如何选择编码类型</h4>
+<p>现在我们知道了：常见编码类型有: ascii, utf8, gbk。</p>
+<p>先做几个<strong>小实验</strong>：</p>
+<ol type="1">
+<li>文件头部声明对字符串编码类型的影响（<strong>假设声明为 <code>utf8</code></strong>）：</li>
+<li><code># -*- coding: utf8 -*- -&gt; "任意字符串" -&gt; utf8</code></li>
+<li><code># -*- coding: utf8 -*- -&gt; u"任意字符串" -&gt; unicode</code></li>
+<li>unicode 的 encode/decode:</li>
+<li><code>纯 ascii 的 unicode -&gt; encode("编码类型 A") -&gt; 字符串</code></li>
+<li><code>含中文的 unicode -&gt; encode("任意编码类型") -&gt; 字符串</code></li>
+<li><code>纯 ascii 的 unicode -&gt; decode("任意编码类型") -&gt; unicode</code></li>
+<li><code>含中文的 unicode -&gt; decode("任意编码类型") -&gt; 'ascii' codec can't encode characters in position 1-32: ordinal not in range(128)</code></li>
+<li>字符串的 encode/decode:</li>
+<li><code>纯 ascii 的字符串 -&gt; decode("任意编码类型") -&gt; unicode</code></li>
+<li><code>含中文的字符串 -&gt; decode("utf8") -&gt; unicode</code></li>
+<li><code>含中文的字符串 -&gt; decode("非 utf8") -&gt; 乱码 或 UnicodeDecodeError: '非 utf8' codec can't decode bytes in position 117-118: illegal multibyte sequence</code></li>
+<li><code>纯 ascii 的字符串 -&gt; encode("任意编码类型") -&gt; 字符串</code></li>
+<li><code>含中文的字符串 -&gt; encode("任意编码类型") -&gt; UnicodeDecodeError: 'ascii' codec can't decode byte 0xe6 in position 115: ordinal not in range(128)</code></li>
+</ol>
+<p>文件头部声明为 <code>gbk</code> 时同理。</p>
+<p><strong>于是，我们可以得出结论：</strong></p>
+<ol type="1">
+<li>除非有信心代码不会出现中文（包括硬编码或者数据流）之外，头部一定要声明编码，且最好为 <code>utf8</code>。</li>
+<li><code>ascii</code> 编码类型，随便你怎么搞都没事。</li>
+<li>最好，不要对 <code>str</code> 使用 <code>encode</code>，不要对 <code>unicode</code> 使用 <code>decode</code>。</li>
+<li>编码之间的转换怎么处理呢？用 unicode 搭桥<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-comment"># -*- coding: utf8 -*-</span><br><span class="hljs-keyword">string</span> = <span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-keyword">print</span> <span class="hljs-keyword">string</span>.<span class="hljs-title function_ invoke__">decode</span>(<span class="hljs-string">&#x27;utf8&#x27;</span>).<span class="hljs-title function_ invoke__">encode</span>(<span class="hljs-string">&#x27;gbk&#x27;</span>)<br><span class="hljs-comment"># 先解码为 unicode，再编码为 gbk</span><br><span class="hljs-comment"># 在终端字符设置为 utf8 时，输出为乱码</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="网上的一些说法">网上的一些说法</h4>
+<p>利用 sys 解决。方法如下：</p>
+<p>在源代码处添加：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus">import sys<br><span class="hljs-function"><span class="hljs-title">reload</span><span class="hljs-params">(sys)</span></span><br>sys<span class="hljs-selector-class">.setdefaultencoding</span>(<span class="hljs-string">&#x27;utf-8&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>那么，这个方法的原理是什么呢？</p>
+<p>在 python 中，对 <code>str</code> 使用 <code>encode</code> 时，其实是先解码为 unicode ，然后再编码的。但是，这个时候我们并没有声明编码类型，于是 Python 就用默认的编码类型：ascii。改变这一默认编码类型的方式就是上面的那段代码。</p>
+<p>我们还可以做个小实验</p>
+<figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><span class="hljs-attribute">In [1]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a = &quot;我&quot;</span><br><span class="hljs-attribute">In [2]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a.encode()</span><br><span class="hljs-attribute">UnicodeDecodeError</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&#x27;ascii&#x27; codec can&#x27;t decode byte 0xe6 in position 0: ordinal not in range(128)</span><br><br><span class="hljs-attribute">In [3]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a = u&quot;我&quot;</span><br><span class="hljs-attribute">In [4]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a.decode()</span><br><span class="hljs-attribute">UnicodeEncodeError</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&#x27;ascii&#x27; codec can&#x27;t encode character u&#x27;\u6211&#x27; in position 0: ordinal not in range(128)</span><br><br><span class="hljs-attribute">In [5]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">import sys</span><br>   <span class="hljs-attribute">...</span><span class="hljs-punctuation">:</span> <span class="hljs-string">reload(sys)</span><br>   <span class="hljs-attribute">...</span><span class="hljs-punctuation">:</span> <span class="hljs-string">sys.setdefaultencoding(&#x27;utf-8&#x27;)</span><br>   <span class="hljs-attribute">...</span><span class="hljs-punctuation">:</span><br><span class="hljs-punctuation"></span><br><span class="hljs-attribute">In [6]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a = u&quot;我&quot;</span><br><span class="hljs-attribute">In [7]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a.decode()</span><br><span class="hljs-attribute">Out[7]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">u&#x27;\u6211&#x27;</span><br><br><span class="hljs-attribute">In [8]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a = &quot;我&quot;</span><br><span class="hljs-attribute">In [9]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">a.encode()</span><br><span class="hljs-attribute">Out[9]</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>显然这个方法并不彻底，说不定还会造成奇怪的 bug。所以最好别用。</p>
+<p>不过话说回来，这个自动编码，有时候真是大坑：</p>
+<figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs vbnet"><span class="hljs-keyword">In</span> [<span class="hljs-number">1</span>]: <span class="hljs-string">&quot;我&quot;</span>+<span class="hljs-string">&quot;我&quot;</span>.decode(<span class="hljs-string">&quot;utf8&quot;</span>)<br><span class="hljs-symbol">UnicodeDecodeError:</span> <span class="hljs-comment">&#x27;ascii&#x27; codec can&#x27;t decode byte 0xe6 in position 0: ordinal not in range(128)</span><br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">2</span>]: <span class="hljs-string">&quot;我&quot;</span>+u<span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-symbol">UnicodeDecodeError:</span> <span class="hljs-comment">&#x27;ascii&#x27; codec can&#x27;t decode byte 0xe6 in position 0: ordinal not in range(128)</span><br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">3</span>]: <span class="hljs-string">&quot;我&quot;</span> <span class="hljs-keyword">in</span> u<span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-symbol">UnicodeDecodeError:</span> <span class="hljs-comment">&#x27;ascii&#x27; codec can&#x27;t decode byte 0xe6 in position 0: ordinal not in range(128)</span><br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">4</span>]: str(u<span class="hljs-string">&quot;我&quot;</span>)<br><span class="hljs-symbol">UnicodeEncodeError:</span> <span class="hljs-comment">&#x27;ascii&#x27; codec can&#x27;t encode character u&#x27;\u6211&#x27; in position 0: ordinal not in range(128)</span><br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">5</span>]: u<span class="hljs-string">&quot;%s&quot;</span> % <span class="hljs-string">&quot;我&quot;</span><br><span class="hljs-symbol">UnicodeDecodeError:</span> <span class="hljs-comment">&#x27;ascii&#x27; codec can&#x27;t decode byte 0xe6 in position 0: ordinal not in range(128)</span><br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">6</span>]: raw_input(<span class="hljs-string">&quot;编码&quot;</span>)<br>编码<br>Out[<span class="hljs-number">7</span>]: <span class="hljs-comment">&#x27;&#x27;</span><br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">8</span>]: raw_input(u<span class="hljs-string">&quot;编码&quot;</span>)<br><span class="hljs-symbol">UnicodeEncodeError:</span> <span class="hljs-comment">&#x27;ascii&#x27; codec can&#x27;t encode characters in position 0-1: ordinal not in range(128)</span><br><br>......<br><br></code></pre></td></tr></table></figure>
+<p>也难怪很多人用这个方法了吧。。。</p>
+<h3 id="阶段总结">阶段总结</h3>
+<p>py2.x:</p>
+<ol type="1">
+<li>规范编码：环境编码 + IDE/文本编辑器 + 文件编码 + 数据库编码+...</li>
+<li>头部编码声明</li>
+<li>不要对 <code>str</code> 使用 <code>encode</code>，不要对 <code>unicode</code> 使用 <code>decode</code></li>
+<li>乱码/报错的时候，先搞清楚编码的类型，查找<strong>小实验</strong>中对应的情况，再进行对应的编码/解码</li>
+<li>强烈建议统一用 utf8，不管网站也好，数据库也好，这是大势所趋。</li>
+</ol>
+<h2 id="痛改前非的-python-3.x">痛改前非的 python 3.x</h2>
+<h3 id="字符串strunicodebytes">字符串？str？unicode？bytes？</h3>
+<p>py2.x 的非 ascii 编码/解码问题一直被吐槽这么多年后，py3.x 终于下定决心彻底解决这个问题。解决的方式：</p>
+<blockquote>
+<p>文本总是 <code>Unicode</code>，由 <code>str</code> 类型表示，二进制数据则由 <code>bytes</code> 类型表示。Python 3 不会以任意隐式的方式混用 <code>str</code> 和 <code>bytes</code></p>
+</blockquote>
+<p><strong>所以，py3.x 首先统一了表示形式，然后不会再任意隐式的方式混用。</strong></p>
+<p>接下来解释一下：首先，Unicode 是内存编码表示方案（是规范），而 UTF 是如何保存和传输 Unicode 的方案（是实现）。 这也是 UTF 与 Unicode 的区别。py3.X 中只有一种能保存文本信息的数据类型：str，不可变，保存的是 Unicode 码位。Unicode 是离用户更近的数据，bytes 是离计算机更近的数据。</p>
+<p>在 py2.x 中，我们曾经讨论过 <code>什么是 str，什么是 unicode</code>，以及字符串的定义问题，还举了一个例子，说明 unicode 在求长度的时候更符合逻辑。所以，py3.x 认为 <code>unicode</code> 才是 <code>字符串</code>，而在 Py2.x 中的 <code>str</code>，更像是 py3.x 中的 <code>bytes</code>。</p>
+<p>说得有点多，总结一下：</p>
+<ol type="1">
+<li>py2.x</li>
+</ol>
+<ul>
+<li><code>字符串</code>：<code>str</code> 类型</li>
+<li><code>type("123")</code>：<code>str</code></li>
+<li><code>len("我")</code>：3</li>
+<li><code>len("我".decode("utf8"))</code>：1</li>
+</ul>
+<ol start="2" type="1">
+<li>py3.x</li>
+</ol>
+<ul>
+<li><code>字符串</code>：<code>unicode</code> 类型</li>
+<li><code>type("123")</code>：<code>str</code></li>
+<li><code>len("我")</code>：1</li>
+<li><code>len("我".encode())</code>：3</li>
+</ul>
+<ol start="3" type="1">
+<li>注意，<code>str</code> 表示的概念都是字符串类型，只不过 Py2.x 的 str 是经过编码的 unicode，而 py3.x 的 str 就是 unicode。 那么，py3.x 的 unicode 经过编码后，是什么呢？就是 <code>bytes</code>。也就是说，py3.x 的字符串默认是 unicode，至于你想把它怎么编码（utf8 或者 gbk），都是你自己的事。</li>
+</ol>
+<p>说清楚 py3.x 的解决方案之后，我们再来看它的编码/解码。</p>
+<h3 id="编码解码">编码/解码</h3>
+<p>对于 <code>str</code> 类型（即 <code>unicode</code>），只有一个 <code>encode</code> 方法将 <code>字符串</code> 转化为一个字节码（即 <code>bytes</code>），而且 <code>bytes</code> 也只有一个 <code>decode</code> 方法将字节码转化为一个文本字符串。</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs autoit">a = <span class="hljs-string">&quot;我&quot;</span> <span class="hljs-meta"># a 是一个 字符串，类型是 str，用 unicode 表达</span><br>print(a) <span class="hljs-meta"># <span class="hljs-string">&#x27;我&#x27;</span></span><br><br>a = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span> <span class="hljs-meta"># a 是一个 字节流，类型是 bytes，用 utf8 编码的 unicode 表达</span><br>print(a) <span class="hljs-meta"># b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span></span><br><br>a = <span class="hljs-string">&quot;我&quot;</span>.encode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-meta"># 将 a 编码，转为用 utf8 编码的 unicode 表达</span><br>print(a) <span class="hljs-meta"># b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span></span><br><br>a = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span>.decode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-meta"># 将 a 解码，转为用 unicode 表达</span><br>print(a) <span class="hljs-meta"># <span class="hljs-string">&quot;我&quot;</span></span><br><br>a = <span class="hljs-string">&quot;我&quot;</span>.decode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-meta"># 试图将 unicode 解码</span><br><span class="hljs-meta"># 报错：AttributeError: <span class="hljs-string">&#x27;str&#x27;</span> object has no attribute <span class="hljs-string">&#x27;decode&#x27;</span></span><br><br>a = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span>.encode(<span class="hljs-string">&quot;utf8&quot;</span>) <span class="hljs-meta"># 试图将 bytes 编码</span><br><span class="hljs-meta"># 报错：AttributeError: <span class="hljs-string">&#x27;bytes&#x27;</span> object has no attribute <span class="hljs-string">&#x27;encode&#x27;</span></span><br><br>a = b<span class="hljs-string">&#x27;\xe6\x88\x91&#x27;</span>.decode(<span class="hljs-string">&quot;gbk&quot;</span>) <span class="hljs-meta"># 解码的编码类型与原有编码类型不匹配</span><br><span class="hljs-meta"># 报错：UnicodeDecodeError: <span class="hljs-string">&#x27;gbk&#x27;</span> codec can<span class="hljs-string">&#x27;t decode byte 0x91 in position 2: incomplete multibyte sequence</span></span><br><span class="hljs-string"><span class="hljs-meta"></span></span><br></code></pre></td></tr></table></figure>
+<p>基本不会有乱码以及各种奇怪报错的问题了。算是彻底解决了。</p>
+<h3 id="阶段总结-1">阶段总结</h3>
+<p>py3.x:</p>
+<ol type="1">
+<li>规范编码：环境编码 + IDE/文本编辑器 + 文件编码 + 数据库编码+...</li>
+<li>头部编码声明：不再必要</li>
+<li>乱码/报错的时候，一定是解码的时候，解码的编码类型与原有编码类型不匹配。</li>
+</ol>
+<h2 id="谈谈兼容性">谈谈兼容性</h2>
+<p>py2.x 与 3.x 如何进行正确地编码/解码都说好了，现在说说兼容性。回顾 py3.x 的解决方案，我们可以获得启示：<strong>默认使用 unicode，需要的时候再编码</strong>。</p>
+<h3 id="python-作出的努力">Python 作出的努力</h3>
+<p>自从 py3.x 出世，以及官方声明不在对 2.x 进行更新后，兼容性一直是一个大问题。<br />
+对此，最新的 py2.7.15，支持 py3.x 的一些语法；而 3.x 也保留了一些 py2.x 的语法：</p>
+<ol type="1">
+<li>py2.x:</li>
+</ol>
+<ul>
+<li><code>a = b"123"</code> # a 依然是 str 而不是 bytes。</li>
+<li>可以进行头部编码声明</li>
+</ul>
+<ol start="2" type="1">
+<li>py3.x:</li>
+</ol>
+<ul>
+<li><code>a = u"123"</code> # a 本来就是 unicode</li>
+<li>可以进行头部编码声明</li>
+</ul>
+<p>以上语法仅仅是为了兼容，不会起到它们原来的作用。</p>
+<h3 id="我们需要注意的地方">我们需要注意的地方</h3>
+<p>兼容性靠别人不如靠自己，写代码的时候不妨留意一点编码问题。</p>
+<ol type="1">
+<li>规范编码：环境编码 + IDE/文本编辑器 + 文件编码 + 数据库编码+...</li>
+<li>声明文件头部编码</li>
+<li>硬编码的时候加上 <code>u</code>：<code>a = u"我"</code></li>
+<li>将 Python 代码当做一个杯子，将数据流倒进杯子的时候，一律解码转为 unicode。杯子里一律用 unicode 处理。将数据流倒出杯子的时候，编码为 utf8（当然，看具体使用场景）。</li>
+<li>始终坚持使用 UTF-8 编码，始终坚持使用 UTF-8 编码，始终坚持使用 UTF-8 编码</li>
+</ol>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一文说清楚如何处理 Python 的编码</div>
+      <div>https://www.tr0y.wang/2018/09/13/py-coding-type/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年9月13日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月10日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/09/26/email-hacker/" title="伪造电子邮件以及制造电子邮件炸弹的攻防探讨">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">伪造电子邮件以及制造电子邮件炸弹的攻防探讨</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/06/18/MySQL%E7%9A%84BIGINT%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5/" title="MySQL 的 BIGINT 报错注入">
+                        <span class="hidden-mobile">MySQL 的 BIGINT 报错注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
