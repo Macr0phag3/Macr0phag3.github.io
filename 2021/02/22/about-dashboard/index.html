@@ -1,0 +1,1019 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="最近在参与内部某个系统的设计审核，发现很多人在设计 Dashboard 的思路上存在一定的误区，Dashboard 不等同于那种花里胡哨的界面，并且依托于 Dashboard 还可以做更多事情。综上所述，我打算用漏洞扫描器为示例系统，与大家聊聊我的想法。 Dashboard 分类 我认为 Dashboard 分为 3 种：  常规型：告诉我们系统现在是什么状态 任务型：告诉我们现在需要去处理什么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="小议 Dashboard">
+<meta property="og:url" content="https://www.tr0y.wang/2021/02/22/about-dashboard/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="最近在参与内部某个系统的设计审核，发现很多人在设计 Dashboard 的思路上存在一定的误区，Dashboard 不等同于那种花里胡哨的界面，并且依托于 Dashboard 还可以做更多事情。综上所述，我打算用漏洞扫描器为示例系统，与大家聊聊我的想法。 Dashboard 分类 我认为 Dashboard 分为 3 种：  常规型：告诉我们系统现在是什么状态 任务型：告诉我们现在需要去处理什么">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/dashboard.jpeg/cover">
+<meta property="article:published_time" content="2021-02-22T14:03:15.000Z">
+<meta property="article:modified_time" content="2025-04-16T13:00:43.882Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="设计">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/dashboard.jpeg/cover">
+  
+  
+  
+  <title>小议 Dashboard - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="小议 Dashboard"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-02-22 14:03" pubdate>
+          2021年2月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">小议 Dashboard</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+<p>最近在参与内部某个系统的设计审核，发现很多人在设计 Dashboard 的思路上存在一定的误区，Dashboard 不等同于那种花里胡哨的界面，并且依托于 Dashboard 还可以做更多事情。综上所述，我打算用漏洞扫描器为示例系统，与大家聊聊我的想法。</p>
+<h2 id="dashboard-分类">Dashboard 分类</h2>
+<p>我认为 Dashboard 分为 3 种：</p>
+<ol type="1">
+<li>常规型：告诉我们系统现在是什么状态</li>
+<li>任务型：告诉我们现在需要去处理什么</li>
+<li>聚合型：装逼</li>
+</ol>
+<p>如果你可以理解，那么我们的想法是一致的，下面的内容就不需要再看了。</p>
+<p>（前面的名字都是我瞎取的，各位主要看具体解释就好了）</p>
+<h3 id="常规型">常规型</h3>
+<p>常规型的 Dashboard 是最常见的，一提到 Dashboard 大家也往往会想到这种：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/about-dashboard/20210222020549792.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这是开源扫描器 —— 巡风的统计界面，上面展示出了各种数据与指标。那么显然，这种类型的 Dashboard，起码要满足，<code>美观</code>、<code>可读性好</code> 这两个条件，而在他们之间，美观是最容易想到的、最容易看出来、也是最容易做好的地方，所以往往会出现 “花里胡哨的就是好的” 这种印象。那么怎么衡量 “可读性” 呢？我的办法很简单，找个不熟悉这个系统的人，问问他 Dashboard 上的各个图表都是什么意思，看他能不能回答得八九不离十，如果可以的话就过关了。</p>
+<h3 id="任务型">任务型</h3>
+<p><strong>这种类型的 Dashboard 其实非常重要</strong>，但是很少见人考虑到，它本质上是辅助我们在这个系统上处理事情，我们只需要看一眼这个 Dashboard，就知道现在需要去做什么。例如系统出现异常？哪些漏洞还没被修复且已经超过了 SLA 的限制？哪些漏洞没有找到管理员？通常情况下，这些任务都是系统运维，凭借经验去梳理出来，然后进行处理，实际上梳理的过程是完全可以自动化的。</p>
+<p>当然，也有人选择对接第三方的代办系统去追踪这些任务，例如 jira，这样也可以，但是我不喜欢，因为这只不过是前端在哪展示的问题，而与第三方系统做各种交互，还没直接实现这种 Dashboard 简单，因为它最简单的形式是只需要一个表格。</p>
+<h3 id="聚合型">聚合型</h3>
+<p>某大佬曾经说过，装逼是人类的刚需。作为安全打工人，我们做完一个系统，不仅要好用、自己用的爽，还需要让懂安全的领导、不懂安全的领导都爽，<del>所以在这里，领导关心什么，我们就展示什么</del>，那么不管是自己对系统整体重要指标的把握，还是给领导汇报或者年终总结的时候它都会有很大的帮助。大家可以想想，对于漏洞扫描器来说，领导往往关心什么呢？肯定是较高视角的数据，我举例如下：</p>
+<ol type="1">
+<li>漏洞修复率或者按时修复率</li>
+<li>每个部门漏洞数量的排序</li>
+<li>所有漏洞的数量分布、类型分布</li>
+<li>资产的变动趋势</li>
+<li>系统运行的耗时（考察扫描效率）</li>
+</ol>
+<p>大家可以结合实际情况，站在领导的角度多想想。其实这种 Dashboard 不仅仅是纯粹为了领导服务，作为项目负责人，我们也可以站在一个更高的视角来观察我们的系统。</p>
+<h2 id="dashboard-的设计">Dashboard 的设计</h2>
+<p>首先，<strong>可读性一定是第一位的</strong>。如果我们做出了这种 Dashboard，恐怕自己都不想看吧？<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/about-dashboard/20210222020604260.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>解决的方式有很多种，对症下药即可，例如 增加说明，避免太专业或者小众的缩写以减少猜测、数据点不要过于密集、必要时数据拆分做展示，不要挤在一个图里、最重要的信息放在顶部、相关的数据放在接近的位置等等。</p>
+<p>第二点，避免 “信息过载”。我们总是有分享收集到的一切数据的冲动，这也想展示，那也想展示。但是各种视图、过滤器、视觉效果都会增加信息密度，并带来认知上的负担。信息太多，Dashboard 就会表现混乱、难以理解。解决的方式嘛，该砍的砍就好了，或者你用一段时间，就会发现有些数据根本没有人关心，那么就可以删了。</p>
+<p>第三点，要有重点，每种类型的 Dashboard，主要任务是什么，就展示什么数据，不要互相串。这一点在具体实施的过程中，聚合型的 Dashboard 容易与常规型 的 Dashboard 的重复，我的解决方式很简单，要是一个数据的展示，需要放在聚合型的 Dashboard 里，那么就不放在 常规型 的 Dashboard 里。</p>
+<p>加分项：</p>
+<ol type="1">
+<li>美观，我相信各位审美都是在线的。</li>
+<li>可交互，主要是筛选，能选择时间范围或者指定某个字段等。</li>
+<li>实时，会自己异步进行刷新。</li>
+<li>可自定义，可以参考 Kibana。</li>
+</ol>
+<p>上文提到了很多图表绘制过程中易触及的错误，我之前在网上看到过一个较为通用的感知判断标准，分享如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/about-dashboard/20210222020615542.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>最后，祝各位的 Dashboard 都能又实用，又让人赏心悦目~</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/about-dashboard/20210222020659298.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">过完年了<br>收收心，继续加油！<br>年前一直在看编译原理相关的知识<br>后面应该会出系列文章<br>按照之前说的，写完之后会集中发<br>敬请期待喔</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BE%E8%AE%A1/">#设计</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>小议 Dashboard</div>
+      <div>https://www.tr0y.wang/2021/02/22/about-dashboard/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年2月22日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月16日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/04/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/" title="编译原理（一）：词法分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">编译原理（一）：词法分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧">
+                        <span class="hidden-mobile">2021，来立些 flag 吧</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
