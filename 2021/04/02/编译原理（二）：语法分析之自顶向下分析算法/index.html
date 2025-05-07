@@ -1,0 +1,1558 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="编译原理系列第二篇，来点烧脑的！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译原理（二）：语法分析之自顶向下分析算法">
+<meta property="og:url" content="https://www.tr0y.wang/2021/04/02/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E4%B9%8B%E8%87%AA%E9%A1%B6%E5%90%91%E4%B8%8B%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="编译原理系列第二篇，来点烧脑的！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2021-04-02T20:00:14.000Z">
+<meta property="article:modified_time" content="2024-03-28T03:22:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="编译原理">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>编译原理（二）：语法分析之自顶向下分析算法 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="编译原理（二）：语法分析之自顶向下分析算法"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-04-02 20:00" pubdate>
+          2021年4月2日 20:00:14
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          9.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          60 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">编译原理（二）：语法分析之自顶向下分析算法</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：1 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>编译原理系列第二篇，来点烧脑的！</p>
+<span id="more"></span>
+<h1 id="编译原理二语法分析之自顶向下分析算法">编译原理（二）：语法分析之自顶向下分析算法</h1>
+<h2 id="语法分析器">语法分析器</h2>
+<p>这是一个简单编译器的阶段划分：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（二）：语法分析之自顶向下分析算法/20210308162752.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>上一篇提到过，词法分析器接受字符流，产出记号流。这一篇我们来看语法分析器。词法分析器产出的记号流就是语法分析器的输入，然后语法分析器会判断输入的记号流是否合法，即是否符合语法规则，然后产出抽象语法树。接下来会逐步介绍这些步骤具体是如何实现的。</p>
+<h3 id="上下文无关文法cfg">上下文无关文法（CFG）</h3>
+<p>既然语法分析器要判断记号流是否符合特定的语法规则，那么首先我们就需要形式化地来描述语言的语法规则。这就是 CFG 的作用：一个用来描述语言语法规则的数学工具。</p>
+<h4 id="背景乔姆斯基文法体系">背景：乔姆斯基文法体系</h4>
+<p>很久以前，一位叫乔姆斯基的教授打算利用数学来研究人类自然语言的结构和规律。研究期间他发明了很多数学工具和方法，被后人称为<code>乔姆斯基文法体系</code>，其中一个就是 CFG。从我们后人的角度来看，一开始他本打算用这些数据工具来研究自然语言，却无意中用在了计算机领域，正是无心插柳柳成荫。</p>
+<p>乔姆斯基文法体系给出了 4 类文法：</p>
+<ol type="1">
+<li>0 型文法：任意文法，在程序设计语言当中不常用</li>
+<li>1 型文法：上下文有关文法，在程序设计语言当中也不常用</li>
+<li>2 型文法：即 CFG，这种文法可以用来描述语言的语法结构。</li>
+<li>3 型文法：又叫做正则文法，其实词法分析器已经讨论过了，即正则表达式，这种文法可以用来描述语言的词法结构。</li>
+</ol>
+<p>在这些文法中，0 型文法的表达能力最强，3 型文法最弱，画出来就是这样：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（二）：语法分析之自顶向下分析算法/20210315105333.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h4 id="cfg-的数学定义">CFG 的数学定义</h4>
+<p>接下来给出 CFG 的数学定义。</p>
+<p>上下文无关文法 <code>G</code> 是一个四元组：<code>G = (T, N, P, S)</code></p>
+<p>其中：</p>
+<ol type="1">
+<li><code>T</code>: 终结符集合，终结符一般用小写</li>
+<li><code>N</code>: 非终结符集合，非终结符一般用大写</li>
+<li><code>P</code>: 一组产生式规则
+<ul>
+<li>规则的形式：<code>X -&gt; β1 β2 β3 ... βn</code></li>
+<li><code>X∈N, βi∈(T∪N)</code>，即产生式的左边只能是非终结符，右边可以是非终结符或者终结符</li>
+</ul></li>
+<li><code>S</code>: 唯一的开始符号
+<ul>
+<li><code>S∈N</code>，即只能是非终结符</li>
+</ul></li>
+</ol>
+<p>举个例子，<code>G = (T, N, P, S)</code> 中对应的各个值是：</p>
+<ol type="1">
+<li><code>T = &#123;num, id, +, *&#125;</code></li>
+<li><code>N = &#123;E&#125;</code></li>
+<li><code>S = &#123;E&#125;</code></li>
+<li><code>P = &#123;E -&gt; num, E -&gt; id, E -&gt; E+E, E -&gt; E*E&#125;</code></li>
+</ol>
+<p>那么对于这样一个文法，我们就可以这样来表示这个 CFG：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; num<br>E -&gt; id<br>E -&gt; E + E<br>E -&gt; E * E<br></code></pre></td></tr></table></figure></p>
+<p>为了简化写法，避免重复写 <code>E -&gt;</code>，可以这样来表示：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; num<br>   | id<br>   | E + E<br>   | E * E<br></code></pre></td></tr></table></figure></p>
+<h4 id="cfg-的推导">CFG 的推导</h4>
+<p>推导的定义：给定文法 G，从 G 的开始符号 S 开始，用产生式的右部替换左侧的非终结符，不断重复，直到不出现非终结符为止。最后的得到的结果，我们把它称为 <code>句子</code>。</p>
+<p>推导的方式，根据替换的顺序，分为 2 种：</p>
+<ol type="1">
+<li>最左推导: 每次总是选择最左侧的符号进行替换</li>
+<li>最右推导: 每次总是选择最右侧的符号进行替换</li>
+</ol>
+<p>举个例子，假如有以下文法：<br />
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs coq">S -&gt; N V N<br>N -&gt; s<br>   | <span class="hljs-type">t</span><br>   | <span class="hljs-type">g</span><br>   | <span class="hljs-type">w</span><br>V -&gt; e<br>   | <span class="hljs-type">d</span><br></code></pre></td></tr></table></figure></p>
+<p>最左推导的示例（当然，这只是其中一种写法）：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>S -&gt; s V N  # 任选一个终结符，比如 s<br>S -&gt; s e N  # 任选一个终结符，比如 e<br>S -&gt; s e s  &lt;- 这个就是 “句子”<br></code></pre></td></tr></table></figure></p>
+<p>最右推导的示例（这也只是其中一种写法）：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>S -&gt; N V s  # 任选一个终结符，比如 s<br>S -&gt; N e s  # 任选一个终结符，比如 e<br>S -&gt; s e s  &lt;- 这个就是 “句子”<br></code></pre></td></tr></table></figure></p>
+<p>由此我们可以得出语法分分析的具体含义：给定文法 G 和句子 s，回答是否存在对句子 s 的推导？还是以上面那个文法为例，假如给定 <code>s = ses</code>，应该回答 yes；给定 <code>s = sss</code> 应该回答 no。</p>
+<p>回到一开始提到的，语法分析器的输入是记号流，其实就是句子 s；而判断句子是否符合语法规则，就可以利用文法 G 来做判断。</p>
+<h4 id="分析树与二义性">分析树与二义性</h4>
+<p>仔细观察上面的推导过程，实际上可以使用 树 来表示。每个内部节点代表的是非终结符；叶子节点代表终结符；每一步推导代表如何从双亲节点生成它的直接孩子节点。</p>
+<p>例如文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; num<br>   | id<br>   | E + E<br>   | E * E<br></code></pre></td></tr></table></figure><br />
+假设我们要推导这个句子：<code>3 + 4 * 5</code>，那么最左推导，实际上会有 2 种：</p>
+<p>第一种，先选择 <code>E + E</code>：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; E + E<br>E -&gt; 3 + E<br>E -&gt; 3 + E * E<br>E -&gt; 3 + 4 * E<br>E -&gt; 3 + 4 * 5<br></code></pre></td></tr></table></figure></p>
+<p>对应的分析树：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（二）：语法分析之自顶向下分析算法/20210315144924.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>第二种<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; E * E<br>E -&gt; E + E * E<br>E -&gt; 3 + E * E<br>E -&gt; 3 + 4 * E<br>E -&gt; 3 + 4 * 5<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（二）：语法分析之自顶向下分析算法/20210315145929.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>通过对比可以看出，分析树的含义取决于对树进行后序遍历的结果。后续遍历即：左子树 -&gt; 右子树 -&gt; 根结点。所以对于第一种方式来说，应该是 <code>3 + (4 * 5) = 23</code>；对于第二种方式来说，是 <code>(3 + 4) * 5 = 35</code>。按照我们的常识来说，肯定是第一种才是我们想要的结果。</p>
+<p>所以这个文法就是 <code>二义性文法</code>：给定文法 G，如果存在句子 s，它有两棵不同的分析树，那么称 G 是二义性文法。</p>
+<p>从编译器角度来看，出现二义性文法，那么同一个程序会有不同的含义，即程序运行的结果不是唯一的，却都是“合理”的。这肯定是不行的，好在重写文法就可以解决二义性。</p>
+<p>重写文法需要根据原文法来确定应该如何重写，所以需要具体例子具体分析。对于上面这个例子来说，我们想要先计算 <code>*</code>，则可以将推导过程分解为先计算 <code>T = F * F</code>，然后在计算 <code>E = T + T</code>。<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; T + T<br>T -&gt; F * F<br>F -&gt; num<br>   | id<br></code></pre></td></tr></table></figure><br />
+但是这样的话，<code>+</code> 和 <code>*</code> 都只能出现一次，所以我们还可以再改写成递归的结构：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; E + T<br>   | T<br>T -&gt; T * F<br>   | F<br>F -&gt; num<br>   | id<br></code></pre></td></tr></table></figure></p>
+<p>推导句子 <code>3 + 4 * 5</code> 的分析树如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（二）：语法分析之自顶向下分析算法/20210315155420.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个分析树的后续遍历就是正确的算术优先级的顺序。同时大家仔细观察也会发现，这个改写后的文法是满足算术运算符的左结合性的。</p>
+<h4 id="自顶向下分析算法">自顶向下分析算法</h4>
+<p>上面说的分析方式，都是从开始符号出发推出句子，因此称为<code>自顶向下分析</code>，对应于分析树就是自顶向下的构造顺序。</p>
+<p>自顶向下分析算法的定义：</p>
+<ul>
+<li>目标：给定文法 G 和句子 s，回答 s 是否能够从 G 推导出来?</li>
+<li>基本算法思想：从 G 的开始符号出发，随意推导出某个句子 t，比较 t 和 s
+<ul>
+<li>若 t == s，则回答 “是”</li>
+<li>若 t != s，则...</li>
+</ul></li>
+</ul>
+<p>需要注意的是，如果 t != s，我们是不能直接回答 “否” 的，因为 t 有很多种可能性，所以只有当 G 可以推导出的所有句子 t 都不等于 s 的时候，我们才能回答 “否”。</p>
+<p>举个例子，假如有以下文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>N -&gt; s<br>   | t<br>   | g<br>   | w<br>V -&gt; e<br>   | d<br></code></pre></td></tr></table></figure></p>
+<p>我们需要判断它能否推出句子 <code>s = gdw</code>。</p>
+<blockquote>
+<p>算法 1.0</p>
+</blockquote>
+<p>直接遍历所有的可能性，寻找是否有产生与 s 相同句子。</p>
+<p>过程如下：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>S -&gt; s V N<br>S -&gt; s e N<br>S -&gt; s e s<br></code></pre></td></tr></table></figure><br />
+可以看到，得到的 <code>ses != gdw</code>，所以我们只能回溯：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>S -&gt; ...<br>S -&gt; s e s &lt;- 回溯<br>S -&gt; s e N <br>S -&gt; s e t<br></code></pre></td></tr></table></figure>
+<p>一直重复这个过程，直到推出 <code>gdw</code>，发现与 s 相等，于是回答 “是”。</p>
+<p>那么很明显，无脑遍历是没必要的，这样会浪费大量的时间去做回溯。</p>
+<blockquote>
+<p>算法 1.1</p>
+</blockquote>
+<p>在 1.0 的这一步 <code>| s V N</code> 中，我们没有必要继续往下把 V 替换了，因为此时 <code>s != g</code>，所以不管后面怎么遍历，都不可能相等，所有直接回溯 N 即可：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>S -&gt; s V N &lt;- 回溯<br>S -&gt; t V N &lt;- 回溯<br>S -&gt; g V N<br>S -&gt; g e N &lt;- 回溯<br>S -&gt; g d N<br>S -&gt; ...<br></code></pre></td></tr></table></figure></p>
+<p>这个优化是非常明显，本来最多需要尝试 <code>4 * 2 * 4 = 32</code> 次，现在只需要 <code>4 + 2 + 4 = 10</code> 次。</p>
+<p>大家仔细想想其实就会发现一个问题，这种优化可以如果出现终结符较多的情况，优化效果就会大打折扣，甚至与 1.0 相比差不了多少，比如：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; E + T<br>   | T<br>T -&gt; T * F<br>   | F<br>F -&gt; num<br>   | id<br></code></pre></td></tr></table></figure></p>
+<p>这样的话，我们只有在替换 F 的时候起到了优化的作用，如果 F 无法匹配，依旧需要对 T、E 做回溯，例如推导 <code>1 + 1 * 1</code>：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; E + T<br>E -&gt; T + T<br>E -&gt; T * F + T<br>E -&gt; F * F + T<br>E -&gt; 1 * F + T<br>E -&gt; 1 * 1 + T &lt;- 回溯<br>E -&gt; 1 * F + T &lt;- 回溯<br>E -&gt; F * F + T &lt;- 回溯<br>E -&gt; T * F + T<br>E -&gt; T * F * F + T<br>E -&gt; F * F * F + T<br>E -&gt; 1 * F * F + T<br>E -&gt; 1 * 1 * F + T &lt;- 回溯<br>E -&gt; F * F * F + T &lt;- 回溯<br>E -&gt; T * F * F + T &lt;- 回溯<br>E -&gt; T * F + T &lt;- 回溯<br>E -&gt; T + T<br>E -&gt; F + T<br>E -&gt; 1 + T<br>E -&gt; 1 + T * F<br>E -&gt; 1 + T * F * F<br>...各种回溯<br>E -&gt; 1 + T * F<br>E -&gt; 1 + F * F<br>E -&gt; 1 + 1 * F<br>E -&gt; 1 + 1 * 1<br></code></pre></td></tr></table></figure></p>
+<p>可以看到，虽然 1.1 比 1.0 好了不少，但是有时候还是会进行大量的回溯。</p>
+<h5 id="递归下降分析算法">递归下降分析算法</h5>
+<p><code>递归下降分析算法</code> 也称为预测分析。它分析高效（线性时间），容易实现（方便手工编码），错误定位和诊断信息准确，被很多开源和商业的编译器所采用，比如 GCC4.0, LLVM, ...。</p>
+<p>算法基本思想是，每个非终结符构造一个分析函数，用前看符号指导产生式规则的选择，避免回溯。</p>
+<blockquote>
+<p>算法 2.0</p>
+</blockquote>
+<p>还是这个例子：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>N -&gt; s<br>   | t<br>   | g<br>   | w<br>V -&gt; e<br>   | d<br></code></pre></td></tr></table></figure><br />
+判断它能否推出句子 <code>s = gdw</code>。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br># 发现句子的第一个字符是 g<br>S -&gt; s V N<br># 发现句子的第二个字符是 d<br>S -&gt; s d N<br># 发现句子的第三个字符是 w<br>S -&gt; s d w<br></code></pre></td></tr></table></figure>
+<p>“分而治之”的思想，这样就比算法 1.1 还要高效。</p>
+<p>但是它与 1.1 有同样的问题，出现终结符较多的情况，优化效果也会大打折扣。所以，递归下降算法还需要继续优化。</p>
+<h5 id="ll1-分析算法">LL(1) 分析算法</h5>
+<p>橘友们坐稳了，这一部分开始，稍微有些难度。</p>
+<h6 id="ll1-分析算法的原理">LL(1) 分析算法的原理</h6>
+<blockquote>
+<p>算法 2.1</p>
+</blockquote>
+<p><code>LL(1)</code> 分析算法的定义：<br />
+从左（<code>L</code>）向右读入程序，最左（<code>L</code>）推导，采用一个（<code>1</code>）前看符号。</p>
+<p>LL(1) 分析算法的特点：</p>
+<ul>
+<li>分析高效(线性时间)</li>
+<li>错误定位和诊断信息准确</li>
+<li>有很多开源或商业的生成工具（ANTLR）</li>
+</ul>
+<p>算法的基本思想：表驱动的分析算法。表驱动中的 “表”，就是分析表，用于指导语法分析器进行分析。</p>
+<p>在介绍 LL(1) 之前，首先来看几个概念：</p>
+<blockquote>
+<p>FIRST 集</p>
+</blockquote>
+<p>FIRST 集就是从非终结符 N 开始推导，得出的句子开头的所有可能终结符的集合。<strong>注意：有些地方说 FIRST 集中可以存在 ε，有些地方有说不可以，我偷点懒，就认为 FIRST 集中不存在 ε。</strong></p>
+<p>还是这个例子：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>N -&gt; s<br>   | t<br>   | g<br>   | w<br>V -&gt; e<br>   | d<br></code></pre></td></tr></table></figure></p>
+<p>S 的 FIRST 集就是 N 的 FIRST 集；N 的 FIRST 集就是 <code>&#123;s, t, g, w&#125;</code>，V 的 FIRST 集就是 <code>&#123;e, d&#125;</code>。</p>
+<p>注意，如果 S 自己也可以推出非终结符，例如：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs txt">S -&gt; N V N<br>   | a<br>...<br></code></pre></td></tr></table></figure><br />
+则 S 的 FIRST 集就是 N 的 FIRST 集并上 <code>&#123;a&#125;</code>，即 <code>FIRST(S) = FIRST(N) ∪ &#123;a&#125;</code>。</p>
+<p>那么，FIRST 集到底有什么作用呢？或者我们怎么直观地去理解它？</p>
+<p>例如，给定输入 <code>S = sdw</code>，我们推导的第一步是 <code>S -&gt; N V N</code>，那么 FIRST 集就可以直接告诉我们，S 是否可以满足文法的要求，判断的方式就是输入的字符是否在 FIRST 集中。而 S 的第一个字符 <code>s</code> 在 S 的 FIRST 集中，<code>s in &#123;s, t, g, w&#125;</code>，所以第一步可以接受，推导就变成了 <code>S -&gt; s V N</code>；同理，S 的第二个字符，<code>d</code> 也在 V 的 FIRST 集里，所以推导就变成了 <code>S -&gt; s d N</code>，最后 <code>w</code> 也在 N 的 FIRST 集里，所以最终推导出 <code>S -&gt; s d w</code>，那么结果就是接受此句子。</p>
+<blockquote>
+<p>FIRST_S 集</p>
+</blockquote>
+<p>首先给文法加个序号：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: S -&gt; N V N<br>1: N -&gt; s<br>2:    | t<br>3:    | g<br>4:    | w<br>5: V -&gt; e<br>6:    | d<br></code></pre></td></tr></table></figure></p>
+<p>简单来说，FIRST 集计算 S 的所有可能出现的第一个字符；<code>FIRST_S 集</code> 则是计算每一条产生式，可能出现的第一个字符：</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>FIRST_S</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>{s, t, g, w}</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>{s}</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>{t}</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>{g}</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>{w}</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>{e}</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>{d}</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>分析表</p>
+</blockquote>
+<p>有了 FIRST_S 集之后，就可以构造 LL(1) 分析表了。</p>
+<p>然后画出一个表格，所有的非终结符（为列），再画出所有的终结符（为行），接下来开始填表。例如 <code>N</code>，遍历一遍它的 FIRST 集，比如 s，它遇到 s 的时候，查看 FIRST_S 集，应该是走推导式 1，所以就在 s 那一列，N 那一行对应填上 <code>1</code>。同理，就可以完成这个表格：</p>
+<table>
+<thead>
+<tr class="header">
+<th>N/T</th>
+<th>s</th>
+<th>t</th>
+<th>g</th>
+<th>w</th>
+<th>e</th>
+<th>d</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>S</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>N</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>V</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>5</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>所以，分析表可以指导推导的过程，例如，在推导式 N，如果遇到了 t，应该走到哪一条推导式，对应这里就是第 2 条推导式。</p>
+<blockquote>
+<p>NULLABLE 集合</p>
+</blockquote>
+<p>需要注意的是，上面计算 FIRST 集的算法，其实是比较简陋的算法。为什么呢？例如有以下文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: Z -&gt; d<br>1:    | X Y W<br>2: Y -&gt; c<br>3:    | ε<br>4: X -&gt; Y<br>5:    | a<br>6: W -&gt; d<br></code></pre></td></tr></table></figure></p>
+<p>可以看到，Y 可以直接推导出空串（ε），而 X 可以推导出 Y，所以其实 X 也有可能推导出空串。那么 FIRST(Z) 的计算会出现问题：如果 X、Y 都可以推出空串，那么计算 FIRST(Z) 的时候，就会有 Z -&gt; W（X、Y 可以省略，因为可以不消耗输入字符）的规则，所以 FIRST(Z) 应该包含 FIRST(X)、FIRST(Y)、FIRST(W)。因此，若要考虑的周全一些，那么还需要计算哪些非终结符是可能推出空串。</p>
+<p>当非终结符 X 满足以下条件的其中一点：</p>
+<ol type="1">
+<li>X -&gt; ε，即 X 可以直接推出空串</li>
+<li>X -&gt; Y1 Y2 ... Yn，Y1 Y2 ... Yn 均为非终结符，且<strong>都</strong>属于 NULLABLE 集合</li>
+</ol>
+<p>则 X 属于 NULLABLE 集合。那么对于产生式 <code>M -&gt; XY</code>，有 <code>FIRST(M) = FIRST(X) ∪ FIRST(Y)</code>。</p>
+<p>所以经过计算，我们可以得出 <code>FIRST(Z) = &#123;a, c, d&#125;</code>。</p>
+<p>可以看到，在产生式右部的第一位开始，出现 NULLABLE 集的的时候，这样求解 FIRST 集更加完善。于是我们可以得出此表：</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>FIRST 集</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Z</td>
+<td>{a, c, d}</td>
+</tr>
+<tr class="even">
+<td>Y</td>
+<td>{c}</td>
+</tr>
+<tr class="odd">
+<td>X</td>
+<td>{a, c}</td>
+</tr>
+<tr class="even">
+<td>W</td>
+<td>{d}</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>FOLLOW 集</p>
+</blockquote>
+<p>按照上面的说法，只要得出 FIRST 集，那么我们就可以得出 FIRST_S，进而构造 LL(1) 分析表了。但是问题又来了，假设文法如下：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: Z -&gt; d<br>1:    | X Y Z<br>2: Y -&gt; c<br>3:    | ε<br>4: X -&gt; Y<br>5:    | a<br></code></pre></td></tr></table></figure></p>
+<p>计算 FIRST_S 集如下：</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>FIRST_S</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>{d}</td>
+<td>这个毫无疑问</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>{a, c, d}</td>
+<td>需要考虑产生式右部有 NULLABLE 集</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>{c}</td>
+<td>这个毫无疑问</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td><strong>？</strong></td>
+<td><strong>出现问题</strong></td>
+</tr>
+</tbody>
+</table>
+<p>出现 ε 该如何计算呢？我们知道，此时不管输入什么，都应该跳过。举个例子，假如输入是 <code>S = a a d</code>，那么过程如下：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">消耗 a，剩余 ad<br>Z<br>Z -&gt; X Y Z # 根据 FIRST_S 集可得<br>Z -&gt; a Y Z # 直接采用推导式 5<br><br>消耗 a，剩余 d<br>Z -&gt; a Y Z # 暂停<br></code></pre></td></tr></table></figure></p>
+<p>我们看到，当输入是 a 的时候，由于 Y 右部没有直接推导得出的 a，所以按理应该回答 no 了。但是我们仔细观察，由于 Y 此时可以选择 ε，不消耗输入 a，那么就变成了：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs txt">消耗 a，剩余 d<br>Z -&gt; a Y Z # 继续<br>回滚 a，剩余 ad<br>Z -&gt; a ε Z<br><br>消耗 a，剩余 d<br>Z -&gt; a ε X Y Z # 根据 FIRST_S 集可得<br>Z -&gt; a ε a Y Z # 直接采用推导式 5<br><br>消耗 d，无剩余<br>Z -&gt; a ε a ε Z # 与上面类似，不要着急回答 no<br>回滚 d，剩余 d<br><br># 消耗 d，无剩余<br>Z -&gt; a ε a ε d # 根据 FIRST_S 集可得<br></code></pre></td></tr></table></figure></p>
+<p>最后得到的 <code>a ε a ε d</code> 其实就是输入的 S，所以我们应该回答 yes。</p>
+<p>回顾上面的过程，非常明显的一点是，如果 Y 可以不接受字符，即是 NULLABLE 集，那么应该继续考虑谁可以跟在 Y 后面，这里就是 Z。由于存在这么一个推导式 1，它的右部，Z 是跟在 Y 后面的，那么潜在的意思就是，如果 Y 无法接受输入，那么可以不消耗，让 Y 后面的那个终结符去试试。所以，<code>FIRST_S(Y)</code> 计算起来，是需要考虑到推导式 1 的。</p>
+<p>可以跟在 N 后面的所有终结的符集合，这就是 <code>FOLLOW 集</code>的概念。注意：FOLLOW 集有些地方把它叫做 “...所有非终结符的集合...”，其实本质上是一样的，都是为了完善 FIRST_S 的求解。</p>
+<p>举例，还是这个文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: Z -&gt; d<br>1:    | X Y Z<br>2: Y -&gt; c<br>3:    | ε<br>4: X -&gt; Y<br>5:    | a<br></code></pre></td></tr></table></figure></p>
+<p>FOLLOW 集计算过程如下：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs txt">FOLLOW(Z) = FOLLOW(Y) = FOLLOW(X) = &#123;&#125;<br><br># 对于规则 0，开始计算<br>temp = FOLLOW(Z)  # 规则右部是 Z，这个时候 temp 其实就是 &#123;&#125;<br>temp = &#123;d&#125;  # d 是非终结符，直接加进来<br># 规则 0 右边已经没有其他字符了，结束<br><br># 对于规则 1，开始计算<br>temp = FOLLOW(Z)  # 规则右部是 Z，这个时候 temp 其实就是 &#123;&#125;<br>FOLLOW(Z) |= temp  # FOLLOW(Z) 其实还是 &#123;&#125;<br>temp = FIRST(Z)  # Z 不属于 NULLABLE 集，temp 现在是 &#123;a, c, d&#125;<br>FOLLOW(Y) |= temp  # FOLLOW(Y) 就是 &#123;a, c, d&#125;<br>temp |= FIRST(Y)  # temp 还是 &#123;a, c, d&#125;<br>FOLLOW(X) |= temp  # FOLLOW(X) 就是 &#123;a, c, d&#125;<br>temp |= FIRST(X)  # temp 还是 &#123;a, c, d&#125;<br># 规则 1 右边已经没有其他字符了，结束<br><br># 对于规则 2，开始计算<br>...  # 篇幅过长，省略<br><br>````<br><br>以上过程需要得是，看到这一步 `FOLLOW(X) = FIRST(Y) ∪ FOLLOW(Y)`，求解过程是通过产生式 `Z -&gt; X Y Z` 的右部，来求 X 的 FOLLOW 集，那么显然从后往前求解比较合理。因为比如我们如果先求 `FOLLOW(X)`，那么其实是需要再计算 `FOLLOW(Y)` 的，所以还不如从后往前求解，先求 `FOLLOW(Y)`，再求 `FOLLOW(X)`。<br><br>那么接下来，我们就可以计算比较完善的 FIRST_S 集了。<br><br>文法：<br>```txt<br>0: Z -&gt; d<br>1:    | X Y Z<br>2: Y -&gt; c<br>3:    | ε<br>4: X -&gt; Y<br>5:    | a<br></code></pre></td></tr></table></figure></p>
+<p>NULLABLE 集：<code>&#123;X, Y&#125;</code></p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>FIRST 集</th>
+<th>FOLLOW 集</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Z</td>
+<td>{a, c, d}</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Y</td>
+<td>{c}</td>
+<td>{a, c, d}</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>X</td>
+<td>{a, c}</td>
+<td>{a, c, d}</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>计算可得 FIRST_S 集：</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>FIRST_S</th>
+<th>过程</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>{d}</td>
+<td></td>
+<td>这个毫无疑问</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>{a, c, d}</td>
+<td>FIRST(X) + FIRST(Y) + FIRST(Z)</td>
+<td>需要考虑产生式右部有 NULLABLE 集</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>{c}</td>
+<td></td>
+<td>这个毫无疑问</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>{a, c, d }</td>
+<td>{} + FOLLOW(Y)</td>
+<td>在原有的基础上，加上 FOLLOW 集</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>{a, c, d }</td>
+<td>FIRST(Y) + FOLLOW(X)</td>
+<td>在原有的基础上，加上 FOLLOW 集</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>{a}</td>
+<td></td>
+<td>这个毫无疑问</td>
+</tr>
+</tbody>
+</table>
+<p>最后，得出 LL(1) 分析表：</p>
+<table>
+<thead>
+<tr class="header">
+<th>N/T</th>
+<th>a</th>
+<th>c</th>
+<th>d</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Z</td>
+<td>1</td>
+<td>1</td>
+<td>0, 1</td>
+</tr>
+<tr class="even">
+<td>Y</td>
+<td>3</td>
+<td>2, 3</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>X</td>
+<td>4, 5</td>
+<td>4</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>至此，之前提到的这个文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">E -&gt; E + T<br>   | T<br>T -&gt; T * F<br>   | F<br>F -&gt; num<br>   | id<br></code></pre></td></tr></table></figure></p>
+<p>那么显然，使用 LL(1) 分析算法，已经不会造成大量的回溯了。等等，不会造成 “大量” 的回溯？难道还会有回溯的情况吗？</p>
+<p>是的，<strong>LL(1) 分析算法，还是无法完全避免回溯的问题</strong>。上面那个分析表中，(Z, d) 项有 2 条路 0、1 可以走，即算法在遇到输入 d 之后，可以选择走 <code>Z -&gt; X Y Z</code>，也可以选择走 <code>Z -&gt; d</code>，那么这就会造成回溯。这样的话我们是没法使用 LL(1) 算法的，因为每个文法回溯的情况都不一样，LL(1) 算法设计的初衷就是通用算法。那如果对于存在回溯的文法，我们非要用 LL(1) 分析可以吗？其实也是有办法的。</p>
+<h6 id="ll1-分析算法的冲突">LL(1) 分析算法的冲突</h6>
+<p>来看一个例子：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: E -&gt; E + T<br>1:    | T<br>2: T -&gt; T * F<br>3:    | F<br>4: F -&gt; n<br></code></pre></td></tr></table></figure></p>
+<p>NULLABLE 集：<code>&#123;&#125;</code></p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>FIRST 集</th>
+<th>FOLLOW 集</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>E</td>
+<td>{n}</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>T</td>
+<td>{n}</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>F</td>
+<td>{n}</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>计算可得 FIRST_S 集：</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>FIRST_S</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>{n}</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>{n}</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>{n}</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>{n}</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>{n}</td>
+</tr>
+</tbody>
+</table>
+<p>最后，得出 LL(1) 分析表：</p>
+<table>
+<thead>
+<tr class="header">
+<th>N/T</th>
+<th>n</th>
+<th>+</th>
+<th>*</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>E</td>
+<td>0, 1</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>T</td>
+<td>2, 3</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>F</td>
+<td>4</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>消除左递归</p>
+</blockquote>
+<p>我们仔细观察，就会发现这个文法是有<code>左递归</code>的：产生式的右部最左符号是产生式头。很明显，<code>E -&gt; E + T</code> 就是左递归的；又因为推导一定要停止，所以左递归往往会伴随一个“停止”状态，例如上面的 <code>E -&gt; T</code>。那么和容易看出，具有左递归的文法，如果使用 LL(1) 分析算法来处理，那么肯定会有回溯，因为 <code>E -&gt; E + T</code> 的 FIRST_S 集肯定包含 <code>E -&gt; T</code> 的 FIRST_S 集。</p>
+<p>那么怎么消除左递归呢？<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: E -&gt; E + T<br>1:    | T<br></code></pre></td></tr></table></figure></p>
+<p>观察这个文法的前两个规则我们可以发现，0、1 在做的实际上就是这样<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt"># 为了区分顺序，T 后加了数字<br>+ T0  # 选择第 0 条规则，不断递归<br>+ T1 + T0<br>+ T2 + T1 + T0<br>...<br>T + Tn + ... + T1 + T0  # 最后选择第 1 条规则，停止<br></code></pre></td></tr></table></figure></p>
+<p>那么实际上可以写成这样的形式：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: E  -&gt; T E&#x27;<br>1: E&#x27; -&gt; + T E&#x27;<br>2:     | ε<br></code></pre></td></tr></table></figure><br />
+怎么得出来的呢？首先上面文法的第 0 条规则，实际上对应的是原文法中最后选择第 1 条规则的操作；然后自然 <code>E'</code> 就是模拟原文法中不断 <code>+</code> 的操作，不但要可以递归下去（这里是右递归），还可以推出 ε 来结束递归。</p>
+<blockquote>
+<p>提取左公因子</p>
+</blockquote>
+<p>那么没有左递归的文法，一定可以用 LL(1) 算法吗？其实也不一定。来看一个例子：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: X -&gt; a Y<br>1:    | a Z <br>2: Y -&gt; b<br>3: Z -&gt; c<br></code></pre></td></tr></table></figure></p>
+<p>很明显是存在冲突的，0 号规则在遇到 a 的时候，可以走 0 或者 1。</p>
+<p>对于这种情况，我们也可以改写一下文法，类比与代数里的提取公因子，我们可以得到：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: X  -&gt; a X&#x27;<br>1: X&#x27; -&gt; Y<br>2: X&#x27; -&gt; Z<br>3: Y  -&gt; b<br>4: Z  -&gt; c<br></code></pre></td></tr></table></figure></p>
+<blockquote>
+<p>LL(1) 小结</p>
+</blockquote>
+<p>这里稍微总结一下，可以使用 LL(1) 分析算法的文法，是 LL(1) 文法。通过上面改写文法的两种办法，我们可以总结出：</p>
+<p>一个文法 G 是 LL(1) 的，当且仅当 G 的任意两个不同的产生式：<br />
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs 1c">A <span class="hljs-punctuation">-</span>&gt; α <br>   <span class="hljs-string">| β</span><br></code></pre></td></tr></table></figure></p>
+<p>必须满足下面的 3 个条件：</p>
+<ol type="1">
+<li><code>FIRST(α)</code> 和 <code>FIRST(β)</code> 是不相交的集合。</li>
+<li><code>α</code> 和 <code>β</code> 中最多只有一个可以推导出空串。</li>
+<li>如果 <code>β</code> 可以推出 ε，那么 <code>FIRST(α)</code> 和 <code>FOLLOW(A)</code> 是不相交的集合；<code>α</code> 同理。</li>
+</ol>
+<p>通过上面改写文法的两种办法，我们可以把大多数的文法转为 LL(1) 文法，强行使用 LL(1) 来进行分析。</p>
+<p>虽然 LL(1) 运行高效，但是它可以分析的文法还是比较有限的，并且在那些可以用 LL(1) 分析的文法中，很多文法是需要手动改写一下的，这个改写往往会破坏文法的可读性（例如消除左递归前这个文法的可读性非常好，消除左递归之后，可读性就大大降低了）。</p>
+<h2 id="总结">总结</h2>
+<p>自顶向下的算法貌似到头了，是时候寻找新的算法了！</p>
+<p>本来打算把下一篇与这一篇合并的，但是行文至此字数已经超过 6k 了，太长看起来比较累，不如放到下一篇，方便阅读；在博客里我会进行合并，方便搜索。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">还是有点烧脑的吧？<br>所以我拖更是情有可原的</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">#编译原理</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>编译原理（二）：语法分析之自顶向下分析算法</div>
+      <div>https://www.tr0y.wang/2021/04/02/编译原理（二）：语法分析之自顶向下分析算法/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年4月2日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2024年3月28日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/04/03/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E4%B9%8B%E8%87%AA%E5%BA%95%E5%90%91%E4%B8%8A%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95/" title="编译原理（三）：语法分析之自底向上分析算法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">编译原理（三）：语法分析之自底向上分析算法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/04/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/" title="编译原理（一）：词法分析">
+                        <span class="hidden-mobile">编译原理（一）：词法分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
