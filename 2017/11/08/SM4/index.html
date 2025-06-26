@@ -1,0 +1,957 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="Python SM4 的实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SM4 的 py 实现">
+<meta property="og:url" content="https://www.tr0y.wang/2017/11/08/SM4/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="Python SM4 的实现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2017-11-08T19:28:16.000Z">
+<meta property="article:modified_time" content="2022-01-04T06:17:12.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="密码学">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+  
+  
+  
+  <title>SM4 的 py 实现 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SM4 的 py 实现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-11-08 19:28" pubdate>
+          2017年11月8日 19:28:16
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          8.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SM4 的 py 实现</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：3 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Python SM4 的实现</p>
+<span id="more"></span>
+<h2 id="算法">算法</h2>
+<p>pdf 里讲得很清楚了，就不多说了</p>
+<h2 id="代码">代码</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> time<br><br>Sbox = [<br>    [<span class="hljs-number">0xd6</span>, <span class="hljs-number">0x90</span>, <span class="hljs-number">0xe9</span>, <span class="hljs-number">0xfe</span>, <span class="hljs-number">0xcc</span>, <span class="hljs-number">0xe1</span>, <span class="hljs-number">0x3d</span>, <span class="hljs-number">0xb7</span>, <span class="hljs-number">0x16</span>, <span class="hljs-number">0xb6</span>, <span class="hljs-number">0x14</span>, <span class="hljs-number">0xc2</span>, <span class="hljs-number">0x28</span>, <span class="hljs-number">0xfb</span>, <span class="hljs-number">0x2c</span>, <span class="hljs-number">0x05</span>],<br>    [<span class="hljs-number">0x2b</span>, <span class="hljs-number">0x67</span>, <span class="hljs-number">0x9a</span>, <span class="hljs-number">0x76</span>, <span class="hljs-number">0x2a</span>, <span class="hljs-number">0xbe</span>, <span class="hljs-number">0x04</span>, <span class="hljs-number">0xc3</span>, <span class="hljs-number">0xaa</span>, <span class="hljs-number">0x44</span>, <span class="hljs-number">0x13</span>, <span class="hljs-number">0x26</span>, <span class="hljs-number">0x49</span>, <span class="hljs-number">0x86</span>, <span class="hljs-number">0x06</span>, <span class="hljs-number">0x99</span>],<br>    [<span class="hljs-number">0x9c</span>, <span class="hljs-number">0x42</span>, <span class="hljs-number">0x50</span>, <span class="hljs-number">0xf4</span>, <span class="hljs-number">0x91</span>, <span class="hljs-number">0xef</span>, <span class="hljs-number">0x98</span>, <span class="hljs-number">0x7a</span>, <span class="hljs-number">0x33</span>, <span class="hljs-number">0x54</span>, <span class="hljs-number">0x0b</span>, <span class="hljs-number">0x43</span>, <span class="hljs-number">0xed</span>, <span class="hljs-number">0xcf</span>, <span class="hljs-number">0xac</span>, <span class="hljs-number">0x62</span>],<br>    [<span class="hljs-number">0xe4</span>, <span class="hljs-number">0xb3</span>, <span class="hljs-number">0x1c</span>, <span class="hljs-number">0xa9</span>, <span class="hljs-number">0xc9</span>, <span class="hljs-number">0x08</span>, <span class="hljs-number">0xe8</span>, <span class="hljs-number">0x95</span>, <span class="hljs-number">0x80</span>, <span class="hljs-number">0xdf</span>, <span class="hljs-number">0x94</span>, <span class="hljs-number">0xfa</span>, <span class="hljs-number">0x75</span>, <span class="hljs-number">0x8f</span>, <span class="hljs-number">0x3f</span>, <span class="hljs-number">0xa6</span>],<br>    [<span class="hljs-number">0x47</span>, <span class="hljs-number">0x07</span>, <span class="hljs-number">0xa7</span>, <span class="hljs-number">0xfc</span>, <span class="hljs-number">0xf3</span>, <span class="hljs-number">0x73</span>, <span class="hljs-number">0x17</span>, <span class="hljs-number">0xba</span>, <span class="hljs-number">0x83</span>, <span class="hljs-number">0x59</span>, <span class="hljs-number">0x3c</span>, <span class="hljs-number">0x19</span>, <span class="hljs-number">0xe6</span>, <span class="hljs-number">0x85</span>, <span class="hljs-number">0x4f</span>, <span class="hljs-number">0xa8</span>],<br>    [<span class="hljs-number">0x68</span>, <span class="hljs-number">0x6b</span>, <span class="hljs-number">0x81</span>, <span class="hljs-number">0xb2</span>, <span class="hljs-number">0x71</span>, <span class="hljs-number">0x64</span>, <span class="hljs-number">0xda</span>, <span class="hljs-number">0x8b</span>, <span class="hljs-number">0xf8</span>, <span class="hljs-number">0xeb</span>, <span class="hljs-number">0x0f</span>, <span class="hljs-number">0x4b</span>, <span class="hljs-number">0x70</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x9d</span>, <span class="hljs-number">0x35</span>],<br>    [<span class="hljs-number">0x1e</span>, <span class="hljs-number">0x24</span>, <span class="hljs-number">0x0e</span>, <span class="hljs-number">0x5e</span>, <span class="hljs-number">0x63</span>, <span class="hljs-number">0x58</span>, <span class="hljs-number">0xd1</span>, <span class="hljs-number">0xa2</span>, <span class="hljs-number">0x25</span>, <span class="hljs-number">0x22</span>, <span class="hljs-number">0x7c</span>, <span class="hljs-number">0x3b</span>, <span class="hljs-number">0x01</span>, <span class="hljs-number">0x21</span>, <span class="hljs-number">0x78</span>, <span class="hljs-number">0x87</span>],<br>    [<span class="hljs-number">0xd4</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x46</span>, <span class="hljs-number">0x57</span>, <span class="hljs-number">0x9f</span>, <span class="hljs-number">0xd3</span>, <span class="hljs-number">0x27</span>, <span class="hljs-number">0x52</span>, <span class="hljs-number">0x4c</span>, <span class="hljs-number">0x36</span>, <span class="hljs-number">0x02</span>, <span class="hljs-number">0xe7</span>, <span class="hljs-number">0xa0</span>, <span class="hljs-number">0xc4</span>, <span class="hljs-number">0xc8</span>, <span class="hljs-number">0x9e</span>],<br>    [<span class="hljs-number">0xea</span>, <span class="hljs-number">0xbf</span>, <span class="hljs-number">0x8a</span>, <span class="hljs-number">0xd2</span>, <span class="hljs-number">0x40</span>, <span class="hljs-number">0xc7</span>, <span class="hljs-number">0x38</span>, <span class="hljs-number">0xb5</span>, <span class="hljs-number">0xa3</span>, <span class="hljs-number">0xf7</span>, <span class="hljs-number">0xf2</span>, <span class="hljs-number">0xce</span>, <span class="hljs-number">0xf9</span>, <span class="hljs-number">0x61</span>, <span class="hljs-number">0x15</span>, <span class="hljs-number">0xa1</span>],<br>    [<span class="hljs-number">0xe0</span>, <span class="hljs-number">0xae</span>, <span class="hljs-number">0x5d</span>, <span class="hljs-number">0xa4</span>, <span class="hljs-number">0x9b</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x1a</span>, <span class="hljs-number">0x55</span>, <span class="hljs-number">0xad</span>, <span class="hljs-number">0x93</span>, <span class="hljs-number">0x32</span>, <span class="hljs-number">0x30</span>, <span class="hljs-number">0xf5</span>, <span class="hljs-number">0x8c</span>, <span class="hljs-number">0xb1</span>, <span class="hljs-number">0xe3</span>],<br>    [<span class="hljs-number">0x1d</span>, <span class="hljs-number">0xf6</span>, <span class="hljs-number">0xe2</span>, <span class="hljs-number">0x2e</span>, <span class="hljs-number">0x82</span>, <span class="hljs-number">0x66</span>, <span class="hljs-number">0xca</span>, <span class="hljs-number">0x60</span>, <span class="hljs-number">0xc0</span>, <span class="hljs-number">0x29</span>, <span class="hljs-number">0x23</span>, <span class="hljs-number">0xab</span>, <span class="hljs-number">0x0d</span>, <span class="hljs-number">0x53</span>, <span class="hljs-number">0x4e</span>, <span class="hljs-number">0x6f</span>],<br>    [<span class="hljs-number">0xd5</span>, <span class="hljs-number">0xdb</span>, <span class="hljs-number">0x37</span>, <span class="hljs-number">0x45</span>, <span class="hljs-number">0xde</span>, <span class="hljs-number">0xfd</span>, <span class="hljs-number">0x8e</span>, <span class="hljs-number">0x2f</span>, <span class="hljs-number">0x03</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0x6a</span>, <span class="hljs-number">0x72</span>, <span class="hljs-number">0x6d</span>, <span class="hljs-number">0x6c</span>, <span class="hljs-number">0x5b</span>, <span class="hljs-number">0x51</span>],<br>    [<span class="hljs-number">0x8d</span>, <span class="hljs-number">0x1b</span>, <span class="hljs-number">0xaf</span>, <span class="hljs-number">0x92</span>, <span class="hljs-number">0xbb</span>, <span class="hljs-number">0xdd</span>, <span class="hljs-number">0xbc</span>, <span class="hljs-number">0x7f</span>, <span class="hljs-number">0x11</span>, <span class="hljs-number">0xd9</span>, <span class="hljs-number">0x5c</span>, <span class="hljs-number">0x41</span>, <span class="hljs-number">0x1f</span>, <span class="hljs-number">0x10</span>, <span class="hljs-number">0x5a</span>, <span class="hljs-number">0xd8</span>],<br>    [<span class="hljs-number">0x0a</span>, <span class="hljs-number">0xc1</span>, <span class="hljs-number">0x31</span>, <span class="hljs-number">0x88</span>, <span class="hljs-number">0xa5</span>, <span class="hljs-number">0xcd</span>, <span class="hljs-number">0x7b</span>, <span class="hljs-number">0xbd</span>, <span class="hljs-number">0x2d</span>, <span class="hljs-number">0x74</span>, <span class="hljs-number">0xd0</span>, <span class="hljs-number">0x12</span>, <span class="hljs-number">0xb8</span>, <span class="hljs-number">0xe5</span>, <span class="hljs-number">0xb4</span>, <span class="hljs-number">0xb0</span>],<br>    [<span class="hljs-number">0x89</span>, <span class="hljs-number">0x69</span>, <span class="hljs-number">0x97</span>, <span class="hljs-number">0x4a</span>, <span class="hljs-number">0x0c</span>, <span class="hljs-number">0x96</span>, <span class="hljs-number">0x77</span>, <span class="hljs-number">0x7e</span>, <span class="hljs-number">0x65</span>, <span class="hljs-number">0xb9</span>, <span class="hljs-number">0xf1</span>, <span class="hljs-number">0x09</span>, <span class="hljs-number">0xc5</span>, <span class="hljs-number">0x6e</span>, <span class="hljs-number">0xc6</span>, <span class="hljs-number">0x84</span>],<br>    [<span class="hljs-number">0x18</span>, <span class="hljs-number">0xf0</span>, <span class="hljs-number">0x7d</span>, <span class="hljs-number">0xec</span>, <span class="hljs-number">0x3a</span>, <span class="hljs-number">0xdc</span>, <span class="hljs-number">0x4d</span>, <span class="hljs-number">0x20</span>, <span class="hljs-number">0x79</span>, <span class="hljs-number">0xee</span>, <span class="hljs-number">0x5f</span>, <span class="hljs-number">0x3e</span>, <span class="hljs-number">0xd7</span>, <span class="hljs-number">0xcb</span>, <span class="hljs-number">0x39</span>, <span class="hljs-number">0x48</span>]<br>]<br><br>CK = [<br>    <span class="hljs-number">0x00070e15L</span>, <span class="hljs-number">0x1c232a31L</span>, <span class="hljs-number">0x383f464dL</span>, <span class="hljs-number">0x545b6269L</span>,<br>    <span class="hljs-number">0x70777e85L</span>, <span class="hljs-number">0x8c939aa1L</span>, <span class="hljs-number">0xa8afb6bdL</span>, <span class="hljs-number">0xc4cbd2d9L</span>,<br>    <span class="hljs-number">0xe0e7eef5L</span>, <span class="hljs-number">0xfc030a11L</span>, <span class="hljs-number">0x181f262dL</span>, <span class="hljs-number">0x343b4249L</span>,<br>    <span class="hljs-number">0x50575e65L</span>, <span class="hljs-number">0x6c737a81L</span>, <span class="hljs-number">0x888f969dL</span>, <span class="hljs-number">0xa4abb2b9L</span>,<br>    <span class="hljs-number">0xc0c7ced5L</span>, <span class="hljs-number">0xdce3eaf1L</span>, <span class="hljs-number">0xf8ff060dL</span>, <span class="hljs-number">0x141b2229L</span>,<br>    <span class="hljs-number">0x30373e45L</span>, <span class="hljs-number">0x4c535a61L</span>, <span class="hljs-number">0x686f767dL</span>, <span class="hljs-number">0x848b9299L</span>,<br>    <span class="hljs-number">0xa0a7aeb5L</span>, <span class="hljs-number">0xbcc3cad1L</span>, <span class="hljs-number">0xd8dfe6edL</span>, <span class="hljs-number">0xf4fb0209L</span>,<br>    <span class="hljs-number">0x10171e25L</span>, <span class="hljs-number">0x2c333a41L</span>, <span class="hljs-number">0x484f565dL</span>, <span class="hljs-number">0x646b7279L</span><br>]<br><br>FK = [<span class="hljs-number">0xA3B1BAC6L</span>, <span class="hljs-number">0x56AA3350L</span>, <span class="hljs-number">0x677D9197L</span>, <span class="hljs-number">0xB27022DCL</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">LeftRot</span>(<span class="hljs-params">n, b</span>): <span class="hljs-keyword">return</span> ((n &lt;&lt; b) | ((n &amp; <span class="hljs-number">0xffffffff</span>) &gt;&gt; (<span class="hljs-number">32</span> - b))) &amp; <span class="hljs-number">0xffffffff</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">t</span>(<span class="hljs-params">A</span>): <br>    b = <span class="hljs-string">&#x27;&#x27;</span>.join([<span class="hljs-string">&#x27;%02x&#x27;</span> %(<span class="hljs-built_in">int</span>(Sbox[<span class="hljs-built_in">int</span>(i[<span class="hljs-number">0</span>],<span class="hljs-number">16</span>)][<span class="hljs-built_in">int</span>(i[<span class="hljs-number">1</span>],<span class="hljs-number">16</span>)])) <br>         <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> re.findall(<span class="hljs-string">r&#x27;.&#123;2&#125;&#x27;</span>, <span class="hljs-string">&#x27;%08x&#x27;</span> %A)])<br>    <span class="hljs-keyword">return</span> b<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">T</span>(<span class="hljs-params">A</span>):<br>    B=<span class="hljs-built_in">int</span>(t(A),<span class="hljs-number">16</span>) <br>    <span class="hljs-keyword">return</span> B^LeftRot(B,<span class="hljs-number">2</span>)^LeftRot(B,<span class="hljs-number">10</span>)^LeftRot(B,<span class="hljs-number">18</span>)^LeftRot(B,<span class="hljs-number">24</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">F</span>(<span class="hljs-params">Xi, rki</span>):<br>    xi=[<span class="hljs-built_in">int</span>(i,<span class="hljs-number">16</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> Xi]<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;%08x&#x27;</span> %(xi[<span class="hljs-number">0</span>] ^ T(xi[<span class="hljs-number">1</span>]^xi[<span class="hljs-number">2</span>]^xi[<span class="hljs-number">3</span>]^rki))<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">T_</span>(<span class="hljs-params">A</span>):<br>    B=<span class="hljs-built_in">int</span>(t(A),<span class="hljs-number">16</span>) <br>    <span class="hljs-keyword">return</span> B^LeftRot(B,<span class="hljs-number">13</span>)^LeftRot(B,<span class="hljs-number">23</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypto</span>(<span class="hljs-params">X,MK</span>):<br>    K=[<span class="hljs-built_in">int</span>(MK[i],<span class="hljs-number">16</span>)^FK[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">4</span>)]<br>    rk=[]<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">32</span>):<br>        K += [K[i]^T_(K[i+<span class="hljs-number">1</span>]^K[i+<span class="hljs-number">2</span>]^K[i+<span class="hljs-number">3</span>]^CK[i])]<br>        rk += [K[-<span class="hljs-number">1</span>]]<br>        X += [F(m[i:i + <span class="hljs-number">4</span>], rk[i])]<br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;rk[&#x27;</span>+<span class="hljs-built_in">str</span>(i)+<span class="hljs-string">&#x27;]=&#x27;</span>+<span class="hljs-built_in">str</span>(K[-<span class="hljs-number">1</span>])+<span class="hljs-string">&#x27;, X[&#x27;</span>+<span class="hljs-built_in">str</span>(i)+<span class="hljs-string">&#x27;]=&#x27;</span>+X[-<span class="hljs-number">1</span>]<br>    <span class="hljs-keyword">return</span> X[-<span class="hljs-number">4</span>:][::-<span class="hljs-number">1</span>]<br><br>time.clock()<br>m = re.findall(<span class="hljs-string">r&#x27;.&#123;8&#125;&#x27;</span>, <span class="hljs-string">&#x27;0123456789abcdeffedcba9876543210&#x27;</span>)<br>key = re.findall(<span class="hljs-string">r&#x27;.&#123;8&#125;&#x27;</span>, <span class="hljs-string">&#x27;0123456789abcdeffedcba9876543210&#x27;</span>)<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;&#x27;</span>.join(encrypto(m,key))<br><span class="hljs-built_in">print</span> time.clock(),<span class="hljs-string">&#x27;s&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>输出<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs py">rk[<span class="hljs-number">0</span>]=<span class="hljs-number">4045506297</span>, X[<span class="hljs-number">0</span>]=27fad345<br>rk[<span class="hljs-number">1</span>]=<span class="hljs-number">1097214817</span>, X[<span class="hljs-number">1</span>]=a18b4cb2<br>rk[<span class="hljs-number">2</span>]=<span class="hljs-number">1516941722</span>, X[<span class="hljs-number">2</span>]=11c1e22a<br>rk[<span class="hljs-number">3</span>]=<span class="hljs-number">2074681463</span>, X[<span class="hljs-number">3</span>]=cc13e2ee<br>rk[<span class="hljs-number">4</span>]=<span class="hljs-number">913531124</span>, X[<span class="hljs-number">4</span>]=f87c5bd5<br>rk[<span class="hljs-number">5</span>]=<span class="hljs-number">2003438689</span>, X[<span class="hljs-number">5</span>]=<span class="hljs-number">33220757</span><br>rk[<span class="hljs-number">6</span>]=<span class="hljs-number">3065743795</span>, X[<span class="hljs-number">6</span>]=77f4c297<br>rk[<span class="hljs-number">7</span>]=<span class="hljs-number">611725649</span>, X[<span class="hljs-number">7</span>]=7a96f2eb<br>rk[<span class="hljs-number">8</span>]=<span class="hljs-number">2770350204</span>, X[<span class="hljs-number">8</span>]=27dac07f<br>rk[<span class="hljs-number">9</span>]=<span class="hljs-number">3076017597</span>, X[<span class="hljs-number">9</span>]=42dd0f19<br>rk[<span class="hljs-number">10</span>]=<span class="hljs-number">3272037357</span>, X[<span class="hljs-number">10</span>]=b8a5da02<br>rk[<span class="hljs-number">11</span>]=<span class="hljs-number">2128960343</span>, X[<span class="hljs-number">11</span>]=907127fa<br>rk[<span class="hljs-number">12</span>]=<span class="hljs-number">1770545292</span>, X[<span class="hljs-number">12</span>]=8b952b83<br>rk[<span class="hljs-number">13</span>]=<span class="hljs-number">819500471</span>, X[<span class="hljs-number">13</span>]=d42b7c59<br>rk[<span class="hljs-number">14</span>]=<span class="hljs-number">1153045679</span>, X[<span class="hljs-number">14</span>]=2ffc5831<br>rk[<span class="hljs-number">15</span>]=<span class="hljs-number">272930209</span>, X[<span class="hljs-number">15</span>]=f69e6888<br>rk[<span class="hljs-number">16</span>]=<span class="hljs-number">3508581416</span>, X[<span class="hljs-number">16</span>]=af2432c4<br>rk[<span class="hljs-number">17</span>]=<span class="hljs-number">1941266339</span>, X[<span class="hljs-number">17</span>]=ed1ec85e<br>rk[<span class="hljs-number">18</span>]=<span class="hljs-number">3431418214</span>, X[<span class="hljs-number">18</span>]=55a3ba22<br>rk[<span class="hljs-number">19</span>]=<span class="hljs-number">2451850297</span>, X[<span class="hljs-number">19</span>]=124b18aa<br>rk[<span class="hljs-number">20</span>]=<span class="hljs-number">3902694431</span>, X[<span class="hljs-number">20</span>]=6ae7725f<br>rk[<span class="hljs-number">21</span>]=<span class="hljs-number">2563375450</span>, X[<span class="hljs-number">21</span>]=f4cba1f9<br>rk[<span class="hljs-number">22</span>]=<span class="hljs-number">3340079200</span>, X[<span class="hljs-number">22</span>]=1dcdfa10<br>rk[<span class="hljs-number">23</span>]=<span class="hljs-number">2581724462</span>, X[<span class="hljs-number">23</span>]=2ff60603<br>rk[<span class="hljs-number">24</span>]=<span class="hljs-number">3080443916</span>, X[<span class="hljs-number">24</span>]=eff24fdc<br>rk[<span class="hljs-number">25</span>]=<span class="hljs-number">488707504</span>, X[<span class="hljs-number">25</span>]=6fe46b75<br>rk[<span class="hljs-number">26</span>]=<span class="hljs-number">237144811</span>, X[<span class="hljs-number">26</span>]=893450ad<br>rk[<span class="hljs-number">27</span>]=<span class="hljs-number">4051176577</span>, X[<span class="hljs-number">27</span>]=7b938f4c<br>rk[<span class="hljs-number">28</span>]=<span class="hljs-number">1116550740</span>, X[<span class="hljs-number">28</span>]=<span class="hljs-number">536e4246</span><br>rk[<span class="hljs-number">29</span>]=<span class="hljs-number">1646867606</span>, X[<span class="hljs-number">29</span>]=86b3e94f<br>rk[<span class="hljs-number">30</span>]=<span class="hljs-number">30372581</span>, X[<span class="hljs-number">30</span>]=d206965e<br>rk[<span class="hljs-number">31</span>]=<span class="hljs-number">2435096594</span>, X[<span class="hljs-number">31</span>]=681edf34<br>681edf34d206965e86b3e94f536e4246<br><span class="hljs-number">0.00450501471553</span> s<br></code></pre></td></tr></table></figure></p>
+<h2 id="section">1000000</h2>
+<p>贪图实现快，所以速度超级慢。跑 100w 次要 700s+.....叶大佬的 C 不到 1s...醉醉的....<br />
+不过懒得优化了...Emmmmm</p>
+<h2 id="一些启发">一些启发</h2>
+<p>实现快，速度慢。花了点时间优化了一下<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> time<br><br>Sbox = [<br>    [<span class="hljs-number">0xd6</span>, <span class="hljs-number">0x90</span>, <span class="hljs-number">0xe9</span>, <span class="hljs-number">0xfe</span>, <span class="hljs-number">0xcc</span>, <span class="hljs-number">0xe1</span>, <span class="hljs-number">0x3d</span>, <span class="hljs-number">0xb7</span>, <span class="hljs-number">0x16</span>, <span class="hljs-number">0xb6</span>, <span class="hljs-number">0x14</span>, <span class="hljs-number">0xc2</span>, <span class="hljs-number">0x28</span>, <span class="hljs-number">0xfb</span>, <span class="hljs-number">0x2c</span>, <span class="hljs-number">0x05</span>],<br>    [<span class="hljs-number">0x2b</span>, <span class="hljs-number">0x67</span>, <span class="hljs-number">0x9a</span>, <span class="hljs-number">0x76</span>, <span class="hljs-number">0x2a</span>, <span class="hljs-number">0xbe</span>, <span class="hljs-number">0x04</span>, <span class="hljs-number">0xc3</span>, <span class="hljs-number">0xaa</span>, <span class="hljs-number">0x44</span>, <span class="hljs-number">0x13</span>, <span class="hljs-number">0x26</span>, <span class="hljs-number">0x49</span>, <span class="hljs-number">0x86</span>, <span class="hljs-number">0x06</span>, <span class="hljs-number">0x99</span>],<br>    [<span class="hljs-number">0x9c</span>, <span class="hljs-number">0x42</span>, <span class="hljs-number">0x50</span>, <span class="hljs-number">0xf4</span>, <span class="hljs-number">0x91</span>, <span class="hljs-number">0xef</span>, <span class="hljs-number">0x98</span>, <span class="hljs-number">0x7a</span>, <span class="hljs-number">0x33</span>, <span class="hljs-number">0x54</span>, <span class="hljs-number">0x0b</span>, <span class="hljs-number">0x43</span>, <span class="hljs-number">0xed</span>, <span class="hljs-number">0xcf</span>, <span class="hljs-number">0xac</span>, <span class="hljs-number">0x62</span>],<br>    [<span class="hljs-number">0xe4</span>, <span class="hljs-number">0xb3</span>, <span class="hljs-number">0x1c</span>, <span class="hljs-number">0xa9</span>, <span class="hljs-number">0xc9</span>, <span class="hljs-number">0x08</span>, <span class="hljs-number">0xe8</span>, <span class="hljs-number">0x95</span>, <span class="hljs-number">0x80</span>, <span class="hljs-number">0xdf</span>, <span class="hljs-number">0x94</span>, <span class="hljs-number">0xfa</span>, <span class="hljs-number">0x75</span>, <span class="hljs-number">0x8f</span>, <span class="hljs-number">0x3f</span>, <span class="hljs-number">0xa6</span>],<br>    [<span class="hljs-number">0x47</span>, <span class="hljs-number">0x07</span>, <span class="hljs-number">0xa7</span>, <span class="hljs-number">0xfc</span>, <span class="hljs-number">0xf3</span>, <span class="hljs-number">0x73</span>, <span class="hljs-number">0x17</span>, <span class="hljs-number">0xba</span>, <span class="hljs-number">0x83</span>, <span class="hljs-number">0x59</span>, <span class="hljs-number">0x3c</span>, <span class="hljs-number">0x19</span>, <span class="hljs-number">0xe6</span>, <span class="hljs-number">0x85</span>, <span class="hljs-number">0x4f</span>, <span class="hljs-number">0xa8</span>],<br>    [<span class="hljs-number">0x68</span>, <span class="hljs-number">0x6b</span>, <span class="hljs-number">0x81</span>, <span class="hljs-number">0xb2</span>, <span class="hljs-number">0x71</span>, <span class="hljs-number">0x64</span>, <span class="hljs-number">0xda</span>, <span class="hljs-number">0x8b</span>, <span class="hljs-number">0xf8</span>, <span class="hljs-number">0xeb</span>, <span class="hljs-number">0x0f</span>, <span class="hljs-number">0x4b</span>, <span class="hljs-number">0x70</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x9d</span>, <span class="hljs-number">0x35</span>],<br>    [<span class="hljs-number">0x1e</span>, <span class="hljs-number">0x24</span>, <span class="hljs-number">0x0e</span>, <span class="hljs-number">0x5e</span>, <span class="hljs-number">0x63</span>, <span class="hljs-number">0x58</span>, <span class="hljs-number">0xd1</span>, <span class="hljs-number">0xa2</span>, <span class="hljs-number">0x25</span>, <span class="hljs-number">0x22</span>, <span class="hljs-number">0x7c</span>, <span class="hljs-number">0x3b</span>, <span class="hljs-number">0x01</span>, <span class="hljs-number">0x21</span>, <span class="hljs-number">0x78</span>, <span class="hljs-number">0x87</span>],<br>    [<span class="hljs-number">0xd4</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x46</span>, <span class="hljs-number">0x57</span>, <span class="hljs-number">0x9f</span>, <span class="hljs-number">0xd3</span>, <span class="hljs-number">0x27</span>, <span class="hljs-number">0x52</span>, <span class="hljs-number">0x4c</span>, <span class="hljs-number">0x36</span>, <span class="hljs-number">0x02</span>, <span class="hljs-number">0xe7</span>, <span class="hljs-number">0xa0</span>, <span class="hljs-number">0xc4</span>, <span class="hljs-number">0xc8</span>, <span class="hljs-number">0x9e</span>],<br>    [<span class="hljs-number">0xea</span>, <span class="hljs-number">0xbf</span>, <span class="hljs-number">0x8a</span>, <span class="hljs-number">0xd2</span>, <span class="hljs-number">0x40</span>, <span class="hljs-number">0xc7</span>, <span class="hljs-number">0x38</span>, <span class="hljs-number">0xb5</span>, <span class="hljs-number">0xa3</span>, <span class="hljs-number">0xf7</span>, <span class="hljs-number">0xf2</span>, <span class="hljs-number">0xce</span>, <span class="hljs-number">0xf9</span>, <span class="hljs-number">0x61</span>, <span class="hljs-number">0x15</span>, <span class="hljs-number">0xa1</span>],<br>    [<span class="hljs-number">0xe0</span>, <span class="hljs-number">0xae</span>, <span class="hljs-number">0x5d</span>, <span class="hljs-number">0xa4</span>, <span class="hljs-number">0x9b</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x1a</span>, <span class="hljs-number">0x55</span>, <span class="hljs-number">0xad</span>, <span class="hljs-number">0x93</span>, <span class="hljs-number">0x32</span>, <span class="hljs-number">0x30</span>, <span class="hljs-number">0xf5</span>, <span class="hljs-number">0x8c</span>, <span class="hljs-number">0xb1</span>, <span class="hljs-number">0xe3</span>],<br>    [<span class="hljs-number">0x1d</span>, <span class="hljs-number">0xf6</span>, <span class="hljs-number">0xe2</span>, <span class="hljs-number">0x2e</span>, <span class="hljs-number">0x82</span>, <span class="hljs-number">0x66</span>, <span class="hljs-number">0xca</span>, <span class="hljs-number">0x60</span>, <span class="hljs-number">0xc0</span>, <span class="hljs-number">0x29</span>, <span class="hljs-number">0x23</span>, <span class="hljs-number">0xab</span>, <span class="hljs-number">0x0d</span>, <span class="hljs-number">0x53</span>, <span class="hljs-number">0x4e</span>, <span class="hljs-number">0x6f</span>],<br>    [<span class="hljs-number">0xd5</span>, <span class="hljs-number">0xdb</span>, <span class="hljs-number">0x37</span>, <span class="hljs-number">0x45</span>, <span class="hljs-number">0xde</span>, <span class="hljs-number">0xfd</span>, <span class="hljs-number">0x8e</span>, <span class="hljs-number">0x2f</span>, <span class="hljs-number">0x03</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0x6a</span>, <span class="hljs-number">0x72</span>, <span class="hljs-number">0x6d</span>, <span class="hljs-number">0x6c</span>, <span class="hljs-number">0x5b</span>, <span class="hljs-number">0x51</span>],<br>    [<span class="hljs-number">0x8d</span>, <span class="hljs-number">0x1b</span>, <span class="hljs-number">0xaf</span>, <span class="hljs-number">0x92</span>, <span class="hljs-number">0xbb</span>, <span class="hljs-number">0xdd</span>, <span class="hljs-number">0xbc</span>, <span class="hljs-number">0x7f</span>, <span class="hljs-number">0x11</span>, <span class="hljs-number">0xd9</span>, <span class="hljs-number">0x5c</span>, <span class="hljs-number">0x41</span>, <span class="hljs-number">0x1f</span>, <span class="hljs-number">0x10</span>, <span class="hljs-number">0x5a</span>, <span class="hljs-number">0xd8</span>],<br>    [<span class="hljs-number">0x0a</span>, <span class="hljs-number">0xc1</span>, <span class="hljs-number">0x31</span>, <span class="hljs-number">0x88</span>, <span class="hljs-number">0xa5</span>, <span class="hljs-number">0xcd</span>, <span class="hljs-number">0x7b</span>, <span class="hljs-number">0xbd</span>, <span class="hljs-number">0x2d</span>, <span class="hljs-number">0x74</span>, <span class="hljs-number">0xd0</span>, <span class="hljs-number">0x12</span>, <span class="hljs-number">0xb8</span>, <span class="hljs-number">0xe5</span>, <span class="hljs-number">0xb4</span>, <span class="hljs-number">0xb0</span>],<br>    [<span class="hljs-number">0x89</span>, <span class="hljs-number">0x69</span>, <span class="hljs-number">0x97</span>, <span class="hljs-number">0x4a</span>, <span class="hljs-number">0x0c</span>, <span class="hljs-number">0x96</span>, <span class="hljs-number">0x77</span>, <span class="hljs-number">0x7e</span>, <span class="hljs-number">0x65</span>, <span class="hljs-number">0xb9</span>, <span class="hljs-number">0xf1</span>, <span class="hljs-number">0x09</span>, <span class="hljs-number">0xc5</span>, <span class="hljs-number">0x6e</span>, <span class="hljs-number">0xc6</span>, <span class="hljs-number">0x84</span>],<br>    [<span class="hljs-number">0x18</span>, <span class="hljs-number">0xf0</span>, <span class="hljs-number">0x7d</span>, <span class="hljs-number">0xec</span>, <span class="hljs-number">0x3a</span>, <span class="hljs-number">0xdc</span>, <span class="hljs-number">0x4d</span>, <span class="hljs-number">0x20</span>, <span class="hljs-number">0x79</span>, <span class="hljs-number">0xee</span>, <span class="hljs-number">0x5f</span>, <span class="hljs-number">0x3e</span>, <span class="hljs-number">0xd7</span>, <span class="hljs-number">0xcb</span>, <span class="hljs-number">0x39</span>, <span class="hljs-number">0x48</span>]<br>]<br><br>CK = [<br>    <span class="hljs-number">0x00070e15L</span>, <span class="hljs-number">0x1c232a31L</span>, <span class="hljs-number">0x383f464dL</span>, <span class="hljs-number">0x545b6269L</span>,<br>    <span class="hljs-number">0x70777e85L</span>, <span class="hljs-number">0x8c939aa1L</span>, <span class="hljs-number">0xa8afb6bdL</span>, <span class="hljs-number">0xc4cbd2d9L</span>,<br>    <span class="hljs-number">0xe0e7eef5L</span>, <span class="hljs-number">0xfc030a11L</span>, <span class="hljs-number">0x181f262dL</span>, <span class="hljs-number">0x343b4249L</span>,<br>    <span class="hljs-number">0x50575e65L</span>, <span class="hljs-number">0x6c737a81L</span>, <span class="hljs-number">0x888f969dL</span>, <span class="hljs-number">0xa4abb2b9L</span>,<br>    <span class="hljs-number">0xc0c7ced5L</span>, <span class="hljs-number">0xdce3eaf1L</span>, <span class="hljs-number">0xf8ff060dL</span>, <span class="hljs-number">0x141b2229L</span>,<br>    <span class="hljs-number">0x30373e45L</span>, <span class="hljs-number">0x4c535a61L</span>, <span class="hljs-number">0x686f767dL</span>, <span class="hljs-number">0x848b9299L</span>,<br>    <span class="hljs-number">0xa0a7aeb5L</span>, <span class="hljs-number">0xbcc3cad1L</span>, <span class="hljs-number">0xd8dfe6edL</span>, <span class="hljs-number">0xf4fb0209L</span>,<br>    <span class="hljs-number">0x10171e25L</span>, <span class="hljs-number">0x2c333a41L</span>, <span class="hljs-number">0x484f565dL</span>, <span class="hljs-number">0x646b7279L</span><br>]<br><br>FK = [<span class="hljs-number">0xA3B1BAC6L</span>, <span class="hljs-number">0x56AA3350L</span>, <span class="hljs-number">0x677D9197L</span>, <span class="hljs-number">0xB27022DCL</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">LeftRot</span>(<span class="hljs-params">n, b</span>): <span class="hljs-keyword">return</span> (n &lt;&lt; b | n &gt;&gt; <span class="hljs-number">32</span> - b) &amp; <span class="hljs-number">0xffffffff</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">t</span>(<span class="hljs-params">a</span>):<br>    a4=a&gt;&gt;<span class="hljs-number">4</span><br>    a3=a4&gt;&gt;<span class="hljs-number">4</span><br>    a2=a3&gt;&gt;<span class="hljs-number">8</span><br>    a1=a2&gt;&gt;<span class="hljs-number">8</span><br>    <br>    <span class="hljs-keyword">return</span> (Sbox[a1&gt;&gt;<span class="hljs-number">4</span>][a1&amp;<span class="hljs-number">0xf</span>] &lt;&lt; <span class="hljs-number">24</span>) + \<br>           (Sbox[a2&gt;&gt;<span class="hljs-number">4</span>&amp;<span class="hljs-number">0xf</span>][a2&amp;<span class="hljs-number">0xf</span>] &lt;&lt; <span class="hljs-number">16</span>) + \<br>           (Sbox[a3&gt;&gt;<span class="hljs-number">4</span>&amp;<span class="hljs-number">0xf</span>][a3&amp;<span class="hljs-number">0xf</span>] &lt;&lt; <span class="hljs-number">8</span>) + \<br>           Sbox[a4&amp;<span class="hljs-number">0xf</span>][a&amp;<span class="hljs-number">0xf</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">F</span>(<span class="hljs-params">xi, rki</span>):<br>    B=t(xi[<span class="hljs-number">1</span>]^xi[<span class="hljs-number">2</span>]^xi[<span class="hljs-number">3</span>]^rki)<br>    <span class="hljs-keyword">return</span> xi[<span class="hljs-number">0</span>] ^ B^LeftRot(B,<span class="hljs-number">2</span>)^LeftRot(B,<span class="hljs-number">10</span>)^LeftRot(B,<span class="hljs-number">18</span>)^LeftRot(B,<span class="hljs-number">24</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">T_</span>(<span class="hljs-params">A</span>):<br>    B=t(A)<br>    <span class="hljs-keyword">return</span> B^LeftRot(B,<span class="hljs-number">13</span>)^LeftRot(B,<span class="hljs-number">23</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypto</span>(<span class="hljs-params">X,K</span>):<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">32</span>):<br>        X = [X[<span class="hljs-number">1</span>], X[<span class="hljs-number">2</span>], X[<span class="hljs-number">3</span>], F(X, K[i+<span class="hljs-number">4</span>])]<br>    <span class="hljs-keyword">return</span> X[::-<span class="hljs-number">1</span>]<br><br>time.clock()<br>m = <span class="hljs-number">0x0123456789abcdeffedcba9876543210</span><br>X=[m &gt;&gt; (<span class="hljs-number">128</span>-<span class="hljs-number">32</span>),(m &gt;&gt; (<span class="hljs-number">128</span>-<span class="hljs-number">32</span>*<span class="hljs-number">2</span>))&amp;<span class="hljs-number">0xffffffff</span>,(m &gt;&gt; <span class="hljs-number">32</span>)&amp;<span class="hljs-number">0xffffffff</span>,m&amp;<span class="hljs-number">0xffffffff</span>]<br>K=[X[i]^FK[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">4</span>)]<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">32</span>):<br>    K.append(K[i]^T_(K[i+<span class="hljs-number">1</span>]^K[i+<span class="hljs-number">2</span>]^K[i+<span class="hljs-number">3</span>]^CK[i]))<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">1000000</span>):<br>    X=encrypto(X,K)<br>    <br><span class="hljs-built_in">print</span> [(<span class="hljs-string">&#x27;%08x&#x27;</span> %i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> X]<br><span class="hljs-built_in">print</span> time.clock(),<span class="hljs-string">&#x27;s&#x27;</span><br><br></code></pre></td></tr></table></figure></p>
+<p>100w 次 167.441324291 s<br />
+结果<br />
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs 1c">[&#x27;<span class="hljs-number">595298</span>c7&#x27;<span class="hljs-punctuation">,</span> &#x27;c6fd271f&#x27;<span class="hljs-punctuation">,</span> &#x27;<span class="hljs-number">0402</span>f804&#x27;<span class="hljs-punctuation">,</span> &#x27;c33d3f66&#x27;]<br><span class="hljs-number">167.441324291</span> s<br></code></pre></td></tr></table></figure><br />
+cProfile 的检测如下：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs py">   Ordered by: standard name<br><br>   ncalls  tottime  percall  cumtime  percall filename:lineno(function)<br>        <span class="hljs-number">1</span>    <span class="hljs-number">0.546</span>    <span class="hljs-number">0.546</span>  <span class="hljs-number">167.442</span>  <span class="hljs-number">167.442</span> SM4.py:<span class="hljs-number">1</span>(&lt;module&gt;)<br><span class="hljs-number">128000064</span>   <span class="hljs-number">47.671</span>    <span class="hljs-number">0.000</span>   <span class="hljs-number">47.671</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">36</span>(LeftRot)<br> <span class="hljs-number">32000032</span>   <span class="hljs-number">58.286</span>    <span class="hljs-number">0.000</span>   <span class="hljs-number">58.286</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">38</span>(t)<br> <span class="hljs-number">32000000</span>   <span class="hljs-number">47.090</span>    <span class="hljs-number">0.000</span>  <span class="hljs-number">153.046</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">49</span>(F)<br>       <span class="hljs-number">32</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">53</span>(T_)<br>  <span class="hljs-number">1000000</span>   <span class="hljs-number">13.850</span>    <span class="hljs-number">0.000</span>  <span class="hljs-number">166.896</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">57</span>(encrypto)<br>        <span class="hljs-number">1</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span> &#123;method <span class="hljs-string">&#x27;disable&#x27;</span> of <span class="hljs-string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;<br>        <span class="hljs-number">2</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span> &#123;time.clock&#125;<br></code></pre></td></tr></table></figure></p>
+<p>使用 pypy 就更快了(开挂！不算数！)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">[<span class="hljs-string">&#x27;595298c7&#x27;</span>, <span class="hljs-string">&#x27;c6fd271f&#x27;</span>, <span class="hljs-string">&#x27;0402f804&#x27;</span>, <span class="hljs-string">&#x27;c33d3f66&#x27;</span>]<br><span class="hljs-number">45.4216792745</span> s<br></code></pre></td></tr></table></figure>
+<p>cProfile 的检测如下：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs py">   Ordered by: standard name<br><br>   ncalls  tottime  percall  cumtime  percall filename:lineno(function)<br>        <span class="hljs-number">1</span>    <span class="hljs-number">0.110</span>    <span class="hljs-number">0.110</span>   <span class="hljs-number">50.350</span>   <span class="hljs-number">50.350</span> SM4.py:<span class="hljs-number">1</span>(&lt;module&gt;)<br><span class="hljs-number">128000064</span>   <span class="hljs-number">18.385</span>    <span class="hljs-number">0.000</span>   <span class="hljs-number">18.385</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">36</span>(LeftRot)<br> <span class="hljs-number">32000032</span>   <span class="hljs-number">17.910</span>    <span class="hljs-number">0.000</span>   <span class="hljs-number">17.910</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">38</span>(t)<br> <span class="hljs-number">32000000</span>   <span class="hljs-number">11.949</span>    <span class="hljs-number">0.000</span>   <span class="hljs-number">48.244</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">49</span>(F)<br>       <span class="hljs-number">32</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">53</span>(T_)<br>  <span class="hljs-number">1000000</span>    <span class="hljs-number">1.995</span>    <span class="hljs-number">0.000</span>   <span class="hljs-number">50.239</span>    <span class="hljs-number">0.000</span> SM4.py:<span class="hljs-number">57</span>(encrypto)<br>        <span class="hljs-number">2</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span> _structseq.py:<span class="hljs-number">22</span>(__get__)<br>        <span class="hljs-number">1</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span> &#123;method <span class="hljs-string">&#x27;disable&#x27;</span> of <span class="hljs-string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;<br>        <span class="hljs-number">2</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span>    <span class="hljs-number">0.000</span> &#123;time.clock&#125;<br></code></pre></td></tr></table></figure></p>
+这个速度应该是极限了...发现优化还是很有趣的事，改天写一篇 python 优化的.<br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">#密码学</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SM4 的 py 实现</div>
+      <div>https://www.tr0y.wang/2017/11/08/SM4/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年11月8日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2022年1月4日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/11/11/JSDomBook/" title="《JavaScript DOM 编程艺术》">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">《JavaScript DOM 编程艺术》</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/11/06/CTFRSA/" title="RSA 大礼包">
+                        <span class="hidden-mobile">RSA 大礼包</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

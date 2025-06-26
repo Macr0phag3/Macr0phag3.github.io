@@ -1,0 +1,1033 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="利用王小云的论文实现 MD4 碰撞攻击">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MD4 Collision">
+<meta property="og:url" content="https://www.tr0y.wang/2017/10/29/MD4Collision/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="利用王小云的论文实现 MD4 碰撞攻击">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2017-10-29T16:50:16.000Z">
+<meta property="article:modified_time" content="2022-01-04T06:17:12.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="密码学">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+  
+  
+  
+  <title>MD4 Collision - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MD4 Collision"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-10-29 16:50" pubdate>
+          2017年10月29日 16:50:16
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MD4 Collision</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：3 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>利用王小云的论文实现 MD4 碰撞攻击</p>
+<span id="more"></span>
+<h2 id="前言">前言</h2>
+<p>MD4 是麻省理工学院教授 Ronald Rivest 于 1990 年设计的一种信息摘要算法，能够将任意长度的字符串压缩成 128bits 的 hash 值。但是由于存在碰撞攻击，已经不再使用。本题是对 MD4 碰撞攻击的实现。</p>
+<h2 id="论文内容">论文内容</h2>
+<p>下面是对论文的大致翻译，最好对着原论文看(LaTeX 啥的麻烦，word 复制粘贴勉强看看吧)<br />
+（以下提到的表均为王小云论文中的表）</p>
+<h3 id="md4-算法描述">MD4 算法描述</h3>
+<ol type="1">
+<li>对于给定的字符串，首先对字符串进行填充，使得填充后的长度为 512bits 的整数倍</li>
+<li>对每一块长度为 512bits 的字符串，MD4 利用压缩函数将它压缩成 128bits 的 hash 值。这个压缩函数一共有 3 轮，每一轮使用不同的非线性布尔函数，定义如下：<br />
+F(X, Y, Z) = (X∧Y)∨(¬X∧Z)<br />
+G(X, Y, Z) = (X∧Y)∨(X∧Z)∨(Y∧Z)<br />
+H(X, Y, Z) = X⊕Y⊕Z<br />
+注意，这里的 X，Y，Z 均为 32bits，且函数 F，G，H 均进行的是位运算<br />
+¬为按位取反，∧为与，∨为或，⊕为异或<br />
+压缩函数的每一轮的均使用 16 次对应的非线性布尔函数，在每一步中，链变量 a，b，c，d 的值都会更新。<br />
+φ0(a, b, c, d, mk, s) = ((a + F(b, c, d) + mk) mod 2^32) &lt;&lt;&lt; s<br />
+φ1(a, b, c, d, mk, s) = ((a + G(b, c, d) + mk + 0x5a827999) mod 2^32) &gt;&gt;&gt; s<br />
+φ2(a, b, c, d, mk, s) = ((a + H(b, c, d) + mk + 0x6ed9eba1) mod 2^32) &lt;&lt;&lt; s<br />
+链变量的初始值为<br />
+(a, b, c, d) = (0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476)</li>
+<li>MD4 压缩函数<br />
+记填充后的字符串为 M'，M 为 M'中的一块，压缩函数定义如下：<br />
+记 M 的链变量为(aa, bb, cc, dd)。若 M 是第一块要进行 hash 的分块，则(aa, bb, cc, dd)为初始值(即 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476)。否则，它们来源于压缩前一块 M 时更新的链变量值。<br />
+执行以下 48 个步骤（三轮）：<br />
+For j = 0, 1, 2 and i = 0, 1, 2, 3<br />
+a = φj(a, b, c, d, wj,4i, sj,4i)<br />
+d = φj(d, a, b, c, wj,4i+1, sj,4i+1)<br />
+c = φj(c, d, a, b, wj,4i+2, sj,4i+2)<br />
+b = φj(b, c, d, a, wj,4i+3, sj,4i+3)</li>
+</ol>
+<p>在这里，wj,4i+k 是 M，&lt;&lt;&lt; sj,4i+k 为循环左移 sj,4i+k 位<br />
+M'分组的使用顺序以及移位的数量已在表 5 给出<br />
+更新链变量的方法<br />
+aa = (a + aa) mod 2^32<br />
+bb = (b + bb) mod 2^32<br />
+cc = (c + cc) mod 2^32<br />
+dd = (d + dd) mod 2^32<br />
+若 M 是 M'的最后一块，则 H(M') = aa+bb+cc+dd 就是 M'的 hash 值<br />
+否则对下一个 512bits 块重复上述过程，(aa,bb,cc,dd)就作为下一块 M 的初始链变量值。</p>
+<h3 id="攻击前的准备">攻击前的准备</h3>
+<ol type="1">
+<li>符号说明<br />
+1.1 M = (m0, m1, ..., m15) 与 M = (m0, m1, ..., m15)代表 2 组 512bits 的明文<br />
+1.2 ai, bi, ci, di 代表对 M 压缩时的第 (4i - 3) ,(4i - 2),(4i - 1) 和 4i 步的输出, 1 ≤ i ≤ 16.<br />
+1.3 a'i, b'i, c'i, d'i 代表对 M'压缩时的第 (4i - 3) ,(4i - 2),(4i - 1) 和 4i 步的输出, 1 ≤ i ≤ 16.<br />
+1.4 ∆mi = m i – mi代表m i与m i之间的单字差异<br />
+1.5 ai,j, bi,j, ci,j, di,j 代表 ai, bi, ci, di 的第 j 位 bit，第 1 位为 j=1<br />
+1.6 xi[j], xi[-j] (x 可以是 a, b, c, d) 代表改变 x（x 为单字）的第 j 位比特后的值, j 为 0 变为 1，-j 为 1 变为 0。<br />
+xi[±j1, ±j2, ..., ±jl]代表改变x的第j1, j2, ..., jn 位bit后的值, j为0变为1，-j为1变为0。<br />
+1.7 为了更好的描述过程，将使用整数模来表示位差异，比如<br />
+∆c2 = c2 - c2 = -2^18 + 2^21<br />
+即为<br />
+c'2 = c2[-19, 22]</li>
+</ol>
+<h3 id="碰撞攻击过程">碰撞攻击过程</h3>
+<p>攻击成功的概率在 2^(-2)- 2^(-6)之间，复杂度小于 2^8 次 MD4 计算。攻击过程分为 3 步：</p>
+<ul>
+<li><code>找出 M 和 M' 产生碰撞的碰撞微分</code></li>
+<li><code>推导出一组确保碰撞微分保持不变的充分条件</code></li>
+<li><code>对于任意随机消息 m，对 m 做一些修改，使几乎所有的充分条件保持不变（弱明文）</code></li>
+</ul>
+<ol type="1">
+<li><p>MD4 的碰撞微分<br />
+我们选择如下碰撞微分：<br />
+∆M = M' - M = (∆m0, ∆m1, ......, ∆m15)<br />
+∆m1 = 2^31, ∆m2 = 2^31 - 2^28, ∆m12 = -2^16<br />
+∆mi = 0, 0 ≤ i ≤ 15, i != 1, 2, 12.<br />
+很明显，碰撞微分由两个内部碰撞，分别为步骤 2-25 和步骤 36-41 组成。<br />
+由第三节我们可以知道，只要 M 满足表 6 中的所有条件，则 M 和 M'构成一对碰撞。</p></li>
+<li><p>明文修改<br />
+依据表 6，我们知道(M, M')构成一对碰撞的概率是 2^(-122)，远低于生日攻击的 2^(-64)<br />
+我们可以通过 2 种明文修改技术将碰撞概率提升至 2^(-16) ~ 2^(-2)，方法如下：<br />
+2.1 单步修正<br />
+我们可以很轻易地修改 M 使其满足第 1 轮的条件保持不变。<br />
+经过单步修正后，(M, M')构成一对碰撞的概率提升至 2^(-25)<br />
+2.2 多步修正<br />
+虽然 2^(-25)的概率对于要找到一对碰撞已经够大了，但是在第二轮中使用多步修正<br />
+还可以进一步提高，而且这种方法在对 MD5, SHA-0, 特别是 SHA-1.的分析中特别重要<br />
+多步修正的原理是对某些明文的修改由第一轮中的部分碰撞组成，它保留第一轮中的所有条件，但只改变第二轮中的 1bit。方法如下：<br />
+(这里按照表 1 给出的方法进行修改即可)</p></li>
+</ol>
+<h2 id="实现过程">实现过程</h2>
+<p>按照论文内容，我们要是不想理会繁琐的推导，直接实现就行<br />
+首先选定一个 M（随机或者指定），然后对于第一轮的所有条件，修改链变量的值，并更新对应的 M。然后在第二轮里，我只使用了能更大幅度提升碰撞概率的多步修正修改了 a5 与 d5 的值，单步修正没有使用。第二轮修正完成后，M 就已经修改成一个容易找到碰撞的明文。依据碰撞微分的公式，修改第 1,2,12 分组的相关 bit，我们就有大概率能找到 M 的碰撞 M'。论文最后还提到，修改 c5 及以后的链变量能更大程度提升概率（即表 6 后 7 行，与其相关联的是表 2），但是没有详细说，所以我也就没加在代码里了。<br />
+概括起来就是：<br />
+<code>对于任意一个 m，修改使其满足表 6 所有条件后为 m1，此时 m1 称为弱明文，弱明文的意思就是，m1 的 1,2,12 分组修改后（记为 m2），会与 m1 形成一对碰撞。即 m1 与 m2 形成碰撞</code></p>
+<h2 id="代码">代码</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#encoding: utf-8</span><br><span class="hljs-keyword">import</span> winsound, random<br><span class="hljs-keyword">import</span> struct, hashlib<br><span class="hljs-keyword">import</span> time, re<br><br><span class="hljs-comment">#4 字节</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">Endian</span>(<span class="hljs-params">b</span>): <span class="hljs-keyword">return</span> [struct.unpack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>.join(b[i:i+<span class="hljs-number">4</span>]))[<span class="hljs-number">0</span>] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(b), <span class="hljs-number">4</span>)]<br><br><span class="hljs-comment">#循环左 右移</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">LeftRot</span>(<span class="hljs-params">n, b</span>): <span class="hljs-keyword">return</span> ((n &lt;&lt; b) | ((n &amp; <span class="hljs-number">0xffffffff</span>) &gt;&gt; (<span class="hljs-number">32</span> - b))) &amp; <span class="hljs-number">0xffffffff</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">RightRot</span>(<span class="hljs-params">n, b</span>): <span class="hljs-keyword">return</span> ((n &gt;&gt; b) | ((n &amp; <span class="hljs-number">0xffffffff</span>) &lt;&lt; (<span class="hljs-number">32</span> - b))) &amp; <span class="hljs-number">0xffffffff</span><br><br><span class="hljs-comment">#MD4 中的函数</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">F</span>(<span class="hljs-params">x, y, z</span>): <span class="hljs-keyword">return</span> x &amp; y | ~x &amp; z<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">G</span>(<span class="hljs-params">x, y, z</span>): <span class="hljs-keyword">return</span> x &amp; y | x &amp; z | y &amp; z<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">H</span>(<span class="hljs-params">x, y, z</span>): <span class="hljs-keyword">return</span> x ^ y ^ z<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">FF</span>(<span class="hljs-params">a, b, c, d, k, s, X</span>): <span class="hljs-keyword">return</span> LeftRot(a + F(b, c, d) + X[k], s)<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">GG</span>(<span class="hljs-params">a, b, c, d, k, s, X</span>): <span class="hljs-keyword">return</span> LeftRot(a + G(b, c, d) + X[k] + <span class="hljs-number">0x5a827999</span>, s)<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">HH</span>(<span class="hljs-params">a, b, c, d, k, s, X</span>): <span class="hljs-keyword">return</span> LeftRot(a + H(b, c, d) + X[k] + <span class="hljs-number">0x6ed9eba1</span>, s)<br><br><span class="hljs-comment">#计算 MD4</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">MD4</span>(<span class="hljs-params">m</span>): <br>  md4 = hashlib.new(<span class="hljs-string">&#x27;md4&#x27;</span>)<br>  md4.update(m)<br>  <span class="hljs-keyword">return</span> md4.hexdigest()<br><br><span class="hljs-comment">#第一轮修改</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">FirstRound</span>(<span class="hljs-params">abcd, j, i, s, x, constraints</span>):<br>  v = LeftRot(abcd[j%<span class="hljs-number">4</span>] + F(abcd[(j+<span class="hljs-number">1</span>)%<span class="hljs-number">4</span>], abcd[(j+<span class="hljs-number">2</span>)%<span class="hljs-number">4</span>], abcd[(j+<span class="hljs-number">3</span>)%<span class="hljs-number">4</span>]) + x[i], s)<br>  <span class="hljs-keyword">for</span> constraint <span class="hljs-keyword">in</span> constraints:<br>    <span class="hljs-keyword">if</span>   constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;=&#x27;</span>: v ^= (v ^ abcd[(j+<span class="hljs-number">1</span>)%<span class="hljs-number">4</span>]) &amp; (<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>]) <span class="hljs-comment">#等于下一个链变量</span><br>    <span class="hljs-keyword">elif</span> constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;0&#x27;</span>: v &amp;= ~(<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>]) <span class="hljs-comment"># =0 的位</span><br>    <span class="hljs-keyword">elif</span> constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;1&#x27;</span>: v |= <span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>] <span class="hljs-comment"># =1 的位</span><br>    <br>  <span class="hljs-comment">#反推，更新 m</span><br>  x[i] = (RightRot(v, s) - abcd[j%<span class="hljs-number">4</span>] - F(abcd[(j+<span class="hljs-number">1</span>)%<span class="hljs-number">4</span>], abcd[(j+<span class="hljs-number">2</span>)%<span class="hljs-number">4</span>], abcd[(j+<span class="hljs-number">3</span>)%<span class="hljs-number">4</span>])) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span><br>  abcd[j%<span class="hljs-number">4</span>] = v <span class="hljs-comment">#更新链变量</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">FindCollision</span>(<span class="hljs-params">m</span>):<br>  x = Endian(m) <span class="hljs-comment"># 小端序</span><br>  initial_abcd = [<span class="hljs-number">0x67452301</span>, <span class="hljs-number">0xefcdab89</span>, <span class="hljs-number">0x98badcfe</span>, <span class="hljs-number">0x10325476</span>]<br>  abcd = initial_abcd[:]<br>  <br>  <span class="hljs-comment">#第一轮的所有条件</span><br>  constraints = [<br>    [[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">6</span>]],[[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">6</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">7</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">10</span>]],<br>    [[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">6</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">7</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">10</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">25</span>]],<br>    [[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">6</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">7</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">10</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">25</span>]],<br>    [[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">7</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">10</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">25</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">13</span>]],<br>    [[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">13</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">18</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">19</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">20</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">21</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">25</span>]],<br>    [[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">12</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">13</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">14</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">18</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">19</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">20</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">21</span>]],<br>    [[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">12</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">13</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">14</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">16</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">18</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">19</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">20</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">21</span>]],<br>    [[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">12</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">13</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">14</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">16</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">18</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">19</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">20</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">22</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">21</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">25</span>]],<br>    [[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">12</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">13</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">14</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">16</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">19</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">20</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">21</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">22</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">25</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">29</span>]],<br>    [[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">16</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">19</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">20</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">21</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">22</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">25</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">29</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">31</span>]],<br>    [[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">19</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">20</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">21</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">22</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">25</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">29</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">31</span>]],<br>    [[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">22</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">25</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">26</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">28</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">29</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">31</span>]],<br>    [[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">22</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">25</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">26</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">28</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">29</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">31</span>]],<br>    [[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">18</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">22</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">25</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">26</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">28</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">29</span>]],<br>    [[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">18</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">25</span>], [<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">26</span>],[<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">28</span>],[<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">29</span>],[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">31</span>]]<br>  ]<br><br>  shift = [<span class="hljs-number">3</span>, <span class="hljs-number">7</span>, <span class="hljs-number">11</span>, <span class="hljs-number">19</span>] * <span class="hljs-number">4</span><br>  change = [<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>] * <span class="hljs-number">4</span><br><br>  <span class="hljs-comment">#使满足第一轮的所有条件</span><br>  <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>):<br>    FirstRound(abcd, change[i], i, shift[i], x, constraints[i])<br>  <br>  <span class="hljs-comment">#第二轮的所有条件</span><br>  constraints2 = [<br>    [[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">18</span>, <span class="hljs-number">2</span>], [<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">25</span>], [<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-number">26</span>], [<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">28</span>], [<span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-number">31</span>]],<br>    [[<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">18</span>, <span class="hljs-number">0</span>], [<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">25</span>, <span class="hljs-number">1</span>], [<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">26</span>, <span class="hljs-number">1</span>], [<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">28</span>, <span class="hljs-number">1</span>], [<span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-number">31</span>, <span class="hljs-number">1</span>]]<br>  ]<br><br>  <span class="hljs-comment">#计算 a5</span><br>  a5 = GG(abcd[<span class="hljs-number">0</span>], abcd[<span class="hljs-number">1</span>], abcd[<span class="hljs-number">2</span>], abcd[<span class="hljs-number">3</span>], <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, x)<br>  <span class="hljs-keyword">for</span> constraint <span class="hljs-keyword">in</span> constraints2[<span class="hljs-number">0</span>]:<br>    <span class="hljs-keyword">if</span>   constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;=&#x27;</span>: a5 ^= ((a5 ^ abcd[constraint[<span class="hljs-number">2</span>]]) &amp; (<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>]))<br>    <span class="hljs-keyword">elif</span> constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;0&#x27;</span>: a5 &amp;= ~(<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>])<br>    <span class="hljs-keyword">elif</span> constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;1&#x27;</span>: a5 |= (<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>])<br><br>  q = (RightRot(a5, <span class="hljs-number">3</span>) - abcd[<span class="hljs-number">0</span>] - G(abcd[<span class="hljs-number">1</span>], abcd[<span class="hljs-number">2</span>], abcd[<span class="hljs-number">3</span>]) - <span class="hljs-number">0x5a827999</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span><br>  <br>  <span class="hljs-comment">#多步修正</span><br>  a0, b0, c0, d0 = initial_abcd[<span class="hljs-number">0</span>], initial_abcd[<span class="hljs-number">1</span>], initial_abcd[<span class="hljs-number">2</span>], initial_abcd[<span class="hljs-number">3</span>]<br>  a_ = FF(a0,b0,c0,d0, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, [q]) <span class="hljs-comment">#计算 a&#x27;</span><br>  a1 = FF(a0,b0,c0,d0, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, x) <span class="hljs-comment">#按照原来的方法算</span><br>  d1 = FF(d0,a1,b0,c0, <span class="hljs-number">1</span>, <span class="hljs-number">7</span>, x) <br>  x[<span class="hljs-number">0</span>] = q <span class="hljs-comment">#更新 m0</span><br>  q = x[<span class="hljs-number">1</span>]<br>  x[<span class="hljs-number">1</span>] = (RightRot(d1,  <span class="hljs-number">7</span>) - d0 - F(a_, b0, c0)) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span><br>  <br>  c1 = FF(c0,d1,a1,b0, <span class="hljs-number">2</span>, <span class="hljs-number">11</span>, x)<br>  x[<span class="hljs-number">2</span>] = (RightRot(c1, <span class="hljs-number">11</span>) - c0 - F(d1, a_, b0)) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span><br>  <br>  b1 = FF(b0,c1,d1,a1, <span class="hljs-number">3</span>, <span class="hljs-number">19</span>, x)<br>  x[<span class="hljs-number">3</span>] = (RightRot(b1, <span class="hljs-number">19</span>) - b0 - F(c1, d1, a_)) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span><br>  <br>  a2 = FF(a1,b1,c1,d1, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>, x)<br>  x[<span class="hljs-number">4</span>] = (RightRot(a2,  <span class="hljs-number">3</span>) - a_ - F(b1, c1, d1)) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span><br><br>  abcd[<span class="hljs-number">0</span>] = a5<br>  <br>  <span class="hljs-comment">#计算 d5</span><br>  d5 = GG(abcd[<span class="hljs-number">3</span>], abcd[<span class="hljs-number">0</span>], abcd[<span class="hljs-number">1</span>], abcd[<span class="hljs-number">2</span>], <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, x)<br><br>  <span class="hljs-keyword">for</span> constraint <span class="hljs-keyword">in</span> constraints2[<span class="hljs-number">1</span>]:<br>    <span class="hljs-keyword">if</span>   constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;=&#x27;</span>: d5 ^= ((d5 ^ abcd[constraint[<span class="hljs-number">2</span>]]) &amp; (<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>]))<br>    <span class="hljs-keyword">elif</span> constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;0&#x27;</span>: d5 &amp;= ~(<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>])<br>    <span class="hljs-keyword">elif</span> constraint[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;1&#x27;</span>: d5 |= (<span class="hljs-number">2</span> ** constraint[<span class="hljs-number">1</span>])<br><br>  q = (RightRot(d5, <span class="hljs-number">5</span>) - abcd[<span class="hljs-number">3</span>] - G(abcd[<span class="hljs-number">0</span>], abcd[<span class="hljs-number">1</span>], abcd[<span class="hljs-number">2</span>]) - <span class="hljs-number">0x5a827999</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span><br>  <br>  <span class="hljs-comment">#多步修正</span><br>  a, b, c, d = initial_abcd[<span class="hljs-number">0</span>], initial_abcd[<span class="hljs-number">1</span>], initial_abcd[<span class="hljs-number">2</span>], initial_abcd[<span class="hljs-number">3</span>]<br>  a = FF(a,b,c,d, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, x)<br>  d = FF(d,a,b,c, <span class="hljs-number">1</span>, <span class="hljs-number">7</span>, x)<br>  c = FF(c,d,a,b, <span class="hljs-number">2</span>,<span class="hljs-number">11</span>, x)<br>  b = FF(b,c,d,a, <span class="hljs-number">3</span>,<span class="hljs-number">19</span>, x)<br><br>  a2_ = FF(a,b,c,d, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>, [q] * <span class="hljs-number">5</span>)<br>  a2 = FF(a,b,c,d, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>, x)<br>  d2 = FF(d,a2,b,c, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, x)<br>  <br>  x[<span class="hljs-number">4</span>] = q<br>  q = x[<span class="hljs-number">5</span>]<br>  x[<span class="hljs-number">5</span>] = (RightRot(d2,  <span class="hljs-number">7</span>) - d - F(a2_, b, c)) % <span class="hljs-number">2</span> ** <span class="hljs-number">32</span><br>  <br>  c2 = FF(c,d2,a2,b, <span class="hljs-number">6</span>, <span class="hljs-number">11</span>, x)<br>  x[<span class="hljs-number">6</span>] = (RightRot(c2, <span class="hljs-number">11</span>) - c - F(d2, a2_, b)) % <span class="hljs-number">2</span> ** <span class="hljs-number">32</span><br>  <br>  b2 = FF(b,c2,d2,a2, <span class="hljs-number">7</span>, <span class="hljs-number">19</span>, x)<br>  x[<span class="hljs-number">7</span>] = (RightRot(b2, <span class="hljs-number">19</span>) - b - F(c2, d2, a2_)) % <span class="hljs-number">2</span> ** <span class="hljs-number">32</span><br>  <br>  a3 = FF(a2,b2,c2,d2, <span class="hljs-number">8</span>, <span class="hljs-number">3</span>, x)<br>  x[<span class="hljs-number">8</span>] = (RightRot(a3,  <span class="hljs-number">3</span>) - a2_ - F(b2, c2, d2)) % <span class="hljs-number">2</span> ** <span class="hljs-number">32</span><br><br>  m = <span class="hljs-string">&#x27;&#x27;</span>.join([struct.pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> x])<br>  m_ = CreateCollision(m) <span class="hljs-comment">#碰撞微分</span><br><br>  <span class="hljs-keyword">if</span> MD4(m) == MD4(m_):<br>    <span class="hljs-keyword">return</span> m, m_<br>  <br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span>, <span class="hljs-literal">None</span><br><br><span class="hljs-comment">#对于修正后的 M，有一定概率可以通过碰撞微分找到 M&#x27;</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">CreateCollision</span>(<span class="hljs-params">m</span>):<br>  x = Endian(m)<br>  x[<span class="hljs-number">1</span>] = (x[<span class="hljs-number">1</span>] + (<span class="hljs-number">2</span> ** <span class="hljs-number">31</span>)) % <span class="hljs-number">2</span> ** <span class="hljs-number">32</span><br>  x[<span class="hljs-number">2</span>] = (x[<span class="hljs-number">2</span>] + ((<span class="hljs-number">2</span> ** <span class="hljs-number">31</span>) - (<span class="hljs-number">2</span> ** <span class="hljs-number">28</span>))) % <span class="hljs-number">2</span> ** <span class="hljs-number">32</span><br>  x[<span class="hljs-number">12</span>] = (x[<span class="hljs-number">12</span>] - (<span class="hljs-number">2</span> ** <span class="hljs-number">16</span>)) % <span class="hljs-number">2</span> ** <span class="hljs-number">32</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#x27;</span>.join([struct.pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> x])<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">Collision</span>():<br>  num = <span class="hljs-number">1</span><br>  <span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-comment">#随机的 M</span><br>    m = [<span class="hljs-built_in">chr</span>(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [random.randint(<span class="hljs-number">0</span>, <span class="hljs-number">2</span> ** <span class="hljs-number">8</span> - <span class="hljs-number">1</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">64</span>)]]<br>    <span class="hljs-comment">#m = list(&#x27;0000000000Tr0y has $10000000000000 in the BOC.&#x27;)</span><br>    <span class="hljs-comment">#m = m+mtail+list(&#x27;Tr0y has $100000000000000000000000 in the BOC. -------- 20171101&#x27;)</span><br>    <span class="hljs-comment">#print &#x27;&#x27;.join(m)</span><br>    ma, mb = FindCollision(m)<br>    <span class="hljs-keyword">if</span> ma:<br>      winsound.Beep(<span class="hljs-number">600</span>, <span class="hljs-number">1000</span>)<br>      <span class="hljs-keyword">break</span><br>    num += <span class="hljs-number">1</span><br>  <br>  h1 = MD4(ma)<br>  h2 = MD4(mb)<br>  <span class="hljs-keyword">return</span> ma.encode(<span class="hljs-string">&#x27;hex&#x27;</span>), mb.encode(<span class="hljs-string">&#x27;hex&#x27;</span>), h1, h2<br><br><span class="hljs-comment"># main()</span><br>time.clock()<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[+]Finding Collision...&#x27;</span><br>m1, m2, h1, h2 = Collision()<br>M1 = re.findall(<span class="hljs-string">&#x27;.&#123;4&#125;&#x27;</span>, m1)<br>M2 = re.findall(<span class="hljs-string">&#x27;.&#123;4&#125;&#x27;</span>, m2)<br><br>mm1 = <span class="hljs-string">&#x27;&#x27;</span><br>mm2 = <span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(M1)):<br>  <span class="hljs-keyword">if</span> M1[i] != M2[i]:<br>    mm1 += <span class="hljs-string">&#x27;[&#x27;</span> + M1[i] + <span class="hljs-string">&#x27;]&#x27;</span><br>    mm2 += <span class="hljs-string">&#x27;[&#x27;</span> + M2[i] + <span class="hljs-string">&#x27;]&#x27;</span><br>  <span class="hljs-keyword">else</span>:<br>    mm1 += M1[i]<br>    mm2 += M1[i]<br>    <br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;  [-]The M1 is:&quot;</span>, m1<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;  [-]The M2 is:&quot;</span>, m2<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;  [-]M1 and M2 diff:\n    [*]&quot;</span> + mm1 + <span class="hljs-string">&quot;\n    [*]&quot;</span> + mm2<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;  [-]The MD4(M1) is:&quot;</span>, h1<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;  [-]The MD4(M2) is:&quot;</span>, h2<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;[!]M1 == M2 ?&quot;</span>, m1 == m2<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;[!]MD4(M1) == MD4(M2) ?&quot;</span>, h1 == h2<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;[!]All done!&quot;</span><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;[!]Timer:&quot;</span>, <span class="hljs-built_in">round</span>(time.clock(), <span class="hljs-number">2</span>), <span class="hljs-string">&quot;s&quot;</span><br><br><span class="hljs-comment"># The diff in:</span><br><span class="hljs-comment"># m1[1] m2[1]</span><br><span class="hljs-comment"># m1[2] m2[2] </span><br><span class="hljs-comment"># m1[12] m2[12]</span><br></code></pre></td></tr></table></figure>
+<p>概率性碰撞，快的话，我跑过 1.7s 一个碰撞的，慢的话，有 10min 一个碰撞的</p>
+<h2 id="结果">结果</h2>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs inform7"><span class="hljs-comment">[+]</span>Finding Collision...<br>  <span class="hljs-comment">[-]</span>The M1 <span class="hljs-keyword">is</span>: 98d46138c68cc81d7cc12c9a82cf0b577b88416accb0fff4b9aa434e86328aed5ab7b751a65c0c672ec4f0172a4020a8df07cffc728072b81e4cd688e16452fc<br>  <span class="hljs-comment">[-]</span>The M2 <span class="hljs-keyword">is</span>: 98d46138c68cc89d7cc12c0a82cf0b577b88416accb0fff4b9aa434e86328aed5ab7b751a65c0c672ec4f0172a4020a8df07cefc728072b81e4cd688e16452fc<br>  <span class="hljs-comment">[-]</span>M1 and M2 diff:<br>    <span class="hljs-comment">[*]</span>98d46138c68c<span class="hljs-comment">[c81d]</span>7cc1<span class="hljs-comment">[2c9a]</span>82cf0b577b88416accb0fff4b9aa434e86328aed5ab7b751a65c0c672ec4f0172a4020a8df07<span class="hljs-comment">[cffc]</span>728072b81e4cd688e16452fc<br>    <span class="hljs-comment">[*]</span>98d46138c68c<span class="hljs-comment">[c89d]</span>7cc1<span class="hljs-comment">[2c0a]</span>82cf0b577b88416accb0fff4b9aa434e86328aed5ab7b751a65c0c672ec4f0172a4020a8df07<span class="hljs-comment">[cefc]</span>728072b81e4cd688e16452fc<br>  <span class="hljs-comment">[-]</span>The MD4(M1) <span class="hljs-keyword">is</span>: 8e1a0f4554909e76bf4ef7e940bd6a2e<br>  <span class="hljs-comment">[-]</span>The MD4(M2) <span class="hljs-keyword">is</span>: 8e1a0f4554909e76bf4ef7e940bd6a2e<br><span class="hljs-comment">[!]</span>M1 == M2 ? False<br><span class="hljs-comment">[!]</span>MD4(M1) == MD4(M2) ? True<br><span class="hljs-comment">[!]</span>All done!<br><span class="hljs-comment">[!]</span>Timer: 5.25 s<br></code></pre></td></tr></table></figure>
+<p>M 均经过 hex</p>
+<h2 id="总结">总结</h2>
+<ol type="1">
+<li>英文文献，看着比较痛苦</li>
+<li>大牛的论文言简意赅，理解论文花了很多时间</li>
+<li>都说 MD4 不安全，有碰撞，别使用，亲身动手实践一遍才知道是什么情况。在搜论文的过程中发现有基于此论文进行对 MD4 有意义的碰撞攻击，实现 2 个有意义的明文 MD4 却一样，感觉这个更好玩，可惜没太看懂实现<br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p></li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">#密码学</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MD4 Collision</div>
+      <div>https://www.tr0y.wang/2017/10/29/MD4Collision/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年10月29日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2022年1月4日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2016 全国高校密码数学挑战赛-赛题三</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击">
+                        <span class="hidden-mobile">CBC 字节翻转攻击</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

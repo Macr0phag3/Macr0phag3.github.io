@@ -1,0 +1,1482 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="Nmap 使用手册以及一些我使用 Nmap 的经验。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nmap 使用手册">
+<meta property="og:url" content="https://www.tr0y.wang/2019/05/24/Nmap-guide/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="Nmap 使用手册以及一些我使用 Nmap 的经验。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/nmap.jpeg/cover">
+<meta property="article:published_time" content="2019-05-24T09:57:33.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/nmap.jpeg/cover">
+  
+  
+  
+  <title>Nmap 使用手册 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Nmap 使用手册"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-05-24 09:57" pubdate>
+          2019年5月24日 09:57:33
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          35k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          220 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Nmap 使用手册</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Nmap 使用手册以及一些我使用 Nmap 的经验。</p>
+<span id="more"></span>
+<h1 id="nmap-介绍">Nmap 介绍</h1>
+<h2 id="什么是-nmap">什么是 Nmap</h2>
+<p>Nmap 是一个网络连接端扫描软件，用来扫描网上电脑开放的网络连接端。确定哪些服务运行在哪些连接端，并且推断计算机运行哪个操作系统（这是亦称 fingerprinting）。它是网络管理员必用的软件之一，以及用以评估网络系统安全。它不局限于仅仅收集信息和枚举，同时可以用来作为一个漏洞探测器或安全扫描器。</p>
+<p>中文网站传送门：<a target="_blank" rel="noopener" href="http://www.nmap.com.cn/">传送门🚪</a></p>
+<h2 id="特点">特点</h2>
+<p>Nmap 对于网络检查的作用，应该相当于网址导航、搜索引擎的作用：入口。</p>
+<ul>
+<li>检测活在网络上的主机（主机发现）</li>
+<li>检测主机上开放的端口（端口发现或枚举）</li>
+<li>检测到相应的端口（服务发现）的软件和版本</li>
+<li>检测操作系统，硬件地址，以及软件版本</li>
+<li>检测脆弱性的漏洞（Nmap 的脚本）</li>
+</ul>
+<p>Nmap 使用不同的技术来执行扫描，包括：TCP 的 connect 扫描，TCP 反向的 ident 扫描，FTP 反弹扫描等。所有这些扫描的类型有自己的优点和缺点。</p>
+<h1 id="nmap-的各个阶段">Nmap 的各个阶段</h1>
+<h2 id="指定目标">指定目标</h2>
+<p>除了选项，所有出现在 Nmap 命令行上的都被视为对目标主机的说明。最简单的情况是指定一个目标 IP 地址或主机名。Nmap 接受可以多个主机，并且它们不必是相同类型，例如<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">nmap</span> scanme.nmap.org <span class="hljs-number">192.168.0.0</span>/<span class="hljs-number">8</span><br></code></pre></td></tr></table></figure></p>
+<p>也是可以的。</p>
+<p>注意，IPv6 地址只能用规范的 IPv6 地址或主机名指定。所以以下均为指定 IPv4 地址范围的技巧。</p>
+<h3 id="ipnumbit-形式">ip/numbit 形式</h3>
+<p>Nmap 支持 CIDR 风格的地址。要扫描整个网络段的主机的话可以在一个 IP 地址或主机名后面附加一个<code>/&lt;numbit&gt;</code>。例如，<code>192.168.10.0/24</code> 将会扫描 <code>192.168.10.0</code>（二进制格式: <code>11000000 10101000 00001010 00000000</code>）和 <code>192.168.10.255</code>（二进制格式: <code>11000000 10101000 00001010 11111111</code>）之间的 256 台主机。假设主机 <code>scanme.nmap.org</code> 的 IP 地址是 205.217.153.62，<code>scanme.nmap.org/16</code> 将扫描 <code>205.217.0.0</code> 和 <code>205.217.255.255</code> 之间的 <code>65536</code> 个 IP 地址。</p>
+<p>注意，这种指定方式，numbit 最小值是 <code>1</code>，这将会扫描半个互联网。最大值是 32，这将会扫描该主机或 IP 地址， 因为所有的比特都固定了。</p>
+<h3 id="用-指定范围">用<code>-</code>指定范围</h3>
+<p>ip/numbit 形式不够灵活，因为<code>192.168.0.0/16</code>中包含了广播地址。Nmap 还可以利用<code>,</code>或者<code>-</code>隔开的数字为 IP 地址指定范围。例如，<code>192.168.0-255.1-254</code> 将略过在该范围内以 <code>.0</code>和<code>.255</code>结束的地址。指定范围不限于最后的 8 位，例如：<code>0-255.0-255.13.37</code> 将在整个互联网范围内扫描所有以 <code>13.37</code> 结束的地址。</p>
+<h3 id="从文件导入">从文件导入</h3>
+<p><code>-iL &lt;inputfilename&gt;</code></p>
+<p>从<code>&lt;inputfilename&gt;</code>中读取 ip 地址，ip 地址分隔符可以是一个或多个空格，制表符或换行符。<code>&lt;inputfilename&gt;</code>还可以是标准输入，这时<code>&lt;inputfilename&gt;</code>应为<code>-</code>：<br />
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs vim">» <span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;10.255.44.33&quot;</span> | <span class="hljs-keyword">nmap</span> -iL -<br>Starting Nmap <span class="hljs-number">7.70</span> ( https://<span class="hljs-keyword">nmap</span>.org ) at <span class="hljs-number">2019</span>-<span class="hljs-number">05</span>-<span class="hljs-number">24</span> <span class="hljs-number">10</span>:<span class="hljs-number">56</span> CST<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.255</span>.<span class="hljs-number">44.33</span><br>Host <span class="hljs-keyword">is</span> <span class="hljs-keyword">up</span> (<span class="hljs-number">0.015</span>s latency).<br>Not shown: <span class="hljs-number">996</span> filtered ports<br>PORT     STATE  SERVICE<br><span class="hljs-number">80</span>/tcp   <span class="hljs-keyword">open</span>   http<br><span class="hljs-number">443</span>/tcp  <span class="hljs-keyword">open</span>   https<br><span class="hljs-number">801</span>/tcp  <span class="hljs-keyword">open</span>   device<br><span class="hljs-number">8800</span>/tcp closed sunwebadmin<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host <span class="hljs-keyword">up</span>) scanned in <span class="hljs-number">5.06</span> seconds<br></code></pre></td></tr></table></figure></p>
+<h3 id="随机选择目标">随机选择目标</h3>
+<p><code>-iR &lt;hostnum&gt;</code></p>
+<p>Nmap 随机生成 ip 地址进行扫描，<code>&lt;hostnum&gt;</code>为生成的数量，若为 0，则会一直生成。</p>
+<h3 id="排除目标">排除目标</h3>
+<p><code>--exclude &lt;host1[，host2][，host3]，...&gt;</code></p>
+<p>后面接的<code>host1</code>是排除在外的 ip 地址。</p>
+<h3 id="排除文件中的目标">排除文件中的目标</h3>
+<p><code>--excludefile &lt;excludefile&gt;</code></p>
+<p>功能与 <code>--exclude</code> 选项一样，使用方式与 <code>-iL</code> 一样。</p>
+<h2 id="目标探测">目标探测</h2>
+<p>目标探测的目的主要有 2 个：</p>
+<ul>
+<li>判断是否存活</li>
+<li>获取端口的开放情况</li>
+</ul>
+<p>如果没有指定目标探测的方式，Nmap 默认发送一个 ICMP 回声请求和一个 TCP ACK 报文到目标的 80 端口。一个例外在局域网中使用 ARP 扫描目标机器。对于非 root 权限的 Linux/UNIX shell 用户，会使用<code>#include&lt;sys/socket.h&gt;</code> 中的<code>connect()</code>，发送一个 SYN 报文而不是 ACK。这些默认行为和使用 <code>-PA -PE</code> 选项的效果相同。</p>
+<p><code>-P*</code> 选项（用于选择 ping 的类型）可以结合使用。可以通过使用不同的 TCP 端口/标志位和 ICMP 码来发送许多探测报文，增加穿透防火墙的机会。注意，即使指定了 <code>-P*</code> 选项，在局域网中，默认通过 ARP（<code>-PR</code>）来探测目标，因为它总是更快更有效。</p>
+<h3 id="列出目标">列出目标</h3>
+<p><code>-sL</code></p>
+<p>这个选项仅仅列出指定网络上的每台主机，不发送任何报文。但是默认情况下，Nmap 会对目标进行反向域名解析来获取它们的域名。所以我觉得，如果真的想只列出所有目标，或许还需要加个 <code>-n</code>。</p>
+<p>Nmap 最后还会报告列表中 IP 地址的总数：<br />
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs elm">» nmap -sL <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.1</span>/<span class="hljs-number">24</span><br><span class="hljs-type">Starting</span> <span class="hljs-type">Nmap</span> <span class="hljs-number">7.70</span> ( https://nmap.org ) at <span class="hljs-number">2019</span><span class="hljs-number">-05</span><span class="hljs-number">-24</span> <span class="hljs-number">11</span>:<span class="hljs-number">20</span> <span class="hljs-type">CST</span><br><span class="hljs-type">Nmap</span> scan re<span class="hljs-keyword">port</span> for 192.168.1.0<br><span class="hljs-type">Nmap</span> scan re<span class="hljs-keyword">port</span> for 192.168.1.1<br>...<br><span class="hljs-type">Nmap</span> scan re<span class="hljs-keyword">port</span> for 192.168.1.254<br><span class="hljs-type">Nmap</span> scan re<span class="hljs-keyword">port</span> for 192.168.1.255<br><span class="hljs-type">Nmap</span> done: <span class="hljs-number">256</span> <span class="hljs-type">IP</span> addresses (<span class="hljs-number">0</span> hosts up) scanned <span class="hljs-keyword">in</span> <span class="hljs-number">0.39</span> seconds<br></code></pre></td></tr></table></figure></p>
+<p>因为它仅仅打印出目标主机的列表，所以其它一些高级的功能如端口扫描、操作系统探测或者 Ping 扫描的选项就没用了。</p>
+<h3 id="不进行端口扫描ping-扫描">不进行端口扫描（Ping 扫描）</h3>
+<p><code>-sn</code>（旧版本中也叫<code>-sP</code>）</p>
+<p>此选项告诉 Nmap 在主机发现后不进行端口扫描，只打印出探测到的可用主机。这通常称为<code>ping 扫描</code>，但你也可以请求运行 traceroute 和 NSE 主机脚本。默认情况下，这比列表扫描更具侵入性，并且通常可用于相同的目的。它允许对目标网络进行轻微侦察，而不会引起太多关注。知道有多少主机对攻击者而言比每个 IP 和主机名列表扫描提供的列表更有价值。系统管理员经常发现此选项也很有价值。它可以轻松用于统计网络上的可用计算机或监控服务器可用性。这通常称为 ping扫描，并且比 ping 广播地址更可靠，因为许多主机不回复广播查询。使用<code>-sn</code>完成的默认主机发现包括 ICMP 回送请求，TCP SYN 到端口 443，TCP ACK 到端口 80，默认情况下为 ICMP 时间戳请求。当由非特权用户执行时，仅将 SYN 数据包（使用连接调用）发送到目标上的端口 80 和 443。当特权用户尝试扫描本地以太网网络上的目标时，除非指定了<code>--send-ip</code>，否则将使用 ARP 请求。<code>-sn</code>选项可以与任何发现探测器类型（<code>-P *</code>选项，不包括<code>-Pn</code>）组合使用，以获得更大的灵活性。如果使用任何探测类型和端口号选项，则会覆盖默认探测。当在运行 Nmap 的源主机和目标网络之间建立严格的防火墙时，建议使用这些高级技术。否则，当防火墙丢弃探测器或其响应时，可能会错过某些主机。在以前的 Nmap 版本中，<code>-sn</code> 被称为 <code>-sP</code>。</p>
+<h3 id="ping-扫描">Ping 扫描</h3>
+<p><code>-sP</code></p>
+<p>该选项告诉 Nmap 仅仅进行 ping 扫描（主机发现），然后打印出对扫描做出响应的那些主机。没有进一步的测试（如端口扫描或者操作系统探测）。相当于执行了 <code>ping xxxx</code>。当目标为整个局域网的时候，这个方法类似 ping 广播地址，但是它更可靠，因为许多主机对广播请求不响应。同 <code>-sn</code></p>
+<h3 id="禁止目标存活判断">禁止目标存活判断</h3>
+<p><code>-Pn</code>（旧版本中也叫<code>-P0</code>或者<code>-PN</code>）</p>
+<p>该选项完全跳过 Nmap 目标存活判断，即认为每个目标都是存活的。一般来说，Nmap 首先判断目标是否存活，如果存活再进行进一步的探测，如端口扫描、版本探测、或者操作系统探测等等。用 <code>-P0</code> 会使得 Nmap 对每一个目标都直接进行所要求的扫描。</p>
+<h3 id="tcp-syn-ping">TCP SYN Ping</h3>
+<p><code>-PS [portlist]</code></p>
+<p>该选项发送一个设置了 SYN 标志位的空 TCP 报文。默认目的端口为 80，这个端口可以通过改变 <code>nmap.h</code> 文件中的 <code>DEFAULT-TCP-PROBE-PORT</code> 值进行配置，但不同的端口也可以作为选项指定，甚至可以指定一个以逗号分隔的端口列表，如 <code>-PS22,23,25,80,113,1050,35000</code>，在这种情况下，并发地扫描每个端口。</p>
+<p>SYN 标志位告诉目标开始建立一个连接，回应的数据包有 2 种情况：</p>
+<ul>
+<li>RST (复位) 包：表明目标端口关闭</li>
+<li>SYN/ACK 的 TCP 报文：表明目标端口开放。因为目标会进行 TCP 三步握手的第二步，所以会回应一个 SYN/ACK 的 TCP 报文。然后运行 Nmap 的机器会杀死这个正在建立的连接，发送一个 RST 而非 ACK 报文。注意，此时 RST 报文是运行 Nmap 的机器而不是 Nmap 本身发送的，因为它没有发起四次握手却莫名其妙地收到了 SYN/ACK。</li>
+</ul>
+<p>Nmap 并不关心端口开放还是关闭，因为无论返回的是 RST 还是 SYN/ACK 响应都告诉 Nmap 该主机正在运行。</p>
+<p>注意，在 Linux/UNIX 机器上，通常只有 root 权限能发送和接收原始的 TCP 报文。因此作为一个变通的方法，对于非 sudo 权限， Nmap 会为每个目标主机进行调用 <code>connect()</code> 函数，它也会发送一个 SYN 报文来尝试建立连接。如果 <code>connect()</code> 函数迅速返回成功或者失败（ECONNREFUSED），下面的 TCP 堆栈一定已经收到了一个 SYN/ACK 或者 RST，该主机将被认定为存活。如果连接超时了，该主机就认定为没有存活。这种方法也用于 IPv6 连接，因为 Nmap 目前还不支持原始的 IPv6 报文。</p>
+<h3 id="tcp-ack-ping">TCP ACK Ping</h3>
+<p><code>-PA [portlist]</code></p>
+<p>TCP ACK ping 和刚才讨论的 SYN ping 相当类似，区别就是设置 TCP 的 ACK 标志位而不是 SYN 标志位。ACK 报文表示确认一个建立连接的尝试，但该连接尚未完全建立。所以远程主机存活的话，应该总是回应一个 RST 报文，因为它们并没有发出过连接请求到运行 Nmap 的机器。</p>
+<p><code>-PA</code> 选项的默认端口也是 80，也可以用相同的格式指定目标端口列表。如果非 sudo 权限尝试使用该功能，或者指定的是 IPv6 目标，会使用前面说过的 <code>connect()</code> 函数。这个替代方法在这里有点问题，因为它实际上发送的是 SYN 报文，而不是 ACK 报文。</p>
+<p>提供 SYN 和 ACK 两种 ping 探测的原因是增大穿过防火墙的机会。许多管理员会配置他们的路由器或者防火墙来封锁 SYN 报文，除非连接目标是那些公开的服务器，比如公司网站或者邮件服务器。这可以阻止其它试图进入内部的连接，同时也允许用户访问互联网。 这种无状态的方法几乎不占用防火墙/路由器的资源，因而被硬件和软件过滤器广泛采用。Linux Netfilter/iptables 防火墙软件提供方便的 <code>--syn</code> 选项来实现这种无状态的方法。当这样的无状态防火墙规则存在时，发送到关闭目标端口的 SYN ping 探测 （<code>-PS</code>）很可能被拦截。这种情况下，ACK 探测格外好使。</p>
+<p>另外一种常用的防火墙用有状态的规则来封锁非预期的报文。这一特性一开始只存在于高端防火墙，但是这些年来它越来越普遍了。Linux Netfilter/iptables 通过 <code>--state</code> 选项来支持这一特性，它根据连接状态把报文进行分类。对于这样的系统，SYN 探测更有可能成功，因为没头没脑的 ACK 报文通常会被识别成伪造的而拦截。解决这个两难的方法是通过同时指定 <code>-PS</code> 与 <code>-PA</code> 来同时发送 SYN 与 ACK。</p>
+<h3 id="udp-ping">UDP Ping</h3>
+<p><code>-PU [portlist]</code></p>
+<p>还有一个主机发现的选项是 UDP ping，它发送一个空的（除非指定了 <code>--data-length</code>）UDP报文到给定的端口。端口列表的格式和前面讨论过的<code>-PS</code>和<code>-PA</code>选项是一样。如果不指定端口，默认是<code>31338</code>。该默认值可以通过在编译时改变<code>nmap.h</code>文件中的 <code>DEFAULT-UDP-PROBE-PORT</code>值进行配置。默认使用这样一个奇怪的端口是因为对开放端口进行这种扫描一般都是讨人厌的。</p>
+<p>回应的数据包有 5 种情况：</p>
+<ul>
+<li>ICMP 端口无法到达的回应报文：表明目标端口关闭。UDP 探测得到一个 ICMP 端口无法到达的回应报文，这对于 Nmap 意味着该目标存活。</li>
+<li>许多其它类型的 ICMP 错误：表示目标不存活或网络不可到达。ICMP 错误包括：主机/网络无法到达或者 TTL 超时等等。</li>
+<li>没有回应：如果到达一个开放的端口，大部分服务会忽略这个空报文，不做任何回应。这就是为什么默认探测端口是 31338 这样一个极不可能被使用的端口。</li>
+<li>空的 UDP 报文：少数服务如 chargen 会响应一个空的 UDP 报文，从而向 Nmap 表明该机器正在运行。</li>
+</ul>
+<p>该扫描类型的主要优势是它可以穿越只过滤 TCP 的防火墙和流量过滤器。</p>
+<h3 id="sctp-init-ping">SCTP INIT Ping</h3>
+<p><code>-PY &lt;port list&gt;</code></p>
+<p>此选项发送包含最小 INIT 块的 SCTP 数据包。默认目标端口为 80（通过更改 nmap.h 中的 DEFAULT_SCTP_PROBE_PORT_SPEC 并编译来进行配置）。可以将备用端口指定为参数。语法与<code>-p</code>相同，但不允许使用类似<code>s:</code>的端口类型说明符。实例是<code>-PY22</code>和<code>-PY22,80,179,5060</code>。请注意，<code>-PY</code>和端口列表之间不能有空格。如果指定了多个探测器，它们将并行发送。</p>
+<p>INIT 块向远程系统暗示尝试建立关联。通常，目标端口将关闭，并且将返回 ABORT 块。如果端口恰好打开，则目标将通过响应 INIT-ACK 块来进行 SCTP 四次握手的第二步。如果运行 Nmap 的机器具有功能性 SCTP 堆栈，那么它通过响应 ABORT 块来进行四方握手的下一步，而不是发送 COOKIE-ECHO 块消除新的关联。ABORT 数据包由运行 Nmap 的机器的内核发送，以响应意外的 INIT-ACK，而不是 Nmap 本身。Nmap 不关心端口是打开还是关闭。之前讨论的 ABORT 或 INIT-ACK 响应告诉 Nmap 主机可用且响应迅速。在 Unix 机器上，只有特权用户 root 通常能够发送和接收原始 SCTP 数据包。对于非特权用户，目前无法使用 SCTP INIT Pings。</p>
+<h3 id="icmp-ping-types">ICMP Ping Types</h3>
+<p><code>-PE</code>、<code>-PP</code>、<code>-PM</code></p>
+<p>除了前面讨论的这些不常见的 TCP 和 UDP 主机发现类型，Nmap也能发送 <code>ping</code> 所发送的报文。Nmap 发送一个 ICMP <code>type 8</code>（回声请求）报文到目标地址，期待从运行的主机得到一个 <code>type 0</code>（回声响应）的报文。不幸的是，许多主机和防火墙现在拦截了这些报文，参见 RFC 1122。因此，仅仅使用 ICMP 扫描对于互联网上的目标通常是不够的。但对于系统管理员监视一个内部网络，它们可能是比较有效的方式。使用 <code>-PE</code> 选项打开回声请求功能。</p>
+<p>虽然回声请求是标准的 ICMP ping 查询，但是 Nmap 并不止步于此。ICMP 标准（RFC 792）还规范了<code>时间戳请求</code>、<code>信息请求</code>、<code>地址掩码请求</code>，它们的代码分别是 13，15 和 17。虽然这些查询的表面目的是为了获取信息，比如地址掩码和当前时间，但是它们也可以很容易地用于主机发现。判断方式很简单，有回应的目标就是存活的。不过 Nmap 目前没有实现信息请求的报文，因为它们还没有被广泛支持。RFC 1122 坚持 <code>主机不应该实现这些消息</code>。时间戳和地址掩码查询可以分别用<code>-PP</code>和<code>-PM</code>选项发送。时间戳请求的响应（ICMP 代码 14）或者地址掩码请求的响应（代码 18）都表示目标存活。当管理员特别封锁了回声请求报文而忘了其它 ICMP 查询的时候，这两个查询方式可能很有利用价值。</p>
+<h3 id="ip-protocol-ping">IP Protocol Ping</h3>
+<p><code>-PO &lt;protocol list&gt;</code></p>
+<p>其中一个较新的主机发现选项是 IP Protocol ping，它发送的 IP 数据包在其 IP 头中设置了指定的协议号。协议列表采用与前面讨论的 TCP，UDP 和 SCTP主机发现选项中的端口列表相同的格式。如果未指定协议，则默认为为 ICMP（协议 1），IGMP（协议 2）和 IP-in-IP（协议 4）发送多个 IP 数据包。通过更改 nmap.h 中的 DEFAULT_PROTO_PROBE_PORT_SPEC，可以在编译时配置默认协议。请注意，对于 ICMP，IGMP，TCP（协议 6），UDP（协议 17）和 SCTP（协议 132），数据包与适当的协议头一起发送，而其他协议在发送时没有 IP 头之外的其他数据（除非指定了<code>--data</code>，<code>--data-string</code>或<code>--data-length</code>选项中的任何一个。此主机发现方法查找使用与探测器相同的协议的响应，或 ICMP 协议不可达的消息，这表示在目标主机上不支持给定的协议。两种类型的响应都表示目标主机存活。</p>
+<h3 id="arp-ping">ARP Ping</h3>
+<p><code>-PR</code></p>
+<p>最常见的 Nmap 使用场景之一是扫描一个局域网。在大部分局域网中，特别是那些使用基于 RFC1918 私有地址范围的网络，绝大部分 IP 地址都是没有使用的。当 Nmap 试图发送一个原始 IP 报文如 ICMP 回声请求时，操作系统必须确定对应目标 IP 的硬件地址（MAC），这样它才能把以太帧送往正确的地方，这一般比较慢而且会出现一些问题，因为操作系统设计者认为一般不会在短时间内对没有运行的机器作几百万次的 ARP 请求。</p>
+<p>当进行 ARP 扫描时，Nmap 用它优化的算法管理 ARP 请求。这使得 ARP 扫描比基于 IP 的扫描更快更可靠。所以默认情况下，如果 Nmap 发现目标主机就在它所在的局域网上，它会进行 ARP 扫描，即使指定了不同的 ping 类型(如 <code>-PI</code> 或者 <code>-PS</code>) ，Nmap 也会对任何相同局域网上的目标机使用 ARP。如果真的不想要ARP扫描，需要指定<code>--send-ip</code>。</p>
+<h3 id="不进行-arp-或者-nd-ping">不进行 ARP 或者 ND Ping</h3>
+<p><code>--disable-arp-ping</code></p>
+<p>Nmap 通常对本地连接的以太网主机进行 ARP 或 IPv6 Neighbor Discovery（ND）发现，即使使用其他主机发现选项（如<code>-Pn</code>或<code>-PE</code>）也是如此。要禁用此隐式行为，请使用<code>--disable-arp-ping</code>选项。</p>
+<p>默认行为通常更快，但此选项在使用代理 ARP 的网络上很有用，其中路由器回复所有 ARP 请求，使得每个目标通过 arp 扫描看起来都是存活的。</p>
+<h3 id="追踪到主机的路径">追踪到主机的路径</h3>
+<p><code>--traceroute</code></p>
+<p>使用扫描结果中的信息在扫描后执行跟踪路由，以确定最有可能到达目标的端口和协议。它适用于除连接扫描（<code>-sT</code>）和空闲扫描（<code>-sI</code>）之外的所有扫描类型。所有追踪都使用 Nmap 的动态时序模型并行执行。</p>
+<p>Traceroute 通过发送具有低 TTL（生存时间）的数据包来尝试从扫描器和目标主机之间的中间跃点中引出 ICMP 超时消息。标准 traceroute 实现以 TTL 为 1 开始，并递增 TTL，直到到达目标主机。Nmap的 traceroute 以高 TTL 开始，然后递减 TTL 直到达到零。向后执行操作可让 Nmap 采用巧妙的缓存算法来加速多个主机上的跟踪。平均而言，Nmap 每个主机发送的数据包少于 5-10 个，具体取决于网络状况。如果正在扫描单个子网（即192.168.0.0/24），Nmap 可能只需要向大多数主机发送两个数据包。</p>
+<h3 id="不进行反向域名解析">不进行反向域名解析</h3>
+<p><code>-n</code></p>
+<p>告诉 Nmap 不对它发现的存活的 IP 地址进行反向域名解析。因为 DNS 一般比较慢，所以这个选项可以让扫描更快些。</p>
+<h3 id="所有目标都进行反向域名解析">所有目标都进行反向域名解析</h3>
+<p><code>-R</code></p>
+<p>告诉 Nmap 对所有的目标 IP 地址进行反向域名解析。一般只有当发现机器正在运行时才指定这项操作。</p>
+<h3 id="扫描所有解析出的地址">扫描所有解析出的地址</h3>
+<p><code>--resolve-all</code></p>
+<p>如果主机名目标解析出多个地址，那就扫描所有地址。默认行为是仅扫描第一个解析到的地址。无论如何，只扫描相应地址系列中的地址：默认情况下为 IPv4，IPv6 为<code>-6</code>。</p>
+<h3 id="使用系统域名解析器">使用系统域名解析器</h3>
+<p><code>--system-dns</code></p>
+<p>默认情况下，Nmap 通过直接发送查询到你的主机上配置的域名服务器来解析域名。为了提高性能会并发执行许多请求（一般几十个）。如果您希望使用系统自带的解析器，就指定该选项（原理是通过调用 <code>getnameinfo()</code> 函数，调用一次解析一个 IP）。一般不使用该选项，因为它很慢，除非 Nmap 的 DNS 相关的代码有 bug（如果是这样，请联系我们）。所以，系统解析器基本上是用于 IPv6 的扫描。</p>
+<h3 id="指定反向域名解析的-dns-服务器">指定反向域名解析的 DNS 服务器</h3>
+<p><code>--dns-servers &lt;server1&gt;[,&lt;server2&gt;[,...]]</code></p>
+<p>默认情况下，Nmap 从 resolv.conf 文件（Unix）或注册表（Win32）确定你的 DNS 服务器（用于 rDNS 解析）。或者，你可以使用此选项指定备用服务器。如果你使用<code>--system-dns</code>，则不接受此选项。使用多个 DNS 服务器通常更快，特别是如果你为目标 IP 空间选择权威服务器。此选项还可以提升隐蔽性，因为你的请求可以在互联网上的任何递归 DNS 服务器之间弹跳。</p>
+<p>扫描专用网络时，此选项也很方便。有时只有少数名称服务器提供正确的 rDNS 信息，你甚至可能不知道它们在哪里。你可以扫描网络端口 53（可能带有版本检测），然后尝试使用<code>--dns-servers</code>一次指定一个名称服务器的 Nmap 列表扫描（<code>-sL</code>），直到找到有效的端口。</p>
+<p>如果 DNS 响应超过 UDP 数据包的大小，则可能不会遵循此选项。在这种情况下我们的 DNS 解析器会尽力从截断的数据包中提取响应，如果不成功，它将回退到使用系统解析器。此外，包含 CNAME 别名的响应将回退到使用系统解析器。</p>
+<h2 id="端口扫描">端口扫描</h2>
+<p>Nmap 原来就是以端口扫描起家，直到现在，功能越来越多，端口扫描依然是它的核心功能。</p>
+<h3 id="端口状态">端口状态</h3>
+<p>许多传统的端口扫描器只列出所有端口是开放还是关闭的，Nmap 的信息粒度要比它们要细得多。Nmap 把端口分成六个状态，注意，这些状态并非端口本身实际的状态，而是由 Nmap 判断出来的。例如，对于某个目标的 135/tcp 端口，在内网中进行扫描显示它是 open，而在外网进行完全相同的扫描则可能显示它是 filtered。</p>
+<h4 id="open">open</h4>
+<blockquote>
+<p>开放</p>
+</blockquote>
+<p>应用程序正在该端口接收 TCP 连接或者 UDP 报文。发现这一点常常是端口扫描的主要目的。安全意识强的人知道每个开放的端口都是攻击的入口。攻击者或者入侵者想要发现开放的端口，而管理员则试图关闭它们或者用防火墙保护它们以免阻碍了合法用户。非安全检测性质的扫描可能对开放的端口也感兴趣，因为它们显示了网络上那些服务可供使用。</p>
+<h4 id="closed">closed</h4>
+<blockquote>
+<p>关闭</p>
+</blockquote>
+<p>关闭的端口对于 Nmap 来说是可到达的（它接受 Nmap 的探测报文并作出响应），但没有应用程序在监听。它们表明该 IP 地址上的主机是存活的，例如进行主机发现或者 ping 扫描的时候，同时也是进行操作系统探测的一部分。因为关闭的端口代表主机是可到达的，也许值得再扫描一下，可能等一下这个端口就开放了。系统管理员可能会考虑用防火墙封锁这样的端口。那样他们就会被显示为被过滤的状态。</p>
+<h4 id="filtered">filtered</h4>
+<blockquote>
+<p>过滤</p>
+</blockquote>
+<p>由于包过滤阻止了探测报文到达端口，所以 Nmap 无法确定该端口是否开放。过滤可能来自专业的防火墙设备、路由器规则或者主机上的软件防火墙。这样的端口几乎不提供任何信息。有时候它们响应 ICMP 错误消息如类型 3 代码 13（destination unreachable: communication administratively prohibited），但更普遍的是过滤器只是丢弃探测帧，不做任何响应。这迫使 Nmap 重试若干次以访万一探测包是由于网络阻塞丢弃的，这会使得扫描速度明显变慢。</p>
+<h4 id="unfiltered">unfiltered</h4>
+<blockquote>
+<p>未被过滤</p>
+</blockquote>
+<p>未被过滤的状态意味着端口可到达，但 Nmap 不能确定它是开放还是关闭。只有 ACK 扫描才会把端口分类到这种状态。用其它类型的扫描方式如窗口扫描，SYN 扫描，或者 FIN 扫描，来扫描这种未被过滤的端口可以帮助确定端口是否开放。</p>
+<h4 id="openfiltered">open|filtered</h4>
+<blockquote>
+<p>开放或者被过滤</p>
+</blockquote>
+<p>当无法确定端口是开放还是被过滤时，Nmap 就把端口划分成这种状态。开放的端口不响应就是一个例子。没有响应也可能意味着报文过滤器丢弃了探测报文或者由它引发的任何回应。因此 Nmap 无法确定该端口是开放的还是被过滤的。UDP、IP 协议、FIN、NULL 和 Xmas 扫描都可能把端口归为此类。</p>
+<h4 id="closedfiltered">closed|filtered</h4>
+<blockquote>
+<p>关闭或者被过滤</p>
+</blockquote>
+<p>该状态用于 Nmap 不能确定端口是关闭的还是被过滤时，它只可能出现于 IPID Idle 扫描中。</p>
+<h3 id="端口扫描技术">端口扫描技术</h3>
+<p>没有经验的用户和刚入门的人总是想用默认的 SYN 扫描解决所有问题。既然 Nmap 是免费的，掌握端口扫描的唯一障碍就是学习。</p>
+<p>大部分扫描类型只对 sudo 权限可用，因为 Nmap 常常需要发送、接收原始报文，这在 Linux/Unix 系统需要 root 权限。在 Windows 上推荐使用 administrator 账户，虽然当 Npcap 已经被加载到操作系统中时，非特权用户也可以正常使用 Nmap。</p>
+<p>当 Nmap 在 1997 年发布时，需要 root 权限是一个严重的局限性，因为 sudo 权限能让 Nmap 强大得多也灵活得多。</p>
+<p>虽然 Nmap 试图返回正确的结果，但请记住所有的结果都是基于目标机器（或者它们前面的防火墙）返回的报文的。这些机器也许是不值得信任的，它们可能响应一些报文来迷惑或误导 Nmap。更常见的是非 RFC 兼容的主机以不正确的方式响应 Nmap 探测。FIN、Null 和 Xmas 扫描特别容易遇到这个问题。不过这些是特定扫描类型的问题，因此我们在对应的扫描类型里单独讨论它们。</p>
+<p>这一节讨论 Nmap 支持的大约十几种扫描技术。一般一次只用一种方法，除了 UDP 扫描（<code>-sU</code>）可能和任何一种 TCP 扫描类型结合使用。友情提示一下，端口扫描类型的选项格式是<code>-s&lt;C&gt;</code>， 其中 <code>&lt;C&gt;</code>是个显眼的字符，通常是扫描技术的第一个字母。一个例外是 deprecated FTP bounce 扫描（<code>-b</code>）。默认情况下，Nmap 执行一个 SYN 扫描，但是如果用户没有权限发送原始报文（在 Linux/UNIX 上需要 root 权限）或者如果指定的是 IPv6 目标，Nmap 调用 <code>connect()</code> 函数。在本节列出的扫描中，非特权用户只能执行 <code>connect()</code> 和 ftp bounce 扫描。</p>
+<h4 id="tcp-syn-扫描">TCP SYN 扫描</h4>
+<p><code>-sS</code></p>
+<p>SYN 扫描作为默认的也是最受欢迎的扫描选项，是有充分理由的。它执行得很快，在一个没有入侵防火墙的快速网络上，每秒钟可以扫描数千个端口。SYN 扫描相对来说不张扬，不易被注意到，因为它从来不完成 TCP 连接。它可以适用于任何兼容的 TCP 协议栈，不像 Fin/Null/Xmas、Maimon 和 Idle 扫描依赖于特定的平台。它还可以明确可靠地区分 open、closed 和 filtered 状态。</p>
+<p>SYN 扫描常常被称为半开放扫描，因为它不打开一个完全的 TCP 连接。它发送一个 SYN 报文，就像真的要建立一个连接，然后等待响应。<br />
+回应的数据包有 4 种情况：</p>
+<ul>
+<li>SYN/ACK：表示端口在监听（开放）</li>
+<li>RST（复位）：表示没有在监听。</li>
+<li>没响应：如果数次重发后仍无响应，该端口就被标记为被过滤。</li>
+<li>ICMP 不可到达错误：例如，类型 3，代号 1，2，3，9，10，或者 13，该端口也被标记为被过滤。</li>
+</ul>
+<h4 id="tcp-connect-扫描">TCP connect() 扫描</h4>
+<p><code>-sT</code></p>
+<p>当 SYN 扫描不能用，例如当用户没有权限发送原始报文或者扫描 IPv6 网络时，TCP 扫描默认使用 TCP Connect() 扫描，Nmap 通过调用 <code>connect()</code> 函数来要求操作系统与目标以及端口建立连接，而不像其它扫描方式那样直接发送原始报文。这个方式和 Web 浏览器，P2P 客户端以及其它大多数网络应用程序用来建立连接的方式一样，是 Berkeley Sockets API 编程接口的一部分。Nmap 用这个 API 获得每个连接尝试的状态，而不是直接读取响应的原始报文。当 Nmap 建立连接后不发送数据直接关闭连接，许多 Linux/UNIX 系统上的服务会在 syslog 中留下记录，有时候是一条加密的错误消息。此时，少数服务会崩溃，不过这种情况也比较少见。</p>
+<p>当 SYN 扫描与TCP connect() 扫描都可用时，前者通常是更好的选择。因为 Nmap 对高层 <code>connect()</code> 调用的控制力度比对原始报文控制力度更弱，所以后者效率较低。且<code>connect()</code>进行完整的三次握手来连接到开放的目标端口而不是像 SYN 扫描进行半开放的扫描，这不仅会花更长时间、需要更多报文得到同样信息，目标也更可能记录下连接的尝试。如果管理员在日志里看到来自同一系统的一堆连接尝试，他就应该知道他的系统已经被扫描了。</p>
+<p>较好的 IDS（入侵检测系统）可以捕获这两种扫描，但大部分机器没有这样的警报系统。</p>
+<h4 id="udp-扫描">UDP 扫描</h4>
+<p><code>-sU</code></p>
+<p>虽然互联网上很多流行的服务运行在 TCP 协议上，但是 UDP 服务也不少。DNS（53 端口）、SNMP（161/162 端口）、和 DHCP（67/68 端口）是最常见的三个。因为 UDP 扫描一般较慢，比 TCP 更加困难，所以一些安全审查人员常常忽略这些端口。这是一个错误的做法，因为可探测的 UDP 服务相当普遍，攻击者当然不会忽略这整个协议。所幸的是，Nmap 可以帮助记录并报告 UDP 端口。</p>
+<p>UDP 扫描用 <code>-sU</code> 选项激活。它可以和 TCP 扫描如 SYN 扫描（<code>-sS</code>）结合使用来同时检测这两种协议。</p>
+<p>UDP 扫描发送空的（没有数据）UDP 报头到每个目标端口。回应的数据包有 4 种情况：</p>
+<ul>
+<li>ICMP 端口不可到达错误：例如，类型 3，代号 3，表明该端口是 closed。</li>
+<li>其它 ICMP 不可到达错误；例如 类型3，代号 1、2、9、10、或者 13，表明该端口是 filtered。</li>
+<li>响应一个 UDP 报文：证明该端口是 open</li>
+<li>没有响应：如果几次重试之后还没有响应，该端口就被认为是 open|filtered。这意味着该端口可能是开放的，也可能包过滤器正在封锁通信。这时可以用版本扫描（-sV）来帮助区分真正的开放端口和被过滤的端口。</li>
+</ul>
+<p>UDP 扫描面临的巨大挑战是怎样使它扫得更快。open 和filtered 的端口很少进行响应，这使得 Nmap 会等到超时然后再次进行探测，以防探测帧或者响应丢失导致误判。更大的问题是关闭的端口，它们一般发回一个 ICMP 端口无法到达错误，但是不像关闭的 TCP 端口响应 SYN 或者 connect() 扫描所发送的 RST 报文，许多主机在默认情况下限制发送 ICMP 端口不可到达消息。Linux 和 Solaris 对此特别严格。例如，Linux 2.4.20 内核限制一秒钟只发送一条目标不可到达消息（详见 <code>net/ipv4/icmp.c</code>）</p>
+<p>Nmap 能够探测网络中的速度限制并相应地减慢速度来避免那些会被目标丢弃的无用报文阻塞网络。但是很不幸，Linux 的风格是限制一秒钟一个报文，这使得对 65536 个端口进行扫描要花 18 小时以上。加速 UDP 扫描的方法包括并发扫描更多的主机、先只对主要端口进行快速扫描、在防火墙后面进行扫描、使用 <code>--host-timeout</code> 来跳过响应较慢的主机。</p>
+<h4 id="tcp-nullfinxmas-扫描">TCP Null、FIN、Xmas 扫描</h4>
+<p><code>-sN</code>、<code>-sF</code>、<code>-sX</code></p>
+<p>这三种扫描类型（以及用下一节中的 <code>--scanflags</code> 选项的指明的更多类型）在 TCP RFC 中发掘出了一个巧妙的方法来区分 open 和 closed 端口。 TCP RFC 在第 65 页说到<code>如果 [目标]端口状态是关闭的...接收到一个不含 RST 的报文将响应一个 RST</code>。在接下来的一页中，还讨论了开放的端口接收到一个没有设置 SYN、RST 或者 ACK 的报文时，处理的方式：<code>...理论上，这不应该发生，如果确实收到了，丢弃该报文...</code>。</p>
+<p>如果被扫描的系统遵循该 RFC，当端口关闭时，任何不包含 SYN、RST 或者 ACK 的报文会导致响应一个 RST，而当端口开放时，应该没有任何响应。至于如何构造这样的报文，任何其它三种（FIN、PSH 和 URG）的组合都不包含 SYN、RST 或者 ACK。Nmap 有三种扫描类型利用了这一点：</p>
+<ul>
+<li>Null 扫描：<code>-sN</code><br />
+不设置任何标志位（tcp flag 头部是 0）</li>
+<li>FIN扫描：<code>-sF</code><br />
+只设置 TCP FIN 标志位。</li>
+<li>Xmas扫描：<code>-sX</code><br />
+设置 FIN、PSH、和 URG 标志位，就像点亮圣诞树上所有的灯一样。</li>
+</ul>
+<p>除了探测报文的标志位不同之外，这三种扫描在行为上完全一致。如果收到一个 RST 报文，该端口被认为是 closed，而没有响应则意味着端口是 open|filtered。 如果收到 ICMP 不可到达错误（类型 3，代号 1、2、3、9、10 或者 13），该端口就被标记为 filtered。</p>
+<p>这些扫描方式有 2 个优点：</p>
+<ol type="1">
+<li>最大的优势：它们能躲过一些无状态的防火墙和报文过滤路由器。</li>
+<li>这些扫描类型甚至比 SYN 扫描还要隐蔽一些。但是别过于依赖它们 —— 大多数 现代的 IDS 产品可以检测到它们。</li>
+</ol>
+<p>缺点也有 2 个：</p>
+<ol type="1">
+<li>最大的缺点：并非所有系统都会严格遵循 RFC 793。许多系统不管端口开放还是关闭，都响应 RST。这导致所有端口都标记为 closed。这样的操作系统主要有 Microsoft Windows、许多 Cisco 设备、BSDI 以及 IBM OS/400。但是这种扫描对多数 Linux/UNIX 系统都能正常工作。</li>
+<li>它们不能辨别 open 端口和一些特定的 filtered 端口，从而返回 open|filtered。</li>
+</ol>
+<h4 id="tcp-ack扫描">TCP ACK扫描</h4>
+<p><code>-sA</code></p>
+<p>这种扫描与目前为止讨论的其它扫描的不同之处在于，它不能确定 open 或者 open|filtered 的端口。它用于探测防火墙规则，确定它们是有状态的还是无状态的、哪些端口是被过滤的。</p>
+<p>ACK 扫描探测报文只会设置 ACK 标志位（除非使用了 <code>--scanflags</code>)。当扫描未经过滤的目标时，open 和 closed 的端口都会返回 RST 报文。Nmap 把它们标记为 unfiltered，意思是 ACK 报文可以到达，但至于它们是 open 或者 closed 则无法确定。不响应的端口或者发送特定的 ICMP 错误消息（类型3，代号 1、2、3、9、10、或者 13）的端口，则被标记为 filtered。</p>
+<h4 id="tcp-maimon-扫描">TCP Maimon 扫描</h4>
+<p><code>-sM</code></p>
+<p>这项技术和 Null、FIN 以及 Xmas 扫描完全一样，除了探测报文是 FIN/ACK。根据 RFC 793（TCP），无论端口开放或者关闭，都应该对这样的探测响应 RST 报文。然而，如果端口是开放的，许多基于 BSD 的系统仅仅是丢弃该探测报文，不做相应。</p>
+<h4 id="定制-tcp-扫描">定制 TCP 扫描</h4>
+<p><code>--scanflags</code></p>
+<p>真正的 Nmap 高级用户不会被这些现成的扫描类型束缚。 <code>--scanflags</code>选项允许你通过指定任意 TCP 标志位来设计属于自己的扫描来躲开那些仅靠本手册的扫描方式添加规则的入侵检测系统！</p>
+<p><code>--scanflags</code> 选项可以是一个数字标记值如 9（PSH 和 FIN），但使用字符名更容易些。只要是 URG、ACK、PSH、RST、SYN 和 FIN 的任何组合就行。例如，<code>--scanflags URGACKPSHRSTSYNFIN</code> 设置了所有标志位。最后，标志位的顺序是无关紧要的。</p>
+<p>Nmap 还可以设置 TCP 扫描类型（如<code>-sA</code>或者<code>-sF</code>）与<code>--scanflags</code>配合使用。这时，扫描类型告诉 Nmap 怎样解释响应。例如，SYN 扫描认为没有响应意味着 filtered，而 FIN 扫描则认为是 open|filtered（注意，只有指定了 TCP 的标记位时，指定扫描类型才是指定如何解释响应，否则 Nmap 仅仅把它当做扫描类型进行扫描）。如果没有指定基本类型，就默认将响应按照 SYN 扫描的响应来解释。</p>
+<h4 id="idle-scan空转扫描">Idle scan（空转扫描）</h4>
+<p><code>-sI &lt;zombie host[:probeport]&gt;</code></p>
+<p>这种高级的扫描方法允许对目标进行真正的 TCP 端口盲扫描（这意味着没有任何报文会发送到目标）。这个扫描采用<code>side-channel</code> 攻击，利用 zombie 主机上已知的 IP 分段的 ID 序列生成算法来收集目标的开放端口的信息。IDS 系统则显示扫描来自你指定的 zombie 机（它必须运行并且符合一定的标准）而不是你自己。这种奇妙的扫描类型太复杂了，不能在此完全解释清楚，所以我写一篇非正式的论文，发布在：http://nmap.org/book/idlescan.html</p>
+<p>除了极端隐蔽（因为它不从真实 IP 地址直接发送任何报文给目标）之外，该扫描方式还可以建立机器间的基于 IP 的信任关系，因为扫描得到的开放端口列表是从 zombie 的角度得到的，因此你可以尝试使用你认为可被（路由器/包过滤规则）信任的 zombies 来扫描目标。</p>
+<p>Nmap 在这种扫描里会使用默认端口（80），如果需要改变，需要在 zombie 主机后加上一个冒号和端口号。</p>
+<h4 id="ip-协议扫描">IP 协议扫描</h4>
+<p><code>-sO</code></p>
+<p>IP 协议扫描可以让你确定目标机支持哪些 IP 协议（TCP、ICMP、IGMP 等等）。从技术上说，这不是端口扫描技术，因为它遍历的是 IP 协议号而不是 TCP 或者 UDP 端口号。但是它仍使用 <code>-p</code> 选项来选择要扫描的协议号，并用正常的端口表格来报告结果，甚至用和真正的端口扫描一样的扫描引擎。因此它和端口扫描非常接近，也被放在这里讨论。</p>
+<p>IP 协议扫描以和 UDP 扫描类似的方式工作。但是它发送的是 IP 报文头部，不是在 UDP 报文的端口的域上遍历，而是在 IP 协议的域的 8 位上遍历。报文头部通常是空的，不包含数据，甚至不包含所申明协议的正确报文的头部。TCP、UDP 和 ICMP 是三个例外，它们三个会使用正常的协议头部，否则某些操作系统拒绝发送，并且 Nmap 已经有函数可以创建它们。IP 协议扫描不关注 ICMP 端口不可到达的响应，而是关注 ICMP 协议不可到达的响应。</p>
+<p>如果 Nmap 从目标主机收到任何协议的任何响应，Nmap 就把那个协议标记为 open。ICMP 协议不可到达错误（类型 3，代号 2）导致协议被标记为 closed。其它 ICMP 不可到达错误（类型 3，代号 1、3、9、10 或者 13）导致协议被标记为 filtered（但是与此同时它们证明了 ICMP 是 open 的）。如果重试之后仍没有收到响应， 该协议就被标记为 open|filtered。</p>
+<h4 id="ftp-反弹扫描">FTP 反弹扫描</h4>
+<p><code>-b &lt;ftp relay host&gt;</code></p>
+<p>FTP 协议的一个有趣特征是支持所谓代理 ftp 连接（RFC 959）。它允许用户先连接到一台 FTP 服务器，然后要求文件送到一台第三方服务器。这个特性在很多层面上被滥用，所以许多服务器已经停止支持它了。其中一种利用方式就是请求 FTP 服务器轮流发送一个文件到目标主机上的端口，即让 FTP 服务器对其它主机的端口进行扫描，FTP 的错误消息会描述目标端口是开放还是关闭的。这是个绕过防火墙的好方法，因为 FTP 服务器常常被放置于更加内部的位置，使得它可以访问比 Web 主机更多的其它内部主机。Nmap 使用 <code>-b</code> 选项来支持<code>ftp</code>反弹扫描，参数的格式是 <code>&lt;username&gt;:&lt;password&gt;@&lt;server&gt;:&lt;port&gt;</code>。 <code>&lt;server&gt;</code> 是某个 FTP 服务器的名字或者 IP 地址。如果 FTP 服务器上启用了匿名用户（<code>user:anonymous password:-wwwuser@</code>），则可以省略<code>&lt;username&gt;:&lt;password&gt;</code>，如果<code>&lt;server&gt;</code>使用默认的 FTP 端口（21），那么连端口号（以及前面的冒号）也可以省略。</p>
+<p>当 Nmap 在 1997 年发布时，这个漏洞被广泛利用，但现在大部分已经被修复了。不过脆弱的服务器仍然存在，所以如果其它扫描都失败了，这也值得一试。如果你的目标是绕过防火墙，那么就扫描目标网络上的开放的 21 端口（如果你是扫描所有端口来探测版本，那就是任意的 ftp 服务）并使用 ftp-bounce NSE 脚本来绕过防火墙。Nmap 会告诉你该主机脆弱与否。</p>
+<h3 id="指定端口和扫描顺序">指定端口和扫描顺序</h3>
+<p>除了前面所讨论的扫描方法之外，Nmap 还提供选项来指定扫描哪些端口以及扫描是随机还是顺序进行。默认情况下，Nmap 用指定的协议扫描从端口 1 到 1024 以及 nmap-services 文件中列出的更大的端口号。</p>
+<h4 id="只扫描指定的端口">只扫描指定的端口</h4>
+<p><code>-p &lt;port ranges&gt;</code></p>
+<p>该选项指明你想扫描的端口，覆盖默认值。单个端口加上连字符表示端口范围（如 <code>1-1023</code>）也可以。范围中的开始以及<code>/</code>或者结束值都可以被省略，分别会导致 Nmap 使用 1 和 65535。所以您可以指定 <code>-p-</code>从端口 1 扫描到 65535。如果你特别指定，也可以扫描端口 0。对于 IP 协议扫描（<code>-sO</code>）来说，该选项指定你希望扫描的协议号，范围是 0-255。</p>
+<p>当既扫描 TCP 端口又扫描 UDP 端口时，你可以通过在端口号前加上<code>T:</code> 或者<code>U:</code>来指定协议。协议限定符会一直生效直到指定了另一个。例如，参数 <code>-p U:53, 111, 137, T:21-25, 80, 139, 8080</code> 将扫描 UDP 端口53、111 和 137，同时扫描列出的 TCP 端口。注意，要既扫描 UDP 又扫描 TCP，必须指定 <code>-sU</code>，以及至少一个 TCP 扫描类型（如 <code>-sS</code>、<code>-sF</code> 或者 <code>-sT</code>）。如果没有给出协议限定符，端口号会被加到所有协议的端口列表中。</p>
+<h4 id="快速扫描有限的端口">快速扫描（有限的端口）</h4>
+<p><code>-F</code></p>
+<p>在 Nmap 的 <code>nmap-services</code> 文件中（对于<code>-sO</code>，是协议文件）指定你想要扫描的端口。这比扫描所有 65535 个端口快得多。因为默认的 nmap-services 文件中包含了太多的 TCP 端口（1200 个），这和默认的 TCP 扫描（大约 1600 个端口）速度差别不是很大。但是如果用<code>--datadir</code>选项指定你自己的较小的 nmap-services文件 ，差别会很惊人。</p>
+<h4 id="顺序扫描端口">顺序扫描端口</h4>
+<p><code>-r</code><br />
+默认情况下，Nmap 按随机扫描端口（除了出于效率的考虑，将常用的端口前移之外）。这种随机化通常都是可取的，但你也可以指定<code>-r</code>来按顺序进行端口扫描。</p>
+<h2 id="服务和版本探测">服务和版本探测</h2>
+<p>将 Nmap 指向一个远程的机器，它可能告诉你端口 25/tcp、80/tcp 和 53/udp 是开放的。使用包含大约 2200 个著名服务的 nmap-services 数据库，Nmap 可以报告那些端口分别对应的是一个邮件服务器（SMTP）、web 服务器（HTTP）还是域名服务器（DNS）。这种判断通常是正确的 —— 事实上，绝大多数在 TCP 端口 25 监听的守护进程是邮件服务器。但是，你不应该把赌注押在这上面！人们完全可以在一些奇怪的端口上运行服务。</p>
+<p>即使 Nmap 是对的，假设运行服务的确实是 SMTP、HTTP 和 DNS，这也不是特别详细的信息。当为你的公司或者客户作安全评估（或者甚至简单的网络明细清单）时，你确实想知道正在运行什么邮件和域名服务器以及它们的版本。有一个精确的版本号对了解服务器有什么漏洞有巨大帮助，版本探测可以帮你获得这样的信息。</p>
+<p>在用某种其它类型的扫描方法发现 TCP 和/或 UDP 端口后，版本探测会尝试询问这些端口，来确定到底什么服务正在运行。nmap-service-probes 数据库中包含了检测不同服务的探测报文和解析识别响应的匹配表达式。Nmap 试图确定服务协议（如 ftp、ssh、telnet、http），应用程序名（如 ISC Bind、Apache httpd、Solaris telnetd）、版本号、主机名、设备类型（如 打印机、路由器）、操作系统（如 Windows、Linux）以及其它的细节，比如是否可以连接到 X server、SSH 协议的版本或者 KaZaA 用户名。当然，并非所有服务都会提供这些信息。如果 Nmap 编译时增加了 OpenSSL 支持，那么它将连接到 SSL 服务器，推测什么服务在加密层后面监听。当发现 RPC 服务时，Nmap RPC grinder（<code>-sR</code>）会自动被用于确定 RPC 程序和它的版本号。</p>
+<p>在扫描某个 UDP 端口后仍然无法确定该端口是开放的还是被过滤的，那么该端口状态就被标记为 open|filtered。版本探测将试图从这些端口引发一个响应（就像它对开放端口做的一样），如果成功，就把状态更改为开放。Nmap 对待 open|filtered 的 TCP 端口的方法是一样的。注意 Nmap <code>-A</code> 选项可以打开版本探测。有一篇关于版本探测的原理，使用和定制的文章，发布在 ：http://www.insecure.org/nmap/vscan/</p>
+<p>当 Nmap 从某个服务收到响应，但不能在数据库中找到匹配时，它就打印一个特殊的 fingerprint 和一个 URL，如果你确实知道什么服务运行在这个端口，请花两分钟提交你的发现，让每个人受益。由于这些提交，Nmap 有 350 种以上协议如 smtp、ftp、http 等的大约 3000 条模式匹配。</p>
+<p>用下列的选项打开和控制版本探测：</p>
+<h3 id="版本探测">版本探测</h3>
+<p><code>-sV</code></p>
+<p>打开版本探测。也可以用<code>-A</code>同时打开操作系统探测和版本探测。</p>
+<h3 id="不排除端口">不排除端口</h3>
+<p><code>--allports</code></p>
+<p>默认情况下，Nmap 版本探测会跳过 TCP 端口 9100，因为一些打印机会无脑地将送到该端口的任何数据打印出来，这回导致数十页 HTTP get 请求、二进制 SSL 会话请求等等被打印出来。这一行为可以通过修改或删除 nmap-service-probes 中的 Exclude 指示符改变，您也可以不理会任何 Exclude 指示符，指定 <code>--allports</code>扫描所有端口</p>
+<h3 id="版本扫描强度">版本扫描强度</h3>
+<p><code>--version-intensity &lt;intensity&gt;</code></p>
+<p>当进行版本扫描（<code>-sV</code>）时，nmap 发送一系列探测报文，每个报文都被赋予一个 1 到 9 之间的值，作为强度水平，较低值的探测报文对大范围的常见服务有效，而较高值的报文一般没什么用。强度水平说明了应该使用哪些探测报文。数值越高，服务越有可能被正确地识别，然而，高强度的扫描需要花更多时间。强度值必须在 0 和 9 之间。默认是 7。</p>
+<p>当探测报文已经通过 nmap-service-probes ports 指令注册到目标端口后，无论指定什么强度水平，都会尝试这个探测报文。这保证了 DNS 探测将永远在任何开放的 53 端口进行尝试，SSL 探测将在 443 端口进行尝试，等等。</p>
+<h3 id="轻量级模式">轻量级模式</h3>
+<p><code>--version-light</code></p>
+<p>这是 <code>--version-intensity 2</code> 方便的别名。轻量级模式使版本扫描快许多，但它识别服务的可能性也略微小一点。</p>
+<h3 id="尝试每个探测">尝试每个探测</h3>
+<p><code>--version-all</code></p>
+<p><code>--version-intensity 9</code> 的别名，保证对每个端口都尝试每个探测报文。</p>
+<h3 id="跟踪版本扫描活动">跟踪版本扫描活动</h3>
+<p><code>--version-trace</code></p>
+<p>这会使得 Nmap 打印出详细的关于正在进行的扫描的调试信息。它是你用 <code>--packet-trace</code> 所得到的信息的子集。</p>
+<h3 id="rpc-扫描">RPC 扫描</h3>
+<p><code>-sR</code></p>
+<p>这种方法和许多端口扫描方法结合起来使用。它对所有发现的开放的 TCP/UDP 端口都执行 SunRPC 程序 NULL 命令来尝试确定它们是否是 RPC 端口，如果是的话，具体是什么程序和版本号。因此你可以获得和 <code>rpcinfo -p</code> 一样的信息，即使目标的端口映射在防火墙后面（或者被 TCP 包装器保护）。Decoys 目前不能和 RPC scan 一起工作。</p>
+<p>它作为版本扫描（<code>-sV</code>）的一部分自动启用，由于版本探测包含它并且全面得多，因此很少需要使用<code>-sR</code>。</p>
+<h2 id="操作系统探测">操作系统探测</h2>
+<p>Nmap 最著名的功能之一是利用 TCP/IP 协议栈的指纹识别来进行远程操作系统探测。Nmap 发送一系列 TCP 和 UDP 报文到远程主机，检查响应中的每一个比特。在进行一打测试如 TCP ISN 采样、TCP 选项支持和排序、IP ID 采样和初始窗口大小检查之后，Nmap 把结果和数据库 nmap-os-fingerprints 中超过 1500 个已知的操作系统的指纹进行比较，如果找到匹配，就打印出这个操作系统的详细信息。每个指纹包括一个任意格式的关于 OS 的描述文本和一个分类信息，它提供了供应商名称（如 Sun），旗下的操作系统（如 Solaris），OS 版本（如 10），和设备类型（通用设备、路由器、switch、游戏控制台等等）。</p>
+<p>如果 Nmap 不能猜出操作系统，并且有些有利的已知条件（如至少发现了一个开放端口和一个关闭端口），Nmap 会提供一个 URL，如果你知道目标运行的操作系统，你可以把指纹提交到那个 URL，这样你就扩大了 Nmap 的操作系统知识库，从而让每个 Nmap 用户都受益。</p>
+<p>操作系统检测可以进行其它一些测试，这些测试可以利用处理过程中收集到的信息，例如运行时间检测，使用 TCP 时间戳选项（RFC 1323）来估计主机上次重启的时间，不过这仅适用于提供了这类信息的主机。</p>
+<p>另一种是 TCP 序列号预测分类，用于测试针对远程主机建立一个伪造的 TCP 连接的难度。这对于利用基于源 IP 地址的可信关系（rlogin、防火墙过滤等）或者隐藏源地址的攻击非常重要。这一类欺骗攻击现在很少见，但一些主机仍然存在这方面的漏洞。实际的难度值基于统计采样，因此可能会有一些波动。TCP 序列号预测分类通常采用英国的分类方式，如<code>worthy challenge</code>或者 <code>trivial joke</code>。在详细模式（<code>-v</code>）下只以普通的方式输出，如果同时使用<code>-O</code>，还会报告 IP ID 序列产生号。很多主机的序列号是<code>增加</code>类别，即在每个发送包的 IP 头中增加 ID 域值，这对一些先进的信息收集和欺骗攻击来说是个可利用的点。</p>
+<p>http://nmap.org/book/osdetect.html 文档使用多种语言描述了版本检测的方式、使用和定制方式。</p>
+<p>采用下列选项启用和控制操作系统检测：</p>
+<h3 id="启用操作系统检测">启用操作系统检测</h3>
+<p><code>-O</code><br />
+也可以使用<code>-A</code>来同时启用操作系统检测和版本检测。</p>
+<h3 id="操作系统检测只针对特定的目标">操作系统检测只针对特定的目标</h3>
+<p><code>--osscan-limit</code></p>
+<p>发现了一个打开和关闭的 TCP 端口时，再进行操作系统检测会更有效。使用这个选项，Nmap 将只对满足这个条件的主机进行操作系统检测，这样可以节约时间，特别是在使用 <code>-P0</code> 扫描多个主机时。注意，这个选项仅在使用 <code>-O</code>或<code>-A</code> 进行操作系统检测时起作用。</p>
+<h3 id="推测操作系统检测结果">推测操作系统检测结果</h3>
+<p><code>--osscan-guess</code>、<code>--fuzzy</code></p>
+<p>当 Nmap 无法确定所检测的操作系统时，会尽可能地提供最相近的匹配，Nmap 默认进行这种匹配，使用上述任一个选项使得 Nmap 的推测更加激进。</p>
+<h2 id="时间和性能">时间和性能</h2>
+<p>Nmap 开发时的最高优先级是性能。在本地网络对一个主机的默认扫描（<code>nmap &lt;hostname&gt;</code>）需要 1/5 秒。而仅仅在眨眼之间，就需要扫描上万甚至几十万的主机。此外，一些特定的扫描选项会明显增加扫描时间，如 UDP 扫描和版本检测。同样，防火墙配置以及特殊的响应速度限制也会增加时间。Nmap 使用了并行算法和许多先进的算法来加速扫描，用户对 Nmap 如何工作有最终的控制权。高级用户可以仔细地调整 Nmap 命令，在满足时间要求的同时获得他们所关心的信息。</p>
+<p>改善扫描时间的技术有：</p>
+<ul>
+<li>忽略非关键的检测</li>
+<li>升级最新版本的 Nmap（性能增强不断改善）</li>
+<li>优化时间参数也会带来实质性的变化</li>
+</ul>
+<p>优化时间的参数如下：</p>
+<h3 id="调整并行扫描组的大小">调整并行扫描组的大小</h3>
+<p><code>--min-hostgroup &lt;milliseconds&gt;</code>、<code>--max-hostgroup &lt;milliseconds&gt;</code></p>
+<p>Nmap 具有并行扫描多主机端口或版本的能力，Nmap 将多个目标 IP 地址空间分成组，然后在同一时间对一个组进行扫描。通常，大的组更有效。缺点是只有当整个组扫描结束后才会提供主机的扫描结果。例如，如果组的大小定义为 50，则只有当前 50 个主机扫描结束后才能得到报告（详细模式中的补充信息除外）。</p>
+<p>默认方式下，Nmap 采取折衷的方法。开始扫描时的组较小，最小为 5，这样便于尽快产生结果；随后增长组的大小，最大为 1024。确切的大小依赖于所给定的选项。为保证效率，针对 UDP 或少量端口的 TCP 扫描，Nmap 使用较大的组。</p>
+<p><code>--max-hostgroup</code>选项用于说明使用最大的组，Nmap 不会超出这个大小。<code>--min-hostgroup</code>选项说明最小的组，Nmap 会保持组大于这个值。如果没有足够的目标主机来满足所指定的最小值，Nmap 可能会采用比所指定的值小的组。这两个参数虽然很少使用，但都用于保持组的大小在一个指定的范围之内。</p>
+<p>这些选项的主要用途是说明一个最小组的大小，使得整个扫描更加快速。通常选择 256 来扫描 C 类网段。对于端口数较多的扫描，超出该值是没有意义的。对于端口数较少的扫描，2048 或更大的组是更有用的。</p>
+<h3 id="调整探测报文的并行度">调整探测报文的并行度</h3>
+<p><code>--min-parallelism &lt;milliseconds&gt;</code>、<code>--max-parallelism &lt;milliseconds&gt;</code></p>
+<p>这些选项控制用于主机组的探测报文数量，可用于端口扫描和主机发现。默认状态下，Nmap 基于网络性能计算一个理想的并行度，这个值经常改变。如果报文被丢弃，Nmap 就降低速度，探测报文数量减少。随着网络性能的改善，理想的探测报文数量会缓慢增加。这些选项确定这个变量的大小范围。默认状态下，当网络不可靠时，理想的并行度值 可能为 1，在好的条件下，可能会增长至几百。</p>
+<p>最常见的应用是<code>--min-parallelism</code>值大于 1，以加快性能不佳的主机或网络的扫描。这个选项具有风险，如果过高则影响准确度，同时也会降低 Nmap 基于网络条件动态控制并行度的能力。这个值设为 10 较为合适，这个值的调整往往是作为最后的手段。</p>
+<h3 id="调整探测报文超时时间">调整探测报文超时时间</h3>
+<p><code>--min-rtt-timeout &lt;milliseconds&gt;</code>、<code>--max-rtt-timeout &lt;milliseconds&gt;</code>、<code>--initial-rtt-timeout &lt;milliseconds&gt;</code></p>
+<p>Nmap 使用一个超时值来确定等待探测报文响应的时间，随后会放弃或重新发送探测报文。Nmap 基于上一个探测报文的响应时间来计算超时值，如果网络延迟比较显著和不定，这个超时值会增加几秒。初始值的比较保守（高），而当 Nmap 扫描无响应的主机时，这个保守值会保持一段时间。</p>
+<p>这些选项以毫秒为单位，采用小的<code>--max-rtt-timeout</code>值，使 <code>--initial-rtt-timeout</code>值大于默认值可以明显减少扫描时间，特别是对不能 ping 通的扫描（<code>-P0</code>）以及具有严格过滤的网络。如果使用太小的值，使得很多探测报文超时从而重新发送，而此时可能响应消息正在发送，这使得整个扫描的时间增加。</p>
+<p>如果所有的主机都在本地网络，对于<code>--max-rtt-timeout</code>值来说，100 毫秒比较合适。如果存在路由，应首先使用 ICMP ping 工具 ping 主机，或使用其它报文工具如 hpings（它可以更好地穿透防火墙）查看大约 10 个包的最大往返时间，然后将 <code>--initial-rtt-timeout</code>设成这个时间的 2 倍，<code>--max-rtt-timeout</code> 可设成这个时间值的 3 倍或 4 倍。通常，不管 ping 的时间是多少，最大的 rtt 值不得小于 100ms且不能超过 1000ms。</p>
+<p><code>--min-rtt-timeout</code>这个选项很少使用，当网络不可靠时，Nmap 的默认值也显得过于激进，这时这个选项可起作用。当网络看起来不可靠时，Nmap 仅将超时时间降至最小值，这个情况是不正常的，可以向 nmap-dev 邮件列表报告 bug。</p>
+<p><code>--max-parallelism</code>选项通常设为 1，以防止 Nmap 在同一时间向主机发送多个探测报文，和选择 <code>--scan-delay</code> 同时使用非常有用，虽然这个选项本身的用途已经很广了。</p>
+<h3 id="放弃低速目标主机">放弃低速目标主机</h3>
+<p><code>--host-timeout &lt;milliseconds&gt;</code></p>
+<p>由于性能较差或不可靠的网络硬件或软件、带宽限制、严格的防火墙等原因，一些主机需要很长的时间扫描。这些极少数的主机扫描往往占据了大部分的扫描时间。因此，最好的办法是减少时间消耗并且忽略这些主机，使用 <code>--host-timeout</code>选项来说明等待的时间（毫秒）。通常使用 1800000 来保证 Nmap 不会在单个主机上使用超过半小时的时间。需要注意的是，Nmap 在这半小时中可以同时扫描其它主机，因此并不是完全放弃扫描。超时的主机被忽略，因此也没有针对该主机的端口表、操作系统检测或版本检测结果的输出。</p>
+<h3 id="调整探测报文的时间间隔">调整探测报文的时间间隔</h3>
+<p><code>--scan-delay &lt;milliseconds&gt;</code>、<code>--max-scan-delay &lt;milliseconds&gt;</code></p>
+<p>这个选项用于 Nmap 控制针对一个主机发送探测报文的等待时间（毫秒），在带宽控制的情况下这个选项非常有效。例如Solaris 主机在响应 UDP 扫描探测报文报文时，每秒只发送一个 ICMP 消息，因此 Nmap 发送的很多数探测报文是浪费的，这是需要将<code>--scan-delay</code> 设为 1000，使 Nmap 低速运行。Nmap 尝试检测带宽限制并相应地调整扫描的延迟，但并会不影响明确指明何种速度最佳。</p>
+<p><code>--scan-delay</code>的另一个用途是躲闭基于阈值的入侵检测和预防系统（IDS/IPS）。</p>
+<h3 id="设置时间模板">设置时间模板</h3>
+<p><code>-T &lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</code></p>
+<p>上述优化时间控制选项的功能很强大也很有效，但有些用户会被迷惑。此外，往往选择合适参数的时间超过了所需优化的扫描时间。因此，Nmap 提供了一些简单的方法，使用 6 个时间模板，使用时采用<code>-T</code>选项及数字（0 - 5） 或名称。模板名称有：</p>
+<ul>
+<li>paranoid：0</li>
+<li>sneak：1</li>
+<li>polite：2</li>
+<li>normal：3</li>
+<li>aggressive：4</li>
+<li>insane：5</li>
+</ul>
+<p>前两种模式用于躲避 IDS，<code>Polite</code> 模式降低了扫描速度以使用更少的带宽和目标主机资源。默认模式为 Normal，因此<code>-T3</code> 实际上是未做任何优化。<code>Aggressive</code> 模式假设用户具有合适及可靠的网络从而加速扫描。<code>Insane</code>模式假设用户具有特别快的网络或者愿意为获得速度而牺牲准确性。</p>
+<p>用户可以根据自己的需要选择不同的模板，由 Nmap 负责选择实际的时间值。模板也会针对其它的优化控制选项进行速度微调。例如，<code>-T4</code> 针对 TCP 端口禁止动态扫描延迟超过 10ms，<code>-T5</code>对应的值则为 5ms。模板可以和优化调整控制选项组合使用，但模板必须首先指定，否则模板的标准值会覆盖用户指定的值。建议在扫描可靠的网络时使用 <code>-T4</code>，即使自己想要增加优化控制选项时也使用（在命令行的较前面部分），从而从这些额外的较小的优化中获益。</p>
+<p>在有足够的带宽或以太网连接的情况，仍然建议使用 <code>-T4</code> 选项。有些用户喜欢<code>-T5</code>选项，但这个过于激进。有时用户考虑到避免使主机崩溃或者希望更礼貌一些会采用<code>-T2</code>选项。他们并没意识到<code>-T Polite</code>选项是如何的慢，这种模式的扫描比默认方式实际上要多花 10 倍的时间。使用默认时间选项（<code>-T3</code>）很少出现有主机崩溃和带宽问题，比较适合于谨慎的用户。不进行版本检测比进行时间调整能更有效地解决这些问题。</p>
+<p>虽然<code>-T0</code>和<code>-T1</code>选项可能有助于避免 IDS 告警，但在进行上千个主机或端口扫描时，会显著增加时间。对于这种长时间的扫描，宁可设定确切的时间值，而不要去依赖封装的<code>-T0</code>和<code>-T1</code>选项。</p>
+<ul>
+<li><code>T0</code>：选项的主要影响是对于连续扫描，在一个时间只能扫描一个端口， 每个探测报文的发送间隔为 5 分钟</li>
+<li><code>T1</code>：发送探测报文间隔为 15 秒。</li>
+<li><code>T2</code>：类似 <code>T1</code>，发送探测报文间隔为 0.4 秒</li>
+<li><code>T3</code>：Nmap 的默认选项，包含了并行扫描</li>
+<li><code>T4</code>：等价于<code>--max-rtt-timeout 1250 --initial-rtt-timeout 500</code> ，最大 TCP 扫描延迟为 10ms</li>
+<li><code>T5</code>：等价于 <code>--max-rtt-timeout 300 --min-rtt-timeout 50 --initial-rtt-timeout 250 --host-timeout 900000</code>，最大 TCP 扫描延迟为 5ms</li>
+</ul>
+<h2 id="防火墙ids-躲避和欺骗">防火墙/IDS 躲避和欺骗</h2>
+<p>很多 Internet 先驱们设想了一个全球开放的网络，使用全局的 IP 地址空间，使得任何两个节点之间都有虚拟连接。这使得主机间可以作为真正的对等体，相互间提供服务和获取信息。人们可以在工作时访问家里所有的系统、调节空调温度、为提前到来的客人开门。随后，这些全球连接的设想受到了地址空间短缺和安全考虑的限制。在 90 年代早期，各种机构开始部署防火墙来实现减少连接的目的，大型网络通过代理、NAT 和包过滤器与未过滤的 Internet 隔离。不受限的信息流被严格控制的可信通信通道信息流所替代。</p>
+<p>类似防火墙的网络隔离使得对网络的搜索更加困难，随意进行搜索变得不再简单。然而，Nmap 提供了很多特性用于理解这些复杂的网络，并且检验这些过滤器是否正常工作。此外，Nmap 提供了绕过某些较弱的防范机制的手段。检验网络安全状态最有效的方法之一是尝试欺骗网络，将自己想象成一个攻击者，使用本节提供的技术来攻击自己的网络，例如使用 FTP 反弹扫描、Idle 扫描、分片攻击或尝试穿透自己的代理。</p>
+<p>除了限止网络的行为外，使用入侵检测系统（IDS）的公司也不断增加。由于 Nmap 常用于攻击前期的扫描，因此所有主流的 IDS 都包含了检测 Nmap 扫描的规则。现在，这些产品变形为入侵预防系统（IPS），可以主动地阻止可疑的恶意行为。不幸的是，网络管理员和 IDS 厂商通过分析报文来检测恶意行为是一个艰苦的工作，有耐心和技术的攻击者，在特定 Nmap 选项的帮助下，常常可以不被 IDS 检测到。同时，管理员必须应付大量的误报结果，正常的行为被误判导致被改变或阻止。</p>
+<p>有时，人们建议 Nmap 不应该提供躲闭防火墙规则或欺骗 IDS 的功能，这些功能可能会被攻击者滥用，然而管理员却可以利用这些功能来增强安全性。实际上，攻击的方法仍可被攻击者利用，他们可以发现其它工具或 Nmap 的补丁程序。同时，管理员发现攻击者的工作更加困难，相比较采取措施来限制编写执行 FTP 反弹攻击的工具而言，部署先进的、打过补丁的 FTP 服务器更加有效。</p>
+<p>Nmap 不提供检测和破坏防火墙及 IDS 系统的魔法子弹（或 Nmap 选项），它使用的是技术和经验，这超出了本参考手册的范围，下面描述了相关的选项和完成的工作。</p>
+<h3 id="报文分段以及使用指定的-mtu">报文分段以及使用指定的 MTU</h3>
+<p><code>-f</code>、<code>--mtu</code></p>
+<p><code>-f</code> 选项要求扫描时（包括 ping 扫描）使用小的 IP 包分段。其思路是将 TCP 头分段在几个包中，使得包过滤器、IDS 以及其它工具的检测更加困难。必须小心使用这个选项，有些系统在处理这些小包时存在问题，例如旧的网络嗅探器 Sniffit 在接收到第一个分段时会立刻出现分段错误。该选项指定一次后，Nmap 将在 IP 头后将包分成 8 个字节或更小。因此，一个 20 字节的 TCP 头会被分成 3 个包，其中 2 个包分别有 TCP 头的 8 个字节，另 1 个包有 TCP 头的剩下 4 个字节。当然，每个包都有一个 IP 头。再使用一次 <code>-f</code>可使用 16 字节的分段（减少总的分段数量）。使用<code>--mtu</code>选项可以自定义偏移的大小，使用时不需要<code>-f</code>，但是偏移量必须是 8 的倍数。虽然分段包不会被包过滤器和防火墙直接使用，但是会对所有的 IP 分段排队，如 Linux 内核中的 CONFIG-IP-ALWAYS-DEFRAG 配置项，一些网络无法承受这样所带来的性能冲击，会将这个配置禁止。其它禁止的原因还有分段包会通过不同的路由进入网络。一些源系统在内核中对发送的报文进行分段，使用 iptables 连接跟踪模块的 Linux 就是一个例子。当使用类似 Ethereal 的嗅探器时，扫描必须保证发送的报文要分段。如果你的主机操作系统这么做的时候会产生问题，可以尝试使用<code>--send-eth</code>选项以避开 IP 层而直接发送原始的以太网帧。</p>
+<h3 id="使用诱饵隐蔽扫描">使用诱饵隐蔽扫描</h3>
+<p><code>-D &lt;decoy1 [，decoy2][，ME]，...&gt;</code></p>
+<p>为使诱饵扫描起作用，需要使远程主机认为是诱饵在扫描目标网络。IDS 可能会报告某个 IP 的 5-10 个端口在被扫描，但并不知道到底是哪个 IP 在扫描它们以及哪些是无辜的诱饵。但这种方式可以通过路由跟踪、丢弃响应以及其它主动的机制来解决。这是一种常用的隐藏自身 IP 地址的有效技术。</p>
+<p>使用逗号分隔每个诱饵主机，也可用自己的真实 IP 作为诱饵，这时可使用 <code>ME</code> 选项说明。如果在第 6 个位置或更后的位置使用 <code>ME</code> 选项，一些常用端口扫描检测器（如 Solar Designer's excellent scanlogd）就不会报告这个真实 IP。如果不使用<code>ME</code>选项，Nmap 将真实 IP 放在一个随机的位置</p>
+<p>注意，作为诱饵的主机须在工作状态，否则会导致目标主机的 SYN 洪水攻击。如果在网络中只有一个主机在工作，那就很容易确定哪个主机在扫描。也可使用 IP 地址代替主机名（诱饵网络中就不可能在名字服务器日志中发现你）。</p>
+<p>诱饵可用在初始的 ping 扫描（ICMP、SYN、ACK 等）阶段或真正的端口扫描阶段。诱饵也可以用于远程操作系统检测（<code>-O</code>）。在进行版本检测或 TCP 连接扫描时，诱饵是无效的。</p>
+<p>使用过多的诱饵没有任何价值，反而导致扫描变慢并且结果不准确。 此外，一些 ISP 会过滤欺骗报文，但很多对欺骗 IP 包没有任何限制。</p>
+<h3 id="源地址欺骗">源地址欺骗</h3>
+<p><code>-S &lt;IP_Address&gt;</code></p>
+<p>在某些情况下，Nmap 可能无法确定你的源地址（如果这样，Nmap 会给出提示）。此时，使用 -S 选项并说明所需发送包的接口 IP 地址。</p>
+<p>这个标志的另一个用处是欺骗性的扫描，使得目标认为是另一个地址在进行扫描。可以想象某一个竞争对手在不断扫描某个公司！<code>-e</code>选项常在这种情况下使用，也可采用<code>-P0</code>选项。</p>
+<h3 id="使用指定的接口">使用指定的接口</h3>
+<p><code>-e &lt;interface&gt;</code></p>
+<p>告诉 Nmap 使用哪个接口发送和接收报文，Nmap 可以进行自动检测，如果检测不出会给出提示。</p>
+<h3 id="源端口欺骗">源端口欺骗</h3>
+<p><code>--source-port &lt;portnumber&gt;; -g &lt;portnumber&gt;</code></p>
+<p>仅依赖于源端口号就信任数据流是一种常见的错误配置，这个问题非常好理解。例如一个管理员部署了一个新的防火墙，但招来了很多用户的不满，因为他们的应用停止工作了。可能是由于外部的 UDP DNS 服务器响应无法进入网络，而导致 DNS 的崩溃。FTP 是另一个常见的例子，在 FTP 传输时，远程服务器尝试和内部用建立连接以传输数据。</p>
+<p>对这些问题有安全解决方案，通常是应用级代理或协议分析防火墙模块。但也存在一些不安全的方案。注意到 DNS 响应来自于 53 端口，FTP 连接来自于 20 端口，很多管理员会掉入一个陷阱，即允许来自于这些端口的数据进入 网络。他们认为这些端口里不会有值得注意的攻击和漏洞利用。此外，管理员或许认为这是一个短期的措施，直至他们采取更安全的方案。但他们忽视了安全升级它们。</p>
+<p>不仅仅是工作量过多的网络管理员掉入这种陷阱，很多产品本身也会有这类不安全的隐患，甚至是微软的产品。Windows 2000 和 Windows XP 中包含的 IPsec 过滤器也包含了一些隐含规则，允许所有来自 88 端口（Kerberos）的 TCP 和 UDP 数据流。另一个常见的例子是 Zone Alarm 个人防火墙到 2.1.25 版本仍然允许源端口 53（DNS）或 67（DHCP）的 UDP 包进入。</p>
+<p>Nmap 提供<code>-g</code>和<code>--source-port</code>选项（它们是等效的）来利用这些弱点。只需提供一个端口号，Nmap 就会尽可能从该端口发送数据包。大多数使用原始套接字的扫描操作（包括 SYN 和 UDP 扫描）都完全支持该选项。对于使用普通操作系统套接字的任何操作，包括 DNS 请求，TCP connect 扫描，版本检测和脚本扫描，该选项不起作用。设置源端口也不适用于操作系统检测，因为 Nmap 必须使用不同的端口号才能使某些操作系统检测正常工作。</p>
+<h3 id="发送报文时附加随机数据">发送报文时，附加随机数据</h3>
+<p><code>--data-length &lt;number&gt;</code></p>
+<p>正常情况下，Nmap 发送最少的报文，只含一个包头。因此 TCP包通常是 40 字节，ICMP ECHO 请求只有 28 字节。这个选项告诉 Nmap 在发送的报文上附加指定数量的随机字节。操作系统检测（<code>-O</code>）数据包不受影响，但大部分 ping 和端口扫描数据包都会受影响，会使处理变慢，但会使得扫描隐蔽一些。</p>
+<h3 id="设置-ip-time-to-live-域">设置 IP time-to-live 域</h3>
+<p><code>--ttl &lt;value&gt;</code></p>
+<p>设置 IPv4 报文的 time-to-live 域为指定的值。</p>
+<h3 id="对目标主机的顺序随机排列">对目标主机的顺序随机排列</h3>
+<p><code>--randomize-hosts</code></p>
+<p>告诉 Nmap 在扫描主机前对每个组中的主机随机排列，最多可达 8096 个主机。这会使得扫描意图在针对不同的网络监控系统看来变得不是很明显，特别是配合值较小的时间选项时更有效。如果需要对一个较大的组进行随机排列，需要增大 nmap.h 文件中 PING-GROUP-SZ 的值，并重新编译。<br />
+另一种方法是使用列表扫描（<code>-sL -n -oN &lt;filename&gt;</code>），产生目标 IP 的列表， 使用 Perl 脚本进行随机化，然后使用 -iL 提供给 Nmap。</p>
+<h3 id="mac地址-欺骗">MAC地址 欺骗</h3>
+<p><code>--spoof-mac &lt;mac address，prefix，or vendor name&gt;</code></p>
+<p>要求 Nmap 在发送原以太网帧时使用指定的 MAC 地址，这个选项隐含了 <code>--send-eth</code>选项，以保证 Nmap 真正发送以太网包。MAC 地址有几种格式。如果简单地使用字符串<code>0</code>，Nmap 选择一个完全随机的 MAC 地址。如果给定的字符品是一个 16 进制偶数（使用<code>:</code>分隔），Nmap 将使用这个 MAC 地址。如果是小于 12 的 16 进制数字，Nmap 会随机填充剩下的 6 个字节。如果参数不是 0 或 16 进制字符串，Nmap 将通过 nmap-mac-prefixes 查找厂商的名称（大小写区分），如果找到匹配，Nmap 将使用厂商的 OUI（3 字节前缀），然后随机填充剩余的 3 个节字。</p>
+<p>正确的<code>--spoof-mac</code>参数有：</p>
+<ul>
+<li>Apple</li>
+<li>0</li>
+<li>01:02:03:04:05:06</li>
+<li>deadbeefcafe</li>
+<li>0020F2</li>
+<li>Cisco</li>
+</ul>
+<h2 id="输出">输出</h2>
+<p>任何安全工具只有在输出结果时才是有价值的，如果没有通过组织和易于理解的方式来表达，复杂的测试和算法几乎没有意义。Nmap 提供了一些方式供用户和其它软件使用，实际上，没有一种方式可以使所有人满意。因此 Nmap 提供了一些格式，包含了方便直接查看的交互方式和方便软件处理的 XML 格式。</p>
+<p>除了提供输出格式外，Nmap 还提供了选项来控制输出的细节以及调试信息。输出内容可发送给标准输出或命名文件，可以追加或覆盖。输出文件还可被用于继续中断的扫描。</p>
+<p>Nmap 提供 5 种不同的输出格式。默认的方式是 interactive output，发送给标准输出（stdout）。normal output 方式类似于 interactive，但显示较少的运行时间信息和告警信息，这是由于这些信息是在扫描完全结束后用于分析，而不是交互式的。</p>
+<p>XML 输出是最重要的输出类型，可被转换成 HTML，对于程序处理非常方便，如用于 Nmap 图形用户接口或导入数据库。</p>
+<p>另两种输出类型比较简单，grepable output 格式，在一行中包含目标主机最多的信息；sCRiPt KiDDi3 0utPUt 格式。</p>
+<p>交互式输出是默认方式，没有相应的命令行选项，其它四种格式选项使用相同的语法，它们只有一个参数，即存放结果的文件名。多种格式可以同时使用，但一种格式只能指定一次。例如，在标准输出用于查看的同时，可将结果保存到 XML 文件用于程序分析，这时可以使用选项<code>-oX myscan.xml -oN myscan.nmap</code>。为便于描述的简化，本章使用类似于 myscan.xml 的简单文件名，建议采用更具有描述性的文件名。文件名的选择与个人喜好有关，建议增加扫描日期以及一到两个单词来描述，并放置于一个目录中。</p>
+<p>在将结果输出到文件的同时，Nmap 仍将结果发送给标准输出。例如，命令<code>nmap -oX myscan.xml target</code>将输出 XML 至 myscan.xml，并在 stdout 上打印相同的交互式结果。可以使用连字符作为参数来改变这个行为，使得 Nmap 禁止输出到文件，只将结果打印到所指定的标准输出流中。因此，命令<code>nmap -oX - target</code>只输出 XML 至标准输出 stdout。严重错误仍然是输出到标准错误流 stderr 中。</p>
+<p>与其它 Nmap 参数不同，日志文件选项的空格（如 <code>-oX</code>）和文件名或连字符是必需的。如果省略了标记，例如<code>-oG-</code>或 <code>-oXscan.xml</code>，Nmap 的向后兼容特点将建立标准格式的输出文件，相应的文件名为<code>G-</code>和 <code>Xscan.xml</code>。</p>
+<p>Nmap 还提供了控制扫描细节以及输出文件的添加或覆盖的选项，这些选项如下所述。</p>
+<h3 id="标准输出">标准输出</h3>
+<p><code>-oN &lt;filespec&gt;</code></p>
+<p>要求将标准输出直接写入指定的文件。如上所述，这个格式与交互式输出略有不同。</p>
+<h3 id="xml-格式输出">XML 格式输出</h3>
+<p><code>-oX &lt;filespec&gt;</code></p>
+<p>要求 XML 输出直接写入指定的文件。Nmap 包含了一个文档类型定义（DTD），使 XML 解析器有效地进行 XML 输出。这主要是为了程序应用，同时也可以协助人工解释 Nmap 的 XML 输出。DTD 定义了合法的格式元素，列举可使用的属性和值。最新的版本可在 http://www.insecure.org/nmap/data/nmap.dtd 获取。</p>
+<p>XML 提供了可供软件解析的稳定格式输出，主要的计算机 语言都提供了免费的 XML 解析器，如 C/C++，Perl，Python 和 Java。针对这些语言有一些捆绑代码用于处理 Nmap 的输出和特定的执行程序。例如 perl CPAN 中的 <code>Nmap::Scanner</code> 和 <code>Nmap::Parser</code>。对几乎所有与 Nmap 有接口的主要应用来说，XML 是首选的格式。</p>
+<p>XML 输出引用了一个 XSL 样式表，用于格式化输出结果，类似于 HTML。最方便的方法是将 XML 输出加载到一个 Web 浏览器，如 Firefox 或 IE。由于 nmap.xsl 文件的绝对路径，因此通常只能在运行了 Nmap 的机器上工作（或类似配置的机器）。类似于任何支持 Web 机器的 HTML 文件，<code>--stylesheet</code> 选项可用于建立可移植的 XML 文件。</p>
+<h3 id="script-kidd3-output">ScRipT KIdd|3 oUTpuT</h3>
+<p><code>-oS &lt;filespec&gt;</code></p>
+<p>脚本小子输出类似于交互工具输出，但是会进行事后处理，类似于 <code>l33t HaXXorZ</code>，将正常的字符替换为长得类似奇怪的字符。这个选项和脚本小子开了个玩笑，看上去似乎是为了 “帮助他们”。<br />
+对比：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Starting</span> Nmap <span class="hljs-number">7</span>.<span class="hljs-number">70</span> ( https://nmap.org ) at <span class="hljs-number">2019</span>-<span class="hljs-number">05</span>-<span class="hljs-number">29</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> CST<br><span class="hljs-attribute">Nmap</span> scan report for baidu.com (<span class="hljs-number">123.125.114.144</span>)<br><span class="hljs-attribute">Host</span> is up (<span class="hljs-number">0</span>.<span class="hljs-number">023</span>s latency).<br><span class="hljs-attribute">Other</span> addresses for baidu.com (not scanned): <span class="hljs-number">220.181.57.216</span><br><span class="hljs-attribute">Not</span> shown: <span class="hljs-number">998</span> filtered ports<br><span class="hljs-attribute">PORT</span>    STATE SERVICE<br><span class="hljs-attribute">80</span>/tcp  open  http<br><span class="hljs-attribute">443</span>/tcp open  https<br><br><span class="hljs-attribute">Nmap</span> done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">14</span>.<span class="hljs-number">89</span> seconds<br></code></pre></td></tr></table></figure></p>
+<p>和<code>脚本小子模式</code><br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-variable">$taRt</span>!nG NmAp 7.70 ( HttpS://nmap.org ) At 2019-05-29 11:34 CsT<br>NmAp <span class="hljs-variable">$can</span> rEp0rt FOr baidu.c0m (220.181.57.216)<br>HOsT iS up (0.026s lat3NCy).<br>0th3r aDdrEs<span class="hljs-variable">$Ez</span> f0r baidU.coM (noT <span class="hljs-variable">$Canned</span>): 123.125.114.144<br>n0t <span class="hljs-variable">$h0Wn</span>: 998 f1Lter3d p0rt$<br>pORT    STat3 SERV1CE<br>80/tcp  op3n  HTtp<br>443/tcp 0PEn  httpz<br><br>Nmap <span class="hljs-keyword">done</span>: 1 1P addr3ss (1 h0<span class="hljs-variable">$t</span> Up) <span class="hljs-variable">$cann3D</span> 1n 4.94 SecoNDS<br></code></pre></td></tr></table></figure></p>
+<p>Nmap 开发者还蛮幽默的，2333</p>
+<h3 id="grep-输出">Grep 输出</h3>
+<p><code>-oG &lt;filespec&gt;</code></p>
+<p>这种方式最后介绍，因为不建议使用。XML 输格式很强大，便于有经验的用户使用。XML 是一种标准，由许多解析器构成，而 Grep 输出更简化。XML 是可扩展的，以支持新发布的 Nmap 特点。使用 Grep 输出的目的是忽略这些特点，因为没有足够的空间。</p>
+<p>然面，Grep 输出仍然很常使用。它是一种简单格式，每行一个主机，可以通过 UNIX 工具（如 grep、awk、cut、sed、diff）和 Perl 方便地查找和分解。常可 用于在命令行上进行一次性测式。查找 ssh 端口打开或运行 Sloaris 的主机，只需要一个简单的 grep 主机说明，使用通道并通过 awk 或 cut 命令打印所需的域。</p>
+<p>Grep 输出可以包含注释（每行由<code>#</code>号开始）。每行由 6 个标记的域组成，由制表符及冒号分隔。这些域有主机，端口，协议，忽略状态，操作系统，序列号，IP ID 和状态。</p>
+<p>这些域中最重要的是 Ports，它提供了所关注的端口的细节，端口项由逗号分隔。每个端口项代表一个所关注的端口，每个子域由<code>/</code>分隔。这些子域有：端口号，状态，协议，拥有者，服务，SunRPCinfo 和版本信息。</p>
+<p>对于 XML 输出，本手册无法列举所有的格式，有关 Nmap Grep 输出的更详细信息可查阅 http://www.unspecific.com/nmap-oG-output</p>
+<h3 id="输出至所有格式">输出至所有格式</h3>
+<p><code>-oA &lt;basename&gt;</code></p>
+<p>为使用方便，利用 <code>-oA&lt;basename&gt;</code>选项可将扫描结果以标准格式、XML 格式和 Grep 格式一次性输出。分别存放在 <code>&lt;basename&gt;.nmap</code>，<code>&lt;basename&gt;.xml</code>和<code>&lt;basename&gt;.gnmap</code>文件中。也可以在文件名前指定目录名，例如，在 UNIX 中，使用<code>~/nmaplogs/foocorp/</code>，在 Window 中，使用<code>c:\hacking\sco</code>。</p>
+<h3 id="输出信息的详细程度">输出信息的详细程度</h3>
+<p><code>-v</code></p>
+<p>通过提高详细度，Nmap 可以输出扫描过程的更多信息。输出发现的打开端口，若 Nmap 认为扫描需要更多时间会显示估计的结束时间。这个选项指定两、三次，会提供更详细的信息。这个选项使用三次以上则不起作用。</p>
+<p>大部分的变化仅影响交互式输出，也有一些影响标准和脚本 小子输出模式。其它输出类型由机器处理，此时 Nmap 默认提供详细的信息，不需要人工干预。然而，其它模式也会有一些变化，省略一些细节可以减小输出大小。例如，Grep 输出中的注释行提供所有扫描端口列表，但由于这些信息过长，因此只能在细节模式中输出。</p>
+<h3 id="设置调试级别">设置调试级别</h3>
+<p><code>-d [level]</code></p>
+<p>当详细模式也不能为用户提供足够的数据时，使用调试可以得到更多的信息。使用细节选项（<code>-v</code>）时，可启用命令行参数（<code>-d</code>），多次使用可提高调试级别。也可在<code>-d</code> 后面使用参数设置调试级别。例如，<code>-d9</code>设定级别<code>9</code>。这是最高的级别，将会产生上千行的输出，除非只对很少的端口和目标进行简单扫描，才会设置成这么大。</p>
+<p>如果 Nmap 因为 Bug 而挂起或者对 Nmap 的工作及原理有疑问，调试输出非常有效。主要是开发人员用这个选项，调试行不具备自我解释的特点。例如，<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Timeoutvals</span>: srtt: -<span class="hljs-number">1</span> rttvar: -<span class="hljs-number">1</span> to: <span class="hljs-number">1000000</span> delta <span class="hljs-number">14987</span> ==&gt; srtt: <span class="hljs-number">14987</span> rttvar: <span class="hljs-number">14987</span> to: <span class="hljs-number">100000</span><br></code></pre></td></tr></table></figure><br />
+如果对某行输出不明白，可以忽略、查看源代码或向开发列表（nmap-dev）求助。有些输出行会有自我解释的特点，但随着调试级别的升高，会越来越含糊。</p>
+<h3 id="跟踪发送和接收的报文">跟踪发送和接收的报文</h3>
+<p><code>--packet-trace</code></p>
+<p>要求 Nmap 打印发送和接收的每个报文的摘要，通常用于 调试，有助于新用户更好地理解 Nmap 的真正工作。为避免输出过多的行，可以限制扫描的端口数，如<code>-p20-30</code>。如果只需进行版本检测，使用<code>--version-trace</code>。</p>
+<h3 id="列举接口和路由">列举接口和路由</h3>
+<p><code>--iflist</code></p>
+<p>输出 Nmap 检测到的接口列表和系统路由，用于调试路由 问题或设备描述失误（如 Nmap 把 PPP 连接当作以太网对待）。</p>
+<h3 id="在输出文件中添加">在输出文件中添加</h3>
+<p><code>--append-output</code></p>
+<p>当使用文件作为输出格式，如<code>-oX</code>或<code>-oN</code>，默认该文件被覆盖。如果希望文件保留现有内容，将结果添加在现有文件后面，就使用<code>--append-output</code>选项。所有指定的输出文件都被添加。但对于<code>XML</code>（<code>-oX</code>）扫描输出文件无效，无法正常解析，需要手工修改。</p>
+<h3 id="继续中断的扫描">继续中断的扫描</h3>
+<p><code>--resume &lt;filename&gt;</code></p>
+<p>一些扩展的 Nmap 运行需要很长的时间 —— 以天计算，这类扫描往往不会很快结束。可以进行一些限制，禁止 Nmap 在工作时间运行，导致网络中断、运行 Nmap 的主机计划或非计划地重启、或者 Nmap 自己中断。运行 Nmap 的管理员可以因其它原因取消运行，按下 <code>ctrl-C</code> 即可。从头开始启动扫描可能令人不快，幸运的是，如果标准扫描 （<code>-oN</code>）或 Grep 扫描（<code>-oG</code>）日志被保留，用户可以要求 Nmap 恢复终止的扫描，只需要简单地使用选项 <code>--resume</code>并说明 标准/Grep 扫描输出文件，不允许 使用其它参数，Nmap 会解析输出文件并使用原来的格式输出。使用方式 如<code>nmap --resume &lt;logfilename&gt;</code>。 Nmap 将把新地结果添加到文件中，这种方式不支持 XML 输出格式，原因是将两次运行结果合并至一个 XML 文件比较困难。</p>
+<h3 id="设置-xsl-样式表转换-xml-输出">设置 XSL 样式表，转换 XML 输出</h3>
+<p><code>--stylesheet &lt;path or URL&gt;</code></p>
+<p>Nmap 提供了 XSL 样式表 nmap.xsl，用于查看或转换 XML 输出至 HTML。XML 输出包含了一个 xml-stylesheet，直接指向 nmap.xml 文件，该文件由 Nmap 安装（或位于 Windows 当前工作目录）。在 Web 浏览器中打开 Nmap 的 XML 输出时，将会在文件系统中寻找 nmap.xsl 文件，并使用它输出结果。如果希望使用不同的样式表，将它作为 <code>--stylesheet</code>的参数，必须指明完整的路径或 URL，常见的调用方式是<code>--stylesheet  http://www.insecure.org/nmap/data/nmap.xsl</code>。这告诉浏览器从 Insecire.Org 中加载最新的样式表。这使得没安装 Nmap（和 nmap.xsl）的机器中可以方便地查看结果。因此，URL 更加方便，本地文件系统的 nmap.xsl 用于默认方式。</p>
+<h3 id="忽略xml声明的xsl样式表">忽略XML声明的XSL样式表</h3>
+<p><code>--no-stylesheet</code></p>
+<p>使用该选项禁止 Nmap 的 XML 输出关联任何 XSL 样式表。<code>--xml-stylesheet</code>指定将被忽略。</p>
+<h2 id="其它选项">其它选项</h2>
+<p>本节描述一些重要的（和并不重要）的选项，这些选项不适合其它任何地方。</p>
+<h3 id="启用-ipv6-扫描">启用 IPv6 扫描</h3>
+<p><code>-6</code></p>
+<p>从 2002 年起，Nmap 提供对 IPv6 的一些主要特征的支持。ping 扫描（TCP-only）、连接扫描以及版本检测都支持 IPv6。除增加<code>-6</code>选项外，其它命令语法相同。当然，必须使用 IPv6 地址来替换主机名，如 <code>3ffe:7501:4819:2000:210:f3ff:fe03:14d0</code>。</p>
+<p>IPv6 目前未在全球广泛采用，目前在一些国家（亚洲）应用较多，一些高级操作系统支持 IPv6。使用 Nmap 的 IPv6 功能，扫描的源和目的都需要配置 IPv6。如果 ISP（大部分）不分配 IPv6 地址，Nmap 可以采用免费的隧道代理。一种较好的选择是 BT Exact，位于 https://tb.ipv6.btexact.com/ 。此外，还有 Hurricane Electric，位于 http://ipv6tb.he.net/ 。6to4 隧道是另一种常用的免费方法。</p>
+<h3 id="激进扫描模式">激进扫描模式</h3>
+<p><code>-A</code></p>
+<p>这个选项启用额外的高级和高强度选项，目前还未确定代表 的内容。目前，这个选项启用了操作系统检测（<code>-O</code>）和版本扫描（<code>-sV</code>），以后会增加更多的功能。目的是启用一个全面的扫描选项集合，不需要用户记忆大量的选项。这个选项仅仅启用功能，不包含用于可能所需要的时间选项（如 <code>-T4</code>）或细节选项（<code>-v</code>）。</p>
+<h3 id="指出用户-nmap-数据文件位置">指出用户 Nmap 数据文件位置</h3>
+<p><code>--datadir &lt;directoryname&gt;</code></p>
+<p>Nmap 在运行时从文件中获得特殊的数据，这些文件有 nmap-service-probes、nmap-services、nmap-protocols、nmap-rpc、nmap-mac-prefixes 和 nmap-os-fingerprints。Nmap 首先 在<code>--datadir</code>选项说明的目录中查找这些文件。未找到的文件，将在 BMAPDIR 环境变量说明的目录中查找。接下来是用于真正和有效 UID 的<code>~/.nmap</code> 或 Nmap 可执行代码的位置（仅 Win32）；然后是是编译位置，如 /usr/local/share/nmap 或 /usr/share/nmap。Nmap 查找的最后一个位置是当前目录。</p>
+<h3 id="使用原以太网帧发送">使用原以太网帧发送</h3>
+<p><code>--send-eth</code></p>
+<p>要求 Nmap 在以太网（数据链路）层而不是 IP（网络层）发送报文。默认方式下，Nmap 选择最适合其运行平台的方式，原套接字（IP 层）是 UNIX 主机最有效的方式，而以太网帧最适合 Windows 操作系统，因为 Microsoft 禁用了原套接字支持。在 UNIX 中，如果没有其它选择（如无以太网连接），不管是否有该选项，Nmap 都使用原 IP 数据包。</p>
+<h3 id="在原-ip-层发送">在原 IP 层发送</h3>
+<p><code>--send-ip</code></p>
+<p>要求 Nmap 通过原 IP 套接字发送报文，而不是低层的以 太网帧。这是<code>--send-eth</code>选项的补充。</p>
+<h3 id="假定用户具有全部权限">假定用户具有全部权限</h3>
+<p><code>--privileged</code></p>
+<p>告诉 Nmap 假定其具有足够的权限进行源套接字包发送、报文捕获和类似 UNIX 系统中根用户操作的权限。默认状态下，如果由 <code>getuid()</code> 请求的类似操作不为 0，Nmap 将退出。<code>--privileged</code> 在具有 Linux 内核性能的类似系统中使用非常有效，这些系统配置允许非特权用户可以进行原报文扫描。需要明确的是，在其它选项之前使用这些需要权限的选项（SYN 扫描、操作系统检测等）。Nmap-PRIVILEGED 变量设置等价于<code>--privileged</code>选项。</p>
+<h3 id="以交互模式启动">以交互模式启动</h3>
+<p><code>--interactive</code></p>
+<p>以交互模式启动 Nmap，提供交互式的 Nmap 提示，便于 进行多个扫描（同步或后台方式）。对于从多用户系统中扫描的用户非常有效，这些用户常需要测试他们的安全性，但不希望系统中的其它用户知道他们扫描哪些系统。使用<code>--interactive</code> 激活这种方式，然后输入 h 可获得帮助信息。由于需要对正确的 shell 程序和整个功能非常熟悉，这个选项很少使用。这个选项包含了一个<code>!</code>操作符，用于执行 shell 命令，这是不安装 Nmap setuid root 的多个原因之一。</p>
+<h3 id="打印版本信息">打印版本信息</h3>
+<p><code>-V</code>、<code>--version</code></p>
+<p>打印 Nmap 版本号并退出。</p>
+<h3 id="打印帮助摘要">打印帮助摘要</h3>
+<p><code>-h</code>、<code>--help</code></p>
+<p>打印一个简短的帮助摘要，列出大部分常用的命令选项，这个功能与不带参数运行 Nmap 是相同的。</p>
+<h2 id="吐槽">吐槽</h2>
+<p>这篇文章主要整理自 http://www.nmap.com.cn/doc/manual.shtm 。但是这个中文翻译是真的辣眼睛...而且似乎版本也比较旧了，过段时间有空了我再把新的补上，可以参考最新的英文手册：https://nmap.org/book/man.html</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Nmap 使用手册</div>
+      <div>https://www.tr0y.wang/2019/05/24/Nmap-guide/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年5月24日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/01/%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/" title="同源策略总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">同源策略总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/13/OS%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/" title="Linux OS 命令注入指北">
+                        <span class="hidden-mobile">Linux OS 命令注入指北</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

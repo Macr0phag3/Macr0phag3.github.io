@@ -1,0 +1,1095 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="本来以为 2 篇就能说完，后来发现内容还是挺多的，所以我拆成了 3 篇，本篇是第 2 篇：“针对 DNS 协议的攻与防”，下一篇是“利用 DNS 的攻与防”。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DNS 安全（二）：针对 DNS 协议的攻击">
+<meta property="og:url" content="https://www.tr0y.wang/2020/09/30/DNS-2-attack-dns/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="本来以为 2 篇就能说完，后来发现内容还是挺多的，所以我拆成了 3 篇，本篇是第 2 篇：“针对 DNS 协议的攻与防”，下一篇是“利用 DNS 的攻与防”。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/dns.jpg/cover">
+<meta property="article:published_time" content="2020-09-30T16:40:26.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="DNS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/dns.jpg/cover">
+  
+  
+  
+  <title>DNS 安全（二）：针对 DNS 协议的攻击 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DNS 安全（二）：针对 DNS 协议的攻击"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-09-30 16:40" pubdate>
+          2020年9月30日 16:40:26
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          91 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">DNS 安全（二）：针对 DNS 协议的攻击</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本来以为 2 篇就能说完，后来发现内容还是挺多的，所以我拆成了 3 篇，本篇是第 2 篇：“针对 DNS 协议的攻与防”，下一篇是“利用 DNS 的攻与防”。</p>
+<span id="more"></span>
+<h2 id="前置知识">前置知识</h2>
+<p>在阅读本文之前，强烈建议你先看上一篇。这里补一些上一篇遗漏的知识点。</p>
+<h3 id="dns-发展历史">DNS 发展历史</h3>
+<p>最近看了一篇文章：http://suo.im/6b7UFl 。总结的很不错，主要是发展历史，我这里摘抄一下：</p>
+<p>“我们可以简单总结一下 DNS 的发展史，1987 年的 RFC1034 和 RFC1035 定义了最初版本的 DNS 协议，刚被设计出来的 DNS 就会同时使用 UDP 和 TCP 协议，对于绝大多数的 DNS 查询来说都会使用 UDP 数据报进行传输，TCP 协议只会在区域传输的场景中使用，其中 UDP 数据包只会传输最大 512 字节的数据，多余的会被截断；两年后发布的 RFC1123 预测了 DNS 记录中存储的数据会越来越多，同时也第一次显式的指出了发现 UDP 包被截断时应该通过 TCP 协议重试。过了将近 20 年的时间，由于互联网的发展，人们发现 IPv4 已经不够分配了，所以引入了更长的 IPv6，DNS 也在 2003 年发布的 RFC3596 中进行了协议上的支持；随后发布的 RFC5011（DNSSEC）和 RFC6376（DKIM）增加了在鉴权和安全方面的支持，但是也带来了较长的 DNS 记录，UDP 数据包被截断变得非常常见。RFC6891 提供的 DNS 扩展机制能够帮助我们在一定程度上解决大数据包被截断的问题，减少了使用 TCP 协议进行重试的需要，但是由于最大传输单元的限制，这并不能解决所有问题。DNS 出现之后的 30 多年，RFC7766 才终于提出了使用 TCP 协议作为主要协议来解决 UDP 无法解决的问题，TCP 协议也不再只是一种重试时使用的机制，随后出现的 DNS over TLS 和 DNS over HTTPS 也都是对 DNS 协议的一种补充。”</p>
+<p>真是长路漫漫啊。</p>
+<h3 id="any-类型的查询">any 类型的查询</h3>
+<p><code>ANY</code> 我感觉算是 DNS 的“语法糖”。ANY 不是查询单个类型的记录（例如 A 或 MX），而是返回所有类型的记录，所以 ANY 查询的回复是 DNS 服务器对这个域名所能提供的最大的回复（域传送就不算了，它一般都需要授权）。</p>
+<h3 id="dns-使用双协议tcp-与-udp">DNS 使用双协议：TCP 与 UDP</h3>
+<p>超过 UDP 限制的 DNS 数据会转为 TCP 来传输，所以 DNS 既会使用 UDP，也会使用 TCP。例子：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044314680.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044323320.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，如果响应数据包太大，DNS 服务器会返回不含 answer 的响应包，并且 <code>tc</code> 位是 <code>1</code>，即图中的 <code>Truncated: Message is truncated</code>，表明这个数据超长而有删节。dig 一看响应，就会使用 TCP 重发 request。当然如果 DNS 服务器不支持这样转 TCP 的方式，就没法传输大量的数据了。</p>
+<h3 id="dns-缓存分布">DNS 缓存分布</h3>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044333857.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>来源于网图：http://suo.im/6b7rft</p>
+<h3 id="dns-错误响应分布">DNS 错误响应分布</h3>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044347913.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>来源于网图：http://suo.im/63JBWU</p>
+<h3 id="edns">EDNS</h3>
+<p>扩展 DNS 机制（Extension Mechanisms for DNS），就是在遵循已有的 DNS 消息格式的基础上增加一些字段，来支持更多类型的 DNS 请求业务。RFC2671 指出了 EDNS 被提出来的几个理由：</p>
+<ol type="1">
+<li>DNS 协议头部的第二个 16 字节中都已经被用的差不多了，需要添加新的返回类型（RCODE）和标记（FLAGS）来支持其他需求</li>
+<li>只为标示 domain 类型的标签分配了两位，现在已经用掉了两位（00 标示字符串类型，11 表示压缩类型），后面如果有更多的标签类型则无法支持，建议用上 10 和 01</li>
+<li>当初 DNS 协议中设计的用 UDP 包传输时 DNS 数据大小限制为 512 字节，现在很多主机已经具备重组大数据包的能力，所以要有一种机制来允许 DNS 请求方通知 DNS 服务器让其返回大一些的数据包；</li>
+</ol>
+<p>下面会看到，DNSSEC、edns-client-subnet 等都需要有 EDNS 的支持。但是直接更改协议是不可能的，没法保证全球的 DNS 以及设备都能同时更新，所以 EDNS 中引入了一种新的伪资源记录 <code>OPT</code>（Resource Record），之所以叫做伪资源记录是因为它不包含任何 DNS 数据，OPT RR 不能被 cache、不能被转发、不能被存储在 zone 文件中。OPT 被放在 DNS 通信双方 DNS 数据包的 <code>ADDITIONAL SECTION</code> 中，每个 DNS 数据包中只能有一个 OPT 伪资源记录。<strong>对于我们搞安全的来说，比较重要的是第 3 点</strong>，即 <code>UDP payload size</code>。它可以告诉 DNS 服务器，请求方够处理的最大 UDP 报文的大小（没事我还扛得住，你尽管来）。用 dig 的时候它都会自己带上这个 bufsize，默认大小是 <code>4096</code>，我们可以指定这个大小：<code>dig @8.8.8.8 github.com any +bufsize=6666</code>，当然我们也可以将 bufsize 设置的小一些，强迫 DNS 服务器使用 TCP 传输。大家可以自行对比一下：<code>dig @8.8.8.8 github.com any</code> 和 <code>dig @8.8.8.8 github.com any +bufsize=1</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044402187.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044411324.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>有些比较有意思的现象：</p>
+<ol type="1">
+<li>我遇到的 DNS 服务器都只有在响应数据 &gt;= 512（看服务器设定的大小）的时候才会按照 bufsize 去走 TCP，比如你要是 <code>dig @8.8.8.8 github.com +bufsize=1</code>，来强迫使用 TCP 协议是没用的。</li>
+<li>有些 DNS 服务器当 bufsize 设置的很大的时候，只会返回必要的数据，但是如果返回的数据超过设定的 bufsize，就会走 TCP 返回所有的数据。因为这个时候已经没有被拿去放大的风险了。大家可以自行摸索一下执行 <code>dig @dns-1.datamerica.com defcon.org RRSIG +bufsize=593</code> 与 <code>dig @dns-1.datamerica.com defcon.org RRSIG +bufsize=592</code> 返回数据的不同。</li>
+<li>结合上面 2 条，若 DNS 服务器发现删除 <code>ADDITIONAL SECTION</code> 之后小于指定的字节，则不会走 TCP，而是返回删除 <code>ADDITIONAL SECTION</code> 之后的响应。</li>
+</ol>
+<p>上述行为我没去 rfc 里确认，实在啃不动了。。。我就当做 DNS 服务器（组件）的共同特性好了。</p>
+<p>最后，如果服务器不支持 EDNS，那么就会返回 <code>RCODE NOTIMPL</code>、<code>FORMERR</code> 或者 <code>SERVFAIL</code>，可以参考上面的那个错误分布图。rfc 明确指出了这一点：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044459555.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="edns-client-subnet">edns-client-subnet</h3>
+<p>这个是与 CDN 有关的，能够更加方便与快捷地加速内容传输，与本文关系不是很大，所以简单提一下。edns-client-subnet 的详细格式存在 EDNS 的 RDATA 中，例如 1.1.1.1 当 localDNS 递归向 CDN 服务厂家 DNS 查询的时候，会带上用户出口的 ip（1.1.1.1）地址，DNS 服务器会根据用户出口 ip 地址归属，返回对应 CDN 接入点最近的 ip 地址。</p>
+<h3 id="dnssec">DNSSEC</h3>
+<p>DNSSEC（Domain Name System Security Extensions），DNS 安全扩展。</p>
+<p>流程基本上没变，只是权威服务器返回的响应的时候回附带 type 是 <code>RRSIG</code>（Resource Record Signature）的 RR。客户端在拿到之后发现有 RRSIG，若选择验证，则需要继续走下面的几个步骤。</p>
+<p>简单地来说就在 DNS 上加了数字证书。RRSIG 记录正如上面所讲的，就是 DNS 权威服务器对这个解析结果的一个数字签名。DNS 权威服务器有自己对应的私钥（ZSK），它的作用就是用来对 DNS 请求结果进行数字签名生成数字摘要，然后原先的记录以及这条信息摘要就会一同发送给我们。有了签名之后，我们就接着通过请求 DNSKEY 记录来获取对应的公开密钥。拿到了公开密钥之后，我们可以用它先来解密 RRSIG 的摘要，然后我们利用相同的散列算法再算一次摘要，然后之前拿到的 RRSIG 中的摘要和自己算出来的摘要进行比对，如果相同的话就说明这次查询结果是可信的。</p>
+<p>那么问题来了，我们初中的时候就知道数字签名是没法抵御中间人攻击的，原因在于我们没法验证公钥是否是可信的。在 DNSSEC 场景下，就是如果攻击者把 RRSIG 以及 DNSKEY 记录都劫持了，该怎么办呢？对于验证证书这个问题，HTTPS 的解决方案是 CA，DNSSEC 的解决方案是 KSK。</p>
+<p>DS (Delegation Signer) ，DS 的值是用域名（例如 baidu.com）的上一级（com）的私钥（KSK）对 baidu.com 的 DNSKEY 进行加密之后得到的。如果你不信任 baidu.com 的 DNSKEY，可以拿 com 的公钥进行解密、计算、比对，这样就可以验证 DNSKEY 是不是真实的。如果你连 com 的记录都不信的话，可以在去上根域名验证，通过类似的方法，比对 com 的记录是否正确。那么问题是根域名要怎么验证呢？这个需要手动存在本地，也就是说如果写的客户端，想要用 DESSEC 保护自己的 DNS 查询，那么就需要自行存一份。附上一份参考资料：http://suo.im/5sP2RT</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044515080.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可惜现在部署 DNSSEC 的网站还是太少了，早期的 chrome 支持过 DNSSEC 的验证流程，后面也下掉了。并且 DNSSEC 是没法保护隐私的，也就是说任何能监视你网络流量的人，也可以看到你通过 DNSSEC 查询了哪些域名。</p>
+<h3 id="dot-与-doh">DoT 与 DoH</h3>
+<p>DoT 即 <code>DNS over TLS</code>，DoH 即 <code>DNS over HTTPS</code>。显然，DoT 比 DoH 少了一层，所以速度更快；但是 DNS 缓存机制，基于这两个协议设计的 DNS 也可以有缓存机制，所以我认为两者在速度上的差别可以忽略。并且对于客户端来说，用 HTTPS 是最方便的，不管是浏览器还是编程语言的库。所以我感觉 DoH 要比 DoT 有希望。</p>
+<p>举个 DoH 的例子吧：<br />
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs puppet"><span class="hljs-comment"># macr0phag3 in ~ [11:55:41]</span><br>» curl -s -H <span class="hljs-string">&#x27;accept: application/dns-json&#x27;</span> <span class="hljs-string">&#x27;https://cloudflare-dns.com/dns-query?name=baidu.com&amp;type=A&#x27;</span> | <span class="hljs-keyword">jq</span><br>&#123;<br>  <span class="hljs-string">&quot;Status&quot;</span>: <span class="hljs-number">0</span>,<br>  <span class="hljs-string">&quot;TC&quot;</span>: <span class="hljs-keyword">false</span>,<br>  <span class="hljs-string">&quot;RD&quot;</span>: <span class="hljs-keyword">true</span>,<br>  <span class="hljs-string">&quot;RA&quot;</span>: <span class="hljs-keyword">true</span>,<br>  <span class="hljs-string">&quot;AD&quot;</span>: <span class="hljs-keyword">false</span>,<br>  <span class="hljs-string">&quot;CD&quot;</span>: <span class="hljs-keyword">false</span>,<br>  <span class="hljs-string">&quot;Question&quot;</span>: [<br>    &#123;<br>      <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;baidu.com&quot;</span>,<br>      <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-number">1</span><br>    &#125;<br>  ],<br>  <span class="hljs-string">&quot;Answer&quot;</span>: [<br>    &#123;<br>      <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;baidu.com&quot;</span>,<br>      <span class="hljs-string">&quot;type&quot;</span>: 1,<br>      <span class="hljs-string">&quot;TTL&quot;</span>: 375,<br>      <span class="hljs-string">&quot;data&quot;</span>: <span class="hljs-string">&quot;220.181.38.148&quot;</span><br>    &#125;,<br>    &#123;<br>      <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;baidu.com&quot;</span>,<br>      <span class="hljs-string">&quot;type&quot;</span>: 1,<br>      <span class="hljs-string">&quot;TTL&quot;</span>: 375,<br>      <span class="hljs-string">&quot;data&quot;</span>: <span class="hljs-string">&quot;39.156.69.79&quot;</span><br>    &#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure></p>
+<p>用起来是不是比想象的简单呢？现在 Chrome 与 Firefox 也都支持了 DoH，但是需要手动打开，感兴趣的话可以自行体验。</p>
+<p>那么在上面的例子中，攻击者能不能通过劫持 <code>cloudflare-dns.com</code> 的 DNS 解析，进而劫持待查询的域名呢？这个问题本质上是，https 能否被劫持，这个问题回答起来不难但是比较有趣，所以我就留给各位自己思考了。</p>
+<h3 id="dns-泛解析">DNS 泛解析</h3>
+<p>DNS 泛解析很好理解，就是将<code>*.域名</code>解析到同一 IP，这样方便管理，同时相当于创造了无数个可以访问的二级域名，对用户比较友好。</p>
+<p>但是居然有些 TLD 都存在泛解析，非常不可思议，因为顶级域的管理应该非常严格。至少 <code>ws</code>、<code>ph</code> 这 2 个 <code>ccTLD</code> 是开启泛解析的，随便挑选在它们下面的顶级域名，都可以解析出 IP 并且往往是同一个。比如 <code>xm91iplj6tugqkf.ws</code>、<code>uOwnucwMkuiqpSJ.ws</code> 这些随机域名的 IP 都是 <code>64.70.19.203</code>；对应的 <code>ph</code>，这些随机域名的 IP 地址都是 <code>45.79.222.138</code>。这一行为会对安全分析带来严重的影响，可能会导致误判，一个典型的例子比如银行木马 dyre 的 DGA 域名有的是以 ws 作为 TLD，显然它们都会有有效的解析地址，但并不是真正的 C&amp;C 地址（对于 DGA 的介绍会在第三篇里出现，这句话不理解可以先跳过）。</p>
+<p>不过目前不是很清楚 ICANN 为啥没有限制这个行为，感觉有什么 py 交易。。。</p>
+<h2 id="针对-dns-协议的攻与防">针对 DNS 协议的攻与防</h2>
+<h3 id="服务器客户端被入侵控制">服务器/客户端被入侵/控制</h3>
+<ol type="1">
+<li>针对 DNS 服务器：攻击者如果挖到 DNS 组件的 0day，比如 bind，从而控制了 DNS 服务器，可以修改各种解析记录，这个危害是最大的，会影响大量的用户。以及 DNS 组件的一些漏洞，可能会被用于发起 DDoS，例如 CVE-2020-8616。</li>
+<li>针对使用 DNS 的“客户端”（可能是客户端或者服务器，即发起 DNS 查询的主机）：攻击者成功控制“客户端”之后，可以篡改 hosts，修改各种解析记录，但由于危害限定在单台机器上，所以影响一般没有第一点大。</li>
+</ol>
+<p>第一点其实没啥好说的。第二点举个例子，比如，前几年频繁出现的家用路由器被 csrf 攻击。需要一个前提就是路由器提供修改 dns 配置的 web 接口（条件和常规的 csrf 一样，就不多说了），举个例子（为了看得方便加了换行）：<br />
+<figure class="highlight sas"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sas">http://admin:admin@192.168.1.1/userRpm/LanDhcpServerRpm.htm<br>?dhcpserver=1<br><span class="hljs-variable">&amp;ip1</span>=192.168.1.100<br><span class="hljs-variable">&amp;ip2</span>=192.168.1.199<br><span class="hljs-variable">&amp;Lease</span>=120<br><span class="hljs-variable">&amp;gateway</span>=0.0.0.0<br><span class="hljs-variable">&amp;domain</span>=<br><span class="hljs-variable">&amp;dnsserver</span>=106.187.36.85<br><span class="hljs-variable">&amp;dnsserver2</span>=8.8.8.8<br><span class="hljs-variable">&amp;Save</span>=<span class="hljs-title function_">%B1</span><span class="hljs-title function_">%A3</span>+<span class="hljs-title function_">%B4</span><span class="hljs-title function_">%E6</span><br></code></pre></td></tr></table></figure><br />
+主要目的就是把 dns 服务器换成 106.187.36.85，为了确保所有访问都没有问题，再加入了 google 的 dns，当 106.187.36.85 有不能解析的域名时，去 8.8.8.8 获取地址，潜伏得会隐蔽一些。只要哪个人用的是这个接口的路由器，位于登录态或者是弱密码，访问了攻击者控制的域名，他的 DNS 就会被攻击者劫持。</p>
+<p>至于防护嘛，其实没啥好说的，就是那些常规的东西。</p>
+<h3 id="dns-欺骗劫持sinkhole钓鱼与缓存投毒">DNS 欺骗/劫持/Sinkhole/钓鱼与缓存投毒</h3>
+<p>这几个其实原理是一致的，利用 DNS 协议认证的缺陷（查询请求的 ip、端口、随机的查询 id 是否一致），只不过侧重点稍有不一样，非要区分的话，缓存投毒与前三者的攻击目标不同：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044534304.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所谓的 “欺骗/劫持/钓鱼”，可以针对客户端也可以针对 localDNS，而 缓存投毒 一般是针对 localDNS。</p>
+<p>我们小学六年级就知道，DNS 响应是先到则先被接收。如果攻击者能够在 DNS 服务器与攻击目标之间插入一个恶意的节点，就能抢先在 DNS 服务器回复之前发送恶意的 DNS 响应给攻击目标，真正的响应由于在时间上晚于攻击者，所以直接被攻击目标舍弃。举个例子，攻击目标尝试解析 <code>www.baidu.com</code>，正常情况下 A 记录应该是 <code>112.80.248.76</code>，但是攻击者可以将 A 记录为 <code>1.1.1.1</code>（攻击者的服务器 ip） 的响应发给攻击目标，而这个时候真正的 DNS 响应说不定还在路上呢。成功<strong>欺骗</strong>之后攻击者就可以<strong>劫持</strong>攻击目标与 <code>www.baidu.com</code> 之间所有的通信流量，可以监听也可以<strong>钓鱼</strong>等等。那么显然，攻击者需要能够及时响应 DNS 查询请求。若目标位于内网，可以很方便地使用 arp 欺骗；如果要劫持位于公网的 DNS 服务器，最最最著名的例子嘛，就是 G!F!W 了...嗯，这也是为什么有些网站是无法直接访问的，可以通过修改 hosts 来科!学!上!网，也可以修改 hosts 来屏蔽广告，甚至是破解软件。对于企业来说，也可以用来对员工、服务器进行上网行为控制。由于我!国!国!情，各位可以看一下这个文章：http://suo.im/5HROq3</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044545620.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>运营商技术还是很强的，能做的事情也比较多，至于有没有做嘛，各位自行判断吧。至少运营商（通信商或者卖域名的注册商）对于哪些不存在的域名，有时候会返回自己控制的 IP 以达到导流的目的（宣传域名注册啦或者黄页啦），这种行为并不仅仅发生在国内，在全世界各地都存在这种“劫持”行为，以至于 Chrome（以及基于 Chrome 内核的其他浏览器）在启动的时候要发送随机 DNS 查询对这种“劫持”行为进行探测以免干扰浏览器的正常工作（参考：<a target="_blank" rel="noopener" href="https://mikewest.org/2012/02/chrome-connects-to-three-random-domains-at-startup">Chrome 随机域名查询</a>）；上面提到的泛解析实际上也算劫持的一种，嗯，“大面积官方劫持”；再比如我有一次发现用 4G 访问我的博客会出现广告。。。其他的就不多说了，我们还是回到技术上来。</p>
+<p>因为 DNS 协议有缓存的特性，所以一份恶意的 DNS 记录会被 localDNS 缓存下来，导致<strong>缓存被投毒</strong>，也就是说即使攻击者撤掉了恶意节点，这个劫持依旧会维持一段时间，直到 ttl 超时，缓存到期失效。那么显然，攻击者只能在 localDNS 的 DNS 缓存失效之后才能投毒成功，这样攻击效率就比较低，并且大家可能会以为，DNS 劫持一次只能劫持一个域名，其实可以劫持其一级域 ns 所管辖的所有域名。</p>
+<p>2008 年的夏天，Dan Kaminsky 提出了新型 DNS 缓存投毒攻击：例如 baidu.com，攻击者随机生成一个 localDNS 不存在的子域名，<code>a21m2u2ed0.baidu.com</code>，向 localDNS 查询这个域名，这个时候 localDNS 就得去走 DNS 查询的完整流程。既然查询已经发出了，攻击就完成了一半，接下来伪造 baidu.com 的权威 DNS 应答数据包即可。攻击者可以在响应包的 <code>AUTHORITY SECTION</code> 中里加入自己控制的 ns，例如 <code>baidu.com</code> 的 ns 记录为 <code>ns.tr0y.wang</code>（攻击者的 DNS 服务器 ip），localDNS 的缓存被投毒成功之后，客户端对 <code>baidu.com</code> ns 所管辖的所有域名的查询都将被发送到攻击者的 DNS 服务器上。当然，这个恶意的中间节点不一定要位于 localDNS 与 DNS 权威服务器之间，与 localDNS 位于一个内网都可以对吧？只要能发送伪造的响应给 localDNS 就行，因为对随机域名的查询是由我们触发的。实施这个攻击还有个细节，如果劫持失败，正常流程下，比如 <code>a21m2u2ed0.baidu.com</code> 在 baidu.com 的 DNS 权威服务器中肯定是不存在的，所以 baidu.com 的 DNS 权威服务器应该返回包含 <code>NXDOMIAN</code>（代表域名不存在）的响应包，而 DNS 是有缓存否定答案机制的，TTL 从同一个响应的 SOA 记录中获取，也就是说，如果在不断暴力尝试 dns id 的过程中，发现向 localDNS 查询 <code>a21m2u2ed0.baidu.com</code> 结果是 <code>NXDOMIAN</code>，那么这个域名就没必要继续尝试了，需要更换下一个随机域名继续尝试。</p>
+<p>这里顺便提一个问题，大家判断一下这个思路可不可行：</p>
+<p>在 Kaminsky 攻击中，可以用 cname 去劫持其他域名吗？思路如下：A 为恶意节点，C 为 localDNS，A 向 C 发起 <code>a21m2u2ed0.baidu.com</code> 查询，并抢先在 DNS 权威服务器之前返回数据包，其中 2 条记录：1. cname 是 <code>www.baidu.com</code>；2. <code>www.baidu.com</code> 的 A 记录是 <code>1.1.1.1</code>。那么请问，<code>www.baidu.com</code> 是否会被 localDNS 缓存下来，ip 是 <code>1.1.1.1</code>？显然，如果这个方法可行的话，可以劫持非一级域下的任意域名，只要你 cname 到其他人的域名，再给出 A 记录即可。我手边没有 localDNS，要去验证稍有些麻烦，所以我拿 windows 测试了一下，因为客户端、os、localDNS 都会有缓存，可以再看一遍上面那个缓存分布图。为什么要选 Windows 呢？因为我没找到 Linux 和 macos 怎么查看 DNS 缓存...测试结果如下：<br />
+首先清空缓存：<code>ipconfig /flushdns</code>，然后访问一下百度：<code>curl www.baidu.com</code>（注意，这里如果用 dig 或者 nslookup 无法触发 win 的 dns 缓存机制，原因未知），然后用 <code>ipconfig /displaydns</code> 查看一下 <code>www.baidu.com</code> 的缓存：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044558304.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>在这同一级别下面确实可以看见 <code>www.a.shifen.com</code> 的 A 记录，但是这个时候是找不到单独列出的 <code>www.a.shifen.com</code> 缓存的，只有我执行了 <code>curl www.a.shifen.com</code> 之后，才能找到单独列出的缓存：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044607580.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>按照上面的思路，如果可行，在 <code>curl www.baidu.com</code> 结束之后应该就能找到单独列出的<code>www.a.shifen.com</code> 的 A 记录，实验证明此思路至少对 windows 的 dns 缓存机制是不可行的。</p>
+<p>最后，攻击者如果没法控制整个通信过程，那么一般是通过猜测 dns id 来进行劫持。所以也会有相应的“补丁”方案，接收响应的组件可以做以下几件事情：</p>
+<ol type="1">
+<li>检查 DNS 的随机 id 是否匹配，id 是 2 位的 hex，也就是 32 位的随机量。</li>
+<li>随机化源端口，也是 32 位的随机量，这个其实一般都满足，不过我看 bind 的配置可以固定源端口，不要这么做，攻击者只要抓个包就知道你的端口了。</li>
+<li>查询域名的时候，随机化域名的大小写，这个可以增加很多的随机量。例如查询 <code>www.baidu.com</code> 的时候，查 <code>www.baidu.cOm</code>。由于域名不分大小写，所以权威 DNS 服务器依旧是查 <code>www.baidu.com</code>，虽然返回的 Answer 里也是小写，但是返回的数据包会附上 Query，里面与查询的 Query 是一样的：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-2-attack-dns/20200930044619374.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+</ol>
+<p>那么对比一下响应中的 Query 的域名，与自己调整的域名是否一致就知道有没有被劫持了。最后还有一个现象，如果真的被劫持了，那么查询某个域名总是会出现 2 个应答甚至是多个应答（不同端口不同 id）。</p>
+<p>当然这些都是比较简单的手段，比较好的办法是上面提到的 DNSSEC，不过我感觉 DNSSEC 快凉了。。。。但是我们还可以选择 DNS-over-TLS、DNS-over-HTTPS，虽然要走的路还有很长。</p>
+<p>不过，各位不要以为保护隐私或者加密通信总是好事，正常的通信可以收到保护，那么恶意的通信同样可以通过这些办法得到保护，现在 NIDS 检测恶意域名解析是很简单的，直接拆 DNS 数据包看就完事了，如果恶意软件也上了 DoH，检测就变得很麻烦了。</p>
+<p>至于 Sinkhole 嘛，其实改 hosts 文件就是一个利用小型的 Sinkhole 的例子，通过 DNS 劫持完成安全防护，我比较喜欢把它称为 DNS 黑洞。由于现在很多恶意软件常用域名进行通信，那么安全厂商或者防御者可以把这个域名的解析接管了（与 DNS 服务商合作或者是 localDNS 上面配置），把域名解析记录改为一个无害的地址，这样恶意软件的通信就被阻断掉了。那么显然，DNS 服务器所在的层级越高，得到保护的主机就会越多，所以有些安全厂商通过合作，把僵尸网络通信的域名劫持到自己的服务器上，这样就能够利用 Sinkhole 关闭一些大型的僵尸网络，顺便还可以研究一下僵尸网络的行为（毕竟通信 ip 用的是安全厂商自己的，数据都可以拿到了）。一个非常著名的例子就是 <code>WannaCry</code>，内置了一个域名：<code>iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com</code>，在感染过程中，它会首先尝试访问这个域名的网页，如果成功访问网页则退出，不会进一步执行；如果访问网页失败，则会继续运行，弹框勒索赎金。如果你对 WannaCry Sinkhole 的数据分析感兴趣，可以看一下 360 的<a target="_blank" rel="noopener" href="https://blog.netlab.360.com/wannacry-from-dns-and-sinkhole-view/">这篇文章</a>。</p>
+<p>如今，大多数的 DGA 域名都已经被不同的安全机构做了 Sinkhole，所以如果你发现 NIDS 里发出的告警，恶意域名的 ip 是 Sinkhole，那么说明这个恶意软件基本上已经被研究透彻了。当然，防御者可以查，攻击者自然也可以查，所以各家安全研究机构出于保护自身的 Sinkhole 的目的，一般也不会公开 Sinkhole 列表，所以业界尚未有完整的 Sinkhole 源。不过的确有安全研究机构做了一些整理，比如 abuse.ch 的 <a target="_blank" rel="noopener" href="https://sinkdb.abuse.ch/">sinkdb</a>。</p>
+<h3 id="ddos-攻击">DDoS 攻击</h3>
+<p>DDoS 相关的知识后面有专门的系列会讲，所以这里就简单提一下 2 大类</p>
+<p><strong>（注意，这两类有重合的地方，第一类我就限定为在请求数据包与响应数据包大小差不多的情况下）</strong></p>
+<blockquote>
+<ol type="1">
+<li>直接向目标 DNS 服务器发起大量查询</li>
+</ol>
+</blockquote>
+<p>比如攻击者可以生成随机的子域名去逼 localDNS 不断进行递归查询或者查那些不存在的域名（这种攻击方式被称为 “DNS 散列前缀攻击”），尝试将服务器的 DNS 缓存填满；或者选择响应内容较多的域名，直接向权威 DNS 服务器查询，消耗服务器的性能。但是这种情况比较少，主要还是在攻击成本上，DNS 服务器本身就能够承受大量的流量（比如像 DNS 根服务器），基本上不会出啥问题，毕竟攻击者发起比全球设备更多的查询量成本太高了（实际上现在也没有这样 D 别人的吧...）。</p>
+<blockquote>
+<ol start="2" type="1">
+<li>放大型 DDoS 攻击</li>
+</ol>
+</blockquote>
+<p>其实 DNS DDoS 一般都是这种情况，因为在默认情况下，随便一个小小的查询，DNS 服务器就会回复一个很大的数据包，攻击者便可以利用这个放大的特性来消耗 DNS 服务器的带宽与性能，也可以伪造源 ip 来 D 其他服务器。例如简单的 <code>dig @目标ip . ns</code> 或者利用 scapy 发送 <code>b"\x51\x84\x00\x10\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01"</code>，仅仅 17 bytes，服务器就会回复 492 bytes 的内容，即放大 28 倍（使用 dig 的话放大比会小一些，因为 dig 发出请求的时候它自己会多附带一些东西，用 scapy 发出的请求数据包是最小的，所以放大比就是最大的）：<br />
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs dns"># macr0phag3 in ~ [<span class="hljs-number">18</span>:<span class="hljs-number">44</span>:<span class="hljs-number">30</span>]<br>» dig @x.x.x.x . ns<br>...<br>...<br><br><span class="hljs-comment">;; QUESTION SECTION:</span><br><span class="hljs-comment">;.              IN  NS</span><br><br><span class="hljs-comment">;; ANSWER SECTION:</span><br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  c.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  b.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  l.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  a.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  g.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  k.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  m.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  d.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  h.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  e.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  f.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  i.root-servers.net.<br>.           <span class="hljs-number">420390</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">NS</span>  j.root-servers.net.<br><br><span class="hljs-comment">;; ADDITIONAL SECTION:</span><br>a.root-servers.net. <span class="hljs-number">78399</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">198.41.0.4</span><br>b.root-servers.net. <span class="hljs-number">78731</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">199.9.14.201</span><br>c.root-servers.net. <span class="hljs-number">78702</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">192.33.4.12</span><br>d.root-servers.net. <span class="hljs-number">78383</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">199.7.91.13</span><br>e.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">192.203.230.10</span><br>f.root-servers.net. <span class="hljs-number">78358</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">192.5.5.241</span><br>g.root-servers.net. <span class="hljs-number">78365</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">192.112.36.4</span><br>h.root-servers.net. <span class="hljs-number">78365</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">198.97.190.53</span><br>i.root-servers.net. <span class="hljs-number">78476</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">192.36.148.17</span><br>j.root-servers.net. <span class="hljs-number">431905</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">192.58.128.30</span><br>k.root-servers.net. <span class="hljs-number">431911</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">193.0.14.129</span><br>l.root-servers.net. <span class="hljs-number">78731</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">199.7.83.42</span><br>m.root-servers.net. <span class="hljs-number">79004</span>   <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">A</span>   <span class="hljs-number">202.12.27.33</span><br>a.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:503:ba3e::2:30</span><br>b.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:200::b</span><br>c.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:2::c</span><br>d.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:2d::d</span><br>e.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:a8::e</span><br>f.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:2f::f</span><br>g.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:12::d0d</span><br>h.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:1::53</span><br>i.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:7fe::53</span><br>j.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:503:c27::2:30</span><br>k.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:7fd::1</span><br>l.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:500:9f::42</span><br>m.root-servers.net. <span class="hljs-number">518309</span>  <span class="hljs-keyword">IN</span>  <span class="hljs-keyword">AAAA</span>    <span class="hljs-number">2001:dc3::35</span><br><br>...<br>...<br></code></pre></td></tr></table></figure><br />
+这里放大的原因嘛，主要在于 <code>ADDITIONAL SECTION</code>，这里面能附带很多信息。而像 <code>8.8.8.8</code> 这种著名的 localDNS，一般都去掉了<code>ADDITIONAL SECTION</code>：<br />
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs tap">» dig @x.x.x.x . ns<br>...<br>...<br><br>;; QUESTION SECTION:<br>;.              IN  NS<br><br>;; ANSWER SECTION:<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  m.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  b.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  c.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  d.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  e.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  f.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  g.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  h.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  i.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  a.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  j.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  k.root-servers.net.<br>.          <span class="hljs-number"> 86774 </span>  IN  NS  l.root-servers.net.<br><br>;; Query time:<span class="hljs-number"> 20 </span>msec<br>;; SERVER: 8.8.8.8<span class="hljs-comment">#53(8.8.8.8)</span><br>;; WHEN: Thu Sep<span class="hljs-number"> 24 </span>18:48:05 CST 2020<br>;; MSG SIZE  rcvd: 239<br></code></pre></td></tr></table></figure></p>
+<p>不过就算禁用了 <code>ADDITIONAL SECTION</code>，还有些情况是会直接在 <code>ANSWER SECTION</code> 返回大量内容的，<code>ns</code>、<code>A</code> 等可能没有多少，但是 <code>RRSIG</code> 可就多咯：<br />
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs nix"><span class="hljs-comment"># macr0phag3 in ~ [19:02:57]</span><br>» dig @<span class="hljs-number">8.8</span>.<span class="hljs-number">8.8</span> defcon.org RRSIG<br>...<br>...<br><br>;; QUESTION <span class="hljs-params">SECTION:</span><br>;defcon.org.            IN  RRSIG<br><br>;; ANSWER <span class="hljs-params">SECTION:</span><br>defcon.org.     <span class="hljs-number">0</span>   IN  RRSIG   NSEC3PARAM <span class="hljs-number">10</span> <span class="hljs-number">2</span> <span class="hljs-number">0</span> <span class="hljs-number">20201021013759</span> <span class="hljs-number">20200921011007</span> <span class="hljs-number">50153</span> defcon.org. GtoW4gli0iuyaTG75sWltQJ3xfXs08YWr8wG<span class="hljs-symbol">/tEd9IDqyOxHYUoJrSnj</span> TiDyPItyoUECBZPW1aWDgFdkqDUxqFMjwwl4wjmVjX4gjvHoWJ6X2lrV kHVK4FQGN<span class="hljs-operator">+</span>uuCyx<span class="hljs-symbol">/OPjH6B8VqxeHkFqT1+JM3BRhbgwAAso+/d9DyJqF</span> NYR5LvhLl6laAsTnTJlCndMTIUouHwpxEmYZ6BC<span class="hljs-operator">+</span><span class="hljs-number">20</span>Jr7xBypE4lzQYF DM6s7A9Cpy4HInwFpl9NjjS7OCku0RZYpbRXvOATQiv0VuHyMRFdbK9S Bkn<span class="hljs-operator">+</span>MEjYaUhl<span class="hljs-operator">+</span><span class="hljs-number">0</span>x<span class="hljs-operator">+</span>H4Ek<span class="hljs-operator">+</span>gEDmRk5wduCTxscyqaXzoHtJnzw510ztZWw Rk<span class="hljs-symbol">/wtTr8xSHmQxzM7ndw9yomE/3VOPCmY2atuCo8k5a+ugBzQS+RraXD</span> dz0tWLU8fBYnv3tr04Peq<span class="hljs-symbol">/RAyi4r3Yek5J0Jz6Jy2u+Ig5oGe16XJ0A4</span> rh94UEM<span class="hljs-operator">+</span><span class="hljs-number">0</span>N6G<span class="hljs-symbol">/JS6P5EvuG9gfHNFxAOVcrZRYpwGXBW63dUrEc3oX6xh</span> <span class="hljs-number">1</span>z7etZb6F<span class="hljs-symbol">/uNuxIYCyiZxmX/BgGYXM2J/1YO3vLhehmAhfbjTJh8MmKZ</span> yWvs9H0LQAuZrGjrSQKzIuGAgpot5X58lERsyuNNZqB8vXkDuGessFhP oHXbhADjBGcsdq<span class="hljs-symbol">/tyKRlq08+st0cK5ZijExdgobZpkCFsLEaOnzDu1qq</span> nuGHQriZjXw<span class="hljs-operator">=</span><br><br>...<br>...<br></code></pre></td></tr></table></figure></p>
+<p>这还是做了限制的，如果你找个没做限制的 localDNS 或者是权威 DNS 服务器，返回内容可就大了，怎么也得有个 20 倍吧。甚至你还可以用 <code>dig @目标ip defcon.org any</code>，所有类型的记录都返回，更上一层楼。由于 any 实在是太 imba 了，各大 localDNS 一般都会限制 any 的查询，就算不限制，一般也会无视 bufsize 转为 TCP 传输，这样就没法伪造源 ip 了，至少自己不会成为 DDoS 放大的工具人（虽然还是会消耗自己的流量与性能）。</p>
+<p>上面的倍数都是 1:n，如果攻击者手里有很多肉鸡的话，那画面就更美了。</p>
+<p>不过我感觉 localDNS 一般不会遭受 DDoS，攻击者一般都会用 localDNS 来放大流量打别人。除非这个 localDNS 本身非常有价值，例如大运营商的 localDNS 或者是著名的公共 localDNS，能 D 成功的话，影响范围非常大。但是这些很有价值的 localDNS 一般都会有很好的防护，so...而权威服务器一般就是重灾区了，一旦成功影响面广，所以会面对各种放大型 DDoS 协议的攻击。</p>
+<p>至于防护嘛，同样留到 DDoS 系列再讲好了</p>
+<h2 id="总结">总结</h2>
+<p>这一篇终于写完了。其实还是要多做测试、实验，用 wireshark 多看看数据包。至于下一篇嘛，感觉要说的东西也很多，最近也很忙，慢慢写好了。</p>
+<p>一份协议从提出、起草到推广，都有挺大的阻力，需要很长时间，但是不管怎么说，总是朝着更加安全的方向迈进，缓慢但坚定。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/DNS/">#DNS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DNS 安全（二）：针对 DNS 协议的攻击</div>
+      <div>https://www.tr0y.wang/2020/09/30/DNS-2-attack-dns/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年9月30日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/11/02/DNS-3-attack-by-dns/" title="DNS 安全（三）：利用 DNS 协议发起的攻与防">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DNS 安全（三）：利用 DNS 协议发起的攻与防</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习">
+                        <span class="hidden-mobile">DNS 安全（一）：基础知识复习</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

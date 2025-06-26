@@ -1,0 +1,1009 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="mysterytwisterc3 的一道 LVII 的题, 很是麻烦, 趁热记一波">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Level II Challenges AES MRZ">
+<meta property="og:url" content="https://www.tr0y.wang/2017/10/02/Crypto0/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="mysterytwisterc3 的一道 LVII 的题, 很是麻烦, 趁热记一波">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2017-10-02T22:48:04.000Z">
+<meta property="article:modified_time" content="2022-01-04T06:17:12.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="密码学">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+  
+  
+  
+  <title>Level II Challenges AES MRZ - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Level II Challenges AES MRZ"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-10-02 22:48" pubdate>
+          2017年10月2日 22:48:04
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          21 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Level II Challenges AES MRZ</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：3 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>mysterytwisterc3 的一道 LVII 的题, 很是麻烦, 趁热记一波</p>
+<span id="more"></span>
+<h2 id="题目地址">题目地址</h2>
+<p><a target="_blank" rel="noopener" href="https://www.mysterytwisterc3.org/en/challenges/level-ii/aes-MRZ--encoded-in-the-machine-readable-zone-of-a-european-epassport">AES_MRZ</a></p>
+<h2 id="背景介绍">背景介绍</h2>
+<p>题目首先给了背景<br />
+ePassports<br />
+还没出过国, 并不知道这是啥, 好在 PDF 里给了参考文献<br />
+然而坑爹的是, 这个链接是 GG 的<br />
+经过一番艰难寻找, 找到了英文版的文献, 看得快吐血的时候, 发现了中文版文献...<br />
+<a target="_blank" rel="noopener" href="https://www.icao.int/publications/pages/publication.aspx?docnum=9303">Doc 9303</a><br />
+一共 12 个 PDF</p>
+<p>结合 challenge 的 PDF 里的题意, 意思大概是这样的:<br />
+key 部分已知, 有 C, 求 M<br />
+而这个 key 是所谓 ePassports 的一串码(我就叫做 MRZ 好了)</p>
+<p>这个 MRZ 是怎么来的呢? 每位都有什么含义呢?<br />
+这 12 个 PDF 里都有, 要按照规(ji)定(ben)的(fa), 去产生</p>
+<h2 id="还原-mrz">还原 MRZ</h2>
+<p>又经过一番艰难寻找, 发现在 p7 中有介绍<br />
+p7 的第 53 页介绍了 A 型机读签证机读区的结构, 这个型号是与我们题目一致的。<br />
+仔细看, 你会注意到所谓的"校验码". 再仔细看, 你会发现 MRZ 里缺少的那一位正好是到期日校验数位<br />
+p11 的 28 页, 详细的介绍了校验数位的计算方法, 59 页还给了一个例子:</p>
+<p>731 循环使用, 那么来个 py 吧?<br />
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs prolog">a = [<span class="hljs-number">7</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>] * <span class="hljs-number">2</span><br>b = [<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">6</span>]<br>print sum([a[i] * b[i] for i in range(<span class="hljs-number">6</span>)]) <span class="hljs-comment">% 10</span><br><br># 输出 <span class="hljs-number">7</span><br></code></pre></td></tr></table></figure></p>
+<p>所以, MRZ 就是 <code>12345678&lt;8&lt;&lt;&lt;1110182&lt;1111167&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;4</code></p>
+<h2 id="获取-key">获取 Key</h2>
+<p>MRZ 是有了, 但是这个并不是解密用的 Key<br />
+参考文档亲切地指出, key 依然要按照规(ji)定(ben)的(fa), 去产生</p>
+<p>又经过一番艰难寻找, 在 p11 中 69 页发现了计算方法<br />
+仔细看 D.1 与 D.2, 实际上 D.2 是先于 D.1 计算的</p>
+<p>都说了些啥呢, 算法如下</p>
+<ol type="1">
+<li><p>TD2 机读区(TD2 中第二个例子看起来最像题目给的 MRZ), 获取 MRZ(这步应该是给机器视觉识别卡上的 MRZ 用的, 我们跳过~)</p></li>
+<li><p>根据 MRZ 创建"MRZ 信息"<br />
+证件号 = <code>'L898902C&lt;'</code> 校验数位 = 3<br />
+出生日期 = <code>'690806'</code> 校验数位 = 1<br />
+截止日期 = <code>'940623'</code> 校验数位 = 6<br />
+机读区信息 = <code>'L898902C&lt;369080619406236'</code><br />
+机读区信息 = 证件号 + 校验数位 + 出生日期 + 校验数位 + 截止日期 + 校验数位 + 机读区信息</p></li>
+<li><p>计算"机读区信息"的 SHA-1 散列<br />
+<code>HSHA-1(机读区信息) = '239AB9CB282DAF66231DC5A4DF6BFBAEDF477565'</code></p></li>
+<li><p>获取 Kseed<br />
+取第三步结果的前 32 个<br />
+<code>Kseed = HSHA-1[:32]</code><br />
+<code>Kseed = '239AB9CB282DAF66231DC5A4DF6BFBAE'</code></p></li>
+<li><p>计算 key<br />
+<code>c = '00000001'</code><br />
+连接 Kseed 和 c<br />
+<code>D = '239AB9CB282DAF66231DC5A4DF6BFBAE00000001'</code><br />
+计算 D 的 SHA-1 散列<br />
+<code>HSHA-1(D) = 'AB94FCEDF2664EDFB9B291F85D7F77F27F2F4A9D'</code><br />
+对半分为<br />
+<code>Ka = AB94FCEDF2664EDF</code><br />
+<code>Kb = B9B291F85D7F77F2</code><br />
+调整奇偶校验位<br />
+Ka = 'AB94FDECF2674FDF'<br />
+Kb = 'B9B391F85D7F76F2'<br />
+Key = Ka + Kb</p></li>
+<li><p>有些问题<br />
+做到这, 你一定会有地方没懂<br />
+-&gt; MRZ 第一行没用么?<br />
+计算机读区信息的时候的确没用到<br />
+-&gt; 为什么 D.2 中第一个例子的证件号后面要加是 734?<br />
+看 MRZ, 我觉得这是在碰到校验位是'&lt;'的时候就要加 734, 这里我也不太明白, 猜测的, 文档看的有点累, 你加油~<br />
+-&gt; 计算 D 的 SHA-1 散列的时候, sha1 我算出来的不是 PDF 里给的, 但是计算"机读区信息"的 SHA-1 散列的时候却和 PDF 一样<br />
+这个你要注意, sha1 传入的是字符串, 不是 16 进制数~而 D 是 16 进制数~<br />
+-&gt; 调整奇偶校验位怎么调整?<br />
+看代码注释</p></li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Cipher <span class="hljs-keyword">import</span> AES<br><span class="hljs-keyword">from</span> Crypto.Hash <span class="hljs-keyword">import</span> SHA<br><span class="hljs-keyword">import</span> re, string, base64<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">Odd_Even</span>(<span class="hljs-params">ka</span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    bin(int(&#x27;30&#x27;,16))   bin(int(&#x27;ea&#x27;,16)) </span><br><span class="hljs-string">    -&gt; 110000           -&gt; 11101010</span><br><span class="hljs-string">    -&gt; 11000            -&gt; 1110101</span><br><span class="hljs-string">    -&gt; count(&#x27;1&#x27;)       -&gt; count(&#x27;1&#x27;) </span><br><span class="hljs-string">    -&gt; even             -&gt; odd</span><br><span class="hljs-string">    -&gt; 110001           -&gt; 11101010</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    k = []<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> ka:<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">bin</span>(<span class="hljs-built_in">int</span>(i,<span class="hljs-number">16</span>)&gt;&gt;<span class="hljs-number">1</span>).count(<span class="hljs-string">&#x27;1&#x27;</span>) %<span class="hljs-number">2</span> == <span class="hljs-number">0</span>:<br>            k += [<span class="hljs-built_in">hex</span>(<span class="hljs-number">1</span>+(<span class="hljs-built_in">int</span>(i,<span class="hljs-number">16</span>)&gt;&gt;<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">1</span>))[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">2</span>)]<br>        <span class="hljs-keyword">else</span>:<br>            k += [<span class="hljs-built_in">hex</span>((<span class="hljs-built_in">int</span>(i,<span class="hljs-number">16</span>)&gt;&gt;<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">1</span>))[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">2</span>)]<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#x27;</span>.join(k)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">GetSHA1</span>(<span class="hljs-params">D</span>):<br>    h = SHA.new()<br>    h.update(D)<br>    <span class="hljs-keyword">return</span> h.hexdigest()[:<span class="hljs-number">32</span>]<br><br>    <br>C = <span class="hljs-string">&#x27;9MgYwmuPrjiecPMx61O6zIuy3MtIXQQ0E59T3xB6u0Gyf1gYs2i3K9Jxaa0zj4gTMazJuApwd6+jdyeI5iGHvhQyDHGVlAuYTgJrbFDrfB22Fpil2NfNnWFBTXyf7SDI&#x27;</span><br>C = base64.b64decode(C)<br><br>Visa = <span class="hljs-string">&#x27;12345678&lt;8&lt;&lt;&lt;1110182&lt;1111167&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;4&#x27;</span><br>VisaNo = Visa[:<span class="hljs-number">9</span>]<br>VVisa = Visa[<span class="hljs-number">9</span>]<br>Nationality = Visa[<span class="hljs-number">10</span>:<span class="hljs-number">13</span>]<br>Birthday = Visa[<span class="hljs-number">13</span>:<span class="hljs-number">19</span>]<br>VBir = Visa[<span class="hljs-number">19</span>]<br>Sex = Visa[<span class="hljs-number">20</span>]<br>VisaEnd = Visa[<span class="hljs-number">21</span>:<span class="hljs-number">27</span>]<br>VVisaEnd = Visa[<span class="hljs-number">27</span>]<br>Others = Visa[<span class="hljs-number">28</span>:]<br><br>Info = VisaNo + VVisa + Birthday + VBir + VisaEnd + VVisaEnd<br><span class="hljs-built_in">print</span> Info<br><br>K_seed = GetSHA1(Info)<br><br>D = (K_seed + <span class="hljs-string">&#x27;0&#x27;</span> * <span class="hljs-number">7</span> + <span class="hljs-string">&#x27;1&#x27;</span>).decode(<span class="hljs-string">&#x27;hex&#x27;</span>)<br><br>key = GetSHA1(D)<br><br>k1 = Odd_Even(re.findall(<span class="hljs-string">&#x27;.&#123;2&#125;&#x27;</span>,key[:<span class="hljs-number">16</span>]))<br>k2 = Odd_Even(re.findall(<span class="hljs-string">&#x27;.&#123;2&#125;&#x27;</span>,key[<span class="hljs-number">16</span>:]))<br><br>key = k1 + k2<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;The key is:&#x27;</span>, key<br><br>cipher = AES.new(key.decode(<span class="hljs-string">&#x27;hex&#x27;</span>), AES.MODE_CBC, (<span class="hljs-string">&#x27;0&#x27;</span>*<span class="hljs-number">32</span>).decode(<span class="hljs-string">&#x27;hex&#x27;</span>))<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;The M is:&#x27;</span>, cipher.decrypt(C)<br><br></code></pre></td></tr></table></figure>
+<h2 id="m">M</h2>
+<p>是一句德语<br />
+<code>Herzlichen Glueckwunsch. Sie haben die Nuss geknackt. Das Codewort lautet: Kryptographie!</code><br />
+意思是<br />
+<code>生日快乐。他们已经破解了。密码：密码！</code></p>
+<p>睡了睡了~</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">#密码学</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Level II Challenges AES MRZ</div>
+      <div>https://www.tr0y.wang/2017/10/02/Crypto0/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年10月2日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2022年1月4日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/10/06/Crypto1/" title="Padding Oracle Attack">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Padding Oracle Attack</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/08/24/pyPackages/" title="Python 库记录">
+                        <span class="hidden-mobile">Python 库记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

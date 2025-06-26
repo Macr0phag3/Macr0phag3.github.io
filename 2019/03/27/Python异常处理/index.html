@@ -1,0 +1,1082 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="Python 用于处理异常一共有 4 个关键字，分别是 try、except、else、finally，该怎么用呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 中的异常处理">
+<meta property="og:url" content="https://www.tr0y.wang/2019/03/27/Python%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="Python 用于处理异常一共有 4 个关键字，分别是 try、except、else、finally，该怎么用呢？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2019-03-27T09:03:16.000Z">
+<meta property="article:modified_time" content="2023-12-14T06:19:30.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>Python 中的异常处理 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Python 中的异常处理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-03-27 09:03" pubdate>
+          2019年3月27日 09:03:16
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          69 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python 中的异常处理</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Python 用于处理异常一共有 4 个关键字，分别是 try、except、else、finally，该怎么用呢？</p>
+<span id="more"></span>
+<h2 id="为什么要有-try">为什么要有 try</h2>
+<p>假如你是 Python 的开发者，刚开始的时候你很高兴地发现自己创造的语言很棒，并为此感到自豪。有一天，你写了一个函数，作用是 5 分钟爬一次电影网站，并将结果存到文件里：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>: <br>    <span class="hljs-type">json</span> = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>    save(<span class="hljs-type">json</span>, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>    <span class="hljs-type">time</span>.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) # <span class="hljs-number">5</span>min 爬一次<br></code></pre></td></tr></table></figure></p>
+<p>spider 就是爬取页面的爬虫，save 是保存 json 格式的结果到 result.json 里。</p>
+<p>有一天，你发现网络环境不稳定的时候，spider 函数会报错：timeout。一旦出错，程序就会报错退出：<br />
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript">NetworkError: <span class="hljs-keyword">timeout</span>!<br></code></pre></td></tr></table></figure></p>
+<p>网络波动导致 timeout 的话，多试一次不就行了？于是，你发明了 <code>try</code> 关键字用于捕获异常，出现异常则跳过 try 块里剩下的语句。这样就可以愉快地重试了：<br />
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs autoit"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">10</span>): <span class="hljs-meta"># 尝试 10 次</span><br>        try:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <span class="hljs-built_in">break</span> <span class="hljs-meta"># 成功则退出</span><br>        time.<span class="hljs-built_in">sleep</span>(<span class="hljs-number">60</span>) <span class="hljs-meta"># 歇口气再试</span><br><br>    time.<span class="hljs-built_in">sleep</span>(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-meta"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<p>又过了一段时间，你发现爬虫虽然不会因为 timeout 报错而终止了，但是又出现了新的报错：<br />
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gauss">DecodeError: Json <span class="hljs-keyword">format</span> <span class="hljs-built_in">error</span>!<br></code></pre></td></tr></table></figure></p>
+<p>经过一番 debug，你发现了由于这个网站的服务器相当土豆，请求人数太多的时候反应不过来会导致 500 的 http status。这时返回的是非 json 格式的结果，而 spider 函数会将返回的结果当做 json 格式来处理，拿到的数据是非 json 格式的自然会导致 spider 函数报错。这个时候，应当等待更长的时间再爬。那么问题来了，如何区分不同的报错并进行处理呢？只用 try 关键字的话肯定是没法解决了，毕竟 try 没有区分异常的功能。</p>
+<h2 id="except-抵达战场">except 抵达战场</h2>
+<p>为了解决这个问题，你发明了 <code>except</code> 关键字，能够根据不同的异常类捕获不同的报错，并且报错的信息通过 as 赋给变量，比如下面就是赋给变量 <code>e</code>：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <span class="hljs-keyword">break</span> <span class="hljs-comment"># 成功则退出</span><br>        <span class="hljs-keyword">except</span> NetworkError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        <span class="hljs-keyword">except</span> DecodeError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">3</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇一大口气再试</span><br>        <br>    time.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<p>如果 except 后面没加具体的异常，则就和之前的第一版 try 一样，捕获所有错误。并且多个异常可以进行合并：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">try</span>:<br>	<span class="hljs-comment"># do something wrong</span><br><span class="hljs-keyword">except</span> (ValueError, IndexError) <span class="hljs-keyword">as</span> e:<br>	<span class="hljs-built_in">print</span>(e)<br></code></pre></td></tr></table></figure><br />
+这样代表捕获 <code>ValueError</code>与<code>IndexError</code>时都进行<code>print(e)</code>。</p>
+<p>这下就解决了上面的问题。舒服！</p>
+<p>解决了 json 获取的问题，接下来，你写了各种函数用于解析、展示、存储 json 文件：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <br>            <span class="hljs-comment"># 新增的函数</span><br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <span class="hljs-keyword">break</span> <span class="hljs-comment"># 成功则退出</span><br>        <span class="hljs-keyword">except</span> NetworkError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        <span class="hljs-keyword">except</span> DecodeError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">3</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇一大口气再试</span><br>        <br>    time.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<h2 id="else-的诞生">else 的诞生</h2>
+<p>随着处理函数的增加，try 语句块越来越长...直到有一天，有人在 github 看到了你的代码，费了半天的劲才明白你的 try 到底是在捕获哪个语句可能出现的错误，并顺手在 issue 留下了评论：<br />
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs vim">Your `<span class="hljs-keyword">try</span>` <span class="hljs-keyword">is</span> <span class="hljs-keyword">so</span> <br><span class="hljs-keyword">l</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br><span class="hljs-keyword">o</span><br>ng<br></code></pre></td></tr></table></figure></p>
+<p>你焕然大悟，在 try 里堆砌过多的语句将导致 try 可读性降低。再说了，try 块里的语句的异常，并不是你都想捕获的。于是你灵机一动，那我设置一个 flag 好了：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        error = <span class="hljs-number">1</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>            error = <span class="hljs-number">0</span><br>        <span class="hljs-keyword">except</span> NetworkError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        <span class="hljs-keyword">except</span> DecodeError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">3</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇一大口气再试</span><br>        <br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> error: <span class="hljs-comment"># 说明没报错</span><br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>             <span class="hljs-comment"># 新增的函数</span><br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <span class="hljs-keyword">break</span> <span class="hljs-comment"># 成功则退出</span><br><br>    time.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<p>问题解决了，但是怎么看怎么不顺眼，作为一个牛逼的语言发明者，这样简单的语法需求都没支持，还得每次都让开发者设置 flag，太不(mei)优(bi)雅(ge)了。于是你大手一挥，又发明了 <code>else</code> 关键字，配合 try 在 try 块没报错的情况下被执行：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>        <span class="hljs-keyword">except</span> NetworkError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        <span class="hljs-keyword">except</span> DecodeError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">3</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇一大口气再试</span><br>        <span class="hljs-keyword">else</span>: <span class="hljs-comment"># 负责帮助 try 块执行后续命令</span><br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <br>            <span class="hljs-comment"># 新增的函数</span><br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <span class="hljs-keyword">break</span> <span class="hljs-comment"># 成功则退出</span><br><br>    time.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<p>爬虫从此稳定得一批。</p>
+<h2 id="finallypython-的简洁">finally：Python 的简洁</h2>
+<p>又双过了一段时间，由于没有时间记录，你不知道每次爬取尝试运行了多久。于是你补充了几个语句，用于计算每次尝试执行的时间：<br />
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        <span class="hljs-built_in">start</span> = <span class="hljs-built_in">time</span>.<span class="hljs-built_in">time</span>() <span class="hljs-comment"># 起始时间点</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>        except NetworkError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>            <span class="hljs-function"><span class="hljs-keyword">end</span> = <span class="hljs-title">time</span>.<span class="hljs-title">time</span>() # 结束时间点</span><br>            print(<span class="hljs-keyword">end</span>-<span class="hljs-built_in">start</span>, <span class="hljs-string">&#x27;s&#x27;</span>)<br>        except DecodeError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">3</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇一大口气再试</span><br>            <span class="hljs-function"><span class="hljs-keyword">end</span> = <span class="hljs-title">time</span>.<span class="hljs-title">time</span>() # 结束时间点</span><br>            print(<span class="hljs-keyword">end</span>-<span class="hljs-built_in">start</span>, <span class="hljs-string">&#x27;s&#x27;</span>)<br>        <span class="hljs-keyword">else</span>: <span class="hljs-comment"># 负责帮助 try 块执行后续命令</span><br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <span class="hljs-function"><span class="hljs-keyword">end</span> = <span class="hljs-title">time</span>.<span class="hljs-title">time</span>() # 结束时间点</span><br>            print(<span class="hljs-keyword">end</span>-<span class="hljs-built_in">start</span>, <span class="hljs-string">&#x27;s&#x27;</span>)<br>            break <span class="hljs-comment"># 成功则退出</span><br><br>    <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<p>看上去挺好的，但是有大量的重复语句，能不能简洁一点呢？当然可以，你瞬间想起了用函数来封装记录时间的语句。但是只不过是把 n 个重复的语句变成 1 个重复语句罢了，还是不够简洁。于是灵机一动，调整了一下语句的位置：<br />
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        <span class="hljs-built_in">start</span> = <span class="hljs-built_in">time</span>.<span class="hljs-built_in">time</span>() <span class="hljs-comment"># 起始时间点</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>        except NetworkError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        except DecodeError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">3</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇一大口气再试</span><br>        <span class="hljs-keyword">else</span>: <span class="hljs-comment"># 负责帮助 try 块执行后续命令</span><br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            break <span class="hljs-comment"># 成功则退出</span><br>        <span class="hljs-comment"># 总是需要执行的代码放这里</span><br>        <span class="hljs-function"><span class="hljs-keyword">end</span> = <span class="hljs-title">time</span>.<span class="hljs-title">time</span>() # 结束时间点</span><br>        print(<span class="hljs-keyword">end</span>-<span class="hljs-built_in">start</span>, <span class="hljs-string">&#x27;s&#x27;</span>)<br><br>    <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<p>看上去不错，简洁了很多，但是实际上有个 bug，就是如果执行成功后，是不会执行记录时间的语句的，因为 else 里有 break，直接跳过了记录时间的语句。<br />
+于是，你又发明了 finally 语句，不管 try 的语句块执行报不报错，都会被执行，而且吸收了之前的教训，try、except、else 的语句中的 break、continue、return 语句不会跳过 finally 块里的语句，甚至连它们执行时出现的未捕获异常，也要在执行完 finally 块后才会抛出。<br />
+于是，代码就成为了：<br />
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        <span class="hljs-built_in">start</span> = <span class="hljs-built_in">time</span>.<span class="hljs-built_in">time</span>() <span class="hljs-comment"># 起始时间点</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>        except NetworkError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        except DecodeError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">3</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇一大口气再试</span><br>        <span class="hljs-keyword">else</span>: <span class="hljs-comment"># 负责帮助 try 块执行后续命令</span><br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            break <span class="hljs-comment"># 成功则退出</span><br>        <span class="hljs-keyword">finally</span>: <span class="hljs-comment"># 就算 else 里 break 也会执行 finally</span><br>            <span class="hljs-comment"># 总是需要执行的代码放这里</span><br>            <span class="hljs-function"><span class="hljs-keyword">end</span> = <span class="hljs-title">time</span>.<span class="hljs-title">time</span>() # 结束时间点</span><br>            print(<span class="hljs-keyword">end</span>-<span class="hljs-built_in">start</span>, <span class="hljs-string">&#x27;s&#x27;</span>)<br><br>    <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<h2 id="raise-异常制造机">raise 异常制造机</h2>
+<p>叒叕叒叕过了一段时间，你发现这个网站的服务器变得更渣了，一旦人数过多崩了，第二天才会恢复。这时候之前的 <code>time.sleep(3*60) # 歇一大口气再试</code> 意义也不大了，还不如停下来，等第二天手动恢复。但是你又想记录这个状态，这就意味着不能简单地把 <code>except DecodeError as e:</code> 删了，因为还要打印呢。于是你灵机一动，将代码改为：<br />
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        <span class="hljs-built_in">start</span> = <span class="hljs-built_in">time</span>.<span class="hljs-built_in">time</span>() <span class="hljs-comment"># 起始时间点</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>        except NetworkError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        except DecodeError <span class="hljs-keyword">as</span> e:<br>            print(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            <span class="hljs-comment"># time.sleep(3*60) # 歇一大口气再试</span><br>            <span class="hljs-built_in">kill</span><br>        <span class="hljs-keyword">else</span>: <span class="hljs-comment"># 负责帮助 try 块执行后续命令</span><br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            break <span class="hljs-comment"># 成功则退出</span><br>        <span class="hljs-keyword">finally</span>: <span class="hljs-comment"># 就算 else 里 break 也会执行 finally</span><br>            <span class="hljs-comment"># 总是需要执行的代码放这里</span><br>            <span class="hljs-function"><span class="hljs-keyword">end</span> = <span class="hljs-title">time</span>.<span class="hljs-title">time</span>() # 结束时间点</span><br>            print(<span class="hljs-keyword">end</span>-<span class="hljs-built_in">start</span>, <span class="hljs-string">&#x27;s&#x27;</span>)<br><br>    <span class="hljs-built_in">time</span>.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<p>由于变量 <code>kill</code> 没有定义，代码便在进入<code>except DecodeError as e:</code>后，<code>print</code>完就报错退出了。这显然是一个骚操作（我之前就是这么干的 :P）。于是你又发明了 <code>raise</code>关键字用于触发报错：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">In</span> [<span class="hljs-number">3</span>]: <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&#x27;123&#x27;</span>)<br>Traceback (most recent <span class="hljs-keyword">call</span> last):<br>  File &quot;&lt;ipython-input-3-81afeb2aaf23&gt;&quot;, <span class="hljs-type">line</span> <span class="hljs-number">1</span>, <span class="hljs-keyword">in</span> &lt;module&gt;<br>    <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&#x27;123&#x27;</span>)<br>RuntimeError: <span class="hljs-number">123</span><br></code></pre></td></tr></table></figure></p>
+<p>raise 后面可以加上异常的类型，也可以不加，不加的话则重新抛出捕获的异常：<br />
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs nix">In [<span class="hljs-number">4</span>]: <span class="hljs-params">try:</span><br>   ...:     <span class="hljs-number">1</span><span class="hljs-symbol">/0</span><br>   ...: except <span class="hljs-params">ZeroDivisionError:</span><br>   ...:     raise <span class="hljs-comment"># 重新抛出 ZeroDivisionError</span><br>   ...:<br>Traceback (most recent call last):<br>  File <span class="hljs-string">&quot;&lt;ipython-input-4-2791351c601e&gt;&quot;</span>, line <span class="hljs-number">2</span>, <span class="hljs-keyword">in</span> <span class="hljs-symbol">&lt;module&gt;</span><br>    <span class="hljs-number">1</span><span class="hljs-symbol">/0</span><br><span class="hljs-params">ZeroDivisionError:</span> division by zero<br></code></pre></td></tr></table></figure></p>
+<p>最最最最最后，代码就成了：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>): <span class="hljs-comment"># 尝试 10 次</span><br>        start = time.time() <span class="hljs-comment"># 起始时间点</span><br>        <span class="hljs-keyword">try</span>:<br>            json = spider(<span class="hljs-string">&#x27;www.tr0y.wang&#x27;</span>)<br>        <span class="hljs-keyword">except</span> NetworkError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;网络波动：&#x27;</span>, e)<br>            time.sleep(<span class="hljs-number">60</span>) <span class="hljs-comment"># 歇口气再试</span><br>        <span class="hljs-keyword">except</span> DecodeError <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;服务器扛不住了：&#x27;</span>, e)<br>            <span class="hljs-comment"># time.sleep(3*60) # 歇一大口气再试</span><br>            <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&#x27;服务器扛不住了，需要等第二天手动重启!&#x27;</span>)<br>        <span class="hljs-keyword">else</span>: <span class="hljs-comment"># 负责帮助 try 块执行后续命令</span><br>            save(json, <span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            analysis(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            ... <span class="hljs-comment"># 省略 n 个函数</span><br>            show(<span class="hljs-string">&#x27;result.json&#x27;</span>)<br>            <span class="hljs-keyword">break</span> <span class="hljs-comment"># 成功则退出</span><br>        <span class="hljs-keyword">finally</span>: <span class="hljs-comment"># 就算 else 里 break 也会执行 finally</span><br>            <span class="hljs-comment"># 总是需要执行的代码放这里</span><br>            end = time.time() <span class="hljs-comment"># 结束时间点</span><br>            <span class="hljs-built_in">print</span>(end-start, <span class="hljs-string">&#x27;s&#x27;</span>)<br><br>    time.sleep(<span class="hljs-number">5</span>*<span class="hljs-number">60</span>) <span class="hljs-comment"># 5min 爬一次</span><br></code></pre></td></tr></table></figure></p>
+<h2 id="其他细节">其他细节</h2>
+<p>再说一下总体细节：<br />
+如果没有 try 关键字，那么使用后三个关键字是没有意义的（Python 的语法也不允许）。那么我们自然而然会想到以下组合：</p>
+<ol type="1">
+<li>try + except：如果出错，执行 except 块里的语句</li>
+<li>try + except + else：如果出错，执行 except 块里的语句，否则执行 else 里的语句</li>
+<li>try + except + else + finally：如果出错，执行 except 块里的语句，否则执行 else 里的语句，最后不管有没有出错，都执行 finally 里的语句</li>
+<li>try + else：如果没出错，执行 else 块里的语句（本质上是忽略所有异常）</li>
+<li>try + else + finally：如果没出错，执行 else 块里的语句，最后不管有没有出错，都执行 finally 里的语句（本质上是忽略所有异常）</li>
+<li>try + finally：最后不管有没有出错，都执行 finally 里的语句</li>
+</ol>
+<p>如果你去试，你会发现第 4、5 点是不行的，会报语法错误。为什么不设计 try-else 的语法呢？我们看一下怎么使用 try-except-else 来实现我们想要的 try-else：<br />
+效果：<br />
+<figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs pony"><span class="hljs-keyword">try</span>:<br>    may <span class="hljs-keyword">be</span> wrong<br><span class="hljs-keyword">else</span>:<br>    <span class="hljs-keyword">do</span> something...<br></code></pre></td></tr></table></figure></p>
+<p>实现：<br />
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs delphi"><span class="hljs-keyword">try</span>:<br>    may be wrong<br><span class="hljs-keyword">except</span>:<br>    pass<br><span class="hljs-keyword">else</span>:<br>    <span class="hljs-keyword">do</span> something...<br></code></pre></td></tr></table></figure></p>
+<p>有些人可能觉得第一种很简洁。但是第二种写法很清晰地传达了一个意思：捕获并忽略所有异常，比较符合 Python 之禅的中的：explicit is better than implicit。至于采用哪种更好，Guido 说了算 :P</p>
+<p>最后，既然提到了“忽略所有异常”，再说一下 except 后写不写 Exception 的区别吧：<br />
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs delphi"><span class="hljs-keyword">try</span>:<br>  <span class="hljs-keyword">do</span> something<br><span class="hljs-keyword">except</span>: <br>  pass<br></code></pre></td></tr></table></figure><br />
+与<br />
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs delphi"><span class="hljs-keyword">try</span>:<br>  <span class="hljs-keyword">do</span> something<br><span class="hljs-keyword">except</span> Exception: <br>  pass<br></code></pre></td></tr></table></figure></p>
+<p>捕获异常到底怎么写？<code>except:</code> 还是 <code>except Exception, e:</code> 还是 <code>except Exception as e:</code> ?</p>
+<p>首先，<code>except Exception, e:</code> 已经是很旧很旧的写法了，还不兼容 3.x。并且有时候会坑死你（以下代码当然只在 2.x 运行）：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">try</span>:<br>    <span class="hljs-number">1</span>/<span class="hljs-number">0</span><br><span class="hljs-keyword">except</span> ZeroDivisionError, IndexError:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;You are WRONG!&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>乍一看这段代码的作用是捕获 <code>ZeroDivisionError</code> 与 <code>IndexError</code> 2 个异常，来试试：<br />
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs vim">In [<span class="hljs-number">1</span>]: <span class="hljs-keyword">try</span>:<br>   ...:     <span class="hljs-number">1</span>/<span class="hljs-number">0</span><br>   ...: except ZeroDivisionError, IndexError:<br>   ...:     <span class="hljs-keyword">print</span>(<span class="hljs-string">&#x27;You are WRONG!&#x27;</span>)<br>   ...:<br>You are WRONG!<br><br>In [<span class="hljs-number">2</span>]: <span class="hljs-keyword">try</span>:<br>   ...:     [][<span class="hljs-number">0</span>]<br>   ...: except ZeroDivisionError, IndexError:<br>   ...:     <span class="hljs-keyword">print</span>(<span class="hljs-string">&#x27;You are WRONG!&#x27;</span>)<br>   ...:<br>---------------------------------------------------------------------------<br>Traceback (most recent <span class="hljs-keyword">call</span> <span class="hljs-keyword">last</span>)<br><span class="hljs-symbol">&lt;ipython-input-2-69cefe22dccf&gt;</span> in <span class="hljs-symbol">&lt;module&gt;</span>()<br>      <span class="hljs-number">1</span> <span class="hljs-keyword">try</span>:<br>----&gt; <span class="hljs-number">2</span>     [][<span class="hljs-number">0</span>]<br>      <span class="hljs-number">3</span> except ZeroDivisionError, IndexError:<br>      <span class="hljs-number">4</span>     <span class="hljs-keyword">print</span>(<span class="hljs-string">&#x27;You are WRONG!&#x27;</span>)<br>      <span class="hljs-number">5</span><br><br>IndexError: <span class="hljs-keyword">list</span> <span class="hljs-built_in">index</span> out of <span class="hljs-built_in">range</span><br></code></pre></td></tr></table></figure><br />
+<code>IndexError</code> 居然没被捕获，那 IndexError 是拿去干嘛用了呢？实际上充当了之前变量 <code>e</code> 的作用：<br />
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">In [4]: <span class="hljs-keyword">try</span>:<br>   <span class="hljs-string">...</span>:     1/0<br>   <span class="hljs-string">...</span>: except ZeroDivisionError, IndexError:<br>   <span class="hljs-string">...</span>:     print<span class="hljs-params">(IndexError)</span><br>   <span class="hljs-string">...</span>:<br>integer division or modulo by zero<br></code></pre></td></tr></table></figure><br />
+巨大的深坑 :)</p>
+<p>所以，<code>except Exception, e:</code> 先不考虑。</p>
+<p><code>except:</code> 与 <code>except Exception as e:</code> 的区别在于，异常的继承的类型不同。前者捕获的异常涵盖了直接、间接继承 BaseException 的所有异常；而后者只包括了直接、间接继承 Exception 的异常。</p>
+<p>我们知道，要想捕获哪一种异常，就在 except 后面加上这个异常类。那么 Exception 到底指的是哪个异常呢？<br />
+下面是异常的继承的关系图：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs php">BaseException <span class="hljs-comment"># 前者</span><br>├── SystemExit <br>├── KeyboardInterrupt<br>├── GeneratorExit<br>└── <span class="hljs-built_in">Exception</span> <span class="hljs-comment"># 后者</span><br>    ├── StopIteration <br>    ├── <span class="hljs-built_in">ArithmeticError</span> <br>    │     ├── ZeroDivisionError <br>    │     └── ... <span class="hljs-comment"># 省略了</span><br>    ├── <span class="hljs-built_in">AssertionError</span> <br>    ├── AttributeError<br>    ├── ImportError <br>    ├── IndexError<br>    └── ... <span class="hljs-comment"># 省略了</span><br></code></pre></td></tr></table></figure><br />
+完整的这里有：<a target="_blank" rel="noopener" href="https://docs.python.org/dev/library/exceptions.html#exception-hierarchy">传送门🚪</a></p>
+<p>可以看到，前者包含的 SystemExit、KeyboardInterrupt、GeneratorExit 是后者没有的。所以前者捕获的异常更加彻底，包括如<strong>键盘中断</strong>和<strong>程序退出请求</strong>（用 <code>sys.exit()</code> 就无法退出程序了，因为异常被捕获了）。这三个异常不推荐随意捕获，因为它们被认为是比较严重的异常。举例：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-keyword">while</span> <span class="hljs-number">1</span>: <span class="hljs-keyword">pass</span><br>    <span class="hljs-keyword">except</span>:<br>        <span class="hljs-built_in">print</span> sys.exc_info()[<span class="hljs-number">2</span>]<br></code></pre></td></tr></table></figure><br />
+按下 ctrl+c 也不会中断：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python异常处理/20181107041106530.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>而这样就可以：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-keyword">while</span> <span class="hljs-number">1</span>: <span class="hljs-keyword">pass</span><br>    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>        <span class="hljs-built_in">print</span> sys.exc_info()[<span class="hljs-number">2</span>]<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python异常处理/20181107041402854.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>最后，在 <code>except Exception as e:</code> 中，<code>e</code> 作为 <code>Exception</code> 的一个实例，会有很多用处。比如，当你在使用 urllib 抓取一个页面的时候，服务器返回 <code>500</code>。这个时候 Python 会报错，但是页面却有返回内容，而你又想拿到这个页面的内容时，就可以在异常中获取：<br />
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs applescript">import urllib.request<br><span class="hljs-keyword">from</span> urllib.<span class="hljs-keyword">error</span> import HTTPError<br><br><span class="hljs-literal">result</span> = urllib.request.Request(url=<span class="hljs-string">&quot;xxx&quot;</span>)<br><span class="hljs-keyword">try</span>:<br>    handler = urllib.request.urlopen(<span class="hljs-literal">result</span>)<br>    handler.<span class="hljs-built_in">read</span>() <span class="hljs-comment"># 由于 500 会报错，所以代码不会走到这里</span><br>except HTTPError <span class="hljs-keyword">as</span> e:<br>    content = e.<span class="hljs-built_in">read</span>() <span class="hljs-comment"># 输出 500 页面的内容</span><br></code></pre></td></tr></table></figure></p>
+<p>所以，对于 except Exception 来说，Exception 指的是 Exception 异常类，所有直接、间接继承 Exception 的异常都会被捕获。若不写具体的异常类，则视为 BaseException，即 <code>except:</code> 与 <code>except BaseException:</code> 是一样的~</p>
+<p>最后的最后，再说一下 finally。在使用的时候，如果放入能打断运行（<code>return</code>、<code>sys.exit</code> 等等）的语句，要非常小心。猜猜下面这个示例代码，<code>test(1)</code> 的结果是什么？<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">test</span>(<span class="hljs-params">num</span>):<br>    <span class="hljs-keyword">try</span>:<br>        result = <span class="hljs-number">1</span>/num<br>    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;got an error:&#x27;</span>, e)<br>        result = <span class="hljs-literal">None</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;success&#x27;</span>)<br>        kill<br>    <span class="hljs-keyword">finally</span>:<br>        <span class="hljs-keyword">return</span> result<br><br><span class="hljs-meta">&gt;&gt;&gt; </span>test(<span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure></p>
+<p>try 里的语句不会报错，那么接下来执行的就是 else，else 里的语句由于 kill 是没有定义过的，所以应当抛出 <code>NameError: name 'kill' is not defined</code>，但是 上面说了，<code>finally</code> 里的语句一定会被执行，即使前面的语句抛出异常，也需要让 finally 执行之后才能抛出。<br />
+但是由于 finally 中有 return，直接打断了函数的运行，所以这个异常就被吃掉了。也就是这段代码实际上等价于：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">test</span>(<span class="hljs-params">num</span>):<br>    <span class="hljs-keyword">try</span>:<br>        result = <span class="hljs-number">1</span>/num<br>    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;got an error:&#x27;</span>, e)<br>        result = <span class="hljs-literal">None</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">try</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;success&#x27;</span>)<br>            kill<br>        <span class="hljs-keyword">except</span>:<br>            <span class="hljs-keyword">pass</span><br>    <span class="hljs-keyword">finally</span>:<br>        <span class="hljs-keyword">return</span> result<br><br></code></pre></td></tr></table></figure><br />
+没错，所有直接、间接继承 <code>BaseException</code> 的异常都会被吃掉。<br />
+如果你有作进一步的尝试，你会发现 finally 中是不能使用 continue 的，原因在于...这是个 bug，py3.8 应该会对此进行修复：<a target="_blank" rel="noopener" href="https://bugs.python.org/issue32489">issue32489 - Allow 'continue' in 'finally' clause.</a></p>
+<h2 id="总结">总结</h2>
+<p>总结一下，异常捕获、处理的流程是这样的：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/20190327091230979.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>即：</p>
+<ol type="1">
+<li>try 块：可能出现错误的语句</li>
+<li>except：出错时的处理语句</li>
+<li>else：没出错的时候继续执行的语句</li>
+<li>finally：不管有没有出错，都会执行的语句</li>
+</ol>
+<p>最后还有个 <code>raise</code>：用于(重新)抛出异常。</p>
+我认为这些关键字覆盖的语句最好精简一些，如果语句不需要与处理异常相关的东西打交道就不要放入对应的代码块中去，除非你很有信心不会不小心踩坑。<br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Python 中的异常处理</div>
+      <div>https://www.tr0y.wang/2019/03/27/Python异常处理/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年3月27日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月14日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/04/08/Python%E5%9B%9B%E8%88%8D%E4%BA%94%E5%85%A5/" title="在 Python 中如何正确地四舍五入？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">在 Python 中如何正确地四舍五入？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/03/25/MySQL%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/" title="MySQL 注入指北">
+                        <span class="hidden-mobile">MySQL 注入指北</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1181 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="一份非常用协议大礼包，SSRF 篇的前置知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - 非常见协议大礼包">
+<meta property="og:url" content="https://www.tr0y.wang/2021/05/17/SecMap-%E9%9D%9E%E5%B8%B8%E8%A7%81%E5%8D%8F%E8%AE%AE%E5%A4%A7%E7%A4%BC%E5%8C%85/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="一份非常用协议大礼包，SSRF 篇的前置知识">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+<meta property="article:published_time" content="2021-05-17T19:00:00.000Z">
+<meta property="article:modified_time" content="2025-04-15T14:01:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+  
+  
+  
+  <title>SecMap - 非常见协议大礼包 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - 非常见协议大礼包"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-05-17 19:00" pubdate>
+          2021年5月17日 19:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          45 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - 非常见协议大礼包</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>一份非常用协议大礼包，SSRF 篇的前置知识</p>
+<span id="more"></span>
+<h1 id="secmap---非常用协议大礼包">SecMap - 非常用协议大礼包</h1>
+<h2 id="知识点介绍">知识点介绍</h2>
+<p>这里说的 “非常用” 是相对于 HTTP 这种非常知名的协议来说的。对于同是搞安全的橘友来说，像 gopher 这种协议其实也挺常用的，各位无需纠结这个，意思传达到了就好。</p>
+<h2 id="协议">协议</h2>
+<h3 id="gopher">gopher://</h3>
+<p>协议详情：https://zh.wikipedia.org/wiki/Gopher_%28%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE%29</p>
+<p>gopher 协议，人送外号“万金油”，因为利用此协议可以攻击内网的 Web 应用、Redis、MySQL、FTP、Memcache 等等。本质上是因为 gopher 携带的数据可以插入 <code>\r\n</code>（<code>%0d%0a</code>），而很多组件就是利用 <code>\r\n</code> 来分隔连续的两条命令，所以它可以与很多组件进行连续交互，那么也就可以很方便地进行攻击了。</p>
+<p>gopher 协议的格式：<code>gopher://</code>+<code>ip:端口</code>+<code>/</code>+<code>_</code> + <code>TCP/IP 数据</code></p>
+<p>需要注意的是：</p>
+<ol type="1">
+<li>gopher 协议的默认端口为 <code>70</code></li>
+<li>这里面的 <code>_</code>，这是分隔符，其实可以用任意 ASCII 字符</li>
+<li>分隔符后面的 TCP/IP 数据就是发出去的数据，数据部分如果有特殊字符必须要进行 url 编码，这样 gopher 协议才能正确解析</li>
+<li>大部分 PHP 并不会开启 fopen 的 gopher wrapper</li>
+<li>PHP file_get_contents 的 gopher 协议不能 URLencode</li>
+<li>PHP file_get_contents 的 gopher 协议的 302 跳转有 bug，导致利用失败</li>
+<li>PHP 的 curl 默认不跟随 302 跳转</li>
+<li>curl/libcurl v7.43 上 gopher 协议存在 <code>%00</code> 截断，v7.49 可用</li>
+</ol>
+<p>下面举几个比较典型的例子，其实原理都是一样的，很容易拓展到攻击其他组件。</p>
+<h4 id="发出-http-请求">发出 HTTP 请求</h4>
+<p>例如，我们打算通过 gopher 协议，来完成一次 http 请求，那么我们最少需要发出这些数据：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs txt">GET / HTTP/1.1<br>Host: baidu.com<br></code></pre></td></tr></table></figure></p>
+<p>那么首先，把这些数据进行 url 编码：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">1</span>]: <span class="hljs-keyword">from</span> urllib <span class="hljs-keyword">import</span> parse<br><br>In [<span class="hljs-number">2</span>]: parse.quote(<span class="hljs-string">&#x27;GET / HTTP/1.1\r\nHost: baidu.com\r\n\r\n&#x27;</span>)<br>Out[<span class="hljs-number">2</span>]: <span class="hljs-string">&#x27;GET%20/%20HTTP/1.1%0D%0AHost%3A%20baidu.com%0D%0A%0D%0A&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>然后用 curl 即可通过 gopher 协议完成一次 http 请求：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210507154635.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当然 POST 也是可以的。</p>
+<h4 id="攻击-mysql">攻击 MySQL</h4>
+<p>同理，也可以访问其他服务，这里演示一下 MySQL 的。</p>
+<p>注意，mysql 的实验，需要配置 <code>skip_ssl</code> 来禁用 ssl，因为 gopher 无法处理 ssl 握手。</p>
+<p>按照我们实际想要达成的目的去使用 mysql，我称之为“录像”，期间用 wireshark 抓包，点击跟踪 TCP 流：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210507172904.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>简单起见，我这里仅仅是连上去之后执行了 <code>select 'tr0y&#123;Th1s_is_fl4g&#125;';</code> 就退出了（注意，这里一定要退出，原因见下面）。那么可以得到下面的数据：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210507175311.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>注意我们只需要发出数据，所以选择客户端发送到 MySQL 服务器的数据包，然后导出原始数据：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210507173100.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>wireshark 所谓的“原始数据”其实就是十六进制的数据，而我们小学二年级就知道，url 编码就是字符的十六进制数据表示，前面加个 %，故可得：<br />
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs llvm">ba<span class="hljs-number">00000185</span>a<span class="hljs-number">6</span>ff<span class="hljs-number">0900000001</span>ff<span class="hljs-number">00000000000000000000000000000000000000000000005472307900010063616368696e675</span>f<span class="hljs-number">736861325</span>f<span class="hljs-number">70617373776</span>f<span class="hljs-number">7264007</span><span class="hljs-keyword">c</span><span class="hljs-number">035</span>f<span class="hljs-number">6</span>f<span class="hljs-number">73086</span>f<span class="hljs-number">737831302e3136095</span>f<span class="hljs-number">706</span><span class="hljs-keyword">c</span><span class="hljs-number">6174666</span>f<span class="hljs-number">726</span>d<span class="hljs-number">067838365</span>f<span class="hljs-number">36340</span>f<span class="hljs-number">5</span>f<span class="hljs-number">636</span><span class="hljs-keyword">c</span><span class="hljs-number">69656e745</span>f<span class="hljs-number">76657273696</span>f<span class="hljs-number">6e06382</span>e<span class="hljs-number">302e32330</span><span class="hljs-keyword">c</span><span class="hljs-number">5</span>f<span class="hljs-number">636</span><span class="hljs-keyword">c</span><span class="hljs-number">69656e745</span>f<span class="hljs-number">6e616</span>d<span class="hljs-number">65086</span><span class="hljs-keyword">c</span><span class="hljs-number">69626</span>d<span class="hljs-number">7973716</span><span class="hljs-keyword">c</span><span class="hljs-number">045</span>f<span class="hljs-number">706964053238303337076</span>f<span class="hljs-number">735</span>f<span class="hljs-number">757365720</span>a<span class="hljs-number">6</span>d<span class="hljs-number">6163723070686167330</span><span class="hljs-keyword">c</span><span class="hljs-number">70726</span>f<span class="hljs-number">6772616</span>d<span class="hljs-number">5</span>f<span class="hljs-number">6e616</span>d<span class="hljs-number">65056</span>d<span class="hljs-number">7973716</span><span class="hljs-keyword">c</span><span class="hljs-number">2300000003000173656</span><span class="hljs-keyword">c</span><span class="hljs-number">65637420404076657273696</span>f<span class="hljs-number">6e5</span>f<span class="hljs-number">636</span>f<span class="hljs-number">6</span>d<span class="hljs-number">6</span>d<span class="hljs-number">656e74206</span><span class="hljs-keyword">c</span><span class="hljs-number">696</span>d<span class="hljs-number">697420311e00000003000173656</span><span class="hljs-keyword">c</span><span class="hljs-number">6563742027747230797</span>b<span class="hljs-number">546831735</span>f<span class="hljs-number">69735</span>f<span class="hljs-number">666</span><span class="hljs-keyword">c</span><span class="hljs-number">34677</span>d<span class="hljs-number">270100000001</span><br></code></pre></td></tr></table></figure><br />
+（这里的操作实际上会产生 4 个请求数据包，直接拼接在一起即可）</p>
+<p>发出：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210507175543.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>整个过程可以看做是先录制与 MySQL 交互的过程，然后利用 gopher 回放，所以录像中不能有随机因素，比如 ssl 握手，否则就无法回放。</p>
+<p>最后总结一下需要注意的事情：</p>
+<ol type="1">
+<li>目标 MySQL 必须关闭 ssl（配置 <code>skip_ssl</code>）</li>
+<li>录制的时候，需要用 <code>-h</code> 指定 host，否则如果是搭建在本地的 mysql，会直接通过 sock 文件（默认是 <code>/tmp/mysql.sock</code>）进行进程通信，不走网卡所以抓不到包。</li>
+<li>目标 MySQL 必须配置无需认证。如果是用 <code>caching_sha2_password</code> 进行认证（版本 <code>&gt;8.0</code> 默认就是这个认证模式）的用户，那么 mysql 服务端会要求客户端必须启用 ssl；如果是用 <code>mysql_native_password</code> 进行认证的用户，那么在认证过程中会有随机的字符出现（应该是用于 challenge）。以上两种认证模式均无法通过 gopher 利用。</li>
+<li>录制完毕之后，没有手动退出 mysql cli，那么就需要在最后加上 <code>%01%00%00%00%01</code>，否则 curl 会一直卡着（虽然这时候抓包已经可以看到回显了），原因是 curl 没收到服务端发来的结束符，认为还有剩余的数据在管道中，于是继续等待，表现出来就是 curl 一直卡着。</li>
+</ol>
+<h4 id="攻击-redis">攻击 Redis</h4>
+<p>没啥特别的，简直就是一个 redis-cli。Redis 有密码无密码都可，可以利用 <code>\r\n</code> 拼接来一次性执行多条命令：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 即 auth 123456\r\nPING\r\nquit</span><br><span class="hljs-attribute">curl</span> gopher://<span class="hljs-number">127</span>.<span class="hljs-number">1</span>:<span class="hljs-number">6001</span>//auth%<span class="hljs-number">20123456</span>%<span class="hljs-number">0</span>d%<span class="hljs-number">0</span>aPING%<span class="hljs-number">0</span>d%<span class="hljs-number">0</span>aquit<br></code></pre></td></tr></table></figure></p>
+<p>当然，也可以用来爆破密码。</p>
+<h3 id="dict">dict://</h3>
+<p>协议详情：http://dict.org/rfc2229.txt</p>
+<p>dict 协议是一个字典服务器协议，就是用来查单词的那种字典。字典服务器本来是为了让客户端使用过程中能够访问更多的字典源。</p>
+<p>dict 协议的格式：<code>dict://</code>+<code>ip:端口</code>+<code>/</code> + <code>TCP/IP 数据</code></p>
+<p>与 gopher 相比，dict 携带的数据无法插入 <code>\r\n</code>（只能插入 <code>\\r\\n</code>），所以对于大部分组件来说，只能执行一条命令，所以如果一个组件可以一步一步操作（比如 redis），那么才可以利用，那么很明显，需要认证的 redis 是无法通过 dict 攻击的（即使你知道密码也没用），但是可以用来爆破密码。</p>
+<p>这里举个 Redis 的例子，由于 dict:// 相对比较鸡肋一些，所以算是一个低配的 redis-cli。</p>
+<p>首先演示一下 set/get：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210508152243.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>再来个写 webshell 的：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210508153534.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>需要注意的点：</p>
+<ol type="1">
+<li>若最后的 payload 需要用空格，那么在 dict 里需要用 <code>:</code> 表示，即 <code>dict://127.0.0.1:80/set:key:1</code> 等于 <code>set key 1</code>。</li>
+<li>curl 在通过 dict 执行的时候，会在前后自动加上客户端版本和 QUIT：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210508121116.png!blog#width-zoom4" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+这也是为什么上面那个 redis 的例子中，第一行永远是错误，最后一行永远是 <code>+OK</code> 的原因</li>
+<li>由于 dict:// 协议在出现 <code>?</code> 的时候会截断后面的数据：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210508155116.png!blog#width-zoom4" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+这里的思路就是先把数据传给组件，然后让组件去完成转义，比如 <code>set key "1\x3f1"</code> 对于 redis 来说等于 <code>set key "1?1"</code>，所以 dict:// 就可以这样：<code>curl 'dict://127.1:6379/set:key:"1\x3f1"'</code>。上面那个写 webshell 的例子就是因为这个原因所以进行了转义。</li>
+</ol>
+<h3 id="file">file://</h3>
+<p>协议详情：https://docs.microsoft.com/en-us/previous-versions//aa767731(v=vs.85)</p>
+<p>读取本地文件，这个没啥好说的：<code>curl file:///etc/passwd</code></p>
+<p>比如浏览器读取本地文件的时候，用的也是这个协议：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210508113942.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>对于 PHP 的文件包含有个骚操作就是，可以创建一个名为 <code>&lt;?php phpinfo(); ?&gt;.txt</code> 的文件，然后压缩上传，接下来直接包含即可（需要绝对路径）：<code>include("file://wwwhtml/upload/test.zip");</code>，当然，<code>.tar</code>、<code>.zip</code> 都可以。至于原理，贴个图大家就都懂啦：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210514165959.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="data">data://</h3>
+<ul>
+<li>作用：Data URI scheme 是在 RFC2397 中定义的，目的是将一些小的数据，直接嵌入到网页中，从而不用再从外部文件载入</li>
+<li>条件：
+<ul>
+<li><code>allow_url_include</code>: <code>On</code></li>
+<li>PHP &gt;= 5.2.0</li>
+</ul></li>
+</ul>
+<p>格式为 <code>data:(//)[class](/)[type](;base64),payload</code>：</p>
+<ol type="1">
+<li><code>//</code> 可以省略</li>
+<li><code>/</code> 可以省略，特殊情况在下面</li>
+<li><code>[class]</code>、<code>[type]</code>: 可以省略，任意字符；如果要写其中一个，那么 <code>/</code> 不可省略，另一个为可空。</li>
+<li><code>;base64</code> 可以省略；如果要加的话，payload 必须经过 base64 编码</li>
+</ol>
+<p>这些在 PHP 里都是可以的：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">data://tr0y/tr0y;base64,PD9waHAgcGhwaW5mbygpOz8+<br>data:tr0y/tr0y;base64,PD9waHAgcGhwaW5mbygpOz8+<br>data:tr0y/;base64,PD9waHAgcGhwaW5mbygpOz8+<br>data:/;base64,PD9waHAgcGhwaW5mbygpOz8+<br>data:;base64,PD9waHAgcGhwaW5mbygpOz8+<br>data:,&lt;?php phpinfo();?&gt;<br></code></pre></td></tr></table></figure></p>
+<p>该协议类似于 php://input，区别在于 data:// 是直接获取后面跟着的内容。浏览器一般都支持这个协议，最常用的莫过于展示小图片了；在 CTF 中常用于执行任意 PHP 代码。</p>
+<p>每个组件支持的会稍微有点区别，例如 <code>data:;,&lt;?php phpinfo();?&gt;</code> 在 Chrome 可以，但是在 PHP 不行。</p>
+<h3 id="php">php://</h3>
+<p><code>php://</code>：访问各个输入/输出流（I/O streams）。PHP 提供了一些杂项输入/输出（IO）流，允许访问 PHP 的输入输出流、标准输入输出和错误描述符；内存中、磁盘备份的临时文件流以及可以操作其他读取写入文件资源的过滤器。</p>
+<p>可以看官方文档的介绍：https://www.php.net/manual/zh/wrappers.php.php</p>
+<p>属于 PHP 中的伪协议，一般受限于 php.ini 中的配置，所以下文会一并列出使用条件。</p>
+<h4 id="phpinput">php://input</h4>
+<ul>
+<li>作用：访问请求的原始数据的只读流</li>
+<li>条件：
+<ul>
+<li><code>allow_url_include</code>: <code>On</code></li>
+<li>form 表单里的 enctype 不为 <code>multipart/form-data</code>（默认为 <code>application/x-www-form-urlencoded</code>）。体现在请求头里就是 Content-Type 不能为 <code>multipart/form-data</code></li>
+</ul></li>
+</ul>
+<p>作用有点拗口，其实 <code>php://input</code> 可以理解为“文件路径”，但是 PHP 在遇到这个伪协议的时候，不会真去本地文件找这个路径然后读取文件内容，而是直接将 POST 的数据当做文件内容。</p>
+<p>比如 readfile、file_get_contents、include，都支持此伪协议。</p>
+<p>在 CTF 中常用于执行任意 PHP 代码。</p>
+<h4 id="phpfilter">php://filter</h4>
+<ul>
+<li>作用：用于数据流打开时，对数据进行筛选、过滤。</li>
+<li>条件：无</li>
+</ul>
+<p>格式：<code>php://filter/[0]=[1]/resource=[2]</code></p>
+<p>其中：</p>
+<ul>
+<li><code>[0]</code>: 可选 read/write</li>
+<li><code>[1]</code>: 就是过滤器，可以设定一个或多个过滤器名称，以管道符（<code>|</code>）分隔即可。比如：<code>convert</code>、<code>string</code>，更多可参考官方文档：https://www.php.net/manual/zh/filters.php</li>
+<li><code>[2]</code>: 必选的值，为要筛选过滤的数据流，通常是本地文件的路径，绝对路径和相对路径均可以使用。</li>
+</ul>
+<p>示例：<code>php://filter/read=convert.base64-encode/resource=flag.php</code></p>
+<p>表示读取本地文件 flag.php，并进行 base64 编码。</p>
+<p>在 CTF 中常用于读取 PHP 的源码。</p>
+<h3 id="phar">phar://</h3>
+<ul>
+<li>作用：属于 PHP 伪协议，phar（PHP Archive) 是 PHP 里类似于 JAR 的一种打包文件。</li>
+<li>条件：
+<ul>
+<li>PHP &gt;= 5.3.0</li>
+</ul></li>
+</ul>
+<p>phar:// 的利用场景示例：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br>  <span class="hljs-variable">$files</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;file&#x27;</span>];<br>  <span class="hljs-keyword">include</span>(<span class="hljs-variable">$files</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure></p>
+<p>对于这样的例子，先上传一个 zip 压缩包，里面是一个 txt 文件，内容是：<code>&lt;?php phpinfo(); ?&gt;</code>，在知道绝对路径（/www/upload/test.zip）之后，可以利用 phar:// 来执行这段代码，payload: <code>phar:///www/upload/test.zip/test.txt</code></p>
+<p>phar:// 还有反序列化的利用方式，见：</p>
+<p>https://www.tr0y.wang/2021/06/01/SecMap-unserialize-php/#%E5%88%A9%E7%94%A8-phar-%E4%BC%AA%E5%8D%8F%E8%AE%AE</p>
+<h3 id="zip">zip://</h3>
+<ul>
+<li>作用：属于 PHP 伪协议，用于访问 zip 压缩流</li>
+</ul>
+<p>格式：<code>zip://[压缩文件绝对路径]#[压缩文件内的路径以及文件名]</code></p>
+<h3 id="compress.">compress.*://</h3>
+<ul>
+<li>作用：属于 PHP 伪协议，用于访问压缩流</li>
+</ul>
+<h4 id="compress.zlib">compress.zlib://</h4>
+<ul>
+<li>作用：访问 <code>.gz</code> 压缩流</li>
+</ul>
+<p>示例：</p>
+<ol type="1">
+<li>创建 .gz: <code>tar -zcvf test.gz ./test.txt</code></li>
+<li>payload: <code>compress.zlib://test.gz</code></li>
+</ol>
+<h4 id="compress.bzip2">compress.bzip2://</h4>
+<ul>
+<li>作用：访问 <code>.bz2</code> 压缩流</li>
+</ul>
+<p>示例：</p>
+<ol type="1">
+<li>创建 .bz2: <code>tar -jcvf test.bz2 ./test.txt</code></li>
+<li>payload: <code>compress.bzip2://test.bz2</code></li>
+</ol>
+<h3 id="ldap">ldap://</h3>
+<p>ldap 主要有三种协议：</p>
+<ol type="1">
+<li><code>ldap://</code>: 基础的 LDAP 协议</li>
+<li><code>ldaps://</code>: SSL/TLS + ldap</li>
+<li><code>ldapi://</code>: IPC + LDAP</li>
+</ol>
+<p>对于 <code>ldaps://</code> 来说，由于存在 SSL/TLS 握手过程，所以没啥用；而 <code>ldapi</code> 属于 IPC，也没法使用；所以只剩下 <code>ldap://</code>，默认是 <code>389</code> 端口，主要有两种姿势。</p>
+<p>第一种与上面这些协议类似，同样它支持用 <code>\r\n</code> 分割 payload，但是由于 ldap 协议在一开始的时候，会尝试先建立 cleartext 连接（<code>establish cleartext connection</code>），所以它相比 gopher 来说，开头多了一些杂乱的字符。这里给个攻击 redis 的示例：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ldap  <span class="hljs-comment"># pip install python-ldap</span><br><br>conn = ldap.initialize(<span class="hljs-string">&quot;ldap://127.1:6379&quot;</span>)<br>conn.simple_bind_s(<span class="hljs-string">&quot;\r\n&quot;</span>, <span class="hljs-string">&quot;\r\nPING\r\n&quot;</span>)<br></code></pre></td></tr></table></figure><br />
+它会把建立 cleartext 连接的过程与传输用户名密码的过程合并到一个数据包里，而在用户名和密码可以插入 <code>\r\n</code> 并且还不会有其他字符干扰，所以这样可以很方便地利用：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518172449.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>个人感觉，大多数组件实现的 ldap 协议，应该默认都是这样合并的。有不合并的例子吗？有，比如 curl，如果你直接执行：<code>curl -v ldap://127.1:6379</code>，它会先发送建立 cleartext 连接的请求：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518172651.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>并且等待服务端返回这样的响应：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518173454.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><br></p>
+<p>大家可以对比一下客户端的两种行为，上面是没合并的，下面是合并的：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518172829.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518173108.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么对于我们攻击 redis 来说，肯定是要用合并的，因为 redis 不可能会按照 ldap 协议返回响应。</p>
+<p>那么如果我们非要用 curl 来做实验呢？可以用这个命令：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">curl --negotiate -v --user &quot;<br>&quot;:&quot;<br><br>PING<br><br>&quot; &#x27;ldap://127.0.0.1:6379/&#x27;<br></code></pre></td></tr></table></figure></p>
+<p>结果<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210518174534.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><br></p>
+<p>第二种稍有些复杂，需要 JNDI 等前置知识，等讲反序列化的时候再补上好了。</p>
+<h3 id="rmi">rmi://</h3>
+<p>需要 JNDI 等前置知识，等讲反序列化的时候再补上好了。</p>
+<h2 id="总结">总结</h2>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-非常见协议大礼包/20210517104415.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>最近本来在写 SSRF 的，快写完了，发现先写一下这些协议作为前置知识比较合适，当然它们可以造成的安全问题不仅仅有 SSRF，还有文件包含等。从个人经验来看，这些协议还是在 CTF 中用的多一些，各大 CTF 中出现过非常多精彩的题目，比如 hxpCTF 的一道通过 file_put_contents 来完成 SSRF：</p>
+<p>https://rmb122.com/2020/12/30/hxp-CTF-resonator-Writeup-SSRF-via-file-put-contents/</p>
+<p>最后多说一句，我感觉很多 CTF 题目可以用来做后门，应该很难检测出来吧...</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">下一篇是 SSRF<br>（日常拖更）</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - 非常见协议大礼包</div>
+      <div>https://www.tr0y.wang/2021/05/17/SecMap-非常见协议大礼包/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年5月17日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/05/24/SecMap-SSRF/" title="SecMap - SSRF">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SecMap - SSRF</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/04/29/SecMap-%E9%AA%8C%E8%AF%81%E7%A0%81/" title="SecMap - 验证码">
+                        <span class="hidden-mobile">SecMap - 验证码</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

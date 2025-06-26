@@ -1,0 +1,1066 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="最近在给一个安全产品配置一个正则，有趣的是，回溯历史数据的时候发现，有一些字符串会导致引擎超时，从而触发熔断机制，导致策略失效。经过简单的测试，发现是触发了 redos。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - ReDos">
+<meta property="og:url" content="https://www.tr0y.wang/2025/03/19/SecMap-ReDos/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="最近在给一个安全产品配置一个正则，有趣的是，回溯历史数据的时候发现，有一些字符串会导致引擎超时，从而触发熔断机制，导致策略失效。经过简单的测试，发现是触发了 redos。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+<meta property="article:published_time" content="2025-03-19T19:00:00.000Z">
+<meta property="article:modified_time" content="2025-04-15T14:01:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+  
+  
+  
+  <title>SecMap - ReDos - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - ReDos"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-19 19:00" pubdate>
+          2025年3月19日 19:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - ReDos</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>最近在给一个安全产品配置一个正则，有趣的是，回溯历史数据的时候发现，有一些字符串会导致引擎超时，从而触发熔断机制，导致策略失效。经过简单的测试，发现是触发了 redos。</p>
+<span id="more"></span>
+<p>我本来以为我对正则非常熟悉了，不会写出这么挫的正则，但的确发生了。虽然 redos 之前一直知道是怎么个事，还是想借此机会再完整地梳理一下，故有此篇。</p>
+<p>ReDoS（Regular Expression Denial of Service） 是一种利用正则表达式设计上的缺陷来耗尽计算资源的攻击形式（即 DoS）。<strong>这种攻击的目标通常是那些采用了回溯机制的正则引擎</strong></p>
+<h2 id="基础知识点回顾">基础知识点回顾</h2>
+<p>这里稍微回顾一下编译原理的知识点，非常建议看一下这篇文章：<a href="https://www.tr0y.wang/2021/04/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E7%9A%84%E5%AE%9E%E7%8E%B0">编译原理（一）：词法分析/#词法分析器的实现</a></p>
+<ul>
+<li>NFA 中的 FA 就是有限状态自动机，说白了就是给它一个字符串，能匹配到它就回答 yes，否则回答 no</li>
+<li>DFA：确定状态的有限状态自动机</li>
+<li>NFA：非确定状态的有限状态自动机</li>
+<li>通常我们构造词法分析器，常用的路径就是：正则表达式（re） =&gt; NFA =&gt; DFA =&gt; 词法分析器代码</li>
+<li>从 re 构造 NFA，常用的是 <code>Thomson</code> 算法。<strong>基本方式是递归</strong>。构造完成之后，执行时根据输入字符串执行状态转移，逐步计算每个状态集合是否到达接受状态，不需要回溯</li>
+<li>现代正则引擎虽然大部分情况下基于 NFA，但 NFA 的匹配过程是逐字符推进的，而大部分正则引擎都会支持更加复杂的匹配能力（比如零宽断言，要求需要在不移动输入指针的情况下进行匹配）。所以现代正则引擎并不是严格意义上的纯 NFA，而是通过各种回溯机制实现了各种扩展功能</li>
+</ul>
+<p>对于正则表达式本身的基础知识不再赘述，网上一搜一大把，这里核心是这几个贪婪模式（实际上都是正则的语法糖）：</p>
+<ol type="1">
+<li><code>c+</code>：告诉引擎匹配 c <code>&gt;=1</code> 次</li>
+<li><code>c*</code>：告诉引擎匹配 c <code>&gt;=0</code> 次</li>
+<li><code>c&#123;min, max&#125;</code>：告诉引擎匹配 c <code>&gt;=min and &lt;=max</code> 次；min/max 和逗号可以按需省略</li>
+</ol>
+<p>这里对下述内容做个约定：</p>
+<ol type="1">
+<li>由于大部分的正则表达式引擎是基于 NFA 之上加上了各种回溯机制实现高级匹配的功能，所以下面内容默认正则引擎是基于 NFA 的。而因为 DFA 是转移是确定的，没有大量回溯，几乎可以认为没有 redos</li>
+<li>默认出现的正则都是全匹配，即 <code>a(b|c)*</code> 其实是 <code>^a(b|c)*$</code></li>
+</ol>
+<h2 id="正则的回溯">正则的回溯</h2>
+<p>大部分正则引擎在匹配正则表达式时，会尝试所有可能的路径来寻找匹配结果。当某个路径失败时，引擎会回退到之前的状态来尝试其他路径（即会出现“回溯”），是一个深度优先的遍历算法。</p>
+<p>为了验证这一点，我们可以找个在线可视化的正则匹配网站来测试：<a target="_blank" rel="noopener" href="https://regex101.com/debugger">regex101</a>，这里面有个</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/a8dceabe-a8fa-490c-878e-7d3bcc3753fa.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>例如这个正则 <code>a(b|c)*</code>，当输入 <code>a</code> 时：</p>
+<ol type="1">
+<li>第 1 步匹配到 <code>a</code>，这个很简单<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/2c05c227-eda6-4cae-9541-31d292fb6c62.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>第 2-&gt;4 步，可以看到它进入了 <code>(b|c)*</code> 这个结构，产生匹配，显然这个是匹配不到的<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/f1853630-1779-4aba-9d6e-8b597373444d.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>第 5 步，虽然 <code>(b|c)*</code> 没有匹配到字符，但由于后续也没有其他字符了，所以结束，匹配成功</li>
+</ol>
+<p>从调试的步骤可以看出，这个正则是存在回溯的。</p>
+<h2 id="redos-的原理">ReDoS 的原理</h2>
+<p>至此，redos 的原理就显而易见了：由于大部分正则表达式引擎是基于 NFA 的，如果正则中有大量的回溯结构，遇到较长且无法匹配的字符串时，就会触发大量的回溯计算，导致计算资源的占用，进一步导致各种安全问题。</p>
+<p>例如这个经典的正则 <code>(a|aa)*b</code>，随着输入字符串的连续 <code>a</code> 数量增多，匹配完成的耗时也就越长：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> time<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1000</span>):<br>    stime = time.time()<br>    re.findall(<span class="hljs-string">&quot;(a|aa)*b&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>*i)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;i&#125;</span> 个 a，耗时: <span class="hljs-subst">&#123;time.time()-stime&#125;</span>&quot;</span>)<br></code></pre></td></tr></table></figure>
+<p>运行情况：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/9d75d8c9-ed4d-4e41-a290-22637a98df7b.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/dbb5e24d-142f-4464-9ffc-953b38041702.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>典型的指数型增长。</p>
+<p>不过我觉得只要有这种回溯的结构，理论上只要输入字符串够长就会有 redos，不过利用难度会变高：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/5d12b3eb-bee9-4106-89d1-51222da59388.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以我们基本上可以认为，回溯结构的多少以及复杂程度，与 redos 的利用成本成反比。</p>
+<p>那如果使用非贪婪模式的正则，能不能解决这个问题呢？所谓非贪婪模式，或者懒惰模式，就是在贪婪模式后面加个 <code>?</code>，例如 <code>a+?</code>。显然这个无法完全解决问题：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/860cc6db-f9b4-44b5-8896-4dc9306bdc47.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，有 redos 正则的核心特征是 <code>*、+、&#123;n,m&#125;</code> 的使用（但使用了这类量词不一定就有 redos），尤其是再配合上嵌套（<code>(a*)*b</code>）重叠分支（<code>a|aa</code>）、零宽断言（<code>?=</code>）等语法，会极大增加存在 redos 的可能性。</p>
+<h2 id="自动化的-redos-分析与构造">自动化的 redos 分析与构造</h2>
+<p>那是否有什么办法可以评估一个正则是否存在 redos 的可能性？在确定有 redos 的情况下，有没有可能自动构造出 poc 呢？</p>
+<p>这里推荐两个比较好的工具：</p>
+<ol type="1">
+<li>在线的 <a target="_blank" rel="noopener" href="https://devina.io/redos-checker">redos-checker</a></li>
+<li>Python 工具 <a target="_blank" rel="noopener" href="https://github.com/doyensec/regexploit">regexploit</a></li>
+</ol>
+<p>至于该如何实现呢？根据论文 <a target="_blank" rel="noopener" href="https://www.semanticscholar.org/reader/76713d6470002109fb72580f6cd941bba8c6cf24">Static detection of DoS vulnerabilities in programs that use regular expressions</a> 可以得出，基于自动机理论的 ReDoS 漏洞检测是在等效的 NFA 中找到 EDA(Exponential Degree Ambiguity) 和 IDA(Infinite Degree Ambiguity) 结构。</p>
+<p>出于时间原因，这里暂时不复现了，看论文还是很麻烦的。</p>
+<h2 id="redos-防御方案">ReDoS 防御方案</h2>
+<p>其实核心就是如何避免掉大量的回溯</p>
+<ol type="1">
+<li>事前
+<ol type="1">
+<li>优化正则写法，能明确的范围就尽量明确写出</li>
+<li>不使用带有高级语法的正则，使用纯 NFA/DFA 的正则引擎进行匹配（放弃高级功能以换取安全性；不过即使是纯 NFA 和DFA 在正则很复杂的时候还是可能存在 redos 的，就是利用成本很高，从工程实践角度我觉得是可以接受的）</li>
+<li>使用 redos 的检查工具来检查正则是否有 redos</li>
+</ol></li>
+<li>事中
+<ol type="1">
+<li>通过设置正则匹配的超时时间来进行防御</li>
+<li>限制正则匹配字段的输入长度（但不算很实用）</li>
+</ol></li>
+<li>事后
+<ol type="1">
+<li>打印正则匹配的时长以及对应的正则，超时则进行告警</li>
+<li>对 CPU 设立监控告警，关注 CPU 异常消耗的资源时间点</li>
+</ol></li>
+</ol>
+<h2 id="真实案例---2019.7.2-cloudflare-大规模宕机">真实案例 - 2019.7.2 Cloudflare 大规模宕机</h2>
+<p><a target="_blank" rel="noopener" href="https://blog.cloudflare.com/zh-cn/details-of-the-cloudflare-outage-on-july-2-2019/">Cloudflare ReDoS 中断</a>：2019 年 7 月 2 日 Cloudflare 在 WAF 中部署了一项新规则，其中包含的一个正则表达式出现了 redos，耗尽了用于 HTTP/HTTPS 服务的 CPU，导致了 Cloudflare 的核心代理、CDN 和 WAF 等功能宕机近半小时</p>
+<p>主要问题出在这个正则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">(?:(?:\&quot;|&#x27;|\]|\&#125;|\\|\d|(?:nan|infinity|true|false|null|undefined|symbol|math)|\`|\-|\+)+[)]*;?((?:\s|-|~|!|&#123;&#125;|\|\||\+)*.*(?:.*=.*)))<br></code></pre></td></tr></table></figure>
+<p>核心部分是：<code>?:.*=.*</code>。通过工具可知，这个正则的确是有 redos 的</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/97f00196-548a-481d-8489-ec71f8bbbc8c.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>经过耗时测试，的确是多项式级的复杂度：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/83bbb5c9-9105-4cc2-8b11-44d8f79d9266.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>有趣的是，Cloudflare 指出，内部对于这个正则其实进行了大量的测试，但都没有触发 redos，所以这个正则就这么被合并上生产了。</p>
+<p>另外，cloudflare 的报告中有个蛮酷炫的正则 debug 的动图：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-ReDos/555-steps.gif!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>稍微研究了一下发现是 perl 的一个模块支持的：<code>perl -MRegexp::Debugger -e "'x=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx' =~ /.*.*=.*/"</code>，执行之后按 c 就可以进行匹配演示了。需要安装一下 <code>Regexp::Debugger</code> 模块：<code>cpan Regexp::Debugger</code>。perl 我也就半吊子水平，这里就不深入研究它的其他用途了。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">没想到<br>编译原理的知识点还真用上了</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - ReDos</div>
+      <div>https://www.tr0y.wang/2025/03/19/SecMap-ReDos/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月19日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/04/09/%E7%94%A8Python%E6%89%8B%E6%90%93runc%E7%9A%84%E8%B8%A9%E5%9D%91%E4%B9%8B%E6%97%85/" title="用 Python 手搓 runc 的踩坑之旅">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">用 Python 手搓 runc 的踩坑之旅</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/14/2024/" title="2024 年度总结">
+                        <span class="hidden-mobile">2024 年度总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

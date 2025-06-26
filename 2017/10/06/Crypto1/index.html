@@ -1,0 +1,1009 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="Coursera 上 Jonathan Katz 的密码课程里的 Week4 PA Padding Oracle Attack 的复现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Padding Oracle Attack">
+<meta property="og:url" content="https://www.tr0y.wang/2017/10/06/Crypto1/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="Coursera 上 Jonathan Katz 的密码课程里的 Week4 PA Padding Oracle Attack 的复现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto1/20180917032437175.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto1/20180917032510248.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto1/20180917032534768.png!blog">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2017-10-06T20:28:15.000Z">
+<meta property="article:modified_time" content="2021-04-13T09:32:35.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="密码学">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="Vuln">
+<meta property="article:tag" content="Poc&amp;Exp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto1/20180917032437175.png!blog">
+  
+  
+  
+  <title>Padding Oracle Attack - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Padding Oracle Attack"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-10-06 20:28" pubdate>
+          2017年10月6日 20:28:15
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Padding Oracle Attack</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：4 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Coursera 上 Jonathan Katz 的密码课程里的 Week4 PA<br />
+Padding Oracle Attack 的复现</p>
+<span id="more"></span>
+<h2 id="背景">背景</h2>
+<p>CBC 模式是一种分组链接模式，目的是为了使原本独立的分组密码加密过程形成迭代，使每次加密的结果影响到下一次加密。初始化向量 IV 与第一组明文(分组 1)异或后，再经过运算得到的结果作为新的 IV，用于下一分组(分组 2)，不断迭代下去：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto1/20180917032437175.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="加密" /></p>
+<p>解密过程是加密过程的逆过程：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto1/20180917032510248.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="解密" /></p>
+<p>在实际运用中，明文的长度并不会刚好为 16 字节的倍数，这时，分组的最后一块的长度必然小于 16 字节。这时，就需要使用填充(padding)。题目给的是 PKCS #7 填充方式，规则是需要填充 n 个字节，那么这 n 个填充位就填上 n 的 16 进制数。如<br />
+缺少 1 位(1 个 Padding)， 填充位为： <code>0x01</code><br />
+缺少 5 位(5 个 Padding)， 填充位为： <code>0x05 0x05 0x05 0x05 0x05</code></p>
+<h2 id="原理">原理</h2>
+<p>当我们提交 IV+密文到服务端时，服务端便会按照字符串的第一组为 IV，之后为密文进行解密。如此题中：<br />
+IV： <code>9F0B13944841A832B2421B9EAF6D9836</code><br />
+C_Block1：<code>813EC9D944A5C8347A7CA69AA34D8DC0</code><br />
+C_Block2：<code>DF70E343C4000A2AE35874CE75E64C31</code></p>
+<p>解密后，若最后的 Padding 不正确(值和数量不一致)，则解密程序往往会抛出异常(Padding Error)。在这题里就是返回 0。而利用此回显，我们就可以判断出 Paddig 是否正确(这里为了方便显示，只展示了后 8 个字节)：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Crypto1/20180917032534768.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="过程" /></p>
+<p>可以看到，padding 为 0x17，却只填充了一位，那么这种情况下，服务端就会返回 0。<br />
+接下来要利用选择密文攻击的思想，不断调整，修正 IV。来对 IValue 进行猜测。不断地调整 IV 的值，目的是解密后，最后一个字节的值为正确的 Padding。第一次进行穷举时，是 0×01。因为 IValue 是固定的(未知)，所以从 0×00~0xFF 之间，只可能有一个 IV 的值与 IValue 的最后一个字节进行 XOR 后，结果是 0×01。<br />
+在 CBC 模式下进行解密时，第一组密文还原成明文时需要先用密钥解密得到一个中间结果(记为 IVALUE)，然后将 IVALUE 与 IV 进行异或得到明文<br />
+而我们通过穷举 IV，利用服务端检测 padding 是否正确的返回值来判断 IV 是否正确，一旦正确，就立即可以通过 IV 异或 padding 来求得 IVALUE 值。</p>
+<h2 id="解密">解密</h2>
+<p>如对密文第一块进行第一轮求解：<br />
+Padding：<code>0x01</code><br />
+IV： <code>00000000000000000000000000000000</code></p>
+<p>第一轮爆破求得 IV 的最后一个字节为 0x17 时，服务端返回 1。由于第一次我们要使得 padding 为 0x01（<strong>这里有个坑点</strong>），所以，我们便立刻可以求出 IVALUE 的最后一个字节为 0x01⊕0x17=0x16。<br />
+那么此时有</p>
+<p>Padding：<code>0x01</code><br />
+IV： <code>00000000000000000000000000000017</code><br />
+Ivalue：<code>******************************16</code></p>
+<p>为什么说这里有个坑点呢？首先要明白我们将什么作为 IV 没出错的标志：服务端返回 0 还是 1。这个地方我们期望服务器得到的 padding 为 0x01，这样服务器就认为 IV 没问题，返回 1。<br />
+但是实际上，如果服务器得到的 padding 为 0x02 0x02，服务器同样也会认为 IV 没错，也返回 1。这样会有错误的情况出现。<br />
+不过没事，如果爆破的过程中某一步因为这样的原因出错了，那么下一位的爆破就不会有结果，我们可以察觉到这个坑点。<br />
+另一种避免错误的方法就是不在循环里写 break，即使找到了 IV 的最后一个字节为 0x17，也继续跑，这样如果发现有 2 个值都是对的，就要注意了。</p>
+<p>第二轮爆破时，要使得 padding 为 0x02，所以，由于 Ivalue 的最后一位已知，我们可以求得此时 IV 最后一位为 0x16⊕0x02=0x16。即</p>
+<p>Padding：<code>0x02</code><br />
+IV： <code>00000000000000000000000000000014</code></p>
+<p>第二轮爆破时求得 IV 的倒数第二个字节为 0xF4 时， 服务端返回 1。而此时 padding 为 0x02，所以，Ivalue 的倒数第二位也可以求出来了 0xF4⊕0x02=0xF6。即</p>
+<p>Padding：<code>0x02</code><br />
+IV： <code>0000000000000000000000000000F414</code><br />
+Ivalue：<code>****************************F616</code></p>
+<p>不断地进行以上过程，就可以把 Ivalue 全部求出。最后，将 Ivalue 与题目给出的初始 IV 进行异或，就可以得到第一组的明文（下划线代表空格）<br />
+IV： <code>9F0B13944841A832B2421B9EAF6D9836</code><br />
+Ivalue1： <code>C66A6AB56818C74792257EEA8F0CF616</code><br />
+M_Block1：<code>Yay!_You_get_an_</code></p>
+<p>然后对第二组密文进行以上过程，就可以把 M_Block2 求出。这里的 IV 为第一组的密文：</p>
+<p>IV： <code>813EC9D944A5C8347A7CA69AA34D8DC0</code><br />
+Ivalue2： <code>C010E9E46DAEC33F7177AD91A84686CB</code><br />
+M_Block2：<code>A._=)</code>（已删去末尾填充字符）</p>
+<p>所以，总的密文就为：<br />
+M：<code>Yay!_You_get_an_ A._=)</code></p>
+<h2 id="代码">代码</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># -*- coding: cp936 -*-</span><br><span class="hljs-keyword">from</span> oracle <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> Crypto.Util <span class="hljs-keyword">import</span> strxor<br><span class="hljs-keyword">import</span> re<br><br>C = <span class="hljs-string">&#x27;9F0B13944841A832B2421B9EAF6D9836813EC9D944A5C8347A7CA69AA34D8DC0DF70E343C4000A2AE35874CE75E64C31&#x27;</span><br>BLOCK = <span class="hljs-number">2</span><br>div = <span class="hljs-built_in">len</span>(C) / (BLOCK + <span class="hljs-number">1</span>)<br>C = re.findall(<span class="hljs-string">&#x27;.&#123;&#x27;</span> + <span class="hljs-built_in">str</span>(div) + <span class="hljs-string">&#x27;&#125;&#x27;</span>, C)<br><br>Oracle_Connect()<br>M = []<br>IVALUE = []<br><span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(BLOCK): <span class="hljs-comment">#对 2 组密文分别求解</span><br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[*] Detecting Block&#x27;</span>,b+<span class="hljs-number">1</span><br>    IV = C[b]<br>    Ivalue = []<br>    iv = <span class="hljs-string">&#x27;00000000000000000000000000000000&#x27;</span> <span class="hljs-comment">#初始化 iv</span><br>    iv = re.findall(<span class="hljs-string">&#x27;.&#123;2&#125;&#x27;</span>, iv)[::-<span class="hljs-number">1</span>]<br>    padding = <span class="hljs-number">1</span><br><br>    <span class="hljs-keyword">for</span> l <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>):<br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;  [+] Detecting IVALUE&#x27;s last&quot;</span>, l + <span class="hljs-number">1</span> , <span class="hljs-string">&#x27;block&#x27;</span><br>        <span class="hljs-keyword">for</span> ll <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(l):<br>            iv[ll] = <span class="hljs-built_in">hex</span>(<span class="hljs-built_in">int</span>(Ivalue[ll], <span class="hljs-number">16</span>) ^ padding)[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">2</span>) <span class="hljs-comment">#更新 iv</span><br><br>        <span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>): <span class="hljs-comment">#遍历 0x00-0xFF</span><br>            iv[l] = <span class="hljs-built_in">hex</span>(n)[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">2</span>)<br>            data = <span class="hljs-string">&#x27;&#x27;</span>.join(iv[::-<span class="hljs-number">1</span>]) + C[b + <span class="hljs-number">1</span>]<br>            <br>            ctext = [(<span class="hljs-built_in">int</span>(data[i:i + <span class="hljs-number">2</span>], <span class="hljs-number">16</span>)) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(data), <span class="hljs-number">2</span>)]<br>            rc = Oracle_Send(ctext, <span class="hljs-number">2</span>)<br>            <br>            <span class="hljs-keyword">if</span> <span class="hljs-built_in">str</span>(rc) == <span class="hljs-string">&#x27;1&#x27;</span>: <span class="hljs-comment">#Padding 正确时, 记录 Ivalue, 结束爆破</span><br>                Ivalue += [<span class="hljs-built_in">hex</span>(n ^ padding)[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">2</span>)]<br>                <span class="hljs-keyword">break</span><br><br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>.join(iv[::-<span class="hljs-number">1</span>])<br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>.join(Ivalue[::-<span class="hljs-number">1</span>])<br>        <br>        padding += <span class="hljs-number">1</span><br><br>    Ivalue = <span class="hljs-string">&#x27;&#x27;</span>.join(Ivalue[::-<span class="hljs-number">1</span>])<br>    IVALUE += [Ivalue]<br><br>    <span class="hljs-comment">#IV 与 Ivalue 异或求密文</span><br>    m = re.findall(<span class="hljs-string">&#x27;[0-9a-f]+&#x27;</span>, <span class="hljs-built_in">str</span>(<span class="hljs-built_in">hex</span>(<span class="hljs-built_in">int</span>(IV, <span class="hljs-number">16</span>) ^ <span class="hljs-built_in">int</span>(<span class="hljs-string">&#x27;&#x27;</span>.join(Ivalue), <span class="hljs-number">16</span>))))[<span class="hljs-number">1</span>].decode(<span class="hljs-string">&#x27;hex&#x27;</span>)<br>    M += [m]<br><br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[#] Detecting Block&#x27;</span>, b + <span class="hljs-number">1</span> ,<span class="hljs-string">&#x27;-- Done!&#x27;</span><br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[#]&#x27;</span>, <span class="hljs-string">&#x27;The IValue&#x27;</span> + <span class="hljs-built_in">str</span>(b + <span class="hljs-number">1</span>), <span class="hljs-string">&#x27;is:&#x27;</span>, Ivalue<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[#]&#x27;</span>, <span class="hljs-string">&#x27;The M&#x27;</span> + <span class="hljs-built_in">str</span>(b + <span class="hljs-number">1</span>) , <span class="hljs-string">&#x27;is:&#x27;</span>, m<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;-&#x27;</span> * <span class="hljs-number">50</span><br>    <br>Oracle_Disconnect()<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!] The Intermediary Value is:&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>.join(IVALUE)<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!] The M is:&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>.join(M)<br><br></code></pre></td></tr></table></figure>
+<h2 id="结果">结果</h2>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">[*] Detecting Block <span class="hljs-number">1</span><br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 1 block</span><br><span class="hljs-string">    [-] 00000000000000000000000000000017</span><br><span class="hljs-string">    [-] 16</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">2</span> block<br>    [-] <span class="hljs-number">0000000000000000000000000000</span>f414<br>    [-] f616<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 3 block</span><br><span class="hljs-string">    [-] 000000000000000000000000000ff515</span><br><span class="hljs-string">    [-] 0cf616</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">4</span> block<br>    [-] <span class="hljs-number">0000000000000000000000008</span>b08f212<br>    [-] <span class="hljs-number">8</span>f0cf616<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 5 block</span><br><span class="hljs-string">    [-] 0000000000000000000000ef8a09f313</span><br><span class="hljs-string">    [-] ea8f0cf616</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">6</span> block<br>    [-] <span class="hljs-number">0000000000000000000078</span>ec890af010<br>    [-] <span class="hljs-number">7</span>eea8f0cf616<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 7 block</span><br><span class="hljs-string">    [-] 0000000000000000002279ed880bf111</span><br><span class="hljs-string">    [-] 257eea8f0cf616</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">8</span> block<br>    [-] <span class="hljs-number">00000000000000009</span>a2d76e28704fe1e<br>    [-] <span class="hljs-number">92257</span>eea8f0cf616<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 9 block</span><br><span class="hljs-string">    [-] 000000000000004e9b2c77e38605ff1f</span><br><span class="hljs-string">    [-] 4792257eea8f0cf616</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">10</span> block<br>    [-] <span class="hljs-number">000000000000</span>cd4d982f74e08506fc1c<br>    [-] c74792257eea8f0cf616<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 11 block</span><br><span class="hljs-string">    [-] 000000000013cc4c992e75e18407fd1d</span><br><span class="hljs-string">    [-] 18c74792257eea8f0cf616</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">12</span> block<br>    [-] <span class="hljs-number">000000006414</span>cb4b9e2972e68300fa1a<br>    [-] <span class="hljs-number">6818</span>c74792257eea8f0cf616<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 13 block</span><br><span class="hljs-string">    [-] 000000b86515ca4a9f2873e78201fb1b</span><br><span class="hljs-string">    [-] b56818c74792257eea8f0cf616</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">14</span> block<br>    [-] <span class="hljs-number">000064</span>bb6616c9499c2b70e48102f818<br>    [-] <span class="hljs-number">6</span>ab56818c74792257eea8f0cf616<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 15 block</span><br><span class="hljs-string">    [-] 006565ba6717c8489d2a71e58003f919</span><br><span class="hljs-string">    [-] 6a6ab56818c74792257eea8f0cf616</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">16</span> block<br>    [-] d67a7aa57808d75782356efa9f1ce606<br>    [-] c66a6ab56818c74792257eea8f0cf616<br>[#] Detecting Block <span class="hljs-number">1</span> <span class="hljs-comment">-- Done!</span><br>[#] The IValue1 <span class="hljs-keyword">is</span>: c66a6ab56818c74792257eea8f0cf616<br>[#] The M1 <span class="hljs-keyword">is</span> Yay! You <span class="hljs-keyword">get</span> an <br><span class="hljs-comment">--------------------------------------------------</span><br>[*] Detecting Block <span class="hljs-number">2</span><br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 1 block</span><br><span class="hljs-string">    [-] 000000000000000000000000000000ca</span><br><span class="hljs-string">    [-] cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">2</span> block<br>    [-] <span class="hljs-number">000000000000000000000000000084</span>c9<br>    [-] <span class="hljs-number">86</span>cb<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 3 block</span><br><span class="hljs-string">    [-] 000000000000000000000000004585c8</span><br><span class="hljs-string">    [-] 4686cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">4</span> block<br>    [-] <span class="hljs-number">000000000000000000000000</span>ac4282cf<br>    [-] a84686cb<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 5 block</span><br><span class="hljs-string">    [-] 000000000000000000000094ad4383ce</span><br><span class="hljs-string">    [-] 91a84686cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">6</span> block<br>    [-] <span class="hljs-number">00000000000000000000</span>ab97ae4080cd<br>    [-] ad91a84686cb<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 7 block</span><br><span class="hljs-string">    [-] 00000000000000000070aa96af4181cc</span><br><span class="hljs-string">    [-] 77ad91a84686cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">8</span> block<br>    [-] <span class="hljs-number">0000000000000000797</span>fa599a04e8ec3<br>    [-] <span class="hljs-number">7177</span>ad91a84686cb<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 9 block</span><br><span class="hljs-string">    [-] 0000000000000036787ea498a14f8fc2</span><br><span class="hljs-string">    [-] 3f7177ad91a84686cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">10</span> block<br>    [-] <span class="hljs-number">000000000000</span>c9357b7da79ba24c8cc1<br>    [-] c33f7177ad91a84686cb<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 11 block</span><br><span class="hljs-string">    [-] 0000000000a5c8347a7ca69aa34d8dc0</span><br><span class="hljs-string">    [-] aec33f7177ad91a84686cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">12</span> block<br>    [-] <span class="hljs-number">0000000061</span>a2cf337d7ba19da44a8ac7<br>    [-] <span class="hljs-number">6</span>daec33f7177ad91a84686cb<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 13 block</span><br><span class="hljs-string">    [-] 000000e960a3ce327c7aa09ca54b8bc6</span><br><span class="hljs-string">    [-] e46daec33f7177ad91a84686cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">14</span> block<br>    [-] <span class="hljs-number">0000e7</span>ea63a0cd317f79a39fa64888c5<br>    [-] e9e46daec33f7177ad91a84686cb<br>  [+] Detecting IVALU<span class="hljs-string">E&#x27;s last 15 block</span><br><span class="hljs-string">    [-] 001fe6eb62a1cc307e78a29ea74989c4</span><br><span class="hljs-string">    [-] 10e9e46daec33f7177ad91a84686cb</span><br><span class="hljs-string">  [+] Detecting IVALUE&#x27;</span>s last <span class="hljs-number">16</span> block<br>    [-] d000f9f47dbed32f6167bd81b85696db<br>    [-] c010e9e46daec33f7177ad91a84686cb<br>[#] Detecting Block <span class="hljs-number">2</span> <span class="hljs-comment">-- Done!</span><br>[#] The IValue2 <span class="hljs-keyword">is</span>: c010e9e46daec33f7177ad91a84686cb<br>[#] The M2 <span class="hljs-keyword">is</span> A. =)<br><span class="hljs-comment">--------------------------------------------------</span><br>[!] The Intermediary <span class="hljs-keyword">Value</span> <span class="hljs-keyword">is</span>: c66a6ab56818c74792257eea8f0cf616c010e9e46daec33f7177ad91a84686cb<br>[!] The M <span class="hljs-keyword">is</span>: Yay! You <span class="hljs-keyword">get</span> an A. =)<br></code></pre></td></tr></table></figure>
+<h2 id="最后">最后</h2>
+<p>这种 Padding Oracle Attack 的攻击方式，在 2011 年的 Pwnie Rewards 上被评为“最具价值的服务器漏洞”。在实现过程中，利用选择密文攻击的思想，不断调整，修正 IV，来对 Intermediary Value 进行猜测，这部分是最难理解的，也是这种攻击方式的精髓。 Padding Oracle Attack 的关键在于攻击者能够获知解密的结果是否符合 Padding。<br />
+在实现和使用 CBC 模式的分组加密算法时，注意异常捕获即可，比如加上 try catch 机制，来进行防御。</p>
+<p>好玩好玩~<br />
+就是服务器换地址了挺坑的...</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">#密码学</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/Vuln/">#Vuln</a>
+      
+        <a href="/tags/Poc-Exp/">#Poc&Exp</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Padding Oracle Attack</div>
+      <div>https://www.tr0y.wang/2017/10/06/Crypto1/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年10月6日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2021年4月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/10/06/Crypto2/" title="一道 3DES 的暴力破解题">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一道 3DES 的暴力破解题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/10/02/Crypto0/" title="Level II Challenges AES MRZ">
+                        <span class="hidden-mobile">Level II Challenges AES MRZ</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

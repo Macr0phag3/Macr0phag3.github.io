@@ -1,0 +1,1191 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="Linux 基础系列之 Namespace">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 基础-Namespace">
+<meta property="og:url" content="https://www.tr0y.wang/2025/03/03/linux-namespace/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="Linux 基础系列之 Namespace">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/linux.jpeg/cover">
+<meta property="article:published_time" content="2025-03-03T23:48:44.000Z">
+<meta property="article:modified_time" content="2025-03-15T15:55:06.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/linux.jpeg/cover">
+  
+  
+  
+  <title>Linux 基础-Namespace - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 基础-Namespace"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-03 23:48" pubdate>
+          2025年3月3日 23:48:44
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          74 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux 基础-Namespace</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：3 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Linux 基础系列之 Namespace</p>
+<span id="more"></span>
+<h2 id="namespace-介绍">Namespace 介绍</h2>
+<p>Linux Namespace 是 Kernel 的一个功能，它可以隔离一系列的系统资源，比如 PID（Process ID）、User ID、Network 等。Namespace 可以在一些资源上，将进程隔离起来，这些资源包括进程树、网络接口、挂载点等。</p>
+<p>比如，阿里云向外界出售自己的 tomcat 实例用来运行它们自己的应用，这些实例可能在一台服务器上。为了避免攻击者进入了别人的 tomcat 实例，修改或关闭了其中的某些资源，理论上我们可以限制不同用户的权限，让用户只能访问自己名下的 tomcat。但是，有些操作可能需要 root 权限，那又不可能给每个用户都授予 root 权限，也不可能给每个用户都提供一台全新的物理主机让他们互相隔离。因此，Linux Namespace 在这里就派上了用场。使用 Namespace 就可以做到 UID 级别的隔离，以 UID 为 n 的用户，虚拟化出来一个 Namespace，在这个 Namespace 里面，用户是具有 root 权限的。但是，在真实的物理机器上，他还是那个以 UID 为 n 的用户，这样就解决了用户之间隔离的问题。</p>
+<p>你可能会想，为什么不用容器进行隔离呢？namspace 正是容器技术的重要组成部分之一。</p>
+<p>除了 User Namespace，PID 也是可以被虚拟的。命名空间会建立系统的不同视图，从用户的角度来看，每一个命名空间应该像一台单独的 Linux 一样，有自己的 init 进程（PID 为 1）​，其他进程的 PID 依次递增，A 和 B 空间都有 PID 为 1 的 init 进程，子命名空间的进程映射到父命名空间的进程上，父命名空间可以知道每一个子命名空间的运行状态，而子命名空间与子命名空间之间是隔离的。从图 2.1 所示的 PID 映射关系图中可以看到，进程 3 在父命名空间中的 PID 为 3，但是在子命名空间内，它的 PID 就是 1。也就是说用户从子命名空间 A 内看进程 3 就像 init 进程一样，以为这个进程是自己的初始化进程，但是从整个 host 来看，它其实只是 3 号进程虚拟化出来的一个空间而已。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-namespace/40ef105f-141c-4b83-b2fb-adf0e17a4942.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>Namespace 的 API 主要使用如下 3 个系统调用:</p>
+<ol type="1">
+<li><code>clone()</code>：创建新进程，根据系统调用参数来判断哪些类型的 Namespace 被创建，而且它们的子进程也会被包含到这些 Namespace 中</li>
+<li><code>unshare()</code>：将进程移出某个 Namespace</li>
+<li><code>setns()</code>：将进程加入到 Namespace 中</li>
+</ol>
+<h2 id="namespace-类型">Namespace 类型</h2>
+<p>当前 Linux 一共实现了 6 种不同类型的 Namespace：</p>
+<table>
+<thead>
+<tr class="header">
+<th>Namespace 类型</th>
+<th>系统调用参数</th>
+<th>支持的内核版本</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Mount (mnt)</strong></td>
+<td><code>CLONE_NEWNS</code></td>
+<td>2.4.19</td>
+<td>用于隔离挂载点的视图，不同的命名空间可以拥有各自的文件系统挂载结构</td>
+</tr>
+<tr class="even">
+<td><strong>UTS (uts)</strong></td>
+<td><code>CLONE_NEWUTS</code></td>
+<td>2.6.19</td>
+<td>用于隔离主机名和域名，每个命名空间可以设置不同的主机名和域名</td>
+</tr>
+<tr class="odd">
+<td><strong>IPC (ipc)</strong></td>
+<td><code>CLONE_NEWIPC</code></td>
+<td>2.6.19</td>
+<td>用于隔离进程间通信的资源（如信号量、消息队列、共享内存等）</td>
+</tr>
+<tr class="even">
+<td><strong>PID (pid)</strong></td>
+<td><code>CLONE_NEWPID</code></td>
+<td>2.6.24</td>
+<td>用于隔离进程 ID（PID）编号空间，每个命名空间可以有独立的 PID 编号</td>
+</tr>
+<tr class="odd">
+<td><strong>Network (net)</strong></td>
+<td><code>CLONE_NEWNET</code></td>
+<td>2.6.24</td>
+<td>用于隔离网络资源（如网络接口、IP 地址、路由表、端口等）</td>
+</tr>
+<tr class="even">
+<td><strong>User (user)</strong></td>
+<td><code>CLONE_NEWUSER</code></td>
+<td>3.8</td>
+<td>用于隔离用户和组 ID，每个命名空间可以有独立的用户和权限控制机制</td>
+</tr>
+</tbody>
+</table>
+<p>通过 <code>ls -l /proc/self/ns</code> 也可查看当前系统支持的 namespace 情况，同时也可以查看进程对应的命名空间。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">total 0<br>lrwxrwxrwx 1 user user 0 Oct 15 10:00 cgroup -&gt; &#x27;cgroup:[4026531835]&#x27;<br>lrwxrwxrwx 1 user user 0 Oct 15 10:00 ipc -&gt; &#x27;ipc:[4026531839]&#x27;<br>lrwxrwxrwx 1 user user 0 Oct 15 10:00 mnt -&gt; &#x27;mnt:[4026531840]&#x27;<br>lrwxrwxrwx 1 user user 0 Oct 15 10:00 net -&gt; &#x27;net:[4026531967]&#x27;<br>lrwxrwxrwx 1 user user 0 Oct 15 10:00 pid -&gt; &#x27;pid:[4026531836]&#x27;<br>lrwxrwxrwx 1 user user 0 Oct 15 10:00 user -&gt; &#x27;user:[4026531837]&#x27;<br>lrwxrwxrwx 1 user user 0 Oct 15 10:00 uts -&gt; &#x27;uts:[4026531838]&#x27;<br></code></pre></td></tr></table></figure>
+<p>这些 namespace 文件都是链接文件。链接文件的内容的格式为 <code>xxx:[inode number]</code>。其中的 xxx 为 namespace 的类型，inode number 则用来标识一个 namespace，我们也可以把它理解为 namespace 的 ID。如果两个进程的某个 namespace 文件指向同一个链接文件，说明其相关资源在同一个 namespace 中。</p>
+<p>其次，在 <code>/proc/[pid]/ns</code> 里放置这些链接文件的另外一个作用是，一旦这些链接文件被打开，只要打开的文件描述符 (fd) 存在，那么就算该 namespace 下的所有进程都已结束，这个 namespace 也会一直存在，后续的进程还可以再加入进来。</p>
+<h3 id="uts-namespace">UTS Namespace</h3>
+<p>UTS Namespace 主要用来隔离 <strong>nodename</strong>（系统的主机名，基本上等价于 hostname，可以通过 <code>hostname</code> 来查看或设置，作为网络中标识机器的名称，如在局域网中识别服务器） 和 <strong>domainname</strong>（用于标识主机所属的网络域，通常是 NIS 这种网络服务目录系统所用） 这两个系统标识。在 UTS Namespace 里面，每个 Namespace 允许有自己的 nodename 和 domainname。</p>
+<h3 id="ipc-namespace">IPC Namespace</h3>
+<p>IPC Namespace 用来隔离 <strong>System V IPC</strong> 和 <strong>POSIX message queues</strong>。它们都是进程间通信（IPC）的机制，允许不同的进程在同一台计算机上进行数据交换和同步。每一个 IPC Namespace 都有自己的 System V IPC 和 POSIX message queue。</p>
+<h4 id="system-v-ipc">System V IPC</h4>
+<p>System V IPC 是一组早期引入的 IPC 机制，包含信号量（semaphores）、共享内存（shared memory）和消息队列（message queues）。它们提供了一种在同一台计算机上运行的不同进程之间交换数据的方式：</p>
+<ol type="1">
+<li><strong>信号量 (Semaphores)</strong>:
+<ul>
+<li>用于进程间的同步</li>
+<li>控制对共享资源的访问，防止多个进程同时修改同一资源</li>
+</ul></li>
+<li><strong>共享内存 (Shared Memory)</strong>:
+<ul>
+<li>允许多个进程访问同一块内存</li>
+<li>是最快的进程间通信机制，因为数据不需要通过内核进行复制</li>
+</ul></li>
+<li><strong>消息队列 (Message Queues)</strong>:
+<ul>
+<li>提供了一种基于消息的通信机制</li>
+<li>消息被放入队列中，其他进程可以从队列中读取消息</li>
+</ul></li>
+</ol>
+<p><strong>System V IPC</strong> 通常用于需要简单可靠的进程间通信机制的场合，如控制多进程环境中的资源共享和进程同步。</p>
+<h4 id="posix-message-queues">POSIX message queues</h4>
+<p>POSIX 消息队列是基于 POSIX 标准定义的消息队列，与 System V 的消息队列类似，但提供了一些增强功能：</p>
+<ul>
+<li><strong>命名和基于文件系统</strong>：POSIX 消息队列是通过路径名命名的，类似于文件系统</li>
+<li><strong>异步通知</strong>：可以为消息队列注册信号通知，在有新消息进入队列时通知进程</li>
+<li><strong>更灵活的优先级控制</strong>：消息可以拥有优先级，高优先级消息会被优先处理</li>
+<li><strong>更好地与线程结合</strong>：POSIX 标准对线程的支持更好，POSIX 消息队列更容易与多线程程序集成</li>
+</ul>
+<p><strong>POSIX 消息队列</strong> 在需要更复杂的消息传递机制时使用，尤其是在需要异步操作或者更细粒度的优先级管理的时候。</p>
+<h3 id="pid-namespace">PID Namespace</h3>
+<p>PID Namespace 是用来隔离进程 ID 的。同样一个进程在不同的 PID Namespace 里可以拥有不同的 PID。在 docker container 里面使用 <code>ps -ef</code> 经常会发现，在容器内，前台运行的那个进程 PID 是 1，但是在容器外，会发现同样的进程却有不同的 PID，这就是 PID Namespace 的能力。</p>
+<h3 id="mount-namespace">Mount Namespace</h3>
+<p>Mount Namespace 是 Linux 第一个实现的 Namespace 类型，当时人们没有意识到，以后还会有很多类型的 Namespace 加入 Linux 大家庭。因此，它的系统调用参数是 <code>NEWNS</code>（即 New Namespace）​</p>
+<p>Mount Namespace 用来隔离各个进程看到的挂载点视图。在不同 Namespace 的进程中，看到的文件系统层次是不一样的。在 Mount Namespace 中调用 <code>mount()</code> 和 <code>umount()</code> 仅仅只会影响当前 Namespace 内的文件系统，而对全局的文件系统是没有影响的，Docker volume 也是利用了这个特性。</p>
+<p>比如我们可以用 <code>mount -t proc proc /proc</code> 在新的 Namespace 中把 <code>/proc</code> 挂进来，这样执行 <code>ps -ef</code> 时，就能看到当前 PID namespace 中的进程列表了，这样比较干净。</p>
+<ol type="1">
+<li><code>-t proc</code>:
+<ul>
+<li>这里的 <code>-t</code> 选项指定文件系统的类型。</li>
+<li><code>proc</code> 是一个特殊的文件系统类型，它在 Linux 上主要用于提供内核和进程信息的接口。这种文件系统实际上是一个伪文件系统，不存在于磁盘中，而是由内核动态生成。</li>
+</ul></li>
+<li><code>proc</code>: 这是设备名称。对于 <code>proc</code> 文件系统，设备名称和类型名称是相同的。它并不指向一个物理设备，而是告诉系统你要挂载的是 <code>proc</code> 类型的文件系统。</li>
+<li><code>/proc</code>:
+<ul>
+<li>这是挂载点，通常是一个目录。<code>/proc</code> 是一个标准的、预定义的挂载点，用于 <code>proc</code> 文件系统。</li>
+<li>挂载后，这个目录将提供运行系统进程的详细信息以及其他内核信息。它包括每个进程的信息、系统配置参数、内存状态等</li>
+</ul></li>
+</ol>
+<p>但要注意，需要通过查看 <code>/proc/self/mountinfo</code> 来看挂载点是否为共享，若为共享，则隔离是失效的：</p>
+<ol type="1">
+<li>默认行为：当使用 <code>clone()</code> 或 <code>unshare()</code> 创建新的 Mount Namespace 时，<strong>所有的挂载点通常继承自父命名空间，并且默认继承共享设置</strong>。如果父命名空间中的挂载点是共享的，新命名空间中对该挂载点的变更会反馈回父命名空间。</li>
+<li>共享与私有挂载：
+<ul>
+<li><strong>默认情况下，Linux 文件系统的挂载行为是共享的（shared）</strong>。如果不主动将命名空间标记为私有的（使用 <code>mount --make-private</code>），则挂载操作可能会传播到其他命名空间中。</li>
+<li>共享挂载（Shared Mounts）：Linux 支持共享挂载，一个挂载点的事件（例如新挂载或卸载）能够在一组共享的挂载点之间传播</li>
+<li>属性列表
+<ul>
+<li>shared (共享): 在该挂载点的任何操作都将传播到其他共享它的命名空间。</li>
+<li>private (私有): 在该挂载点的操作不会传播到其他命名空间。这是独立的行为。</li>
+<li>slave (从属): 它会接收来自主挂载点的传播，但不会将变化传播回去。</li>
+<li>unbindable (不可绑定): 防止通过 bind 方式将其他挂载点绑定到这个挂载点。</li>
+</ul></li>
+</ul></li>
+</ol>
+<p>这一点后面做实验可以看到差别。</p>
+<h3 id="user-namespace">User Namespace</h3>
+<p><strong>User Namespace 比较复杂，涉及到内核的各种权限和机制。</strong></p>
+<p>User Namespace 主要是隔离用户的用户组 ID。也就是说，一个进程的 User ID 和 Group ID 在 User Namespace 内外可以是不同的。比较常用的场景是在宿主机上以一个非 root 用户运行创建一个 User Namespace，然后在 User Namespace 里面却映射成 root 用户。这意味着，这个进程在 User Namespace 里面有 root 权限，但是在 User Namespace 外面却没有 root 的权限。从 Linux Kernel 3.8 开始，非 root 进程也可以创建 User Namespace，并且此用户在 Namespace 里面可以被映射成 root，且在 Namespace 内有 root 权限。</p>
+<p>默认情况下，Docker 容器运行时不会启用用户命名空间（User Namespace）。容器内的 root 用户会直接映射到宿主机上的 root 用户。容器内部的用户（如新增的普通用户）直接使用容器内的 <code>/etc/passwd</code> 文件，不涉及用户 ID 映射。如果需要启用用户命名空间，可以通过手动配置 Docker 的 <code>userns-remap</code> 功能。 启用 userns-remap 后，容器的 UID 会被映射到宿主机上的一个非 root UID 范围，这提供了更好的安全隔离。</p>
+<p>在容器技术中，rootless 或者 userns-remap 容器才会使用 User Namespace（<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/security/rootless/">Docker rootless 模式</a>、(userns-remap)[https://docs.docker.com/engine/security/userns-remap/]）</p>
+<p>在容器技术中，rootless 容器才会使用 User Namespace（如：<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/security/rootless/">Docker rootless 模式</a>）</p>
+<p>还有 <code>/proc/sys/user/max_user_namespaces</code> 这个值必须不为 0，它控制了 Linux 系统中允许同时存在的 用户命名空间的最大数量，为 0 则完全禁用了用户命名空间，阻止任何用户命名空间的创建。</p>
+<h3 id="network-namespace">Network Namespace</h3>
+<p>Network Namespace 是用来隔离网络设备、IP 地址端口等网络栈的 Namespace。Network Namespace 可以让每个容器拥有自己独立的（虚拟的）网络设备，而且容器内的应用可以绑定到自己的端口，每个 Namespace 内的端口都不会互相冲突。在宿主机上搭建网桥后，就能很方便地实现容器之间的通信，而且不同容器上的应用可以使用相同的端口。</p>
+<h2 id="namespace-实验">Namespace 实验</h2>
+<p>完整的脚本 demo 如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> signal<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> ctypes<br><span class="hljs-keyword">from</span> ctypes.util <span class="hljs-keyword">import</span> find_library<br><span class="hljs-keyword">import</span> sys<br><br><span class="hljs-comment"># clone 系统调用的标志</span><br>CLONE_NEWUTS = <span class="hljs-number">0x04000000</span><br>CLONE_NEWIPC = <span class="hljs-number">0x08000000</span><br>CLONE_NEWPID = <span class="hljs-number">0x20000000</span><br>CLONE_NEWNS = <span class="hljs-number">0x00020000</span><br>CLONE_NEWUSER = <span class="hljs-number">0x10000000</span><br>CLONE_NEWNET = <span class="hljs-number">0x40000000</span><br><br>MS_REC = <span class="hljs-number">0x0004000</span><br>MS_PRIVATE = <span class="hljs-number">0x00020000</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">write_file</span>(<span class="hljs-params">path, content</span>):<br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(path, <span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> f:<br>            f.write(content)<br>    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>        sys.exit(<span class="hljs-string">f&quot;[Error] Failed to write mapping <span class="hljs-subst">&#123;content&#125;</span> to <span class="hljs-subst">&#123;path&#125;</span>: <span class="hljs-subst">&#123;e&#125;</span>&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">child_func</span>():<br>    <span class="hljs-comment"># 修改 hostname</span><br>    <span class="hljs-comment">## 也可以在新的 shell 中通过 hostname -b xxx 来修改</span><br>    new_hostname = <span class="hljs-string">b&quot;sheep&quot;</span><br>    <span class="hljs-keyword">if</span> libc.sethostname(new_hostname, <span class="hljs-built_in">len</span>(new_hostname)) != <span class="hljs-number">0</span>:<br>        sys.exit(<span class="hljs-string">f&quot;[Error] mount failed: <span class="hljs-subst">&#123;os.strerror(ctypes.get_errno())&#125;</span>&quot;</span>)<br><br>    <span class="hljs-comment"># 调用 mount() 系统调用设置挂载传播为私有</span><br>    <span class="hljs-comment">## 也可以在新的 shell 中通过 mount --make-private / 来修改</span><br>    <span class="hljs-keyword">if</span> libc.mount(<span class="hljs-literal">None</span>, ctypes.c_char_p(<span class="hljs-string">b&quot;/&quot;</span>), <span class="hljs-literal">None</span>, MS_REC | MS_PRIVATE, <span class="hljs-literal">None</span>) != <span class="hljs-number">0</span>:<br>        sys.exit(<br>            <span class="hljs-string">f&quot;[Error] mount make private failed: <span class="hljs-subst">&#123;os.strerror(ctypes.get_errno())&#125;</span>&quot;</span><br>        )<br><br>    <span class="hljs-comment"># 调用 mount() 系统调用给新的 namespace 创建属于自己的 /proc</span><br>    <span class="hljs-comment"># 也可以在新的 shell 中通过 mount -t proc proc /proc 来实现</span><br>    <span class="hljs-keyword">if</span> (<br>        libc.mount(<br>            ctypes.c_char_p(<span class="hljs-string">b&quot;proc&quot;</span>),<br>            ctypes.c_char_p(<span class="hljs-string">b&quot;/proc&quot;</span>),<br>            ctypes.c_char_p(<span class="hljs-string">b&quot;proc&quot;</span>),<br>            <span class="hljs-number">0</span>,<br>            <span class="hljs-literal">None</span>,<br>        )<br>        != <span class="hljs-number">0</span><br>    ):<br>        sys.exit(<span class="hljs-string">f&quot;[Error] mount /proc failed: <span class="hljs-subst">&#123;os.strerror(ctypes.get_errno())&#125;</span>&quot;</span>)<br><br>    write_file(<span class="hljs-string">&quot;/proc/self/setgroups&quot;</span>, <span class="hljs-string">&quot;deny\n&quot;</span>)<br>    write_file(<span class="hljs-string">&quot;/proc/self/uid_map&quot;</span>, <span class="hljs-string">f&quot;0 <span class="hljs-subst">&#123;origin_user_id&#125;</span> 1\n&quot;</span>)<br>    write_file(<span class="hljs-string">&quot;/proc/self/gid_map&quot;</span>, <span class="hljs-string">f&quot;0 <span class="hljs-subst">&#123;origin_user_id&#125;</span> 1\n&quot;</span>)<br><br>    os.execlp(<span class="hljs-string">&quot;bash&quot;</span>, <span class="hljs-string">&quot;bash&quot;</span>)  <span class="hljs-comment"># 启动一个新的 bash shell</span><br><br><span class="hljs-comment"># 需要用到的系统调用</span><br>libc = ctypes.CDLL(<br>    find_library(<span class="hljs-string">&quot;c&quot;</span>), use_errno=<span class="hljs-literal">True</span><br>)  <span class="hljs-comment"># 通过 ldconfig -p | grep libc.so 来查找；use_errno 如果不置为 True 的话，一些异常信息会出现错误</span><br><br>STACK_SIZE = <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>  <span class="hljs-comment"># 子栈大小</span><br>stack = ctypes.create_string_buffer(STACK_SIZE)<br>origin_user_id = os.getuid()<br><br><span class="hljs-comment"># 调用 clone 系统调用创建子进程，并在新的 namespace 中执行</span><br>child_stack = ctypes.c_void_p(ctypes.addressof(stack) + STACK_SIZE)<br>pid = libc.clone(<br>    ctypes.CFUNCTYPE(ctypes.c_int)(child_func),<br>    child_stack,<br>    CLONE_NEWUTS<br>    | CLONE_NEWIPC<br>    | CLONE_NEWPID<br>    | CLONE_NEWNS<br>    | CLONE_NEWUSER<br>    | CLONE_NEWNET<br>    | signal.SIGCHLD,<br>)<br><br><span class="hljs-keyword">if</span> pid == -<span class="hljs-number">1</span>:<br>    sys.exit(<span class="hljs-string">&quot;Failed to create new namespace&quot;</span>)<br><br><span class="hljs-comment"># write_file(f&quot;/proc/&#123;pid&#125;/setgroups&quot;, &quot;deny\n&quot;)</span><br><span class="hljs-comment"># write_file(f&quot;/proc/&#123;pid&#125;/uid_map&quot;, f&quot;0 &#123;origin_user_id&#125; 1\n&quot;)</span><br><span class="hljs-comment"># write_file(f&quot;/proc/&#123;pid&#125;/gid_map&quot;, f&quot;0 &#123;origin_user_id&#125; 1\n&quot;)</span><br><br>os.waitpid(pid, <span class="hljs-number">0</span>)  <span class="hljs-comment"># 等待子进程完成</span><br><br></code></pre></td></tr></table></figure>
+<p>运行测试如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-namespace/5db20905-2626-42ae-b04f-bcf94e3fa89f.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>有蛮多细节可以研究一下的：</p>
+<h3 id="关于系统调用">关于系统调用</h3>
+<p>clone 系统调用的标志，可以在 Linux 内核的头文件中找到，一般是在 <code>/usr/include/linux/sched.h</code> 中：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-namespace/41250e18-86a2-45f7-bbaa-a527fa2a3db0.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><code>libc.so</code> 是 C 标准库的共享库版本，用于提供许多与系统底层交互的基本功能，可以通过 <code>ldconfig -p | grep libc.so</code> 找到它的位置，或者直接用 <code>find_library("c")</code> 来获取。</p>
+<p>demo 中调用 clone 系统调用创建子进程，并在新的 namespace 中执行。在 <code>libc.clone</code> 中我们传入需要的标志位，即可创建出符合要求的 namespace。</p>
+<h3 id="关于-mount-namespace-的细节">关于 Mount Namespace 的细节</h3>
+<p>代码中大部分 Namespace 的创建都比较好理解。</p>
+<p>比较关键的是 <code>libc.mount(None, ctypes.c_char_p(b"/"), None, MS_REC | MS_PRIVATE, None)</code>。这里等价于 <code>mount --make-private /</code>。如果这里不进行私有化，则下一步进行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">libc.mount(<br>    ctypes.c_char_p(<span class="hljs-string">b&quot;proc&quot;</span>),<br>    ctypes.c_char_p(<span class="hljs-string">b&quot;/proc&quot;</span>),<br>    ctypes.c_char_p(<span class="hljs-string">b&quot;proc&quot;</span>),<br>    <span class="hljs-number">0</span>,<br>    <span class="hljs-literal">None</span>,<br>)<br><span class="hljs-comment"># 或者 mount -t proc proc /proc</span><br></code></pre></td></tr></table></figure>
+<p>的时候，原 Namespace 的 <code>/proc</code> 就会异常：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-namespace/87ffba0d-1532-4419-b0fb-123c4eca9814.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>通过一个新的 namespace 来执行 mount 的操作，为何会影响宿主机呢？就是上面提到的挂载共享传播的问题。</p>
+<p>那如何查看哪些命名空间的属性是共享的呢？对于非 Mount Namespace 命名空间，如 UTS、网络、PID 等，其共享属性主要体现在隔离和资源的可见性上，即是对查询的限制，不是对修改的限制。</p>
+<p>所以这里主要关注 Mount Namespace 的特性即可。可以通过 <code>/proc/self/mountinfo</code> 文件来检查：</p>
+<p>每一行的格式大致如下</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">txt</span> <span class="hljs-number">42</span> <span class="hljs-number">31</span> <span class="hljs-number">8</span>:<span class="hljs-number">1</span> / / rw,relatime shared:<span class="hljs-number">1</span> - ext4 /dev/sda1 rw,data=ordered<br></code></pre></td></tr></table></figure>
+<ul>
+<li>在上面的例子中，<code>shared:1</code> 表示该挂载点是共享的，属于共享组 1</li>
+<li>共享组：挂载点可以是共享的、私有的或者是从属的。shared:X 表示该挂载点属于共享组 X。挂载操作会在同一共享组的所有成员间传播。</li>
+</ul>
+<h3 id="关于-user-namespace-的细节">关于 User Namespace 的细节</h3>
+<p>在代码中的这三行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">write_file(<span class="hljs-string">&quot;/proc/self/setgroups&quot;</span>, <span class="hljs-string">&quot;deny\n&quot;</span>)<br>write_file(<span class="hljs-string">&quot;/proc/self/uid_map&quot;</span>, <span class="hljs-string">f&quot;0 <span class="hljs-subst">&#123;origin_user_id&#125;</span> 1\n&quot;</span>)<br>write_file(<span class="hljs-string">&quot;/proc/self/gid_map&quot;</span>, <span class="hljs-string">f&quot;0 <span class="hljs-subst">&#123;origin_user_id&#125;</span> 1\n&quot;</span>)<br></code></pre></td></tr></table></figure>
+<p>这里重点是两个 map 文件的写入，通过这两个文件的写入来做用户映射。如果不映射父 user namespace 的 user ID 和 group ID 到子 user namespace 中来，当在新的 user namespace 中用 <code>getuid()</code> 和 <code>getgid()</code> 获取 user id 和 group id 时，系统将返回文件 <code>/proc/sys/kernel/overflowuid</code> 中定义的 user ID 以及 <code>/proc/sys/kernel/overflowgid</code> 中定义的 group ID，它们的默认值都是 <code>65534</code>。也就是说如果没有指定映射关系的话，会默认映射到 ID 65534，一般是 nobody 这个用户。</p>
+<blockquote>
+<p>关于 setgroups 的设置</p>
+</blockquote>
+<p>理论上来说，映射用户之前，需要先进行 <code>write_file(f"/proc/&#123;pid&#125;/setgroups", "deny\n")</code> 否则后续 <code>uid_map</code>、<code>gid_map</code> 无写入权限。原因在于 <code>/proc/[pid]/setgroups</code> 控制着是否允许在 User Namespace 中使用 setgroups 系统调用，在创建 User Namespace 并在进行用户 ID 映射之前，必须设置为 <code>deny</code> 以禁止使用 setgroups，它会阻止在 User Namespace 中调用 setgroups，从而防止可能的权限提升。这是内核的防护机制。</p>
+<p>这里有个细节，<strong>如果是在主进程里进行的映射，则不需要写 setgroups，也不会提示无权限写入。但如果是在子进程（即 <code>child_func</code>）中进行映射，则必须先写 setgroups。</strong></p>
+<blockquote>
+<p>关于 uid_map 与 gid_map 的写入</p>
+</blockquote>
+<p>这两个文件的拥有者是创建新的 user namespace 的用户，即执行主进程的用户。</p>
+<p>写入的内容主要是 <code>ID-inside-ns ID-outside-ns length</code></p>
+<ul>
+<li>ID-inside-ns：代表新 namespace 环境中的用户 id</li>
+<li>ID-outside-ns：代表宿主环境中的用户 id</li>
+<li>length：连续映射的长度</li>
+</ul>
+<p>例如：</p>
+<ol type="1">
+<li><code>0 0 1</code> 代表把新 namespace 中的 root 用户映射到宿主环境中的 root 用户</li>
+<li><code>0 99 1</code> 代表把新 namespace 中的 uid 为 99 的用户映射到宿主环境中的 root 用户</li>
+<li><code>0 10 100</code> 代表把新 namespace 中的 uid 为 10 到 110 的用户映射到宿主环境中 uid 为 0 到 100 的用户</li>
+</ol>
+<p>通过 <code>id user</code> 就可以查看该用户的 uid 和 gid；反之，<code>grep ":1000:" /etc/passwd</code> 与 <code>grep ":1000:" /etc/group</code> 即可查看 uid/gid 为 1000 的用户名</p>
+<p>写入的时候需要注意，<strong>不论是在主进程还是在子进程写入，ID-outside-ns 都必须是主进程用户对应的 uid，若违反，则在子进程中就会出现无写入权限的报错，而在主进程写的时候虽不报错，但实际上用户映射也不会生效</strong>。所以显然，创建 user namespace 不需要 root 权限。</p>
+<p>同时，在主进程和在子进程中的对于 length 的处理还有一定差异。主进程中 length 可以指定任意长度，只要 ID-outside-ns 是主进程用户的 uid 即可。但在子进程中写入时，length 必须是 1，否则就会就会出现无写入权限的报错。</p>
+<p><em>这里暂时不对此机制做过多深入的研究，目测和内核机制细节有关，较为复杂。</em></p>
+<p>最后，两个 map 文件只能写一次数据，但可以一次写多条，并且最多只能 5 条。</p>
+<p>在写这 3 个文件的时候，会检查这当前进程是否有 <code>CAP_SETUID</code> 和 <code>CAP_SETGID</code> 这两个权限。我的环境中 bash 默认有这两个的权限，所以不需要额外的设置。</p>
+<blockquote>
+<p>capability 与 User namespace 的关系</p>
+</blockquote>
+<p>Linux 下的每个 namespace，都有一个 user namespace 与之关联，这个 user namespace 就是创建相应 namespace 时进程所属的 user namespace，除了 user namespace 外，创建其它类型的 namespace 都需要 <code>CAP_SYS_ADMIN</code> 的 capability。当新的 user namespace 创建并映射好 uid、gid 了之后， 这个 user namespace 的第一个进程将拥有完整的所有 capabilities，意味着它就可以创建新的其它类型 namespace。</p>
+<p>通过 <code>cat /proc/$$/status | egrep 'Cap(Prm|Eff)'</code> 即可查看，若为 0 值，则需要通过 <code>sudo setcap cap_setgid,cap_setuid+ep /bin/bash</code> 进行新增（<code>-ep</code> 则是去除）。</p>
+<p>关于 capability 的详细介绍可以参考 <a target="_blank" rel="noopener" href="https://link.segmentfault.com/?enc=LBUlbwrbsBzxPHWDbenIiQ%3D%3D.4FSOQfXymby%2BAXfJw%2FvjEKcEJSzY9PCcLnBSIsT%2FBzsIo%2FiFHFGip67FdLkn5zFOPoFwYPW4d%2BygnbQW5A34EQ%3D%3D">这里</a>，简单点说，原来的 Linux 就分 root 和非 root，很多操作只能 root 完成，比如修改一个文件的 owner，后来 Linux 将 root 的一些权限分解了，变成了各种 capability，只要拥有了相应的 capability，就能做相应的操作，不需要 root 账户的权限。</p>
+<blockquote>
+<p>关于映射用户的权限</p>
+</blockquote>
+<p>一句话总结就是：映射后的用户拥有绝大部分原用户的权限（<em>有待进一步研究</em>）：</p>
+<ol type="1">
+<li>非 root 映射成 root，可以看到这里其实不是 root：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-namespace/29b3997e-ca85-4191-aea0-2744cbd18f8b.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>root 映射成 root，可以看到这里有大部分的 root 权限<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-namespace/a2c7d99f-67a8-49d0-9d79-5d6db11714b4.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+</ol>
+<h2 id="总结">总结</h2>
+<p>最近下定决心开始研究云原生底层的各项能力与机制，容器相关技术是开始的第一步。之前简单接触过 Linux Namespace，最近稍微认真看了下没想到如此复杂...不过想想也不奇怪，各种 Namespace 本来也是随着内核升级不断引入的，加入的时候可能就一点点，日积月累，集腋成裘，后来者学习的时候的确难度比较大。本篇写作过程中也发现了很多之前没有注意到的技术细节，这个新的系列是一个大坑，不知道猴年马月能填完了。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">希望这个新的系列能完结🙏</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 基础-Namespace</div>
+      <div>https://www.tr0y.wang/2025/03/03/linux-namespace/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月3日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年3月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/03/07/linux-cgroup/" title="Linux 基础-CGroup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux 基础-CGroup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅">
+                        <span class="hidden-mobile">2024 🇫🇯 斐济之旅</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

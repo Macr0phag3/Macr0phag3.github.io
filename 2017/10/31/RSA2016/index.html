@@ -1,0 +1,1007 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="RSA 加密体制破译题目 首届（2016）全国高校密码数学挑战赛-赛题三">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2016 全国高校密码数学挑战赛-赛题三">
+<meta property="og:url" content="https://www.tr0y.wang/2017/10/31/RSA2016/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="RSA 加密体制破译题目 首届（2016）全国高校密码数学挑战赛-赛题三">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348807.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348810.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348812.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348816.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348818.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348820.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348822.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348825.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348827.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348830.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348832.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348834.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348841.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348843.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348847.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348850.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348852.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348854.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348856.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348858.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348860.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348862.png!blog">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2017-10-31T22:52:41.000Z">
+<meta property="article:modified_time" content="2022-01-04T06:17:12.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="密码学">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348807.png!blog">
+  
+  
+  
+  <title>2016 全国高校密码数学挑战赛-赛题三 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2016 全国高校密码数学挑战赛-赛题三"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-10-31 22:52" pubdate>
+          2017年10月31日 22:52:41
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          50k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          316 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2016 全国高校密码数学挑战赛-赛题三</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：3 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>RSA 加密体制破译题目<br />
+首届（2016）全国高校密码数学挑战赛-赛题三</p>
+<span id="more"></span>
+<h2 id="题意">题意</h2>
+<p>给出了加密例子及格式<br />
+还给出了要还原的通信数据，要求尽可能多地还原参数(q, p, n, phi(n), m, d, e)</p>
+<h2 id="一些姿势">一些姿势</h2>
+<p>看这里<br />
+<a href="https://www.tr0y.wang/2017/11/06/CTFRSA/">RSA 大礼包</a></p>
+<h2 id="解题过程">解题过程</h2>
+<p>懒得再写了 直接贴报告<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348807.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (1).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348810.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (2).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348812.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (3).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348816.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (4).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348818.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (5).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348820.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (6).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348822.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (7).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348825.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (8).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348827.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (9).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348830.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (10).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348832.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (11).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348834.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (12).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348841.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (13).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348843.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (14).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348847.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (15).png" /></p>
+<h2 id="破解随机数生成器">破解随机数生成器</h2>
+<p>这块我在尝试的时候猜到了是线性同余，然而没想到它是 16bit 拼在一起的...我直接用 p 算 a b 了就肯定 gg。和答案擦肩而过<br />
+不过这种随机数为何能找到素数也是挺神奇的，参考的答案里也没具体给出那篇论文，所以我也不知道。<br />
+我的报告如下<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348850.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (1).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348852.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (2).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348854.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (3).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348856.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (4).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348858.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (5).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348860.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (6).png" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/RSA2016/1540348862.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="1 (7).png" /></p>
+<h2 id="分解所有-n">分解所有 N</h2>
+<p>利用上面报告中给出的方法分解<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> time<br><br>N = [<span class="hljs-number">90058705186558569935261948496132914380077312570281980020033760044382510933070450931241348678652103772768114420567119848142360867111065753301402088676701668212035175754850951897103338079978959810673297215370534716084813732883918187890434411552463739669878295417744080700424913250020348487161014643951785502867L</span>,<br> <span class="hljs-number">92921790800705826977497755832938592891062287903332844896046168726101016067456726822505517352409138948392871113192427210529297191908638888388136391240683157994654207338463678065440899870434887094216772312358731142317774259942199808535233769089985063860828267808621928898445383706310204223006136919334252875849L</span>,<br> <span class="hljs-comment">#90252653600964453524559669296618135272911289775949194922543520872164147768650421038176330053599968601135821750672685664360786595430028684419411893316074286312793730822963564220564616708573764764386830123818197183233443472506106828919670406785228124876225200632055727680225997407097843708009916059133498338129L,</span><br> <span class="hljs-number">92270627783020341903769877272635163757611737252302329401876135487358785338853904185572496782685853218459404423868889360808646192858060332110830962463986164014331540336037718684606223893506327126112739408023014900003600028654929488487584130630596342720833061628867179840913592694993869009133576053124769728363L</span>,<br> <span class="hljs-number">90058705186558569935261948496132914380077312570281980020033760044382510933070450931241348678652103772768114420567119848142360867111065753301402088676701668212035175754850951897103338079978959810673297215370534716084813732883918187890434411552463739669878295417744080700424913250020348487161014643951785502867L</span>,<br> <span class="hljs-number">99193711547257063160816850544214924340574358752670644615293764532335872088470223740970673347993652626497557387222167784182876395436088845281840169701654629849214222297784511349059698963212947299142320497759258889425182705042123217476724761095690092179821753840224757786599021225709340258545979566824267620959L</span>,<br> <span class="hljs-comment">#146839643970016464813197409569004275595828791825722617066607993001682901023784267554815946189374651530288894322286859792246413142980277245909181062525398546369553995023529451396820549308690493928593324007689135648753323161394735120908960458860801743476353228970081369439513197105039143930008573928693059198131L,</span><br> <span class="hljs-number">155266493936043103849855199987896813716831986416707080645036022909153373110367007140301635144950634879983289720164117794783088845393686109145443728632527874768524615377182297125716276153800765906014206797548230661764274997562670900115383324605843933035314110752560290540848152237316752573471110899212429555149L</span>,<br> <span class="hljs-number">102900163930497791064402577447949741195464555746599233552338455905339363524435647082637326033518083289523250670463907211548409422234391456982344516192210687545692054217151133151915216123275005464229534891629568864361154658107093228352829098251468904800809585061088484485542019575848774643260318502441084765867L</span>,<br> <span class="hljs-number">97767951046154372321400443371234495476461828137251939025051233003462769415459435471728054384852461870179980010660162922547425212869925648424741526671585598167502856111641944825179295197098826911226483155821197251989297102189187139234080795582529077092266799813985026581245196104843272305656744384140745492897L</span>,<br> <span class="hljs-number">93836514358344173762895084384953633159699750987954044414830106276642828025218933012478990865656107605541657809389659063108620208004740646099662700112782252200834393363574089818787717951026690934986964275526538236750596344542450864284576226592039259070002692883820960186403938410354082341916474419847211138467L</span>,<br> <span class="hljs-number">112306066601652819062206435724795595603085908011001671184332227488970057128128821831260649058569739569103298091727188365019228385820143813415009397359257831092635374404034997011441653286642458431865026213129412677064308342580757248577955071384972714557250468686599901682728173096745710849318629959223270431039L</span>,<br> <span class="hljs-number">90267480939368160749458049207367083180407266027531212674879245323647502822038591438536367206422215464489854541063867946215243190345476874546091188408120551902573113507876754578290674792643018845798263156849027209440979746485414654160320058352559498237296080490768064578067282805498131582552189186085941328701L</span>,<br> <span class="hljs-comment">#94390533992358895550704225180484604016029781604622607833044135524814562613596803297695605669157378162035217814540004231075201420796787547733762265959320018107419058832819010681344133011777479722382525797938558181629835768471461434560813554411133962651212455645589624432040989600687436833459731886703583047283L,</span><br> <span class="hljs-number">120008876536855131221255979370745233738591934188224528487535120483456214085493237482915446419599357910343450285858995374277365393767669569942204888383426461862651659865189178784473131914234181752055950431093341514138390898892413182538823693941124637301582389014479754627419560568004831093116617428970538503551L</span>,<br> <span class="hljs-number">147733349387696521015664992396355145811249793103958464053225389476050097503928022819269482555955365534137156079172704297584033078453033637103720972881068435459202133846880715879894340131656691631756162323422868846616160423755883726450486845175227682329583615739797782025647376042249605775433971714513081755709L</span>,<br> <span class="hljs-number">90673177193017332602781813187879442725562909473411994052511479411887936365983777106776080722300002656952655125041151156684340743907349108729774157616323863062525593382279143395837261053976652138764279456528493914961780300269591722101449703932139132398288208673556967030162666354552157189525415838326249712949L</span>,<br> <span class="hljs-comment">#111178307033150739104608647474199786251516913698936331430121060587893564405482896814045419370401816305592149685291034839621072343496556225594365571727260237484885924615887468053644519779081871778996851601207571981072261232384577126377714005550318990486619636734701266032569413421915520143377137845245405768733L,</span><br> <span class="hljs-number">93394639108667212482180458616036741615058981058942739509025631675767304945732437421192075466824789572910657586684470553691049259504106442090140927782673066834126848556317079995332229262871079799089771973100731889841015960713908117908583988637159206246729697336281050046919985463146705713899703248595045701819L</span>,<br> <span class="hljs-comment">#94154993593274109828418786834159728190797445711539243887409583756844882924221269576486611543668906670821879426307992404721925623741478677756083992902711765865503466687919799394258306574702184666207180530598057989884729154273423032471322027993848437082723045300784582836897839491321003685598931080456249945287L,</span><br> <span class="hljs-number">90916739755838083837461026375700330885001446224187511395518230504776419813625940046511904838818660297497622072999229706061698225191645268591198600955240116302461331913178712722096591257619538927050886521512453691902946234986556913039431677697816965623861908091178749411071673467596883926097177996147858865293L</span>]<br><br>Nd = [<br> <span class="hljs-comment">#90252653600964453524559669296618135272911289775949194922543520872164147768650421038176330053599968601135821750672685664360786595430028684419411893316074286312793730822963564220564616708573764764386830123818197183233443472506106828919670406785228124876225200632055727680225997407097843708009916059133498338129L,</span><br> <span class="hljs-number">146839643970016464813197409569004275595828791825722617066607993001682901023784267554815946189374651530288894322286859792246413142980277245909181062525398546369553995023529451396820549308690493928593324007689135648753323161394735120908960458860801743476353228970081369439513197105039143930008573928693059198131L</span>,<br> <span class="hljs-comment">#94390533992358895550704225180484604016029781604622607833044135524814562613596803297695605669157378162035217814540004231075201420796787547733762265959320018107419058832819010681344133011777479722382525797938558181629835768471461434560813554411133962651212455645589624432040989600687436833459731886703583047283L,</span><br> <span class="hljs-comment">#111178307033150739104608647474199786251516913698936331430121060587893564405482896814045419370401816305592149685291034839621072343496556225594365571727260237484885924615887468053644519779081871778996851601207571981072261232384577126377714005550318990486619636734701266032569413421915520143377137845245405768733L,</span><br> <span class="hljs-number">94154993593274109828418786834159728190797445711539243887409583756844882924221269576486611543668906670821879426307992404721925623741478677756083992902711765865503466687919799394258306574702184666207180530598057989884729154273423032471322027993848437082723045300784582836897839491321003685598931080456249945287L</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">BFFactor</span>(<span class="hljs-params">fname,n</span>):<span class="hljs-comment">#细分</span><br>    s = time.clock()<br>    <span class="hljs-keyword">for</span> f16bit <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">1</span>, <span class="hljs-number">65537</span>):<br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;\r&#x27;</span>,f16bit,<br>        Xn = <span class="hljs-built_in">bin</span>(f16bit)[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">16</span>)<br>        <span class="hljs-keyword">while</span> <span class="hljs-built_in">len</span>(Xn)&lt;<span class="hljs-number">1000</span>:<br>            Xn += <span class="hljs-built_in">bin</span>((<span class="hljs-number">365</span> * <span class="hljs-built_in">int</span>(Xn[-<span class="hljs-number">16</span>:],<span class="hljs-number">2</span>) - <span class="hljs-number">1</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">16</span>)[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">16</span>)<br><br>        <span class="hljs-keyword">while</span> <span class="hljs-built_in">len</span>(Xn)&gt;<span class="hljs-number">980</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">int</span>(Xn,<span class="hljs-number">2</span>):<br>            <span class="hljs-comment">#print Xn</span><br>            <span class="hljs-keyword">if</span> gcd(<span class="hljs-built_in">int</span>(Xn,<span class="hljs-number">2</span>),n)!=<span class="hljs-number">1</span>:<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[+]Frame %s Factor found!&#x27;</span> %fname<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Factor1:&#x27;</span>, <span class="hljs-built_in">int</span>(Xn,<span class="hljs-number">2</span>)<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Factor2:&#x27;</span>, n/<span class="hljs-built_in">int</span>(Xn,<span class="hljs-number">2</span>)<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!]Timer:&#x27;</span>, <span class="hljs-built_in">round</span>(time.clock()-s), <span class="hljs-string">&#x27;s&#x27;</span><br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#x27;</span><br>            <br>            Xn = Xn[:-<span class="hljs-number">1</span>]<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;[!!!]Factor not found!\n&#x27;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">FindFactors</span>(<span class="hljs-params">fname,n</span>):<span class="hljs-comment">#小于 512bits</span><br>    s = time.clock()<br>    <span class="hljs-keyword">for</span> f16bit <span class="hljs-keyword">in</span> xrange(<span class="hljs-number">1</span>, <span class="hljs-number">65537</span>):<br>        Xn = <span class="hljs-built_in">bin</span>(f16bit)[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">16</span>)<br>        <span class="hljs-keyword">while</span> <span class="hljs-built_in">len</span>(Xn)&lt;<span class="hljs-number">520</span>:<br>            <span class="hljs-comment">#Xn.append(bin((365 * Xn[-1] - 1) % 2**16)[2:])</span><br>            Xn += <span class="hljs-built_in">bin</span>((<span class="hljs-number">365</span> * <span class="hljs-built_in">int</span>(Xn[-<span class="hljs-number">16</span>:],<span class="hljs-number">2</span>) - <span class="hljs-number">1</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">16</span>)[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">16</span>)<br>            <span class="hljs-comment">#xn = &#x27;&#x27;.join([bin(i)[2:] for i in Xn])</span><br>            <span class="hljs-keyword">if</span> gcd(<span class="hljs-built_in">int</span>(Xn,<span class="hljs-number">2</span>),n)!=<span class="hljs-number">1</span>:<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[+]Frame %s Factor found!&#x27;</span> %fname<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Factor1:&#x27;</span>, <span class="hljs-built_in">int</span>(Xn,<span class="hljs-number">2</span>)<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Factor2:&#x27;</span>, n/<span class="hljs-built_in">int</span>(Xn,<span class="hljs-number">2</span>)<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!]Timer:&#x27;</span>, <span class="hljs-built_in">round</span>(time.clock()-s), <span class="hljs-string">&#x27;s&#x27;</span><br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#x27;</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;[!!!]Factor not found!\n&#x27;</span><br><br>s = time.clock()<br><span class="hljs-keyword">for</span> fname,n <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(N):<br>    <span class="hljs-built_in">print</span> FindFactors(fname,n)<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!]All Timer:&#x27;</span>, <span class="hljs-built_in">round</span>(time.clock()-s), <span class="hljs-string">&#x27;s&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>结果如下<br />
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs routeros">[+]Frame 0<br>  [-]<span class="hljs-attribute">p</span>=6812427463539231600349464320632373878259506266011361351387035583576132041989251176508636878569037408377298402530520856411137155634830256279629494046731167<br>  [-]<span class="hljs-attribute">q</span>=13219767207586640795571526377541732890465157517028423385812256305169857431521906172089205698188779144534548881591815311408600403492889107894773842719465101<br><br>[+]Frame 1<br>  [-]<span class="hljs-attribute">p</span>=7273268163465293471933643674908027120929096536045429682300347130226398442391418956862476173798834057392247872274441320512158525416407044516675402521694747<br>  [-]<span class="hljs-attribute">q</span>=12775796067504534889308793837705093856447186276434607181291462366302734214583227473619414509043813033676998357747882057607288385639737162184366176530607467<br><br>[+]Frame 2<br>  [-]<span class="hljs-attribute">p</span>=52484065122572767557293534477361686456679280880304125291106733197354892893647364164212186415880889674435558369420400890814461263958618375991691022752189839<br>  [-]<span class="hljs-attribute">q</span>=1719620105458406433483340568317543019584575635895742560438771105058321655238562613083979651479555788009994557822024565226932906295208262756822275663694111<br><br>[+]Frame 3<br>  [-]<span class="hljs-attribute">p</span>=7055398260479522499340383681532186847092995337600547504968011029334785849248198827261592108738030900350146800969715064939422943632175860165796992047655507<br>  [-]<span class="hljs-attribute">q</span>=13078018330994845621552747855429996741129628768867676788710615773048246855802311926334525991481279783903078961691672741494174797757666145632542141818518409<br><br>[+]Frame 4<br>  [-]<span class="hljs-attribute">p</span>=6812427463539231600349464320632373878259506266011361351387035583576132041989251176508636878569037408377298402530520856411137155634830256279629494046731167<br>  [-]<span class="hljs-attribute">q</span>=13219767207586640795571526377541732890465157517028423385812256305169857431521906172089205698188779144534548881591815311408600403492889107894773842719465101<br><br>[+]Frame 5<br>  [-]<span class="hljs-attribute">p</span>=8534204848837515931975393694743604482233978795239717717444249645500744498481212186170560396980739879301795276459915005215431744867752453542213016868639743<br>  [-]<span class="hljs-attribute">q</span>=11623075998787245402346559750331455079165060117337930034889727146620333293916811257160778523014841986594526205881807563317848049715664071879977965137310113<br><br>[+]Frame 6<br>  [-]<span class="hljs-attribute">p</span>=159482692259010816139523195494724350795654007589889398757383554027183924116413427533184220914037106543253535103452324841452565420868944985464229649420240708554088156331324206733727690785373464575525698274552058386560106163093965065830071277465943834308083708065429495092746028681968670036721164931<br>  [-]<span class="hljs-attribute">q</span>=920724637201<br><br>[+]Frame 7<br>  [-]<span class="hljs-attribute">p</span>=12406300145307944335209213373018196725715201666535385618794522686524721950743049201561939737652055430279463659191670498628785792792237461236532551241091557<br>  [-]<span class="hljs-attribute">q</span>=12515132804905159708127766136325707992321377113998710477445811836263405233128780498152047439057240132542217905573440500557504942936575400253824837109325257<br><br>[+]Frame 8<br>  [-]<span class="hljs-attribute">p</span>=8649620751833675845720949489383858845796447401365353800898878144845175406172676844999275150219630606359684669242320399096050331623719946048021382644892803<br>  [-]<span class="hljs-attribute">q</span>=11896494295276874055593281869319334151651783133808673396575485807068776793606182148494465816391713137317129560972663854384901692609500496853548961122888889<br><br>[+]Frame 9<br>  [-]<span class="hljs-attribute">p</span>=9578503710865082752572619447703250581238252879412822133271432204532787671643027893670256331928358458734493559747171810834463456086852684437858903431104943<br>  [-]<span class="hljs-attribute">q</span>=10207017087152588040715048402680785398862222629910637172475793288776252558629748676497021478354292685455714591071372731030921157909006333951719151324136879<br><br>[+]Frame 10<br>  [-]<span class="hljs-attribute">p</span>=9686924917554805418937638872796017160525664579857640590160320300805115443578184985934338583303180178582009591634321755204008394655858254980766008932978633<br>  [-]<span class="hljs-attribute">q</span>=9686924917554805418937638872796017160525664579857640590160320300805115443578184985934338583303180178582009591634321755204008394655858254980766008932978699<br><br>[+]Frame 11<br>  [-]<span class="hljs-attribute">p</span>=10567461048505039641972710268713128944634687748250712080474984695584136876402672898538333956369978635390580930966654058991315304961329166742263216335895001<br>  [-]<span class="hljs-attribute">q</span>=10627535420870140157264943381237995845188613757283488311986534170673076876359166440468642831586000127005789867628311873382408383407839525066568105400526039<br><br>[+]Frame 12<br>  [-]<span class="hljs-attribute">p</span>=6985860474362742689823213380101231514167124463232248283942151780607845942841460091693138693954396501918480507964569322391710334462720533595017918609916463<br>  [-]<span class="hljs-attribute">q</span>=12921454883136991414340641129184178393731045365222406074761149065515779165690863384311170163255060973667442222325395407973824379536104548265452893540473427<br><br>[+]Frame 13<br>  [-]<span class="hljs-attribute">p</span>=28159870572597920594563893250499572739237769660647238839011417383170724985058502301163390234256825164330439886062865686161169349465086627567328776299903327<br>  [-]<span class="hljs-attribute">q</span>=3351951982485649274893506249551461531869841455148098344430890360930441007518386744200468574541725856922507964546621512713438470702986642490397676148760429<br><br>[+]Frame 14<br>  [-]<span class="hljs-attribute">p</span>=10954856299233465126359914171500305822846165431085183673999109759449706415739193445885099004577509868426540084786683485568001351280541116090063034118634519<br>  [-]<span class="hljs-attribute">q</span>=10954856299233465126359914171500305822846165431085183673999109759449706417636519711881707731622506407722143163847672064459333431572992021257881551867597529<br><br>[+]Frame 15<br>  [-]<span class="hljs-attribute">p</span>=12129590228679741504121711843970362493049315734589299243022334854180628199056110072388206407916677887428330057500003256795368137540193144088105889375346813<br>  [-]<span class="hljs-attribute">q</span>=12179582871512776468956891745877445010350618063676813770961929030122878089063984750168929497808121238411849832804023412100455762402728468432020965274841793<br><br>[+]Frame 16<br>  [-]<span class="hljs-attribute">p</span>=6998204055345503454608535735199373144581147952412423572966494183179306005216278935510553634487794945379209006773628864213102839984362642462197184843259867<br>  [-]<span class="hljs-attribute">q</span>=12956635227542071202375560927144520333507358619831580670377595997503810379893056493870213428580918250332435506596912071784762831942734238145246920736537647<br><br>[+]Frame 17<br>  [-]<span class="hljs-attribute">p</span>=33168227830849222860094691158174263663422336899723339302414624335921937096795361698659264621281924482566876836548283550012466892022559940789243695658550143<br>  [-]<span class="hljs-attribute">q</span>=3351951982485649274893506249551461531869841455148098344430890360930441007518386744200468574541725856922511753810518751644117399610974624147782234049900131<br><br>[+]Frame 18<br>  [-]<span class="hljs-attribute">p</span>=7273268163465293471933643674908027120929096536045429682300347130226398442391418956862476173798834057392247872274441320512158525416407044516675402521694747<br>  [-]<span class="hljs-attribute">q</span>=12840807874760119497562989864651565491645077946976950748211992253853323703532620362223764981952516328133916264333884385029280730688894521589959051436522977<br><br>[+]Frame 19<br>  [-]<span class="hljs-attribute">p</span>=86725761611859895386396141031497189948984447138542215420462553101081991008304507461163078354877970282649251051457532902955009856009405853917396630017011320500357081664483071782135584899953560478866041032397335990722689211113937797406269980402604895207480485168493674422769645640726941944110986793<br>  [-]<span class="hljs-attribute">q</span>=1085663496559<br><br>[+]Frame 20<br>  [-]<span class="hljs-attribute">p</span>=7006433107252813175095285828299335809650512229854304253471035955787617465825842990081320535410435973346940338772266519696972554709877157476961995216696227<br>  [-]<span class="hljs-attribute">q</span>=12976180370825816046330723693051565324091920359016588247467647785104809172783057319885443026117787490599861213721564637212466483142611446237049740392927759<br></code></pre></td></tr></table></figure></p>
+<h2 id="所有参数">所有参数</h2>
+<p>有了 pq，求所有参数都是轻而易举：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re <br><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> time<br><span class="hljs-keyword">import</span> pprint<br>	<br>Data = []<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">21</span>):<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;Frame&#x27;</span>+<span class="hljs-built_in">str</span>(i)) <span class="hljs-keyword">as</span> fp:<br>        data = re.findall(<span class="hljs-string">&#x27;(.&#123;256&#125;)(.&#123;256&#125;)(.&#123;256&#125;)&#x27;</span>,fp.read().replace(<span class="hljs-string">&#x27;\n&#x27;</span>,<span class="hljs-string">&#x27;&#x27;</span>))<br>        Data += data<br><br>N = [<span class="hljs-built_in">int</span>(n,<span class="hljs-number">16</span>) <span class="hljs-keyword">for</span> n,e,c <span class="hljs-keyword">in</span> Data <span class="hljs-keyword">if</span> <span class="hljs-built_in">int</span>(e,<span class="hljs-number">16</span>)]<br>C = [<span class="hljs-built_in">int</span>(c,<span class="hljs-number">16</span>) <span class="hljs-keyword">for</span> n,e,c <span class="hljs-keyword">in</span> Data <span class="hljs-keyword">if</span> <span class="hljs-built_in">int</span>(e,<span class="hljs-number">16</span>)]<br>E = [<span class="hljs-built_in">int</span>(e,<span class="hljs-number">16</span>) <span class="hljs-keyword">for</span> n,e,c <span class="hljs-keyword">in</span> Data <span class="hljs-keyword">if</span> <span class="hljs-built_in">int</span>(e,<span class="hljs-number">16</span>)]<br><br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;pq.txt&#x27;</span>,<span class="hljs-string">&#x27;r&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    data = fp.read()<br>    p = [<span class="hljs-built_in">int</span>(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> re.findall(<span class="hljs-string">r&#x27;p=([0-9]+)&#x27;</span>, data)]<br>    q = [<span class="hljs-built_in">int</span>(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> re.findall(<span class="hljs-string">r&#x27;q=([0-9]+)&#x27;</span>, data)]<br>    pq = <span class="hljs-built_in">zip</span>(p,q)<br><br>cN = [i*j <span class="hljs-keyword">for</span> i,j <span class="hljs-keyword">in</span> pq]<br><span class="hljs-keyword">if</span> [i <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">21</span>) <span class="hljs-keyword">if</span> cN[i] != N[i]]: <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!!!]You are wrong!!&#x27;</span>;kill<br><span class="hljs-keyword">else</span>: <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!]Well done in pq&#x27;</span><br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[+]Hacking Frame...&#x27;</span><br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Calculating Phi...&#x27;</span>,<br>Phi = [(i-<span class="hljs-number">1</span>)*(j-<span class="hljs-number">1</span>) <span class="hljs-keyword">for</span> i,j <span class="hljs-keyword">in</span> pq]<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;Done!&#x27;</span><br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Calculating d...&#x27;</span>,<br>D = [invert(E[i],Phi[i]) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">21</span>)]<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;Done!&#x27;</span><br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Hacking m...&#x27;</span>,<br>M = [(<span class="hljs-string">&#x27;%x&#x27;</span> %<span class="hljs-built_in">pow</span>(C[i],D[i],N[i])) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">21</span>)]<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;Done!&#x27;</span><br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[+]All data is:&#x27;</span><br><span class="hljs-keyword">for</span> i,m <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(M):<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;  [-]Frame%d&#x27;</span> %i<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]p:&#x27;</span>, <span class="hljs-string">&#x27;%x&#x27;</span> %p[i]<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]q:&#x27;</span>, <span class="hljs-string">&#x27;%x&#x27;</span> %q[i]<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]n:&#x27;</span>, <span class="hljs-string">&#x27;%x&#x27;</span> %N[i]<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]f:&#x27;</span>, <span class="hljs-string">&#x27;%x&#x27;</span> %Phi[i]<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]e:&#x27;</span>, <span class="hljs-string">&#x27;%x&#x27;</span> %E[i]<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]d:&#x27;</span>, <span class="hljs-string">&#x27;%x&#x27;</span> %D[i]<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]m:&#x27;</span>, m<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;    [-]c:&#x27;</span>, <span class="hljs-string">&#x27;%x&#x27;</span> %C[i]<br>    <br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;[!]The Password is:&#x27;</span>,<span class="hljs-string">&#x27;&#x27;</span>.join([m.decode(<span class="hljs-string">&#x27;hex&#x27;</span>)[-<span class="hljs-number">8</span>:] <span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(<span class="hljs-built_in">set</span>(M))])<br><br></code></pre></td></tr></table></figure></p>
+<p>结果如下：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-selector-attr">[!]</span>Well done <span class="hljs-keyword">in</span> pq<br><span class="hljs-selector-attr">[+]</span>Hacking Frame...<br>  <span class="hljs-selector-attr">[-]</span>Calculating Phi... Done!<br>  <span class="hljs-selector-attr">[-]</span>Calculating d... Done!<br>  <span class="hljs-selector-attr">[-]</span>Hacking m... Done!<br><span class="hljs-selector-attr">[+]</span>All data is:<br>  <span class="hljs-selector-attr">[-]</span>Frame0<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">821273</span>a9e7f4b6e3c1a619ad9ba8ee87167a0bf1069c6c6b948ece755cd0548f8fe2253912440af39c76143ddaf833978e4adf81aaecb27b795e0b05b620ab9f<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: fc68e047c53a33b1b35cba2b6f4eb2351590be4f56a284f9970450b30f36affdebb815576d0a774107acf03b841e5ec51ee0055fa8722a89a554b8c36e06de8d<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">803</span>f734ed9e3a3fbdef8e3540b7b676fb66d15d2e5139840cb3cd06e62634c00a48ea2bf9bc3d7a709dbb47be7e27dfb2c0e5b81254e6c326691471ae6ddc4a35539018ba6305daff1c480f195118b1310c546c31fe62c7aec2a947013ac2897d00fd60e7b792dd499315341895bd1d1c9aa923e9373e1e01e2856b4fc8c6893<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">803</span>f734ed9e3a3fbdef8e3540b7b676fb66d15d2e5139840cb3cd06e62634c00a48ea2bf9bc3d7a709dbb47be7e27dfb2c0e5b81254e6c326691471ae6ddc4a1d6bdad99f901731a7cc1ad188a19ea56e4ba7c82c2a73b15c0977547a7a5240a54759b7dfc2aab9ff50e4ec82a453f751c7fad5d401504daff7592ebd864de68<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">42</span>a04a989c5800528ef687c978355e9c4afd410a9dd4b08cca7669c747cce5446d5e85022ca2a2c383c28e85ad038c37ced2e18bd88529bd2480e20191958497c61823378ca06de01c8b6fb148c9bc935e433efcd960a1bf841fd60599811941a122cb1a323a76367ee78d71870b7134881ca077518c809013ae8ec6baecd519<br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">5</span>b3b2da24b37ced4e91817ca8a52a0ac2d870c23c65d1e7172368544192a6d48c301f947394ae86093905f7949e82247b52f043e7801ea7a3562d6e27687a5f4db1dc4959f5bed65a7b12595dc4775257e03afc86df4311dd150249cb6a74384771ca87c62114130b0d79f4815b39057c452bbdfa38b69537fe874c5a1a542f9<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004d79207365637265<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">45446</span>fc78ac9aa9f2e38197d44b76f0c2a7ded354615d906608016e9f884fa51e20893fa0aeaf5975e28a68fbcd9ba469ea00263f812523eec79e0cf967190317bef53ee8ff29af4411a238e7fce148ae7603c9a1dec4eeac1e41ad5fb8725fd3dce4c058db10f279b3ec1fa3ebc6584547d29501cca52851148344316073e6b<br>  <span class="hljs-selector-attr">[-]</span>Frame1<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">8</span>adefe85e3a08b1f5b320649f614da838cc6b64debc82c27f39a5291b8bc640ba3ae5f1590f0a62ff1029fd9e86456936f9618dd73181937f36a0e21250cd21b<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: f3eeca557b30a36f05427f1936a4e7d387d6ac1d65587e774faa9561fb4c4b5b70bebee52c80727f3f12eca96cf457e34ea622ad70a89f87737aa4f12b9c2d6b<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">845334</span>ac0b3eb2239fdf0e3069750901e791cb774ad36941e30d85e5a0fed57749a30dc1f1f4cb191d9863f437c98293e8e8888b963bcf16b691f1d4eef56c6807440e5fb5ec5b95df3434deda30c60dcb4e77294be027f984d5e675aeb1cbbe57e8caf140226ead6dcd9a9636a0cff586fa434804cb09d7e8c48de34ebe9049<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">845334</span>ac0b3eb2239fdf0e3069750901e791cb774ad36941e30d85e5a0fed57749a30dc1f1f4cb191d9863f437c98293e8e8888b963bcf16b691f1d4eef56c6688764584571b2d077ebfaf7bad7703b6b6b114bdfabf7d5a4190fe81faa91c57437bacf682b155fe3db80e12e148217ec8be07bd210a511881dfdad0fe1590c4<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">4</span>cca3c76dacfb7711505cca62b8ccf7d5b75302e3a2e159736bc5247bff622cae6e0c8cb142e8aee384e8732e26cfe69f76f7a4e07110e4c900681e0a00bacac93e48ed30df9a75802261b201aba465d7207b191ce41f1ecbebff5f258146b6df8ab7ce45153b823a28d7d1d57bf14310f2db82ff94c9363357b42f0a582be5<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e20496d6167696e<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">251025</span>dc5fb84476581d0f67c640d8927da6d083627c9c29f3174c17cfe316a6218194dd4be03d30ef9eccbb4c609673d853590dd122b151dcfd6d75fd202dc2c758e897babe0a4cd842ff35d086cf4e34efbd09e8ff9fbfb4b5254ca2323a463139abd16e301c37f683579ba624efbb297b9e6d5a1c68f75eb4badf9aa198c<br>  <span class="hljs-selector-attr">[-]</span>Frame2<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">3</span>ea18c437be22139df56ae544e1f2232c25b9c75532c15bbfcb087a6680914d4f355b0e779b6087ddb4aa938453329b6f98f91995780017fe3249b0a4d9d28d8f<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: <span class="hljs-number">20</span>d553f6ec8df4dd610278518babe13e0efd87744717f733836c634407d0230e467b622f9787080adde08cb349423bc93efd965375b51f301bd9d9d25c61891f<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">808627</span>ced38a980d765454ac5dfefc10195f6fef9b35b52b742dbce2419c34080a3ef3e9673fea4dd629ff382155031ea6dcba8372d42c1862f32b2bee47e157fa7150c544635035f366f7d68234f56fa24180eb6a00a0f85c65aaeb455b8ed28f2285376cda786f8c658cfeb3752f3504a7256ea3dbd22eef20267d156fab51<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">808627</span>ced38a980d765454ac5dfefc10195f6fef9b35b52b742dbce2419c34080a3ef3e9673fea4dd629ff382155031ea6dcba8372d42c1862f32b2bee47e153ef83389699b347ba9cf99a401496f1056d8a3221f0274e050df0cd40bcfa1e75134c149039f2e886f9da6cc7170057fc2cb07585b6269b00a0fc9c05df3b94a4<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">759</span>c4e6951e38de923d35ff8abbb5e664d11ac9912eb3ef298ca1202ea0f4afde0826329bf3619ef487ffdf11b6f73ff64aab073016d6f3c91affc5da31b5bf33746594e57305bff450e943cf79a78cc82c4e7c36ec448fd0f18c07af173e0d339e97117da2f92e1915a74186bd000b3df214b2a24d98716383b717b5e206391<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000002054686174206973<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">38702</span>ef6fd51ca1ca834ef495618da956c8f8ad222b99e256ed5e3dd9089e194de67fd427f6132715709830a73b1a1cb582e56d06af8f31bba2851dba1a1c2985b7fc233018e42554c2aabd69a225f9283a164c3aa5479363f89260219f9964738b7c78c5d08618009f3904eb55a6a570e8d4b1701f4bf1b2c99c7887ccff2c9<br>  <span class="hljs-selector-attr">[-]</span>Frame3<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">86</span>b6117def3812d7dc8a70c1c32c45bb6b9e7045126032df87f2d40950d43e43c586a00d32880be7f85a1851ab7c7fcb346ec0d5efb0bdefcdc25d9973242a53<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: f9b405a30966666d096869471a3a64b1905cd32b144ef335c290674f4ba2d5f9140489b3543610fd38b8de57020ae84124ac493b691edfc50be0ee5fdd72bb89<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">8365</span>d1ff23709faaef6330aeca9c848b292e0872c5c41e8cbe9d0780f32ebfc5fcc7947bd666f06aa619f952afb8d7c08b9211960d1916235d8ab3a60dec45b1ef5cc21848e56d5235717186ead51ae22a5661bdfdc42e31f9181f6ab1d070fdebb078a9980d7a0571b587130a1d3056cba40cbba287cd5031838bab893b476b<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">8365</span>d1ff23709faaef6330aeca9c848b292e0872c5c41e8cbe9d0780f32ebfc5fcc7947bd666f06aa619f952afb8d7c08b9211960d1916235d8ab3a60dec45b06ef2aaf75046f40d4f7e977e0d6e70752e5b1e4dd715081cae94e41215595cc112254ee9114f5d2040a2906a5c95c84a728902aa49b82f9b57e03fb238a46190<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">5</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">4</span>ed6b132aedd2c99c2d51d35acc44f86b24ed1de76a8df213f2b048091e8d976cade25e3e70a903ffd42c8cb363bb4a6ba2470f3a17573aed1b99efd3b8dc369dc2b3361302a926e62e58e186e7576acb569defb810c9e779bf2ef3e0ccf37a70ae32f58a3fc6b1359fb23730459de93118567ffc5d4e95d34b9bfd1552f6dbd<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000007420697320612066<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">76</span>cbcaf659936784799208c3ee2420b7bbfdbb9aa8d7c89874c11314df5decd3aa97f3da89851a043af16e6570e7d03a4f3225d49e552faa2fb9f6a19ae95ba73ecd6e7cc05cd9c03e03e06f829042dba4c1a91f39ac0cad516c8de7fb45939a2038c24c13f7f62a20040473d8f3d8339a4b30a65715f98a43cc3293e51190d5<br>  <span class="hljs-selector-attr">[-]</span>Frame4<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">821273</span>a9e7f4b6e3c1a619ad9ba8ee87167a0bf1069c6c6b948ece755cd0548f8fe2253912440af39c76143ddaf833978e4adf81aaecb27b795e0b05b620ab9f<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: fc68e047c53a33b1b35cba2b6f4eb2351590be4f56a284f9970450b30f36affdebb815576d0a774107acf03b841e5ec51ee0055fa8722a89a554b8c36e06de8d<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">803</span>f734ed9e3a3fbdef8e3540b7b676fb66d15d2e5139840cb3cd06e62634c00a48ea2bf9bc3d7a709dbb47be7e27dfb2c0e5b81254e6c326691471ae6ddc4a35539018ba6305daff1c480f195118b1310c546c31fe62c7aec2a947013ac2897d00fd60e7b792dd499315341895bd1d1c9aa923e9373e1e01e2856b4fc8c6893<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">803</span>f734ed9e3a3fbdef8e3540b7b676fb66d15d2e5139840cb3cd06e62634c00a48ea2bf9bc3d7a709dbb47be7e27dfb2c0e5b81254e6c326691471ae6ddc4a1d6bdad99f901731a7cc1ad188a19ea56e4ba7c82c2a73b15c0977547a7a5240a54759b7dfc2aab9ff50e4ec82a453f751c7fad5d401504daff7592ebd864de68<br>    <span class="hljs-selector-attr">[-]</span>e: d8bffcdd82504c05a241e26742f0a867b162e5ecbf185e66f0a5fca1801a2c3a2a562549d433c600e3a4085c123535aa7ad14d55c0b3765c55c5b78b946517c14438ad876ec0f7ac22792988bb6cd7837aa64334eb5f7c668d570cbf8134b7f7e87eefa95179ca11bedcdf420eb6df9178c0a3b489a07b86ebca6adf96982d0d<br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">7</span>d71af7541f1b1ba8a810def794f3662ee73b7e81ead2b89313e969ff5cd12b40cfed55ea2b5f1572ebf14532b17062a206371be56c78799fd20cf61113cd677537090516953f0aa64afda84c60d8a863d1639446bd3f21d24c60b406308f458640fe0bb8f3fe9ce0bf13060219b9c5da80df8594f32349831863dceaf98293d<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004d79207365637265<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">1</span>bdaf2dbcec34d6602c949e9b53876a4d8b62fa69dd960063b342e5101f92a0f5d88a445d7bdf36f3816aebd5a98a8f06ab2cd708e363a657665cf05cb1f289eb758e09d11351816df1edf4575f01f95efce164d62eee92bce562b94b451fd9b566e4f8625e0428ad93bc6f8342c089af2842ea6deb9ed22d450f062cc7b18a8<br>  <span class="hljs-selector-attr">[-]</span>Frame5<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: a2f2530963d4554390860f0d758892e7735a77511e7c76cb5f6e0fd592b024efa8c29c9946240153e356219decd8aff7e32ae2e17acc14dbbc3e6465240053ff<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: ddec697b645e1a051920d29f4cb259c903941a031646c1cd5148e3a7951a9611f63c138bdd2e5a952670cdaf4282d35955e476135916045d3898b0b7f4ea31a1<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">8</span>d41ac379635a2c8ffa55f609be3eb6219c7ad0d3c335ac1f7ae27c3c0510e9acde319a6e00b891bddb05c6b53f62e9321340bc0f19727c0526ac811cc02c7229241045a3d125978c1181264fde49d8a148aad8a8796c12c2ab5e8d7b0f98edac907c092b70d8b36e5bdc47c5801e4225bb508b1f081f5331c9b1324875ea25f<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">8</span>d41ac379635a2c8ffa55f609be3eb6219c7ad0d3c335ac1f7ae27c3c0510e9acde319a6e00b891bddb05c6b53f62e9321340bc0f19727c0526ac811cc02c721116247d574dfea30177130b83ba9b0d99d9c1c3652d3889379fef55a892ed3d92a09106d93bb2f4ddbf6d52f28a660d122a5afbd1c9fdbfa27c3fe076e741cc0<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">34302045853</span>c99c0f31a912b6b4d00c904c74dfb46d39e636d73ad8358095a80fd323b66f8fdaa115e8d6b07c8447b1ea6b4c8e6e71b36778abba2e158636a58a048944b9bdba2755423e0a12081e831ee561fe23e25a31f01829df96e179bf36ee15c6d6f9847b8d75cd19493cb2c97f7da091cb077ab5937d9e47fb0623bc1<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000006174696f6e207769<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">251</span>a6449a3e9a4a444238910ed757d0dcf8d825007a94ad9e171d4caf3799b07bb5fc050aab3762ee10e234dfff101d7e551de4f61c824f55c6a4c0e895d48ab46c67a66fdac65f2f60d5a2150fca740940293ff5b2aedae129fabf3840d879ad25f9393ff9a664ffcfa0b2fe484d01994dad68c0d340246c7b63515a96dd034<br>  <span class="hljs-selector-attr">[-]</span>Frame6<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: f9b6087d1a3861d77f8ad7c19e2c84bb3e9e47459d6061df8af21b098bd45d43f886570d1d881ae75b5a3f51467c7ecbc76e57d53ab0acef90c264996e2409534b56699d94d837f7cb2aaae1a2cc1cdb243eac65cc00dbffaa9232298474d963f226402d8028b907cefa1a71b31c5eeb550e44f55150ef0fd86283<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: d65f770611<br>    <span class="hljs-selector-attr">[-]</span>n: d11b49bf43234d6595219ab7c21730de0a13a7a01e63831a4d4f8dc5a7e68fca0e9768ef0dabcad036e08e17e4b27c1151df364556d8f93d19565d9f40f095a49c6185f2630671eb5ec1eaa514bec32d93a0f0459b52f1e34d4b9113413403f66619262ef1d3cbb025648c997cd1438de21cfe4bea0c6e00c72ffde587929cb3<br>    <span class="hljs-selector-attr">[-]</span>f: d11b49bf4229975d18076255ea97a60648757b1b6324e4d307b22d63c85b9daf050b9491c9b3447929c305fcfd5721d20098b9c68b118ae5441bacf2515fd34002f361e90fbb1b81c12d126d1cf39882b1fe2428c02eb336e77f9037418971c43c94b1558de1a56ff7e463e0750249737069e1ecfeb75fbbd1deac2018433420<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">64</span>b69ced76636bd8d5b2f0c4eac98198731bca60657f268b11a0dac5bd818acffa411a9ca1262baba3d69fb2bb1e5556bd1cd2157373ce8f201fa84bc9afbaa2910942362b72760c27cb9a9d5d1d626e48665c6a182e25f922c4c8e424379bc8e558c494ad526a0924bf26efbbcb8f2eff8cafd922d1955573fea8ae88a10da1<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef00000007000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020224c6f67696320<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">4333</span>af6b43f36028d8d9650ec3eed3238541ee5c15e626c58c9ec33674a6d08d5b1f2580a1a0b07e9d853536cd994e197889d122701a62bb2a9e79559f3d5281014535f6c54f83ca8d9700eeb67d99af318d20a5150ad46d622a6a12de0a758ee7df75f5d10f2fe2585f2348537787063321ffdac91bb3c3d1d88cbd04a824ed<br>  <span class="hljs-selector-attr">[-]</span>Frame7<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: ece0bb5f2672d0895354cec3cc06e48ddd082467e6da24d17dfca04b8aee15556a30666f0c427a1915a4dad3fed6571d3458a17736aaf061ba4c9e5bc7bec9e5<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: eef4b1e3a0a60cad12a89987e57a2ef1ed9cc76b538e2175b3d05f8f3ee2a839d944c5f33b76c73d11f89e971d4ac28151eccd7bf85e1e05cd20769f20b29dc9<br>    <span class="hljs-selector-attr">[-]</span>n: dd1b58ff0de86cd28dffb60cc1ee0efa3250d58264b3da9ceaa5b5c17c728741f728c462c347dcb707ba7ee8672295f5a750c19d48ae23a32fc21e76f3188b85008e4ec1a66371bbb0825e558e876d80fa59e7099af25b0b298131277e634772f24ee0ed1bacd3ba6f8d8e443d5ae16faf6aa7dbaa59f91f763e4eafd7d7f5cd<br>    <span class="hljs-selector-attr">[-]</span>f: dd1b58ff0de86cd28dffb60cc1ee0efa3250d58264b3da9ceaa5b5c17c728741f728c462c347dcb707ba7ee8672295f5a750c19d48ae23a32fc21e76f3188b8324b8e17edf4a94854a84f609dd065a012fb4fb36608a14c3f7b4314cb49289e3aed9b48ad3f3926447f014d92139c7d1292538e87b50eab7eed139b4ef668e20<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">3</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">936790</span>aa09459de1b3ffceb32bf409fc218b39019877e713471923d652f704d6a4c5d841d7853dcf5a7c549aef6c63f91a35d668db1ec26cca8169a4a2105d02187b40ff3f870dae31adf95be8aee6ab75235224405c0dd7fa7820ddcdb70697c9e6785c8d4d0c42daa00de6162685361b6e25f05235f1cff48b7bcdf4ef096b<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000616d6f7573207361<br>    <span class="hljs-selector-attr">[-]</span>c: b1e7f916884f9d17dffcb8ef1a93d61e3da73e066ce8b71f09bb8ef61c833300cb472854ff642f540db232ded17095f4fddca6cccc27628ea781f546863fa431b9057fa7dc1aa41c127fb22b113e512b14926ca0c361dd6daaebc3f2e9ce51d012f40173cf88f07752caaaba06ae53c4dbd559f50eed636a0a2e65d6bd835bd0<br>  <span class="hljs-selector-attr">[-]</span>Frame8<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: a526772deb284807b1fac171ce1cddeb680e5bf51c505e0f1b620ab949c42c735ff6d1bd0a78ed1709caf501526c83fb2cdef88555a0151f1d32a04988140483<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: e324da534856229d59d818f7982af3e1b7cc0ddbc13e85653100dcff17929b293974ea632f26392d8528da07dbfaa371081c8feb320e5df5f650300f85622cb9<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">9288</span>e1eef599ea72113d950723a8fc0add096c7312d8e78911fe64a4322c4fec96fd70b345aa5a345481fb91d8549998a90e2429dcaf1eeec863f396479a0bbd121e36b0efac8d002fc95b58b5879dd75251b5cefcbe90bf50669742821be2e89b3831fd6f0f3eab310e5bf3fc66d702d5ff1581ee1deff161efca359063c6ab<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">9288</span>e1eef599ea72113d950723a8fc0add096c7312d8e78911fe64a4322c4fec96fd70b345aa5a345481fb91d8549998a90e2429dcaf1eeec863f396479a0bbb89d2e52fbc2e225b23f680ef4f3fcc0a32774bfe1f2fad4b0403af8a20c51b4c01cc75dd35701866a21a8ceacdffaf96a1038d11666f7cdc4e6cf9dc82ed9570<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">5</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">753</span>a4e58c47b21f4da97aa6c1c873008b0d456c2757a52d40e651d5028237323abfdf3c29e21e1c376ce62db1376e146eda4e9bb16f27f256d1cc2de9fae6fc93b0f1dbfc9be81e2832b9a590c3309a1c1f9099818f2f108d002f2d4e70415d667d6c4b0f78ce0521b4870bbd7ffbfabb402d7411ebf9716a523fb16cf24778d<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000007420697320612066<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">246</span>f3344f2c341fda293ecb4214c14d57164cb37fb364ed14b2fe3d10c94d2365155959b481085379a9c85b9fcb86c7e3676b2bfd98df7055d7e474cfee6ce3529980a3fa0c537af9c375e606e89b19d34fc801200db462538e2e9fe80803a8ef02f662d0e5ac9c35dce7a758b9efd6d5fea73bd9649c9b651e5aa5f1d96a773<br>  <span class="hljs-selector-attr">[-]</span>Frame9<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: b6e2c03911449df333765f3dc9f8f697954ada8189eca57bf05eb6058520ce9f98b2b5c92f94d6032246ddcd3d485fa7611a7211a23c4f8b692ef6959270c9af<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: c2e2dc39fd4419f3ff763b3d75f83297214a7681f5eca17b3c5e1205b1208a9fa4b2d1c91b945203ee46b9cde9489ba7ed1a0e110e3c4b8bb52e5295be7085af<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">8</span>b39e72d3c13d48f7773118b19f0d1a0cc592fd8ff12469e1d51aba8869a23297cd62e28bcf885f744bd4a7c53cb5369f941f401ec010da8665b7eb0b17b1839b3f0e49b51a266ddb84899eb302e050e43a284b5051c5b9002ba2b8bf1dd3a22c0bab03a6e780f218852ee086f05e9adf290189439aff15986077d36d271c9a1<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">8</span>b39e72d3c13d48f7773118b19f0d1a0cc592fd8ff12469e1d51aba8869a23297cd62e28bcf885f744bd4a7c53cb5369f941f401ec010da8665b7eb0b17b18383a2b48284319aef6855bff6ff03cdbdf8d0d33b185431498d5fd6380bb9be0e3835528a8234ee71a77c5566d4874ee5ea45b98718937564267aa340b81907a44<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">4</span>d82b10767f90a4fcd0a8cebca475e0d8d76e1c2874f1f6d8b991a5e3a81b9adb148746e4db676aed0e02985ca08daa9971176cd531ccb03c3e89041c2ad6b307282022c181f465f0ca3c93402a57f2b98158f7ff756ff328f8000537d1f2d36bcb93e674d30f24cb3fd733e68266146e36df312d277b25849ea620b3dd8b799<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000d00000000000000000000000000000000000000000000000000000000000000000000000000000000000000006c6c2074616b6520<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">1478</span>d729930a4bac9a114abcf11b6e5267818c936edc70c87cceeae6114ceefd83f0ece19d1dd120470f7d7c22882a57a3df23d467dddeaa86bbb2c1fea07ce8f660440f7a269f2d5c9090c6e8775a553063f8240cc3ced605ae71699affb5740c522eac8c864b207ac691deefe08a66d216fec93961131f786ef9f949f092c8<br>  <span class="hljs-selector-attr">[-]</span>Frame10<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: b8f4b3e37aa6dead7ca8bb875f7a20f1f79c096b6d8e33755dd0c18ff8e2da39234447f39576193dfbf84097174a3481dbec8f7b925eb005f720589f5ab24fc9<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: b8f4b3e37aa6dead7ca8bb875f7a20f1f79c096b6d8e33755dd0c18ff8e2da39234447f39576193dfbf84097174a3481dbec8f7b925eb005f720589f5ab2500b<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">85</span>a0ac7e685995d9f8012c3a0249491956697997bbb6e5ddc1b53dc6184a843c3e4eb9b2d97feafad097aa0ff640846287953c88f5a0813fd81ff3ebbdd62d66f4403653dcec64ace99f9faaed4fd35513214ef4b4b9aa910e5923cd87f9330e3599f2cf1ad90efc6bdabbd249d1ac8cf83836fe18399379e712010fc25a3da3<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">85</span>a0ac7e685995d9f8012c3a0249491956697997bbb6e5ddc1b53dc6184a843c3e4eb9b2d97feafad097aa0ff640846287953c88f5a0813fd81ff3ebbdd62d658256ce8ce79ea751f04e289c2e5b917123e93c1dd99d43a652b7a0ad96337e9bef1162e7efecdc8073ea3aa41b3d4389405f1806f37c336df8d14fd10cf59dd0<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">382</span>ad8366df031efa3b2028003940058d91c8e927bc19e0f3f2bca6268b571adccd6d4715bc0cbe94f2260c642d0cd9488beeee9f6acd78719761cd61b3e5a688f87a35c50c33c3b51d1d87a057651c507be3299ad6dd010aa362b20abc0cb5809fdf9dfd9d66abcc77c4dd7cae74e6af396c507aef2a6bf73d5af4204bb7cf1<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef00000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000077696c6c20676574<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">704</span>a43957ac6d55375fe290ceba686277b617ae3a013ba998c7475f161a72c4c0820f3a6a2d9474df3ce86d6b78b50814f6710daf8338b9880a8ed05cc498098ae299905bdddaf05423765070adf71e8cc43103d8e813a9ea8e5027091360de30d925369df9085066392166961d70e5af868b75fd78227f8e603e5790a89058c<br>  <span class="hljs-selector-attr">[-]</span>Frame11<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: c9c4ac73dff651bd8a786d1789ca7501d26c03fbacde7885d5a0951f9d32204908148483eec6704d1dc87627759aac910abc4e0b45ae591502f0302fb30239d9<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: caea4fa1888caf9b5ffedd254dc0dabfe252aee962340423e5e6c8ed79e8cfc73eba6f3188dc21ab00ce25b5c3101dcf8022b0799c84283350b6137dc938e4d7<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">9</span>feddc9c122aa836e9a04fe9358a118b358c7bc6f3abde4e035e2bcb15b52950db1d23449ea62f83406fb591ed39564fd0e2dad0954156037bb32c9c23c49da83e2e85bc09a9b6fd75e2f55129044fa0f996895e8bf5e53d88938e4a3366649e97961be5b7b4095476d013d2e9f6fe75dc21295747bf371ae346355a5adbd93f<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">9</span>feddc9c122aa836e9a04fe9358a118b358c7bc6f3abde4e035e2bcb15b52950db1d23449ea62f83406fb591ed39564fd0e2dad0954156037bb32c9c23c49da6a97f89a6a126b5a48b6bab145178ffdf44d7d6797ce36893cd0c303d1c4b748e50c728304011775c583977f5b14c341551422ad2658cb5d28f9ff1acdea0ba90<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">3</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">6</span>a9e9312b6c71acf466adff0ce5c0bb223b2fd2f4d1d3edeace9728763ce1b8b3cbe1783146eca57804a790bf37b8edfe0973c8b0e2b8eacfd221dbd6d2dbe6f1baa5bc46b6f23c3079d1cb83650aa94d88fe450fdecf06288b2cad368324db435da1acad560fa3d90264ff920dd780e362c1c8c43b323e1b5154bc8946b270b<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef00000003000000000000000000000000000000000000000000000000000000000000000000000000000000000000000079696e67206f6620<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">9</span>a597210da69760a66b063fa125dc17dc2038ec720cae6d0b1599ec25b9a19f328bc55882ee9ed05fc9bd90276b0f7f1d227946ffd77081df6e08976ebf57a3bb21ac13fe25a742a0c137e007bd8787a42683d81adc28450051b44617c2081d5aca3141dc2c848f1401cea94da7d11142bb2406306b299953d1c28259521ea11<br>  <span class="hljs-selector-attr">[-]</span>Frame12<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">85622</span>cb9c3c41e7369f613bd2478ff17b3ca57010c6cb5fb76de7a85afa0671f0732424982147683f8c6b24d37c888271f9a0e91c4bc800b8faedb155cf0822f<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: f6b6c17ddf3842d74c8a20c1b32c75bbdb9e2045026062dff7f2840940d46e433586500d22883be7685ac8519b7cafcba46e70d5dfb0edef3dc20d9963245a53<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">808</span>b8f96e7255b3f169ee854abe0cd0ac7a4ae1b388cbc9a234e225842208a435842c254a55855b867f3fca78e3887c8d1663b501a5d4d5e32f3ef84847f45651a5e2fc8a091e12e2b4db7ab41113d258e2200ffb2bbf8b7c38b0049b3e2e60c65eb8b6375f03a40dc9f9ab01fec60e09dc8ca3644a83738bda0cfdb2b5abb3d<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">808</span>b8f96e7255b3f169ee854abe0cd0ac7a4ae1b388cbc9a234e225842208a435842c254a55855b867f3fca78e3887c8d1663b501a5d4d5e32f3ef84847f45639e454190fd957fe374cd832c696bc851feb989b9a3eedfdc54ba01bac36e10aa2932f90cd15387d57b7e20114ca728edd9c04acea03ac93df02fe72c6b45debc<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">5</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">336</span>b063c5c7557b2d5d929bb77f38537830eac0ae36b7ea40e1f40f01a736a8156811a884223557cf661984305b0365053c27e200a8bb88c14619301ce994ef4a5b54d6d323bccc161ebce11c3c4b68732b09d7d74c5f324eeb0cd7de7c5a044107aca052087cfeefe32733a1ea943925719b785d9b11d4bf9acc2de914f25e5<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000007420697320612066<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">3</span>f312b5fda3a9aa43de2697fa001ee909dfe677aa6a48beaf84991ff7d423596b5cc230db4e5be42e7c886e1fa6b39002b148f670c3b162816efcc6341a96d3cdcf849a35b866efb9e5f5c48df9bbd3f065ffa3e0961eb2393c6f2689b72603b21a2e1c674ee2a1a6534ca01f5606b062fb53ca9c3eb1bec80ac6849b090a7ef<br>  <span class="hljs-selector-attr">[-]</span>Frame13<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">219</span>aa9485c033046d4df82a94b50210fe3748d1a6e6d3168f259899b725a0a51f68e892c541724caf513accd60a409d3c2e8a57e7501126cc50db43f7e2e2795f<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: <span class="hljs-number">4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</span>d7650c08e1f6d<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">866</span>aa521700cc11b537e0aa52d40843f8dd23469b9b4c5a3c966266dc9682947da3a24b1505c932bd44eb3358290274f0ba295f9d40449b314531725bdb1df55d57d088a5d188994c77362bfe54777d666b8c4d59c0c9c2b4d4e63780fd8d7c637444e0a9ec83a9ed3fa856d5155f6fcb5861f0cb66994ee0ccb615b99d22e73<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">866</span>aa521700cc11b537e0aa52d40843f8dd23469b9b4c5a3c966266dc9682947da3a24b1505c932bd44eb3358290274f0ba295f9d40449b314531725bdb1df537bd274049ce58527797b382b304566d82f6ff32eb539859c27b5c9c0ea3832a6ce5bbb455d55edef82bfb897471559c086fbc72566586e21bbe2a712f66195a8<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">411</span>bed4aea1cb3794a131692f5fd7751d59f8995e0c768a8b288917ac2817ae57c1687e97fb4a7f12610cd0bd1678432ecbedf88b9232e93d8f77a91e47601684de51e1f91e437806c7ebc31675b66bab717b222e0d3b11d77babdb47d7fa5415959e3b770c38bd26571fab7044e9a4000e27a8f6a28d187f39b91344535f5a9<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000796f752065766572<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">3</span>b54c09ac3380dd2cd82d1244d9b774a1e9d4b5809e79280e5254d4a41b8f803a7151d6feea62b04b90854a96f1b5284f209fb8dc0bfda39c885c1401f821872f17610cdf5bc8b7d236966b3a749cdd0907716fce3af5e39678efe9b344e2c05ede973f4da393b27f505030e3aa56c6c1022fc0b9ed6454884e41784a3efef5c<br>  <span class="hljs-selector-attr">[-]</span>Frame14<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: d12a38e118cc5adb8a3e1a65a200f9ff70928029ba74d76318266e2d1628970754fa2871a91c1ceb3b0e32f5a7508d0f1e6251b984c44b7392f688bdf578fc17<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: d12a38e118cc5adb8a3e1a65a200f9ff70928029ba74d76318266e2d1628d708f61cf38bdb569321b9f5c0672e5bfe43a67ef230d650cc03a6a51784b065d2d9<br>    <span class="hljs-selector-attr">[-]</span>n: aae5f7d640fd102e49217a08e0a4af72ec895d5aba020beaf6f73053f4053d47cb7ebf3d583532abfff50f69508a4dbf2421742dcc2c16ae00e88c237653ec4dcfcd9a918763a9c9de3ce3da1fe2bc94ff93a9a7c261400a6e363c66816fda0e44ee73662cfd2b8bfa926ef2b40f7d41f35b7e89516bc28330b5cf49976b8d7f<br>    <span class="hljs-selector-attr">[-]</span>f: aae5f7d640fd102e49217a08e0a4af72ec895d5aba020beaf6f73053f4053d47cb7ebf3d583532abfff50f69508a4dbf2421742dcc2c16ae00e88c237653ec4c2d7928cf55caf412c9c0af0edbe0c8961e6ea9544d7791443de9600c551e6bfdf9d75768a88a7b7f058e7b95de62f1ef2e7a3a9ef656ab0bf71a2f06f18cbe90<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">2</span>f0ecfe5c1536da7311ff4b889130ff4b74943d97daa9e997e93a64d17be7197596377496f06870371a18b32d6a89eabe94904f2af6bdc7ae169275d8471ab7976740c56bb2afd7646f3b5c083af2bcc9a68a25bc2511041184330dd747ac205d74c0297a10130ec531d5ece6fc413166757e4d86cc084acf0c7d6f734802ae1<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef00000009000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020796f752066726f<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">32083</span>a7d65ad94e25e193e0740fe348fb5c35d17329d5446015c85f134ba59fe8607941e5fe605243efa6e3638a4ab96bb6faedaab095ddd1ee1757919d82c39865c81f5f7fa3e4e72fc976d8a37e3a5591b6c75ed9b65af8a516b44b06162550347cce972e4ae121f1a595dffd9051d5ddf2cc2bf2d04faee8eab92f57cdd9b<br>  <span class="hljs-selector-attr">[-]</span>Frame15<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: e79833b7bbeaeca1618c149b60fe4a25b6c08fbff352ebe95b34092306e6d5ed02e824c76fba4c31a1dcc6ab41ced2b56c1012cfd1222d79d5846d33b1b6607d<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: e88c8f9bbffebd25adc0babf42528ee9c234e42345e6a8edd9e8afc79eba4f31e8dc01ab60ce05b52310fdcfe0229079fc840833b0b6f37d2938c4d7a68a72c1<br>    <span class="hljs-selector-attr">[-]</span>n: d2611805b6839fd983f2c574bdad1c50a4fb9fab35f3bb643f90a9fbb0b84af1d042e35e821564fca783f1a2af41349bb3e1c159b20ea6a0db9e70597cb5c0780ef6cd78481aeac0df65a8de35a8b5021fce55332c5b2adaedcf80963bd6fff773cab55d73637c9bd667148fb1359782d38c41cbb43fa5fd56f424f842d8683d<br>    <span class="hljs-selector-attr">[-]</span>f: d2611805b6839fd983f2c574bdad1c50a4fb9fab35f3bb643f90a9fbb0b84af1d042e35e821564fca783f1a2af41349bb3e1c159b20ea6a0db9e70597cb5c0763ed20a24cc3140f9d018d9839257dbf2a6d8e14ff3219603b8b2c7ab9635dad888068eeaa2db2ab5117950148f4434536af826c8326685065836f2ecea979500<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">3</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">8</span>c40baae79ad153bad4c83a3291e12e06dfd151ccea27ced7fb5c6a7cb25874be02c979456b8edfdc502a1171f80cdbd229680e676b46f15e7bef590fdce804ed48c06c332cb80a68abb3bad0c3a92a1c49096354cc10ead25cc851d0ece91e5b0045f47173cc72360fb8ab85f82cd8cf1fac48576ef03599024a1f3470fb8ab<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000416c626572742045<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">4</span>a6972b03f96cc30de3f60da66c71842e600320964a69ec818047b219506a12f3e4d522b40b10eb3f630a068c908186f29bf782360e35262a4ceccad554f57d1721db61b260ac6c5fbcb020ac326562048b0fc9270afe51c63f5f27a9a3cfd78b5971d5cbf7fbf20e23ca7b429121bd0bb9ae0552d6907c659e2b450b01675d7<br>  <span class="hljs-selector-attr">[-]</span>Frame16<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">859</span>e8245bc6094df41f206099ad4c0431f86f20d1c88ade7f25a8a51357c41cbce6e52d519b09fef07c20f993d242c533256c49d53d88af7222ab5e151cc9fdb<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: f762b6b985c4b873fbf63dbd0678391765ca21010e6c8ffb48dee485d1a0e11ff9324c49c41490830ac65c4d99c84227519a589146bcda0be1aec515fef07c2f<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">811</span>f75bead6f0c3ea1560cfa4bfd4762f1da3a30e22644ab16b1bea5a6a1af14f0c3c2e63865fd29241246c1473892232dab6224af1600f73340cbca7bf5af01ea1fa007e46064ce2f8dd92a9e7fa9f16cfeee5a6cf67683bcd97f1e7e1ba73a9f86a8e4d7496393ac9727d10530a76b03b3a23321e8bdd756fce265494f6d35<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">811</span>f75bead6f0c3ea1560cfa4bfd4762f1da3a30e22644ab16b1bea5a6a1af14f0c3c2e63865fd29241246c1473892232dab6224af1600f73340cbca7bf5af006d1e6708a23b177af1a59563fd32b096e7addb4c420138a081a0104776fe844ed7e609c5f98433219a0ebbea2e4438f07fc28504875358d45323676df892512c<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">5</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">674</span>c5e322458d6988111a3fb6ffdd2b58e482e8d81b836ef455afeeaebb48c10c09c9beb605197541cdb6bcdd293a81c24891b508c119a5f5c33d63b965e2599f0e51f3a1b62792f27b7aab664288d458624af7034cdc6e6ce19a69f926536a57984d49e61368f4e14d89654f1d02d8d330204039f75e0a9dc1c52be60750dbd<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000007420697320612066<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">224</span>cd570eaf4d650aa24d51127e1657d201c8483aa690d48d58ca56ae86ea517df43f9f130cc7ca75c8868623ba145189e2d16326a82a437516530d130161552d016adb2d8746dc92d30f2a4d90a50a63af038b0449cf2a3442ba6696b6485a46d47545591aadb1c68e901745d4f9231627c9e0c0a52cc7439cc45b21ae51aee<br>  <span class="hljs-selector-attr">[-]</span>Frame17<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">2794</span>aeba5f8d3c08d879a53b557a1ef1deaebecc4937236aff339c6d47c41273cf08af1e6e21050cf32db7df694e2435e0a287b0764b28eedc67bf9162181c37f<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: <span class="hljs-number">400000000000000000000000000000000000000000000000000000000000000000000000000000000000000297</span>bc784272b16f7b8edff759502b21342f286e63<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">9</span>e52bae97e34f02361e694ed55e87bc77abafb3124dc8dabfcce71b51f1049cf3c22bc79b8841433ccb6df840f2bd5a6e75a1ce52f54048ff4930e7b103c6a3433a2663bd9cba0e38a35695f927eb2ff7a51939869a113d8a6cb03228c0e5d1466b1ff491129a988efdbc636ab2610caa50925554be758321178f9eb94072c1d<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">9</span>e52bae97e34f02361e694ed55e87bc77abafb3124dc8dabfcce71b51f1049cf3c22bc79b8841433ccb6df840f2bd5a6e75a1ce52f54048ff4930e7b103c6a317a577a95e0f7e056029b15aa3adcc3e18f65a6d3d62edd28b3913c4e0fcd35d776270d622f1958b9bd00483d7e87552a282f3ad25854d1eafad1dfa1435cfa3c<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">6</span>f02930c24f1f96ed5b657b6120670c3edca2d56c801dd543a6e864bf8fbf2c4dbe57f41d99ec28b8f7eaa3a6e68cde5b951f5f0bcbeac744388d91e70c3ebb1c59690dd8660476c0767b64925fca55c02afc3c9c4e4172df2ba630e59060a3a891dd8c47f41c67475913d15e12203150c1811a66b490de734f6f3569f65121<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000007977686572652e22<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">1</span>fca302be54fd4b4f8da498ede013bf551c714e321b17465cf55b9980ec12fdf92f4f408c15239fe5eed408248d598510c0e77618eba67321938d487d7286bd9ef539cb2b068fe02617be2954109b3b3da0c76ecf00957894d556acbce10e1ff68a536b82ef0befa92e9fd96264786fab50a3162d2564d8634338e5a6eef5e0<br>  <span class="hljs-selector-attr">[-]</span>Frame18<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">8</span>adefe85e3a08b1f5b320649f614da838cc6b64debc82c27f39a5291b8bc640ba3ae5f1590f0a62ff1029fd9e86456936f9618dd73181937f36a0e21250cd21b<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: f52c8fbbed9eca4564601cdf29f2ce09c2d4c84387863a0dc48835e7da5a52515d7c49cb366e9ad5c1b027efefc2d799652434539a560c9dfbd812f70a2a7de1<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">84</span>ff95e263d30fad83684cc08b11dab54f5a0f3d24a8763c47b57750ed2e342022652836e2ebb30a765dc7364f417e4555d1fd72d140efb72e283007028cc2a4fe97e4fe3b5d272c917e734f8715a0c5bff2900640d8097425afa965f9b1566f339f155aceb59ede241327813c920a6fb98a6bb9209379f1bbebcc955949d8bb<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">84</span>ff95e263d30fad83684cc08b11dab54f5a0f3d24a8763c47b57750ed2e342022652836e2ebb30a765dc7364f417e4555d1fd72d140efb72e283007028cc2a37e8c56bc6a1dd1c7d1ec5026670df83870571174cd89a33e6d8d20ec669aa01232746c7a07565dd871605fb7646adc42e4d01e881325541bcca9ab7d2a1288c0<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">41</span>f02573746273e766bb133272c08b5a50d929acfabbbac2f01a7be9576e0cd1d1bbad5068f8ca6f6977dd08840ac87bbfacb8a7702f6da9b7ec9cc31cf4849b626659aa5842287b950c404089df572d442526b66e20cb1a6c5e07f0ac7e04d680c54ff2c02885a685af6e45123818b3e1957d4da190643ed41d5ab457639101<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d204120746f2042<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">45</span>d8bd62bbf9966c81722d6d4ad5e6e91fd5258c8b0747ca166237d167d5c881b100d83d73352f18a60914963ca8f7df9b9211273c8d7edac87132aadac33def0bda6c9ea91750818d869990521c6ba0a10bc1ac2273282fa4ac47efbeee99b2d35ebda2019d1ef8bf24b5017fa8481b372362aae138043a00d8761bcdca80bc<br>  <span class="hljs-selector-attr">[-]</span>Frame19<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">87</span>ca9b01006c99fb8adefe85e3a08b1f5b320649f614da838cc6b64debc82c27f39a5291b8bc640ba3ae5f1590f0a62ff1029fd9e86456936f9618dd73181937f36a0e21250cd21b907e03a53240a53f9ad2bd690eb4f6a3a6663f6d6e686a47873acdb1455ce42b514eec35c790884f58a25ef96904bab3313629<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: fcc696496f<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">8614</span>c70089aade50e5a14de1fb8fcf0880046e9494eead3bf600ebe451e335b4c9e21de984912bca15914711a9c359056a2ad0543035e971a2faa387ea53aad48a7016735e2bb60716626cad6cf4f9cc41a59cf31ef07473a1de08a018cab7c6b95bf7ac9f501bd42fcc4c7cd834b6a7723b6abcc9a98146a750a9222cce2cc7<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">8614</span>c700892313b5e4a0e1480004f009fa20ce0975937b35ac0ad709ce566efe7bf655bd5c9d917783d88aad9e1faaa65499dfae0044e6d1c9123f3156e414bbacfcfe5a26384bf8f53d5fdb51647bc89c735c4ddf55a1b638cf53a9752451874bed8f4257c8e1067e86ef98ace367bb3c73da347a50dee7ade7a36ab306ad30<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">10001</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">444</span>aa8e158f808be0868f8d5974cec85e864750cd459fdd3648150eda9aed471c1e9c1d9e5264c45375e3fa41679c28d5d61d24fe9cb2e5583b84b7f71e651b9156ef68e2c115880c148355e9ba2367a0355ae99eb3ace56e5b093c827e60bb081b7c9d3dcaa7012c2b72fa9efc513bc8619ebf5f6a6e221d6adb8ca4bcd06c1<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef000000050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000696e737465696e2e<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">4</span>b6a6a6ce0cd9d8e0df4fbd2a23af3fb45fa587406a3e052231519c4b6b0b606d64dc531a29c0a7510928d4487e7bc3d45cdbadb595ae7d53fbdee70371debcb9a938b94dc0f266326a9df6191e04f82a9cdc067d366926b58a9092f55db22f8d4bcd9777a99f14ed95083d091da69f80f448eff48a21f998bbdc97daea135c1<br>  <span class="hljs-selector-attr">[-]</span>Frame20<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">p</span>: <span class="hljs-number">85</span>c6bb4d0cc839277c9aa791e9bc410bbcae0415d1f0532f9a0294d93964d393a8965dddd4186637bc6aa321960cef1be97ee8a5b340923f83d2f2699fb4b3a3<br>    <span class="hljs-selector-attr">[-]</span><span class="hljs-selector-tag">q</span>: f7c23f99ad24dc532256f49dc3d83af7122ae5e1c1cc4fdbdb3e9765db003effd192cd2983746c6389268b2d6f287c07d5fa1571921c51ebcc0eeff52050120f<br>    <span class="hljs-selector-attr">[-]</span>n: <span class="hljs-number">8178408</span>d7e1155b9f5b0665a3edfe279189567aac333ca33a7304ae1bb9c9a921735888fb7bc9b41550817b1c0d42b2ab0304546709648f45147180ad5fc839fb8f90b2d30772718a7b45e6204ce7886122874759f93c198ce61d10555f03c13fd83e639a637d849c846d5589029533e567e12fd992d690ec5ef38569327fc8d<br>    <span class="hljs-selector-attr">[-]</span>f: <span class="hljs-number">8178408</span>d7e1155b9f5b0665a3edfe279189567aac333ca33a7304ae1bb9c9a921735888fb7bc9b41550817b1c0d42b2ab0304546709648f45147180ad5fc839e3b701046768a119e08c2c2325739fc83434f8a7e0bd71e8d5920a4c6418b2980835abb324eab05ae82b5a7098af3e81a970514e653d084e3760d55f7d32336dc<br>    <span class="hljs-selector-attr">[-]</span>e: <span class="hljs-number">5</span><br>    <span class="hljs-selector-attr">[-]</span>d: <span class="hljs-number">4</span>dae8d21b20a66a2c69d0a3625b987e241f33e3341ebdfb8978360210a2ac324745351efd4a45d273304db04407f4d199ce9c32a438d5ef8fd910e6ce6cab55ef076702a471fa42b9edb41516789311b8ec953186d811254cf1396108db9e5b382033d1e2f3369cf1b39ca9f535f24dcc1030c8a3249e95546d4cd2e4b7b8751<br>    <span class="hljs-selector-attr">[-]</span>m: <span class="hljs-number">9876543210</span>abcdef0000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000007420697320612066<br>    <span class="hljs-selector-attr">[-]</span>c: <span class="hljs-number">210</span>b2c8ca031259d2ef22a2561b23b794b3740382bd0a89ef7db9e62463c8649ef5983eb94cff6f0d6a1881a0d4e190ef8a1acc20da5da71ae31705a5501b6856c151449dfc76b7026a9fab74aa4b41c7f58eccdc35777866c117d3be1e37a4576e34c90df7b8146f1bdf841d1362287a4922cb9a80221ec165e48f0bffd4ede<br><span class="hljs-selector-attr">[!]</span>The Password is: My secret is <span class="hljs-selector-tag">a</span> famous saying of Albert Einstein. That is <span class="hljs-string">&quot;Logic will get you from A to B. Imagination will take you everywhere.&quot;</span><br><br></code></pre></td></tr></table></figure><br />
+## 最终明文<br />
+<code>My secret is a famous saying of Albert Einstein. That is "Logic will get you from A to B. Imagination will take you everywhere."</code></p>
+<p>这个题覆盖了很多的 RSA 使用不当(各种参数)造成的不安全现象，很有意思<br />
+不过我通过数论知识只解开了 17 个包，还剩 <code>Frame 5,9,13,17</code> 这些没有直接解出<br />
+破解随机数生成器没搞出来，参考去年一等奖的论文才弄出来。还是太菜啦</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">#密码学</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2016 全国高校密码数学挑战赛-赛题三</div>
+      <div>https://www.tr0y.wang/2017/10/31/RSA2016/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年10月31日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2022年1月4日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/11/04/TJMMX-BOOK/" title="《图解密码学》">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">《图解密码学》</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/10/29/MD4Collision/" title="MD4 Collision">
+                        <span class="hidden-mobile">MD4 Collision</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

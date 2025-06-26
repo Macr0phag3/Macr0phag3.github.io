@@ -1,0 +1,1054 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="让 Python 编写的 CLI 支持后台运行、切换 root 、报错自动进入 debug 模式等等好用的功能！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 编写 CLI 的技巧分享">
+<meta property="og:url" content="https://www.tr0y.wang/2020/11/24/Python-CLI-Trick/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="让 Python 编写的 CLI 支持后台运行、切换 root 、报错自动进入 debug 模式等等好用的功能！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2020-11-24T16:45:08.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>Python 编写 CLI 的技巧分享 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Python 编写 CLI 的技巧分享"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-11-24 16:45" pubdate>
+          2020年11月24日 16:45:08
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          99 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python 编写 CLI 的技巧分享</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>让 Python 编写的 CLI 支持后台运行、切换 root 、报错自动进入 debug 模式等等好用的功能！</p>
+<span id="more"></span>
+<p>CLI 即 <code>command-line interface</code>，简单理解就是命令行程序啦。我们熟知的 SQLmap、Nmap 等都是 CLI 形式的。与 CLI 对应的一个概念还有 GUI，比如 QQ、微信 客户端，都是 GUI 形式的。由于 CLI 才是本篇的要讲的，所以 GUI 就不再多说了。</p>
+<h2 id="开胃小菜">开胃小菜</h2>
+<h3 id="获取当前时间">获取当前时间</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_now</span>():<br>    <span class="hljs-keyword">return</span> datetime.datetime.now().strftime(<span class="hljs-string">&#x27;%Y-%m-%d %X&#x27;</span>)<br></code></pre></td></tr></table></figure>
+<p>这个代码倒是非常简单与常见，主要是 <code>strftime</code> 里的参数，很多人会用 <code>%Y-%m-%d %H:%M:%S</code>，其实 <code>%H:%M:%S</code> 可以用 <code>%X</code> 替代。</p>
+<p>其实还可以更精简，只要你习惯这种格式的日期：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: datetime.datetime.now().strftime(<span class="hljs-string">&#x27;%x %X&#x27;</span>)<br>Out[<span class="hljs-number">1</span>]: <span class="hljs-string">&#x27;11/11/20 16:13:59&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>更多占位符可以参考：</p>
+<p>https://docs.python.org/zh-cn/3/library/datetime.html#strftime-and-strptime-format-codes</p>
+<h3 id="把-n-秒转为合适的时间单位">把 n 秒转为合适的时间单位</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">timer_unit</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;将 second 秒转为适合的单位</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br><br>    <span class="hljs-keyword">if</span> s &lt;= <span class="hljs-number">1</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;<span class="hljs-built_in">round</span>(s, <span class="hljs-number">1</span>)&#125;</span>s&#x27;</span><br><br>    num, unit = [<br>        (i, u) <span class="hljs-keyword">for</span> i, u <span class="hljs-keyword">in</span> ((s / <span class="hljs-number">60</span>**i, u) <span class="hljs-keyword">for</span> i, u <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-string">&#x27;smhd&#x27;</span>)) <span class="hljs-keyword">if</span> i &gt;= <span class="hljs-number">1</span><br>    ][-<span class="hljs-number">1</span>]<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;<span class="hljs-built_in">round</span>(num, <span class="hljs-number">1</span>)&#125;</span><span class="hljs-subst">&#123;unit&#125;</span>&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>其实这个之前分享过，可以参考之前的《拾遗录第 1 期》：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">In [<span class="hljs-number">1</span>]: timer_unit(<span class="hljs-number">1000</span>)<br>Out[<span class="hljs-number">1</span>]: <span class="hljs-string">&#x27;16.7m&#x27;</span><br></code></pre></td></tr></table></figure>
+<h3 id="给你点颜色瞧瞧">给你点颜色瞧瞧</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> colorama <span class="hljs-keyword">import</span> Fore, Style<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">put_color</span>(<span class="hljs-params">string, color, bold=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    give me some color to see :P</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br><br>    <span class="hljs-keyword">if</span> color == <span class="hljs-string">&#x27;gray&#x27;</span>:<br>        COLOR = Style.DIM + Fore.WHITE<br>    <span class="hljs-keyword">else</span>:<br>        COLOR = <span class="hljs-built_in">getattr</span>(Fore, color.upper(), <span class="hljs-string">&quot;WHITE&quot;</span>)<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;Style.BRIGHT <span class="hljs-keyword">if</span> bold <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;&quot;</span>&#125;</span><span class="hljs-subst">&#123;COLOR&#125;</span><span class="hljs-subst">&#123;<span class="hljs-built_in">str</span>(string)&#125;</span><span class="hljs-subst">&#123;Style.RESET_ALL&#125;</span>&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>这个很简单，没啥好说的。</p>
+<h3 id="一份漂亮的-log">一份漂亮的 log</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, filename, stdout=<span class="hljs-literal">False</span>, verb=<span class="hljs-number">2</span></span>):<br>        <span class="hljs-variable language_">self</span>.stdout = stdout<br>        <span class="hljs-variable language_">self</span>.verbose = verb<br>        <span class="hljs-variable language_">self</span>.filename = filename<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_log</span>(<span class="hljs-params">self, log_content</span>):<br>        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.stdout:<br>            sys.stderr.write(<span class="hljs-string">&#x27;\r&#x27;</span>+log_content)<br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-variable language_">self</span>.filename, <span class="hljs-string">&#x27;a&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>                fp.write(log_content)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">log</span>(<span class="hljs-params">self, event, level=<span class="hljs-string">&#x27;INFO&#x27;</span>, return_str=<span class="hljs-literal">False</span></span>):<br>        <span class="hljs-string">&#x27;&#x27;&#x27;记录日志</span><br><span class="hljs-string"></span><br><span class="hljs-string">        @event: 具体事件</span><br><span class="hljs-string">        @filename: 日志文件</span><br><span class="hljs-string">        @level: 事件等级</span><br><span class="hljs-string">        &#x27;&#x27;&#x27;</span><br><br>        levels = &#123;<br>            <span class="hljs-string">&#x27;DEBU&#x27;</span>: <span class="hljs-string">&#x27;gray&#x27;</span>,<br>            <span class="hljs-string">&#x27;INFO&#x27;</span>: <span class="hljs-string">&#x27;white&#x27;</span>,<br>            <span class="hljs-string">&#x27;WARN&#x27;</span>: <span class="hljs-string">&#x27;yellow&#x27;</span>,<br>            <span class="hljs-string">&#x27;ERRO&#x27;</span>: <span class="hljs-string">&#x27;red&#x27;</span><br>        &#125;<br>        color = levels.get(level, <span class="hljs-string">&#x27;white&#x27;</span>)<br><br>        clevel = put_color(level, color, <span class="hljs-literal">True</span>)<br>        log_time = put_color(get_now(), <span class="hljs-string">&#x27;cyan&#x27;</span>, <span class="hljs-literal">True</span>)<br>        log_filename = put_color(<span class="hljs-variable language_">self</span>.filename.split(<span class="hljs-string">&#x27;/&#x27;</span>)[-<span class="hljs-number">1</span>], <span class="hljs-string">&#x27;gray&#x27;</span>, <span class="hljs-literal">True</span>)<br><br>        cevent = put_color(event, color) <span class="hljs-keyword">if</span> color != <span class="hljs-string">&#x27;white&#x27;</span> <span class="hljs-keyword">else</span> event<br>        log_content = <span class="hljs-string">f&#x27;[<span class="hljs-subst">&#123;log_time&#125;</span>] [<span class="hljs-subst">&#123;clevel&#125;</span>] <span class="hljs-subst">&#123;cevent&#125;</span>&#x27;</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">3</span>:<br>            log_content = <span class="hljs-string">f&#x27;[<span class="hljs-subst">&#123;log_time&#125;</span>] [<span class="hljs-subst">&#123;clevel&#125;</span>] [<span class="hljs-subst">&#123;log_filename&#125;</span>] <span class="hljs-subst">&#123;cevent&#125;</span>&#x27;</span><br><br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.endswith(<span class="hljs-string">&#x27;\n&#x27;</span>):  <span class="hljs-comment"># 保证结尾换行</span><br>            log_content += <span class="hljs-string">&#x27;\n&#x27;</span><br><br>        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">0</span>:<br>            <span class="hljs-keyword">pass</span><br>        <span class="hljs-keyword">elif</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> level == <span class="hljs-string">&#x27;ERRO&#x27;</span>:<br>            <span class="hljs-variable language_">self</span>._log(log_content)<br>        <span class="hljs-keyword">elif</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">2</span> <span class="hljs-keyword">and</span> level != <span class="hljs-string">&#x27;DEBU&#x27;</span>:<br>            <span class="hljs-variable language_">self</span>._log(log_content)<br>        <span class="hljs-keyword">elif</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">3</span>:<br>            <span class="hljs-variable language_">self</span>._log(log_content)<br><br>        <span class="hljs-keyword">if</span> return_str:<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;\r&#x27;</span>+log_content.strip()<br></code></pre></td></tr></table></figure>
+<p>Python 其实是有 logging 模块的，内置的标准库，专门用于记录 log，不过我记得之前有一个什么需求，用 logging 特别麻烦，所以现在一般还是用自己写的比较简单的 Logger，可以完全自定义。</p>
+<h2 id="正餐">正餐</h2>
+<h3 id="以-root-权限重启进程">以 root 权限重启进程</h3>
+<p>这几年来，用过 CLI 的程序早已数不清了，我发现对于那些只能使用 root 权限运行的 CLI，在没有加 sudo 运行的时候，有些 CLI 是提示 <code>run as root</code> 之后便退出了；而还有一些会是提示输入 root 密码，然后正常运行，并且这个密码输入的提示也不是作者实现的，用的就是系统终端的提示。</p>
+<p>前段时间正好需要写一个以 root 权限运行的 CLI，于是我就去研究了一下，发现 <code>os.exec*</code> 系列都可以实现需求：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">...<br>euid = os.geteuid()<br><span class="hljs-keyword">if</span> euid != <span class="hljs-number">0</span>:<br>    args = [<span class="hljs-string">&#x27;sudo&#x27;</span>, sys.executable] + sys.argv + [os.environ]  <span class="hljs-comment"># type: ignore</span><br><br>    <span class="hljs-keyword">if</span> os.system(<span class="hljs-string">&#x27;sudo -n whoami 1&gt;/dev/null 2&gt;/dev/null&#x27;</span>) != <span class="hljs-number">0</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;需要 root 权限，请输入 root 密码&#x27;</span>)<br><br>    os.execlpe(<span class="hljs-string">&#x27;sudo&#x27;</span>, *args)<br>...<br></code></pre></td></tr></table></figure>
+<p>本质上就是用新的进程取代拉起它的旧进程，所以 pid 是不会变的（但是要注意加了 sudo 就会拉起一个新的进程）。至于那个 <code>if</code> 嘛，就是终端输入过 root 密码之后，在一定时间内加 root 是不需要输入密码的，这样可以去掉没用的输入密码提示。嗯，非常舒服，这样就算运行的时候忘记输入 sudo 也不需要重新运行了。</p>
+<h3 id="转为后台运行">转为后台运行</h3>
+<p>虽然我们可以通过 <code>nohup ... &amp;</code> 来完成，但是不太优雅，因为启动的方式就不一致了，并且 stderr 的log 还需要指定一下，我不太喜欢这样的方式；还有的就是用 screen 或者 tmux，稍有点麻烦。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">..</span>.<br>process = subprocess.Popen(<br>    f<span class="hljs-string">&#x27;&#x27;</span><span class="hljs-string">&#x27; bash &lt;&lt;&lt; &#x27;</span>&#123;sys.executable&#125; &#123;<span class="hljs-string">&quot; &quot;</span>.join(sys.argv)&#125; &gt;&gt; &#123;Path.runtime_error_logfile&#125; 2&gt;&amp;1 &amp;<span class="hljs-string">&#x27;$&#x27;</span>\\n<span class="hljs-string">&#x27;&#x27;</span>echo $!<span class="hljs-string">&#x27; &#x27;</span><span class="hljs-string">&#x27;&#x27;</span>,<br>    <span class="hljs-attribute">stdin</span>=subprocess.PIPE,<br>    <span class="hljs-attribute">stdout</span>=subprocess.PIPE,<br>    <span class="hljs-attribute">stderr</span>=subprocess.PIPE,<br>    <span class="hljs-attribute">shell</span>=<span class="hljs-literal">True</span>,<br>)<br><br>try:<br>    pid = process.stdout.read().decode(<span class="hljs-string">&#x27;utf-8&#x27;</span>).strip()<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> pid.isdigit():<br>        raise RuntimeError(process.stderr.read().decode(<span class="hljs-string">&#x27;utf-8&#x27;</span>))<br><br>except KeyboardInterrupt:<br>    <span class="hljs-built_in">print</span>(log(f<span class="hljs-string">&#x27;User canceled&#x27;</span>, <span class="hljs-string">&#x27;WARN&#x27;</span>, <span class="hljs-attribute">return_str</span>=<span class="hljs-literal">True</span>))<br><br>except subprocess.TimeoutExpired:<br>    <span class="hljs-built_in">print</span>(log(f<span class="hljs-string">&#x27;后台运行失败: 命令行有误&#x27;</span>, <span class="hljs-string">&#x27;ERRO&#x27;</span>, <span class="hljs-attribute">return_str</span>=<span class="hljs-literal">True</span>))<br><br>except Exception as e:<br>    <span class="hljs-built_in">print</span>(log(f<span class="hljs-string">&#x27;后台运行失败: &#123;e&#125;&#x27;</span>, <span class="hljs-string">&#x27;ERRO&#x27;</span>, <span class="hljs-attribute">return_str</span>=<span class="hljs-literal">True</span>))<br>    sys.exit(1)<br><span class="hljs-keyword">else</span>:<br>    <span class="hljs-built_in">print</span>(log(f<span class="hljs-string">&#x27;后台运行中, pid: &#123;pid&#125;&#x27;</span>, <span class="hljs-string">&#x27;INFO&#x27;</span>, <span class="hljs-attribute">return_str</span>=<span class="hljs-literal">True</span>))<br><br>sys.exit(0)<br><span class="hljs-built_in">..</span>.<br></code></pre></td></tr></table></figure>
+<p>代码非常简单，用 <code>subprocess.Popen</code> 开个新的进程之后，自己退出，这样新的进程就是孤儿进程了，ppid 变成 1，远程的话断开 ssh 也没事。</p>
+<h3 id="异常处理-hack">异常处理 hack</h3>
+<p>我们在小学 5 年级的时候就知道，Python 的程序在运行时，如果遇到异常，需要使用 <code>try...except</code> 进行捕获；而那些没有被捕获的异常，Python 统一用 <code>sys.excepthook</code> 这个函数来处理，发生异常时，程序中断并输出“详细的”异常信息。</p>
+<p>为啥“详细的”要加引号呢？各位写程序 <del>（bug）</del> 遇到报错的时候肯定有想过：“这个变量值到底是什么样的呢？”。而 Python 的报错是不会打印变量值的。所以我就去研究了一下怎么 hack Python 的异常处理。</p>
+<p>首先肯定是怎么 hook 异常处理流程。Python 非常友好地提供了一个接口：<code>sys.excepthook</code>，也就是我们只需要提供一个可接受 3 个参数的函数，自己处理 Python 传入的参数即可。</p>
+<p>这三个参数分别为：</p>
+<ol type="1">
+<li><code>触发的异常类</code>：例如 <code>&lt;class 'ZeroDivisionError'&gt;</code></li>
+<li><code>触发的异常类的实例</code>：例如 <code>ZeroDivisionError('division by zero')</code>。我们经常写的 <code>except Exception as e</code> 中的 <code>e</code> 和这个就是一样的类型。</li>
+<li><code>异常的调用栈</code>：例如：<code>&lt;traceback object at 0x10542ee08&gt;</code>，这个栈可以用 <code>.tb_next</code> 来一层层剥开。由于我们一般只需要最开始的报错，所以需要写个循环去拿位于栈最底下的报错。</li>
+</ol>
+<p>那么我们很轻易就可以写出以下代码：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python">...<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">except_hook</span>(<span class="hljs-params">_, msg, tb</span>):<br>    <span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>        <span class="hljs-comment"># 我们只需要最开始的报错</span><br>        t = tb.tb_next<br>        <span class="hljs-keyword">if</span> t <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>            <span class="hljs-keyword">break</span><br><br>        tb = t<br><br>    frame_info = inspect.getframeinfo(tb)<br>    filename = frame_info.filename.split(<span class="hljs-string">&#x27;/&#x27;</span>)[-<span class="hljs-number">1</span>]<br>    lineno = frame_info.lineno<br>    function = frame_info.function<br>    code = frame_info.code_context[-<span class="hljs-number">1</span>].strip()<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;[*] 出错文件: <span class="hljs-subst">&#123;filename&#125;</span>, 行数: <span class="hljs-subst">&#123;lineno&#125;</span>, 函数: <span class="hljs-subst">&#123;function&#125;</span>, 代码: <span class="hljs-subst">&#123;code&#125;</span>&#x27;</span>)<br>...<br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python-CLI-Trick/20201124044809819.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>嗯不错，但这还不够，我们需要知道变量的值，而 <code>tb.tb_frame.f_locals</code> 和 <code>tb.tb_frame.f_globals</code> 一个是局部变量一个是全局变量，完美符合我们的需求。那么问题又来了，它们保存着报错时所有的变量，里面这么多变量我们不需要全部打印出来，我们只需要打印涉及到报错代码的变量。那么怎么拿到“涉事”变量呢？</p>
+<p>一个可行的思路是利用 ast（抽象语法数）解析“涉事”代码，然后只打印代码中出现的变量：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python">...<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[+] 涉及变量:&#x27;</span>)<br>tree = ast.parse(code, mode=<span class="hljs-string">&#x27;exec&#x27;</span>)<br>names = [node <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> ast.walk(tree) <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(node, ast.Name)]<br><span class="hljs-keyword">for</span> name <span class="hljs-keyword">in</span> names:<br>    text = name.<span class="hljs-built_in">id</span><br>    <span class="hljs-keyword">if</span> text <span class="hljs-keyword">in</span> tb.tb_frame.f_locals:<br>        val = <span class="hljs-built_in">str</span>(tb.tb_frame.f_locals.get(text))<br>        val = val <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(val) &lt; <span class="hljs-number">20</span> <span class="hljs-keyword">else</span> val[:<span class="hljs-number">17</span>]+<span class="hljs-string">&#x27;...&#x27;</span><br>        <span class="hljs-built_in">print</span>(<br>            <span class="hljs-string">f&#x27;  [-] <span class="hljs-subst">&#123;text&#125;</span>(L): <span class="hljs-subst">&#123;val&#125;</span>&#x27;</span><br>        )<br>    <span class="hljs-keyword">elif</span> text <span class="hljs-keyword">in</span> tb.tb_frame.f_globals:<br>        val = tb.tb_frame.f_globals.get(text)<br>        <span class="hljs-built_in">print</span>(<br>            <span class="hljs-string">f&#x27;  [-] <span class="hljs-subst">&#123;text&#125;</span>(G): <span class="hljs-subst">&#123;val&#125;</span>&#x27;</span><br>        )<br>...<br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python-CLI-Trick/20201124044824331.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但是这样有一个弱点，就是如果涉事代码不止一行的话，就很麻烦：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span><br><span class="hljs-attribute">b</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span><br>print(<br>    (<br>        a<br>    ) / (<br>        b)<br>)<br></code></pre></td></tr></table></figure><br />
+由于 <code>b)</code> 是非法的语句，所以这样会导致 <code>ast.parse</code> 抛出异常。解决办法也很简单，遍历所有在内存的变量看一下在不在 code 里就好了：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs stylus">try:<br>    tree = ast<span class="hljs-selector-class">.parse</span>(<span class="hljs-selector-tag">code</span>, mode=<span class="hljs-string">&#x27;eval&#x27;</span>)<br>except Exception:<br>    names = <span class="hljs-selector-attr">[]</span><br>    <span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> tb<span class="hljs-selector-class">.tb_frame</span><span class="hljs-selector-class">.f_locals</span>:<br>        <span class="hljs-keyword">if</span> v <span class="hljs-keyword">in</span> <span class="hljs-selector-tag">code</span>:<br>            names<span class="hljs-selector-class">.append</span>(v)<br>            break<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> tb<span class="hljs-selector-class">.tb_frame</span><span class="hljs-selector-class">.f_globals</span>:<br>            <span class="hljs-keyword">if</span> v <span class="hljs-keyword">in</span> <span class="hljs-selector-tag">code</span>:<br>                names<span class="hljs-selector-class">.append</span>(v)<br>                break<br><span class="hljs-keyword">else</span>:<br>    names = <span class="hljs-selector-attr">[node.id for node in ast.walk(tree) if isinstance(node, ast.Name)]</span><br></code></pre></td></tr></table></figure></p>
+<p>嗯，针不戳！</p>
+<p>当然，我们有可能还希望在报错之后，能够启动一个命令行供我们调试使用，这个实现起来也很简单，就是用《拾遗录第 1 期》里提到的小技巧啦：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">__import__</span>(<span class="hljs-string">&#x27;code&#x27;</span>).interact(<br>    banner=put_color(<span class="hljs-string">&quot;\nA clean python shell for debug&quot;</span>, <span class="hljs-string">&#x27;green&#x27;</span>),<br>    exitmsg=<span class="hljs-string">&#x27;\n调试结束，希望人没事 \x1b[34m_\x1b[33m┃\x1b[33m┃\x1b[34m_\x1b[39m&#x27;</span>,<br>    local=<span class="hljs-built_in">dict</span>(tb.tb_frame.f_globals, **tb.tb_frame.f_locals),<br>)     <br></code></pre></td></tr></table></figure></p>
+<p>最后，我们就可以得到这样的结果（详细代码见最后）：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python-CLI-Trick/20201124044837867.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><strong>不过需要注意的是，前面提到过，只有在开发者未处理的报错，才会被 except_hook 接管，如果你已经用 <code>try...except</code> 处理过了那么 except_hook 是不会触发的</strong></p>
+<h2 id="加餐">加餐！</h2>
+<p>综合以上的小技巧，我们可以写出这样的代码：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> sys<br><span class="hljs-keyword">import</span> ast<br><span class="hljs-keyword">import</span> time<br><span class="hljs-keyword">import</span> inspect<br><span class="hljs-keyword">import</span> datetime<br><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> argparse<br><span class="hljs-keyword">import</span> linecache<br><span class="hljs-keyword">import</span> subprocess<br><span class="hljs-keyword">from</span> functools <span class="hljs-keyword">import</span> partial<br><br><span class="hljs-keyword">from</span> colorama <span class="hljs-keyword">import</span> Fore, Style<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Path</span>:<br>    runtime_error_logfile = <span class="hljs-string">&#x27;runtime-error.log&#x27;</span><br>    main_logfile = <span class="hljs-string">&#x27;main.log&#x27;</span><br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, filename, stdout=<span class="hljs-literal">False</span>, verb=<span class="hljs-number">2</span></span>):<br>        <span class="hljs-variable language_">self</span>.stdout = stdout<br>        <span class="hljs-variable language_">self</span>.verbose = verb<br>        <span class="hljs-variable language_">self</span>.filename = filename<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_log</span>(<span class="hljs-params">self, log_content</span>):<br>        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.stdout:<br>            sys.stderr.write(<span class="hljs-string">&#x27;\r&#x27;</span>+log_content)<br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-variable language_">self</span>.filename, <span class="hljs-string">&#x27;a&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>                fp.write(log_content)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">log</span>(<span class="hljs-params">self, event, level=<span class="hljs-string">&#x27;INFO&#x27;</span>, return_str=<span class="hljs-literal">False</span></span>):<br>        <span class="hljs-string">&#x27;&#x27;&#x27;记录日志</span><br><span class="hljs-string"></span><br><span class="hljs-string">        @event: 具体事件</span><br><span class="hljs-string">        @filename: 日志文件</span><br><span class="hljs-string">        @level: 事件等级</span><br><span class="hljs-string">        &#x27;&#x27;&#x27;</span><br><br>        levels = &#123;<br>            <span class="hljs-string">&#x27;DEBU&#x27;</span>: <span class="hljs-string">&#x27;gray&#x27;</span>,<br>            <span class="hljs-string">&#x27;INFO&#x27;</span>: <span class="hljs-string">&#x27;white&#x27;</span>,<br>            <span class="hljs-string">&#x27;WARN&#x27;</span>: <span class="hljs-string">&#x27;yellow&#x27;</span>,<br>            <span class="hljs-string">&#x27;ERRO&#x27;</span>: <span class="hljs-string">&#x27;red&#x27;</span><br>        &#125;<br>        color = levels.get(level, <span class="hljs-string">&#x27;white&#x27;</span>)<br><br>        clevel = put_color(level, color, <span class="hljs-literal">True</span>)<br>        log_time = put_color(get_now(), <span class="hljs-string">&#x27;cyan&#x27;</span>, <span class="hljs-literal">True</span>)<br>        log_filename = put_color(<span class="hljs-variable language_">self</span>.filename.split(<span class="hljs-string">&#x27;/&#x27;</span>)[-<span class="hljs-number">1</span>], <span class="hljs-string">&#x27;gray&#x27;</span>, <span class="hljs-literal">True</span>)<br><br>        cevent = put_color(event, color) <span class="hljs-keyword">if</span> color != <span class="hljs-string">&#x27;white&#x27;</span> <span class="hljs-keyword">else</span> event<br>        log_content = <span class="hljs-string">f&#x27;[<span class="hljs-subst">&#123;log_time&#125;</span>] [<span class="hljs-subst">&#123;clevel&#125;</span>] <span class="hljs-subst">&#123;cevent&#125;</span>&#x27;</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">3</span>:<br>            log_content = <span class="hljs-string">f&#x27;[<span class="hljs-subst">&#123;log_time&#125;</span>] [<span class="hljs-subst">&#123;clevel&#125;</span>] [<span class="hljs-subst">&#123;log_filename&#125;</span>] <span class="hljs-subst">&#123;cevent&#125;</span>&#x27;</span><br><br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.endswith(<span class="hljs-string">&#x27;\n&#x27;</span>):  <span class="hljs-comment"># 保证结尾换行</span><br>            log_content += <span class="hljs-string">&#x27;\n&#x27;</span><br><br>        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">0</span>:<br>            <span class="hljs-keyword">pass</span><br>        <span class="hljs-keyword">elif</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> level == <span class="hljs-string">&#x27;ERRO&#x27;</span>:<br>            <span class="hljs-variable language_">self</span>._log(log_content)<br>        <span class="hljs-keyword">elif</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">2</span> <span class="hljs-keyword">and</span> level != <span class="hljs-string">&#x27;DEBU&#x27;</span>:<br>            <span class="hljs-variable language_">self</span>._log(log_content)<br>        <span class="hljs-keyword">elif</span> <span class="hljs-variable language_">self</span>.verbose == <span class="hljs-number">3</span>:<br>            <span class="hljs-variable language_">self</span>._log(log_content)<br><br>        <span class="hljs-keyword">if</span> return_str:<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;\r&#x27;</span>+log_content.strip()<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_now</span>():<br>    <span class="hljs-keyword">return</span> datetime.datetime.now().strftime(<span class="hljs-string">&#x27;%Y-%m-%d %X&#x27;</span>)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">timer_unit</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;将 second 秒转为适合的单位</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br><br>    <span class="hljs-keyword">if</span> s &lt;= <span class="hljs-number">1</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;<span class="hljs-built_in">round</span>(s, <span class="hljs-number">1</span>)&#125;</span>s&#x27;</span><br><br>    num, unit = [<br>        (i, u) <span class="hljs-keyword">for</span> i, u <span class="hljs-keyword">in</span> ((s / <span class="hljs-number">60</span>**i, u) <span class="hljs-keyword">for</span> i, u <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-string">&#x27;smhd&#x27;</span>)) <span class="hljs-keyword">if</span> i &gt;= <span class="hljs-number">1</span><br>    ][-<span class="hljs-number">1</span>]<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;<span class="hljs-built_in">round</span>(num, <span class="hljs-number">1</span>)&#125;</span><span class="hljs-subst">&#123;unit&#125;</span>&#x27;</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">put_color</span>(<span class="hljs-params">string, color, bold=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    give me some color to see :P</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br><br>    <span class="hljs-keyword">if</span> color == <span class="hljs-string">&#x27;gray&#x27;</span>:<br>        COLOR = Style.DIM + Fore.WHITE<br>    <span class="hljs-keyword">else</span>:<br>        COLOR = <span class="hljs-built_in">getattr</span>(Fore, color.upper(), <span class="hljs-string">&quot;WHITE&quot;</span>)<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;Style.BRIGHT <span class="hljs-keyword">if</span> bold <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;&quot;</span>&#125;</span><span class="hljs-subst">&#123;COLOR&#125;</span><span class="hljs-subst">&#123;<span class="hljs-built_in">str</span>(string)&#125;</span><span class="hljs-subst">&#123;Style.RESET_ALL&#125;</span>&#x27;</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">except_hook</span>(<span class="hljs-params">_, msg, tb</span>):<br>    <span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>        t = tb.tb_next<br>        <span class="hljs-keyword">if</span> t <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>            <span class="hljs-keyword">break</span><br><br>        tb = t<br><br>    frame_info = inspect.getframeinfo(tb)<br>    filename = frame_info.filename.split(<span class="hljs-string">&#x27;/&#x27;</span>)[-<span class="hljs-number">1</span>]<br>    lineno = frame_info.lineno<br>    function = frame_info.function<br>    <span class="hljs-keyword">if</span> frame_info.code_context <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-comment"># 如果已经在 python shell 里</span><br>        <span class="hljs-comment"># 则直接打印报错</span><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;[!] Python shell raised an exception: <span class="hljs-subst">&#123;put_color(msg, <span class="hljs-string">&quot;red&quot;</span>)&#125;</span>&#x27;</span>)<br>        <span class="hljs-keyword">return</span><br><br>    code = frame_info.code_context[-<span class="hljs-number">1</span>].strip()<br>    <span class="hljs-keyword">try</span>:<br>        tree = ast.parse(code, mode=<span class="hljs-string">&#x27;eval&#x27;</span>)<br>    <span class="hljs-keyword">except</span> Exception:<br>        names = []<br>        <span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> tb.tb_frame.f_locals:<br>            <span class="hljs-keyword">if</span> v <span class="hljs-keyword">in</span> code:<br>                names.append(v)<br>                <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> tb.tb_frame.f_globals:<br>                <span class="hljs-keyword">if</span> v <span class="hljs-keyword">in</span> code:<br>                    names.append(v)<br>                    <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">else</span>:<br>        names = [node.<span class="hljs-built_in">id</span> <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> ast.walk(tree) <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(node, ast.Name)]<br><br>    values = []<br>    <span class="hljs-keyword">for</span> name <span class="hljs-keyword">in</span> names:<br>        <span class="hljs-keyword">if</span> name <span class="hljs-keyword">in</span> tb.tb_frame.f_locals:<br>            val = <span class="hljs-built_in">str</span>(tb.tb_frame.f_locals.get(name))<br>            val = val <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(val) &lt; <span class="hljs-number">20</span> <span class="hljs-keyword">else</span> val[:<span class="hljs-number">17</span>]+<span class="hljs-string">&#x27;...&#x27;</span><br>            values.append(<br>                <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;put_color(name, <span class="hljs-string">&quot;yellow&quot;</span>)&#125;</span>(L): <span class="hljs-subst">&#123;put_color(val, <span class="hljs-string">&quot;cyan&quot;</span>)&#125;</span>&#x27;</span><br>            )<br>        <span class="hljs-keyword">elif</span> name <span class="hljs-keyword">in</span> tb.tb_frame.f_globals:<br>            val = tb.tb_frame.f_globals.get(name)<br>            values.append(<br>                <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;put_color(name, <span class="hljs-string">&quot;yellow&quot;</span>)&#125;</span>(G): <span class="hljs-subst">&#123;put_color(val, <span class="hljs-string">&quot;cyan&quot;</span>)&#125;</span>&#x27;</span><br>            )<br><br>    var_tip = <span class="hljs-string">&#x27;&#x27;</span><br>    <span class="hljs-keyword">if</span> values:<br>        var = <span class="hljs-string">&#x27; | &#x27;</span>.join(values)<br>        var_tip = <span class="hljs-string">f&#x27;, relevant values: <span class="hljs-subst">&#123;var&#125;</span>&#x27;</span><br><br>    log(<br>        <span class="hljs-string">&#x27;something went wrong, &#x27;</span><br>        <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;put_color(msg, <span class="hljs-string">&quot;magenta&quot;</span>)&#125;</span> in &#x27;</span><br>        <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;put_color(filename, <span class="hljs-string">&quot;gray&quot;</span>)&#125;</span>, line <span class="hljs-subst">&#123;put_color(lineno, <span class="hljs-string">&quot;cyan&quot;</span>)&#125;</span>, &#x27;</span><br>        <span class="hljs-string">f&#x27;code: <span class="hljs-subst">&#123;put_color(code, <span class="hljs-string">&quot;yellow&quot;</span>)&#125;</span><span class="hljs-subst">&#123;var_tip&#125;</span>&#x27;</span>,<br>         <span class="hljs-string">&#x27;ERRO&#x27;</span><br>    )<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> backflag:<br>        <span class="hljs-keyword">if</span> values:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;\n[*] relevant values:&#x27;</span>)<br>            <span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> values:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;[+] <span class="hljs-subst">&#123;v&#125;</span>&#x27;</span>)<br><br>        <span class="hljs-built_in">__import__</span>(<span class="hljs-string">&#x27;code&#x27;</span>).interact(<br>            banner=put_color(<span class="hljs-string">&quot;\nA clean python shell for debug&quot;</span>, <span class="hljs-string">&#x27;green&#x27;</span>),<br>            exitmsg=<span class="hljs-string">&#x27;\n调试结束，希望人没事 \x1b[34m_\x1b[33m┃\x1b[33m┃\x1b[34m_\x1b[39m&#x27;</span>,<br>            local=<span class="hljs-built_in">dict</span>(tb.tb_frame.f_globals, **tb.tb_frame.f_locals),<br>        )<br><br><br>sys.excepthook = except_hook<br><br>VERSION = <span class="hljs-string">&#x27;1.0&#x27;</span><br><br>parser = argparse.ArgumentParser(description=<span class="hljs-string">f&#x27;Version: <span class="hljs-subst">&#123;VERSION&#125;</span>; Running in Py3.x&#x27;</span>)<br>parser.add_argument(<span class="hljs-string">&quot;times&quot;</span>, <span class="hljs-built_in">type</span>=<span class="hljs-built_in">int</span>, <span class="hljs-built_in">help</span>=<span class="hljs-string">&quot;run times: 1, 2, 3 ...&quot;</span>)<br>parser.add_argument(<span class="hljs-string">&quot;-r&quot;</span>, <span class="hljs-string">&quot;--root&quot;</span>, action=<span class="hljs-string">&quot;store_true&quot;</span>, <span class="hljs-built_in">help</span>=<span class="hljs-string">&quot;run mode: as user or root&quot;</span>)<br>parser.add_argument(<span class="hljs-string">&quot;--dev&quot;</span>, action=<span class="hljs-string">&quot;store_true&quot;</span>, <span class="hljs-built_in">help</span>=<span class="hljs-string">&quot;run in dev mode&quot;</span>)<br>parser.add_argument(<span class="hljs-string">&quot;-v&quot;</span>, <span class="hljs-string">&quot;--verbose&quot;</span>, <span class="hljs-built_in">type</span>=<span class="hljs-built_in">int</span>, choices=[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>], <span class="hljs-built_in">help</span>=<span class="hljs-string">&quot;verbose for output&quot;</span>)<br>parser.add_argument(<span class="hljs-string">&quot;-b&quot;</span>, <span class="hljs-string">&quot;--background&quot;</span>, action=<span class="hljs-string">&quot;store_true&quot;</span>, <span class="hljs-built_in">help</span>=<span class="hljs-string">&quot;run in background&quot;</span>)<br>parser.add_argument(<span class="hljs-string">&quot;--stdout&quot;</span>, action=<span class="hljs-string">&quot;store_true&quot;</span>, <span class="hljs-built_in">help</span>=<span class="hljs-string">&quot;verbose for output&quot;</span>)<br>parser.add_argument(<span class="hljs-string">&quot;--backflag_do_no_not_use_it&quot;</span>, action=<span class="hljs-string">&quot;store_true&quot;</span>, <span class="hljs-built_in">help</span>=argparse.SUPPRESS)<br>args = parser.parse_args()<br><br>times = args.times<br>root = args.root<br>dev = args.dev<br>verbose = args.verbose<br>background = args.background<br>stdout = args.stdout<br><br><span class="hljs-comment"># 不要手动在命令行指定这个参数</span><br><span class="hljs-comment"># 此参数用于后面的后台运行判断</span><br>backflag = args.backflag_do_no_not_use_it<br><br><span class="hljs-keyword">if</span> dev:<br>    <span class="hljs-comment"># 后台运行不能 --stdout，所以只要指定 --dev，--background 就失效</span><br>    background = <span class="hljs-literal">False</span><br><br>    <span class="hljs-comment"># --dev 等于 --stdout -v3</span><br>    stdout = <span class="hljs-literal">True</span><br>    verbose = [verbose, <span class="hljs-number">3</span>][verbose <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>]<br><br><span class="hljs-keyword">if</span> verbose <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>    verbose = <span class="hljs-number">2</span><br><br>logger = partial(Logger, stdout=stdout, verb=verbose)<br>log = logger(Path.main_logfile).log<br><br><span class="hljs-keyword">if</span> root:<br>    euid = os.geteuid()<br>    <span class="hljs-keyword">if</span> euid != <span class="hljs-number">0</span>:<br>        args = [<span class="hljs-string">&#x27;sudo&#x27;</span>, sys.executable] + sys.argv + [os.environ]  <span class="hljs-comment"># type: ignore</span><br><br>        <span class="hljs-keyword">if</span> os.system(<span class="hljs-string">&#x27;sudo -n whoami 1&gt;/dev/null 2&gt;/dev/null&#x27;</span>) != <span class="hljs-number">0</span>:<br>            <span class="hljs-built_in">print</span>(log(<span class="hljs-string">&#x27;需要 root 权限，请输入 root 密码&#x27;</span>, <span class="hljs-string">&#x27;WARN&#x27;</span>, return_str=<span class="hljs-literal">True</span>))<br><br>        os.execlpe(<span class="hljs-string">&#x27;sudo&#x27;</span>, *args)<br><br><span class="hljs-keyword">if</span> background:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-string">&#x27;-b&#x27;</span>, <span class="hljs-string">&#x27;--b&#x27;</span>, <span class="hljs-string">&#x27;--background&#x27;</span>, <span class="hljs-string">&#x27;--stdout&#x27;</span>]:<br>        <span class="hljs-keyword">if</span> i <span class="hljs-keyword">in</span> sys.argv:<br>            sys.argv.remove(i)<br><br>    sys.argv.append(<span class="hljs-string">&#x27;--backflag&#x27;</span>)<br><br>    process = subprocess.Popen(<br>        <span class="hljs-string">f&#x27;&#x27;&#x27; bash &lt;&lt;&lt; &#x27;<span class="hljs-subst">&#123;sys.executable&#125;</span> <span class="hljs-subst">&#123;<span class="hljs-string">&quot; &quot;</span>.join(sys.argv)&#125;</span> &gt;&gt; <span class="hljs-subst">&#123;Path.runtime_error_logfile&#125;</span> 2&gt;&amp;1 &amp;&#x27;$&#x27;\\n&#x27;&#x27;echo $!&#x27; &#x27;&#x27;&#x27;</span>,<br>        stdin=subprocess.PIPE,<br>        stdout=subprocess.PIPE,<br>        stderr=subprocess.PIPE,<br>        shell=<span class="hljs-literal">True</span>,<br>    )<br><br>    <span class="hljs-keyword">try</span>:<br>        pid = process.stdout.read().decode(<span class="hljs-string">&#x27;utf-8&#x27;</span>).strip()  <span class="hljs-comment"># type: ignore</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> pid.isdigit():<br>            <span class="hljs-keyword">raise</span> RuntimeError(process.stderr.read().decode(<span class="hljs-string">&#x27;utf-8&#x27;</span>))  <span class="hljs-comment"># type: ignore</span><br><br>    <span class="hljs-keyword">except</span> KeyboardInterrupt:<br>        <span class="hljs-built_in">print</span>(log(<span class="hljs-string">f&#x27;User canceled&#x27;</span>, <span class="hljs-string">&#x27;WARN&#x27;</span>, return_str=<span class="hljs-literal">True</span>))<br><br>    <span class="hljs-keyword">except</span> subprocess.TimeoutExpired:<br>        <span class="hljs-built_in">print</span>(log(<span class="hljs-string">f&#x27;后台运行失败: 命令行有误&#x27;</span>, <span class="hljs-string">&#x27;ERRO&#x27;</span>, return_str=<span class="hljs-literal">True</span>))<br><br>    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>        <span class="hljs-built_in">print</span>(log(<span class="hljs-string">f&#x27;后台运行失败: <span class="hljs-subst">&#123;e&#125;</span>&#x27;</span>, <span class="hljs-string">&#x27;ERRO&#x27;</span>, return_str=<span class="hljs-literal">True</span>))<br>        sys.exit(<span class="hljs-number">1</span>)<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-built_in">print</span>(log(<span class="hljs-string">f&#x27;后台运行中, pid: <span class="hljs-subst">&#123;pid&#125;</span>&#x27;</span>, <span class="hljs-string">&#x27;INFO&#x27;</span>, return_str=<span class="hljs-literal">True</span>))<br><br>    sys.exit(<span class="hljs-number">0</span>)<br><br>log(<span class="hljs-string">f&#x27;verbose level: <span class="hljs-subst">&#123;verbose&#125;</span>&#x27;</span>, <span class="hljs-string">&#x27;DEBU&#x27;</span>)<br>log(<span class="hljs-string">f&#x27;run times: <span class="hljs-subst">&#123;times&#125;</span>&#x27;</span>, <span class="hljs-string">&#x27;DEBU&#x27;</span>)<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">RunEngine</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">pass</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">func</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(times):<br>            <span class="hljs-comment"># 报错测试</span><br>            <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">            a = 1</span><br><span class="hljs-string">            b = 0</span><br><span class="hljs-string">            print(</span><br><span class="hljs-string">                (</span><br><span class="hljs-string">                    a</span><br><span class="hljs-string">                ) / (</span><br><span class="hljs-string">                    b)</span><br><span class="hljs-string">            )</span><br><span class="hljs-string">            &#x27;&#x27;&#x27;</span><br>            <span class="hljs-keyword">try</span>:<br>                requests.get(<span class="hljs-string">&#x27;http://baidu.com&#x27;</span>, timeout=<span class="hljs-number">1</span>).text<br>            <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>                log(<span class="hljs-string">f&#x27;第 <span class="hljs-subst">&#123;i+<span class="hljs-number">1</span>&#125;</span> 运行失败: <span class="hljs-subst">&#123;e&#125;</span>&#x27;</span>, <span class="hljs-string">&#x27;WARN&#x27;</span>)<br>            <span class="hljs-keyword">else</span>:<br>                log(<span class="hljs-string">f&#x27;第 <span class="hljs-subst">&#123;i+<span class="hljs-number">1</span>&#125;</span> 次运行成功&#x27;</span>, <span class="hljs-string">&#x27;INFO&#x27;</span>)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">self</span>):<br>        s = time.time()<br>        <span class="hljs-variable language_">self</span>.func()<br>        e = time.time()<br>        log(<span class="hljs-string">f&#x27;耗费时间 <span class="hljs-subst">&#123;timer_unit(e-s)&#125;</span>&#x27;</span>)<br><br><br><span class="hljs-keyword">try</span>:<br>    RunEngine().run()<br><span class="hljs-keyword">except</span> KeyboardInterrupt:<br>    log_content = log(<span class="hljs-string">&#x27;stopped by ctrl+c&#x27;</span>, <span class="hljs-string">&#x27;WARN&#x27;</span>, return_str=<span class="hljs-literal">True</span>)<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> background <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> stdout:<br>        <span class="hljs-built_in">print</span>(log_content)<br></code></pre></td></tr></table></figure></p>
+<p>下面做一些测试与展示：</p>
+<p>（<a target="_blank" rel="noopener" href="https://asciinema.org/a/csP8il5If35HgHH5HJRi66ySe">点击这里</a>可以看动态演示）</p>
+<blockquote>
+<p>help</p>
+</blockquote>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python-CLI-Trick/20201124044909544.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><br></p>
+<blockquote>
+<p>开发者模式测试</p>
+</blockquote>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python-CLI-Trick/20201124044919341.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><br></p>
+<blockquote>
+<p>后台运行 &amp; root 模式测试</p>
+</blockquote>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python-CLI-Trick/20201124044927099.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><br></p>
+<blockquote>
+<p>非后台运行时，出现报错自动开始调试</p>
+</blockquote>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python-CLI-Trick/20201124044939167.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><br></p>
+<p>至此，一个非常方便与完善的 CLI 就诞生了 :P</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">最近关注量涨了不少<br>不知道是不是被哪位好心的橘友宣传了一波<br>在此表示感谢 🍭🍭🍭</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Python 编写 CLI 的技巧分享</div>
+      <div>https://www.tr0y.wang/2020/11/24/Python-CLI-Trick/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年11月24日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/12/14/src-and-whitehat/" title="src 与白帽子，同路人的爱恨情仇">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">src 与白帽子，同路人的爱恨情仇</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/11/02/DNS-3-attack-by-dns/" title="DNS 安全（三）：利用 DNS 协议发起的攻与防">
+                        <span class="hidden-mobile">DNS 安全（三）：利用 DNS 协议发起的攻与防</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

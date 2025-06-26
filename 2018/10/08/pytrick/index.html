@@ -1,0 +1,1083 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="使用 Python2 or 3 的过程中遇到的一些 trick。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 进阶">
+<meta property="og:url" content="https://www.tr0y.wang/2018/10/08/pytrick/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="使用 Python2 or 3 的过程中遇到的一些 trick。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2018-10-08T16:17:24.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>Python 进阶 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Python 进阶"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-10-08 16:17" pubdate>
+          2018年10月8日 16:17:24
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          44 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python 进阶</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>使用 Python2 or 3 的过程中遇到的一些 trick。</p>
+<span id="more"></span>
+<h2 id="报错解决">报错解决</h2>
+<h3 id="socket-端口占用问题">socket 端口占用问题</h3>
+<p>正常退出程序后，再次启动也会报错：<code>socket.error: [Errno 48] Address already in use</code>。原因是先前的执行使套接字处于 <code>TIME_WAIT</code> 状态，并且无法立即重用。<code>SO_REUSEADDR</code> 标志告诉内核在 <code>TIME_WAIT</code> 状态下重用本地套接字，而不等待其自然超时到期。</p>
+<p>添加参数：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">from</span> socket <span class="hljs-keyword">import</span> *<br><br>sock=socket()<br>sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure></p>
+<h3 id="安装-gmpy2-的时候报错">安装 gmpy2 的时候报错</h3>
+<ul>
+<li><p><code>src/gmpy.h:106:19: 致命错误：gmp.h：没有那个文件或目录</code><br />
+&gt; 安装 <code>gmp</code>：</p>
+<ul>
+<li>在 debian、ubuntu 上使用命令：<code>sudo apt-get install libgmp-dev</code></li>
+<li>在 Fedora、RedHat、CentOS 上使用命令：<code>sudo yum install gmp-devel</code></li>
+</ul></li>
+<li><p><code>src/gmpy.h:252:20: 致命错误：mpfr.h：没有那个文件或目录</code><br />
+&gt; 下载 <code>MPFR</code>：<code>https://www.mpfr.org/mpfr-current/#download</code>。示例：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py">wget https://www.mpfr.org/mpfr-current/mpfr-<span class="hljs-number">4.0</span><span class="hljs-number">.1</span>.tar.xz<br>tar -xf mpfr-<span class="hljs-number">4.0</span><span class="hljs-number">.1</span>.tar.xz<br>cd mpfr-<span class="hljs-number">4.0</span><span class="hljs-number">.1</span><br>./configure<br>make<br>make install<br></code></pre></td></tr></table></figure></p></li>
+<li><p><code>src/gmpy.h:261:19: 致命错误：mpc.h：没有那个文件或目录</code><br />
+&gt; 安装 <code>gmp</code>：</p>
+<ul>
+<li>在 debian、ubuntu 上使用命令：<code>sudo apt-get install libmpc-dev</code></li>
+<li>在 Fedora、RedHat、CentOS 上使用命令：<code>sudo yum install libmpc-devel</code></li>
+</ul></li>
+</ul>
+<h2 id="知识与技巧">知识与技巧</h2>
+<h3 id="充当连接符的空格字符">充当连接符的“空格字符”</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">1</span>]: <span class="hljs-string">&quot;1&quot;</span> <span class="hljs-string">&quot;2&quot;</span> == <span class="hljs-string">&quot;12&quot;</span><br>Out[<span class="hljs-number">1</span>]: <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+<p>这里的充当，有时候会造成奇怪的 bug：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">2</span>]: info = <span class="hljs-string">&quot;This is a test.&quot;</span><br>In [<span class="hljs-number">3</span>]: <span class="hljs-built_in">any</span>(discard <span class="hljs-keyword">in</span> info <span class="hljs-keyword">for</span> discard <span class="hljs-keyword">in</span> [<br>   ...:                 <span class="hljs-string">&quot;overflow&quot;</span>, <span class="hljs-string">&quot;Overflow&quot;</span><br>   ...:                 <span class="hljs-string">&quot;test&quot;</span>, <span class="hljs-string">&quot;null&quot;</span>,<br>   ...:                 <span class="hljs-string">&quot;DLL&quot;</span>,<br>   ...:             ])<br>Out[<span class="hljs-number">3</span>]: <span class="hljs-literal">False</span><br></code></pre></td></tr></table></figure><br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">2</span>]: info = <span class="hljs-string">&quot;This is a test.&quot;</span><br>In [<span class="hljs-number">3</span>]: <span class="hljs-built_in">any</span>(discard <span class="hljs-keyword">in</span> info <span class="hljs-keyword">for</span> discard <span class="hljs-keyword">in</span> [<br>   ...:                 <span class="hljs-string">&quot;overflow&quot;</span>, <span class="hljs-string">&quot;Overflow&quot;</span>,<br>   ...:                 <span class="hljs-string">&quot;test&quot;</span>, <span class="hljs-string">&quot;null&quot;</span>,<br>   ...:                 <span class="hljs-string">&quot;DLL&quot;</span>,<br>   ...:             ])<br>Out[<span class="hljs-number">3</span>]: <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure></p>
+<h3 id="捕获-ctrlc-异常">捕获 ctrl+c 异常</h3>
+<p>用以下方法太挫了：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">try</span>:<br>    do_something<br><span class="hljs-keyword">except</span> Exception, e:<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;Key&quot;</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">str</span>(e):<br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;ctrl+c caught...&quot;</span><br>    <span class="hljs-keyword">else</span>:<br>        do_something<br></code></pre></td></tr></table></figure><br />
+这样显得优雅些：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">try</span>:<br>    do_something<br><span class="hljs-keyword">except</span> KeyboardInterrupt:<br>    <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;ctrl+c caught...&quot;</span><br><span class="hljs-keyword">except</span>:<br>    do_something<br></code></pre></td></tr></table></figure></p>
+<h3 id="python-的-三元运算">Python 的 “三元运算”</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">14</span>]: <span class="hljs-built_in">print</span> <span class="hljs-number">1</span> <span class="hljs-keyword">if</span> <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-number">2</span> <span class="hljs-keyword">if</span> <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-number">3</span><br><span class="hljs-number">1</span><br>In [<span class="hljs-number">15</span>]: <span class="hljs-built_in">print</span> <span class="hljs-number">1</span> <span class="hljs-keyword">if</span> <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-number">2</span> <span class="hljs-keyword">if</span> <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> <span class="hljs-number">3</span><br><span class="hljs-number">1</span><br>In [<span class="hljs-number">16</span>]: <span class="hljs-built_in">print</span> <span class="hljs-number">1</span> <span class="hljs-keyword">if</span> <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> <span class="hljs-number">2</span> <span class="hljs-keyword">if</span> <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-number">3</span><br><span class="hljs-number">2</span><br>In [<span class="hljs-number">17</span>]: <span class="hljs-built_in">print</span> <span class="hljs-number">1</span> <span class="hljs-keyword">if</span> <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> <span class="hljs-number">2</span> <span class="hljs-keyword">if</span> <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> <span class="hljs-number">3</span><br><span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+<h3 id="兼容-2.x-与-3.x-的-字符串输入">兼容 2.x 与 3.x 的 字符串输入：</h3>
+<p><code>vars(__builtins__).get('raw_input', input)("please input something")</code><br />
+相当于在 2.x 与 3.x 下均可使用 <code>raw_input</code><br />
+原理：<code>vars</code> 用于返回对象 object 的 属性 和 属性值 的 <strong>字典对象</strong>。所以 <code>vars(__builtins__)</code> 返回的是 内建模块 的字典。<code>get</code> 呢，自然就是获取键值了，但是它有一个可选参数，用于在没有获取到键值的时候返回。即，<code>.get('raw_input', input)</code> 在没有获取到 <code>'raw_input'</code> 的时候，默认返回 input。所以，在 py2.x 看来，<code>vars(__builtins__).get('raw_input', input)</code> 的值就是 <code>&lt;function raw_input&gt;</code>；在 py.x 看来，值就是 <code>&lt;function input(prompt=None, /)&gt;</code>。Coooool ~</p>
+<h3 id="pprint.pprint-编码">pprint.pprint() 编码</h3>
+<p>Python 中的 dict 含有非 ASCII 字符的时候，使用 <code>pprint.pprint()</code> 输出时显示的是 unicode。可以继承 <code>pprint.PrettyPrinter</code>，重写 <code>format</code>:<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment">#-*- coding:utf-8 -*-</span><br><br><span class="hljs-keyword">import</span> pprint<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyPrettyPrinter</span>(pprint.PrettyPrinter):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">format</span>(<span class="hljs-params">self, <span class="hljs-built_in">object</span>, context, maxlevels, level</span>):<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(<span class="hljs-built_in">object</span>, unicode):<br>            <span class="hljs-keyword">return</span> (<span class="hljs-built_in">object</span>.encode(<span class="hljs-string">&#x27;utf8&#x27;</span>), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)<br>        <span class="hljs-keyword">return</span> pprint.PrettyPrinter.<span class="hljs-built_in">format</span>(<span class="hljs-variable language_">self</span>, <span class="hljs-built_in">object</span>, context, maxlevels, level)<br><br><br>d = &#123;<span class="hljs-string">&#x27;foo&#x27;</span>: <span class="hljs-string">u&#x27;中文&#x27;</span>&#125;<br>pprint.pprint(d)<br>MyPrettyPrinter().pprint(d)<br></code></pre></td></tr></table></figure></p>
+<p>结果是<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">&#123;<span class="hljs-string">&#x27;foo&#x27;</span>: <span class="hljs-string">u&#x27;\u4e2d\u6587&#x27;</span>&#125;<br>&#123;<span class="hljs-string">&#x27;foo&#x27;</span>: 中文&#125;<br></code></pre></td></tr></table></figure></p>
+<h3 id="for...else">for...else</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> mylist: <span class="hljs-comment">#or while</span><br>    ... <span class="hljs-comment"># balabalabala</span><br><span class="hljs-keyword">else</span>:	<span class="hljs-comment"># else 会在 for 循环遍历结束后执行, 若循环过程中 break or 出错就不会执行</span><br>    ... <span class="hljs-comment"># balabalabala</span><br></code></pre></td></tr></table></figure>
+<h3 id="sum-的妙用">sum 的妙用</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># 压扁</span><br><span class="hljs-built_in">sum</span>([[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>],[<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>],[<span class="hljs-number">7</span>,<span class="hljs-number">8</span>,<span class="hljs-number">9</span>]],[])<br><span class="hljs-comment"># 输出 [1, 2, 3, 4, 5, 6, 7, 8, 9]</span><br></code></pre></td></tr></table></figure>
+<h3 id="给点颜色">给点颜色</h3>
+<p>给输出加点颜色的话，在 Python 中可以这样：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">PutColor</span>(<span class="hljs-params">string, color</span>):<br>    colors = &#123;<br>        <span class="hljs-string">u&quot;gray&quot;</span>: <span class="hljs-string">&quot;2&quot;</span>,<br>        <span class="hljs-string">u&quot;red&quot;</span>: <span class="hljs-string">&quot;31&quot;</span>,<br>        <span class="hljs-string">u&quot;green&quot;</span>: <span class="hljs-string">&quot;32&quot;</span>,<br>        <span class="hljs-string">u&quot;yellow&quot;</span>: <span class="hljs-string">&quot;33&quot;</span>,<br>        <span class="hljs-string">u&quot;blue&quot;</span>: <span class="hljs-string">&quot;34&quot;</span>,<br>        <span class="hljs-string">u&quot;pink&quot;</span>: <span class="hljs-string">&quot;35&quot;</span>,<br>        <span class="hljs-string">u&quot;cyan&quot;</span>: <span class="hljs-string">&quot;36&quot;</span>,<br>        <span class="hljs-string">u&quot;white&quot;</span>: <span class="hljs-string">&quot;37&quot;</span>,<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">u&quot;\033[40;1;%s;40m%s\033[0m&quot;</span> % (colors[color], string)<br><br></code></pre></td></tr></table></figure></p>
+<h3 id="固定行输出">固定行输出</h3>
+<p>控制光标位置的则可以用来固定打印行。<br />
+<a href="https://www.tr0y.wang/2018/10/08/LUinux/">控制字符见这篇博文</a><br />
+如：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/pytrick/tnum5_c.gif!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="获得终端的大小">获得终端的大小</h3>
+<p>获得终端的大小，限制打印的文字数量，防止打印的时候出现换行</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">2</span>]: <span class="hljs-keyword">import</span> shutil<br>   ...: shell = shutil.get_terminal_size((<span class="hljs-number">80</span>, <span class="hljs-number">20</span>))<br><br>In [<span class="hljs-number">3</span>]: shell.columns<br>Out[<span class="hljs-number">3</span>]: <span class="hljs-number">85</span><br><br>In [<span class="hljs-number">4</span>]: shell.lines<br>Out[<span class="hljs-number">4</span>]: <span class="hljs-number">25</span><br></code></pre></td></tr></table></figure>
+<p>这个方法在 py3.x 是肯定可行的。在 py2.x 只有 Unix 可用。若想兼容，则可以：<br />
+<code>lines, columns = os.popen('stty size', 'r').read().split()</code></p>
+<p><strong>注意，这里的 <code>columns</code> 与 <code>lines</code> 均为字符串。</strong></p>
+<h3 id="python-清屏">Python 清屏</h3>
+<p><code>os.system("printf '\033c\e]50;ClearScrollback\a'")</code><br />
+<code>'\033c\e]50;ClearScrollback\a'</code> 这个是控制字符，<a href="https://www.tr0y.wang/2018/10/08/LUinux/">见这篇博文</a></p>
+<h3 id="python-与转义">Python 与转义</h3>
+<p><strong>转义</strong><br />
+我们都知道 <code>\</code> 是用来转义的。<br />
+比如：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">1</span>]: <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;1\n1&quot;</span><br><span class="hljs-number">1</span><br><span class="hljs-number">1</span><br></code></pre></td></tr></table></figure></p>
+<p>但是，如果我们需要输出 <code>1\n1</code> 呢？可以这样：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">2</span>]: <span class="hljs-built_in">print</span> <span class="hljs-string">r&quot;1\n1&quot;</span><br><span class="hljs-number">1</span>\n1<br></code></pre></td></tr></table></figure></p>
+<p>然而，不是所有时候都可以加 <code>r</code> 的，比如：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">5</span>]: a = spider() <span class="hljs-comment"># 假设这个是外来数据，返回 &quot;1\n1&quot;</span><br>   ...: <span class="hljs-built_in">print</span> a<br>   ...:<br><span class="hljs-number">1</span><br><span class="hljs-number">1</span><br></code></pre></td></tr></table></figure></p>
+<p>这个时候，我们可以利用 <code>repr</code> 来解决这个需求：<br />
+&gt; repr() 函数将对象转化为供解释器读取的形式。通常情况下 <code>obj == eval(repr(obj))</code> 这个等式是成立的。</p>
+<p>这函数用在这里的转义处理中，实际上是将 <code>\</code> 变为了 <code>\\</code>，<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">6</span>]: a = <span class="hljs-built_in">repr</span>(spider()) <span class="hljs-comment"># 假设这个是外来数据，返回 &quot;1\n1&quot;</span><br>   ...: <span class="hljs-built_in">print</span> a<br>   ...:<br><span class="hljs-number">1</span>\n1<br></code></pre></td></tr></table></figure></p>
+<p>但是，repr 不仅仅处理 <code>\</code>：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">11</span>]: a = <span class="hljs-string">&quot;&#x27;1&#x27;\n&#x27;1&#x27;&quot;</span><br>    ...: <span class="hljs-built_in">print</span> a<br>    ...: <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;-&quot;</span>*<span class="hljs-number">10</span><br>    ...: <span class="hljs-built_in">print</span> <span class="hljs-built_in">repr</span>(a)<br>    ...:<br><span class="hljs-string">&#x27;1&#x27;</span><br><span class="hljs-string">&#x27;1&#x27;</span><br>----------<br><span class="hljs-string">&quot;&#x27;1&#x27;\n&#x27;1&#x27;&quot;</span> <span class="hljs-comment"># 即为 print &#x27;&quot;\&#x27;1\&#x27;\\n\&#x27;1\&#x27;&quot;&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>算是 repr 用于处理 <code>\</code> 的一个小陷阱<br />
+同样，<code>string.encode('string_escape')</code> 也是：<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">In [372]: <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;&#x27;1&#x27;\n&#x27;1&#x27;&quot;</span>.encode(<span class="hljs-string">&#x27;string_escape&#x27;</span>)<br>\&#x27;1\&#x27;\n\&#x27;1\&#x27;<br></code></pre></td></tr></table></figure></p>
+<p>更进一步的<br />
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs nix">In [<span class="hljs-number">9</span>]: a <span class="hljs-operator">=</span> <span class="hljs-string">&quot;1<span class="hljs-char escape_">\n</span>1&quot;</span><br>   ...: for i <span class="hljs-keyword">in</span> range(<span class="hljs-number">5</span>):<br>   ...:     a <span class="hljs-operator">=</span> repr(a)<br>   ...:     print a<br>   ...:<br>&#x27;<span class="hljs-number">1</span>\n1&#x27;<br><span class="hljs-string">&quot;&#x27;1<span class="hljs-char escape_">\\</span>n1&#x27;&quot;</span><br>&#x27;<span class="hljs-string">&quot;<span class="hljs-char escape_">\&#x27;</span>1<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span>n1<span class="hljs-char escape_">\&#x27;</span>&quot;</span>&#x27;<br>&#x27;\&#x27;<span class="hljs-string">&quot;<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\&#x27;</span>1<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span>n1<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\&#x27;</span>&quot;</span>\<span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-string">&#x27;<span class="hljs-char escape_">\&#x27;</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\&#x27;</span>&quot;<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\&#x27;</span>1<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span>n1<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\&#x27;</span>&quot;<span class="hljs-char escape_">\\</span><span class="hljs-char escape_">\&#x27;</span><span class="hljs-char escape_">\&#x27;</span>&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p>如果仅仅是想转义 <code>\</code> 怎么办呢？（将 <code>'1'\n'1'</code> 变为 <code>'1'\\n'1'</code> 而不是 <code>'"\'1\'\\n\'1\'"'</code> 也不是 <code>"\\'1\\'\\n\\'1\\'"</code>），可以用 <code>string.replace("", "")</code> 或者 <code>re</code>。<br />
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-keyword">In</span> [179]: s = <span class="hljs-string">&quot;&#x27;1&#x27;\n&#x27;1&#x27;&quot;</span><br><br><span class="hljs-keyword">In</span> [180]: <span class="hljs-built_in">print</span> s<br><span class="hljs-string">&#x27;1&#x27;</span><br><span class="hljs-string">&#x27;1&#x27;</span><br><br><span class="hljs-keyword">In</span> [181]: <span class="hljs-built_in">print</span> s.replace(<span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-string">&quot;\\n&quot;</span>)<br><span class="hljs-string">&#x27;1&#x27;</span>\n<span class="hljs-string">&#x27;1&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p><code>s.replace("\n", "\\n")</code> 只能转义 <code>\n</code>，想要转义 <code>\r</code> 就又得加一个 replace。暂时还没有好办法，后续想到再加进来。</p>
+<hr />
+<p><strong>去除转义</strong><br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">364</span>]: myString = <span class="hljs-string">&quot;spam\\neggs&quot;</span><br>     ...: decoded_string = myString.decode(<span class="hljs-string">&#x27;string_escape&#x27;</span>) <span class="hljs-comment"># python2</span><br>     ...: <span class="hljs-built_in">print</span>(decoded_string)<br>     ...:<br>spam<br>eggs<br><br><span class="hljs-comment"># py3.x: decoded_string = bytes(myString, &quot;utf-8&quot;).decode(&quot;unicode_escape&quot;)</span><br></code></pre></td></tr></table></figure></p>
+<p>或者（兼容 py2.x 与 3.x）<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">365</span>]: <span class="hljs-keyword">import</span> codecs<br>     ...: <span class="hljs-built_in">print</span>(codecs.decode(myString, <span class="hljs-string">&#x27;unicode_escape&#x27;</span>))<br>     ...:<br>spam<br>eggs<br></code></pre></td></tr></table></figure></p>
+<h3 id="字符串转中文">' 字符串转中文</h3>
+<ul>
+<li>python2 的解决办法：<code>string.decode('unicode_escape')</code></li>
+<li>python3 的解决办法：<code>string.encode('utf-8').decode('unicode_escape')</code></li>
+</ul>
+<p>或者<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> codecs<br><br>ESCAPE_SEQUENCE_RE = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    ( \\U........      # 8-digit hex escapes</span><br><span class="hljs-string">    | \\u....          # 4-digit hex escapes</span><br><span class="hljs-string">    | \\x..            # 2-digit hex escapes</span><br><span class="hljs-string">    | \\[0-7]&#123;1,3&#125;     # Octal escapes</span><br><span class="hljs-string">    | \\N\&#123;[^&#125;]+\&#125;     # Unicode characters by name</span><br><span class="hljs-string">    | \\[\\&#x27;&quot;abfnrtv]  # Single-character escapes</span><br><span class="hljs-string">    )&#x27;&#x27;&#x27;</span>, re.UNICODE | re.VERBOSE)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">decode_escapes</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">decode_match</span>(<span class="hljs-params"><span class="hljs-keyword">match</span></span>):<br>        <span class="hljs-keyword">return</span> codecs.decode(<span class="hljs-keyword">match</span>.group(<span class="hljs-number">0</span>), <span class="hljs-string">&#x27;unicode-escape&#x27;</span>)<br><br>    <span class="hljs-keyword">return</span> ESCAPE_SEQUENCE_RE.sub(decode_match, s)<br></code></pre></td></tr></table></figure><br />
+这个函数作用是处理转义序列，不止 ' 转中文，也可以将 <code>1\\n1</code> =&gt; <code>1[换行]1</code> 等等。</p>
+<h3 id="re-中的-re.unicodere.u"><code>re</code> 中的 <code>re.Unicode/re.U</code></h3>
+<p>处理 unicode 的时候很有用。具体用处如下：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">165</span>]: re.findall(<span class="hljs-string">&quot;\w+&quot;</span>, <span class="hljs-string">u&#x27;test test 我&#x27;</span>)<br>Out[<span class="hljs-number">165</span>]: [<span class="hljs-string">u&#x27;test&#x27;</span>, <span class="hljs-string">u&#x27;test&#x27;</span>]<br><br>In [<span class="hljs-number">166</span>]: re.findall(<span class="hljs-string">u&quot;\w+&quot;</span>, <span class="hljs-string">u&#x27;test test 我&#x27;</span>)<br>Out[<span class="hljs-number">166</span>]: [<span class="hljs-string">u&#x27;test&#x27;</span>, <span class="hljs-string">u&#x27;test&#x27;</span>]<br><br>In [<span class="hljs-number">167</span>]: re.findall(<span class="hljs-string">u&quot;\w+&quot;</span>, <span class="hljs-string">u&#x27;test test 我&#x27;</span>, re.U)<br>Out[<span class="hljs-number">167</span>]: [<span class="hljs-string">u&#x27;test&#x27;</span>, <span class="hljs-string">u&#x27;test&#x27;</span>, <span class="hljs-string">u&#x27;\u6211&#x27;</span>]<br><br>In [<span class="hljs-number">168</span>]: <span class="hljs-built_in">print</span> <span class="hljs-string">u&#x27;\u6211&#x27;</span><br>我<br></code></pre></td></tr></table></figure></p>
+<p>py3.x 中默认启用</p>
+<h3 id="判断程序是否以-root-权限运行">判断程序是否以 root 权限运行</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_root</span>():<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> os.geteuid() == <span class="hljs-number">0</span>:<br>        sys.exit(<span class="hljs-string">&quot;Run as ROOT.&quot;</span>)<br></code></pre></td></tr></table></figure>
+<h3 id="生成时间序列">生成时间序列</h3>
+<p>爆破字典为生日的时候，需要生成时间字典，如 <code>20100101-20171231</code><br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-keyword">import</span> pandas<br><br>data = pandas.date_range(<span class="hljs-string">&#x27;20140101&#x27;</span>,<span class="hljs-string">&#x27;20161231&#x27;</span>,freq=<span class="hljs-string">&#x27;D&#x27;</span>).strftime(<span class="hljs-string">&#x27;%Y%m%d&#x27;</span>) <span class="hljs-comment">#freq 为时间间隔</span><br><br><span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> data:<br>    <span class="hljs-built_in">print</span> t  <span class="hljs-comment">#20140101-20161231</span><br></code></pre></td></tr></table></figure></p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Python 进阶</div>
+      <div>https://www.tr0y.wang/2018/10/08/pytrick/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年10月8日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/10/14/sorts/" title="九大排序算法的 Python 实现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">九大排序算法的 Python 实现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/09/26/email-hacker/" title="伪造电子邮件以及制造电子邮件炸弹的攻防探讨">
+                        <span class="hidden-mobile">伪造电子邮件以及制造电子邮件炸弹的攻防探讨</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

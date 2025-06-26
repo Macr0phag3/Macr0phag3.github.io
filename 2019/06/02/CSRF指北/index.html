@@ -1,0 +1,1098 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="CSRF（Cross-site request forgery），跨站请求伪造经验总结。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSRF 指北">
+<meta property="og:url" content="https://www.tr0y.wang/2019/06/02/CSRF%E6%8C%87%E5%8C%97/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="CSRF（Cross-site request forgery），跨站请求伪造经验总结。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/csrf.jpeg/cover">
+<meta property="article:published_time" content="2019-06-02T11:39:35.000Z">
+<meta property="article:modified_time" content="2023-12-14T06:19:30.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="CSRF">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/csrf.jpeg/cover">
+  
+  
+  
+  <title>CSRF 指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CSRF 指北"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-06-02 11:39" pubdate>
+          2019年6月2日 11:39:35
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          5.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          37 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">CSRF 指北</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>CSRF（Cross-site request forgery），跨站请求伪造经验总结。</p>
+<span id="more"></span>
+<h2 id="原理">原理</h2>
+<p>CSRF 最重要的原理是 Web 的 Cookies 隐式身份验证机制。Web 的身份验证机制虽然可以保证一个请求是来自于某个用户的浏览器，但却无法保证该请求是用户批准发送的，故 CSRF 攻击的一般是由服务端解决。</p>
+<p>常见的利用场景如下：</p>
+<ul>
+<li>合法网站 S1：https://www.tr0y.wang</li>
+<li>合法用户 U1：Tr0y，受害者</li>
+<li>非法网站 S2：https://www.hackit.com</li>
+<li>非法用户 U2：Hacker，攻击者</li>
+</ul>
+<h3 id="背地操作">背地操作</h3>
+<p>Tr0y 在 https://www.tr0y.wang 部署着自己的博客，为了管理的方便，在后台开了一个接口：<code>https://www.tr0y.wang/delete?id=4382</code>。只要 Tr0y 登陆后，访问这个 url，就能把 id 为 4382 的文章删除。</p>
+<p>Tr0y 博客的部署方式被 Hacker 得知后，他发了一份钓鱼邮件给 Tr0y，诱使他点击一个 url。毫无防备的 Tr0y 点击了它，打开一看却是空白的页面，一脸疑惑的 Tr0y 关了页面，很快忘了这件事。</p>
+<p>在这个过程的背后发生了什么呢？Hacker 构造了非法网站 S2，并在其中嵌入了恶意的代码：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">&lt;img style<span class="hljs-operator">=</span><span class="hljs-string">&quot;width:0;&quot;</span> src<span class="hljs-operator">=</span><span class="hljs-string">&quot;https://www.tr0y.wang/delete?id=4382&quot;</span> /&gt;<br></code></pre></td></tr></table></figure></p>
+<p>Tr0y 打开页面后，浏览器会自动加载 img，即访问了这个 url。由于之前 Tr0y 登录过自己的博客，所以浏览器这时一看要访问<code>https://www.tr0y.wang/delete?id=4382</code>，便帮 Tr0y 带上了 Cookies。博客的后台一看 Cookies，这个操作的确经过认证，便放行了，导致文章被删除。而这时 Tr0y 却毫不知情。</p>
+<p>假设这里的删除博文的链接改为银行转账，危害就更大了。</p>
+<h3 id="蠕虫">蠕虫</h3>
+<p>假设某交友网站有发私信的接口与查询好友的接口（接口需利用跨域的形式，例如 jsonp，否则拿不到数据），利用 CSRF 即可形成蠕虫，步骤如下：</p>
+<ol type="1">
+<li>Hacker 构造恶意页面，页面中嵌入恶意代码</li>
+<li>寻找某个受害用户作为第一个传播点，诱使他点击恶意页面，触发蠕虫的传播。</li>
+<li>蠕虫查询出的受害用户的所有好友，并将恶意页面放在私信中，发给这些好友</li>
+<li>受害用户的好友打开恶意页面，导致恶意页面通过私信发送给受害用户的好友的好友，完成蠕虫的传播阶段</li>
+</ol>
+<p>实际上，和其他形式的蠕虫一样，CSRF 蠕虫主要做了 2 件事：</p>
+<ul>
+<li>获取更多的传播路径</li>
+<li>触发下一步的传播</li>
+</ul>
+<h2 id="防御">防御</h2>
+<h3 id="攻击条件">攻击条件</h3>
+<p>回顾上面的攻击过程，其实需要有以下几个必备条件：</p>
+<ol type="1">
+<li>U1 在 S1 处于登录状态</li>
+<li>浏览器对 S1 发起访问的时候自动带上 S1 的 Cookies</li>
+<li>S1 对请求不经过进一步验证</li>
+<li>U1 访问 S2</li>
+</ol>
+<p>（如果攻击无需 Cookies 的话，仅需要 3、4 两个条件）</p>
+<p>既然 CSRF 危害这么大，那么各方都做出了什么努力来保证安全呢？主要还是围绕 2、3 两个条件进行防御，毕竟第一、四个条件太正常了，必须满足。</p>
+<h3 id="浏览器防御">浏览器防御</h3>
+<p>浏览器的防御机制主要是针对 Cookies 的保护，此时的防御阵地在第二个条件。</p>
+<p>首先要从浏览器的 Cookies 说起，有 2 种：</p>
+<ul>
+<li>Session Cookie，即临时 cookies</li>
+<li>Third-party Cookie：即本地 cookies</li>
+</ul>
+<p>它们的区别在于，<code>Third-party Cookie</code>在服务器<code>Set-Cookie</code>时指定了 Expire 时间，只有到<br />
+了 Expire 时间后 Cookie 才会失效，所以这种 Cookie 会保存在本地；而 <code>Session Cookie</code>则没有指定 Expire 时间，保存在浏览器进程的内存中，所以浏览器关闭后就失效了，但是在浏览器进程的生命周期内，即使浏览器新打开了 Tab 页，Session cookie 也是有效的。</p>
+<p>如果浏览器从一个域的页面中，要加载另一个域的资源，由于安全原因，某些浏览器会阻止 Third-party Cookie 的发送。</p>
+<p>在当前的主流浏览器中，默认会拦截 Thid-party Cookie 的有：</p>
+<ul>
+<li>IE 6、7、8、Safari</li>
+</ul>
+<p>不会拦截的有：</p>
+<ul>
+<li>Firefox 2、3</li>
+<li>Opera</li>
+<li>Google Chrome</li>
+<li>Android</li>
+</ul>
+<p>但是，如果 CSRF 攻击的条件不需要使用 Cookie，那么这些限制也就没用了。虽然部分利用场景无需经过认证，但是这个情况相对少见，大部分重要操作还是需要经过认证的。所以浏览器拦截第三方 Cookies 的发送在一定程度上的确缓解了 CSRF 的攻击，但是不咋地靠谱，毕竟你没法要求用户只使用 IE。</p>
+<p>再者，<code>P3P</code> 的出现使得浏览器的防御变得更加不靠谱了。P3P 全称 <code>Platform for Privacy Preferences</code>，隐私设定平台规范。这个规范极其复杂，简言之，就是网站向浏览器声明自己的隐私政策，比如网站是否搜集访问者的个人信息，设置 cookie 的用途等等。浏览器会依据设置，决定在第三方对这个网站进行请求时，是否接受网站的 set-cookie 与是否发送此网站的 Cookies。其实这两个是有关联的，如果能 set-cookie 却不能发送，那 set 有何用呢？</p>
+<p>如果网站返回给浏览器的 HTTP 头中包含有 P3P 头，将允许浏览器发送第三方 Cookie。在 IE 下即使是 <code>&lt;iframe&gt;</code>、<code>&lt;script&gt;</code> 等标签也将不再拦截第三方 Cookie 的发送。在网站的业务中，P3P 头主要用于类似广告等需要跨域访问的页面。但是 P3P 头设置后，对于 Cookie 的影响将扩大到整个域中的所有页面，因为 Cookie 是以域和 path 为单位的。</p>
+<p>所以，<strong>仅仅依赖浏览器来防御 CSRF 是相当不靠谱的</strong>。</p>
+<h3 id="开发防御">开发防御</h3>
+<p>求人不如求己，让开发人员来防御 CSRF 可行么？即将防御阵地转移至第三个条件，既然 CSRF 是在用户不知情的情况下发起的请求，那么强制用户进行交互不就解决了吗？</p>
+<h4 id="强制用户交互">强制用户交互</h4>
+<h5 id="不能利用-post-防御"><strong>不能</strong>利用 POST 防御</h5>
+<p>由于大多数讲 CSRF 的例子都以 GET 型为例，让人以为重要的操作改为 POST 型就不能进行利用了，实际上是让用户点击按钮，也算强制交互吧。</p>
+<p>这个观点是相当错误的，以 GET 型为例只不过是为了最简化地讲清楚攻击原理罢了，js 能够控制前端的操作太多了。</p>
+<p>这个防御有 2 个主要的问题：</p>
+<ol type="1">
+<li>有些后台不会精确区分 GET 型与 POST 型。例如 PHP 的<code>$_REQUEST</code>。</li>
+<li>未达到强制交互的目的（构造 POST 请求也不难）：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs abnf">&lt;form action<span class="hljs-operator">=</span><span class="hljs-string">&quot;https://www.tr0y.wang/delete&quot;</span> id<span class="hljs-operator">=</span><span class="hljs-string">&quot;api&quot;</span> method<span class="hljs-operator">=</span><span class="hljs-string">&quot;post&quot;</span> &gt;<br>&lt;input type<span class="hljs-operator">=</span><span class="hljs-string">&quot;text&quot;</span> name<span class="hljs-operator">=</span><span class="hljs-string">&quot;id&quot;</span> value<span class="hljs-operator">=</span><span class="hljs-string">&quot;4382&quot;</span> /&gt;<br>&lt;input type<span class="hljs-operator">=</span><span class="hljs-string">&quot;submit&quot;</span> name<span class="hljs-operator">=</span><span class="hljs-string">&quot;submit&quot;</span> value<span class="hljs-operator">=</span><span class="hljs-string">&quot;submit&quot;</span> /&gt;<br>&lt;/form&gt;<br>&lt;script&gt;<br>var f <span class="hljs-operator">=</span> document.getElementById(<span class="hljs-string">&quot;api&quot;</span>)<span class="hljs-comment">;</span><br>f.submit()<span class="hljs-comment">;</span><br>&lt;/script&gt;<br></code></pre></td></tr></table></figure><br />
+然后再将这个 iframe 隐藏起来，那么对于打开恶意网站的 Tr0y 来说，依旧是被删了博文却毫无所知。</li>
+</ol>
+<p>所以，<strong>利用 POST 来防御 CSRF 是不可行的</strong></p>
+<h5 id="验证码">验证码</h5>
+<p>验证码被认为是对抗 CSRF 最简洁有效的防御方法，验证码类型也日新月异，强度不断升级：混合符号、数字计算、物品判断、滑动解锁...</p>
+<p>验证码显然需要强制用户进行交互，所以能够很好地抵御 CSRF 攻击。唯一不足的地方就是它太强制了，很多时候处于用户体验的考虑，无法给所有的操作都加上验证码。</p>
+<p>所以，<strong>验证码防御 CSRF 只能作为一种辅助手段，无法大量部署。</strong></p>
+<h4 id="二次验证">二次验证</h4>
+<p>强制用户交互的手段相当地好使，可惜降低了用户体验。之所以需要用户交互，无非是为了验证的确是用户发起的请求，拓宽一下这个思路，便是二次验证防御思路。</p>
+<h5 id="检查请求来源">检查请求来源</h5>
+<p>检查请求来源的主要方式为 Referer、Origin，就是 HTTP 请求头的那个（两者比较类似，下面仅以 Referer 为例）。Referer 最常见的应用实际上是防盗链。比如我的博客就有。防盗链利用了 referer 检查请求的来源，同样也可以利用来防御 CSRF。</p>
+<p>比如，正常情况下，我要删除一篇博客，首先需要登入到后台，然后再点击“删除”。此时，我的 referer 肯定就是后台地址。那么如果有一天，我的服务器收到了删除的请求，referer 却是<code>https://www.hackit.com</code>，那肯定不正常，直接拒绝请求。这个方法无需用户交互，也很便利。</p>
+<p>可惜的是，服务器并非在所有情况下都能获得 referer：</p>
+<ul>
+<li>用户为了保护隐私，自己阻止了浏览器发送 referer</li>
+<li>攻击者可以让自己的页面不发送 referer：<code>&lt;meta name="referrer" content="never"&gt;</code>这个代码告诉浏览器，所有从当前页面中发起的请求都不要携带 referer</li>
+<li>HTTPS 转为 HTTP 的时候，浏览器出于安全的考虑，不发送 referer。例如网站中有<code>&lt;meta name="referrer" content="default"&gt;</code>，如果当前页面使用的是 HTTPS，而正要加载的资源使用的是 HTTP，则将 HTTP header 中的 referer 置空。但是如果是 <code>content="always"</code> 的话，浏览器会把 HTTPS 的 referer 带给 HTTP 的页面。</li>
+</ul>
+<p>顺便说一句，2014 年，W3C 的 Web 应用安全工作组发布了 Referrer Policy 草案，对浏览器该如何发送 Referer 做了详细的规定：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CSRF%E6%8C%87%E5%8C%97/20190603105907120.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>上面总结起来就是，CSRF 发生的时候 referer 肯定不对，但是 referer 不对的时候不一定出现了 CSRF。</p>
+<p>（在 302 重定向之后 Origin 也不包含在重定向的请求中，因为 Origin 可能会被认为是其他来源的敏感信息。对于 302 重定向的情况来说都是定向到新的服务器上的 URL，因此浏览器不想将 Origin 泄漏到新的服务器上。）</p>
+<p>就算成功获得了，验证 referer 的代码也要写好，别被钻空子了。最后还有个问题是，基于来源判断来防御 CSRF 不能防御站内发起的攻击，例如论坛，攻击者有权限在发布评论（含链接、图片等，统称 UGC）的地方插入恶意链接诱使受害者点击，那么它可以直接在本域发起攻击（虽然没有“跨站”，也算 CSRF 吧）。</p>
+<p>所以，<strong>依赖 Referer、Origin 也是不可行的，它也是只能作为一种辅助的防御，也可以用于寻找 CSRF 发生的痕迹。</strong></p>
+<h5 id="token">Token</h5>
+<p>再再再拓宽一下思路，referer 的防御思路其实是增加一个攻击者无法伪造的东西。那么我们可以在请求头或者参数中增加一个 Token，这个 Token 只有服务器知道如何生成，那么它就能代替 referer 作为不可伪造的东西，从而防御 CSRF。</p>
+<p>防御方案呼之欲出，这边是 <code>Anti CSRF Token</code>。</p>
+<p>示例：<br />
+将删除接口 <code>https://www.tr0y.wang/delete?id=4382</code>，改为<code>https://www.tr0y.wang/delete?id=4382&amp;token=f07a7a0390c4a7a29ec9ea30bac80606</code></p>
+<p>当然，这个 token 的值是随机的，满足不可预测性。至于 Token 如何给用户，可以通过 cookies 来设定。Token 需要同时放在表单和 cookies 中。在提交请求时，服务器只需验证表单中的 Token 与用户 Cookies 中的 Token 是否一致，如果一致，则认为是合法请求；如果不<br />
+一致，或者有一个为空，则认为请求不合法，可能发生了 CSRF 攻击。</p>
+<p>需要注意的是，token 要及时销毁，且不能泄露。比如 token 作为 get 参数出现在 url 里，那么可能会被 referer 泄露出去。例如：<br />
+<code>https://www.tr0y.wang/manage?id=4382&amp;token=f07a7a0390c4a7a29ec9ea30bac80606</code>是博客后台管理地址，Tr0y 在这里点击删除按钮时，js 会将 url 里的 token 取出，放入表单中一起提交。如果在这个页面中攻击者可以放入自己服务器的图片，那么 Tr0y 在打开这个后台管理页面的时候，浏览器会请求加载这个图片，这时攻击者就能看到图片的 referer 中的 token，从而进行 CSRF。</p>
+<p>因此在使用 Token 时，应该尽量把 Token 放在表单中，把敏感操作由 GET 改为 POST，以 form 表单的形式提交，可以避免 Token 泄露。当然，放在请求头里也阔以...只不过一般用于 AJAX 中（毕竟要加请求头），有较大的局限性。</p>
+<p>另外，当网站同时存在 XSS 与 CSRF 时，这个方案也是无效的。因为 XSS 可以模拟浏览器执行任意操作，攻击者可以请求页面后，读出页面内容里的 Token 值，然后再构造出一个合法的请求。这个过程称之为 XSRF，实际上是 XSS 与 CSRF 的组合技。但是，这个场景并不影响这个方案的有效性，防御 CSRF 的方案就是应该解决 CSRF 而不是 XSS，XSS 问题应该由 XSS 的防御方案来解决。</p>
+<p>最后，这个方案也有不足的地方。</p>
+<p>如果 Token 保存在 cookies 里，那么如果用户打开了 2 个页面，这个时候两个页面的 cookie 与 token 均相同。当用户提交了 A 页面后，服务器便销毁 token。然后当用户提交 B 页面时，token 就与 cookies 不一致了。</p>
+<p>如果采用 Session 的方式，又会导致服务器负载加重，且在分布式的系统里，如何共享也是需要考虑的。</p>
+<p>于是还有人提出了 <code>双重 Cookie 验证</code>、<code>Samesite Cookie</code>、<code>JWT</code> 等等来升级这个防御方案。详细的讨论可以看美团技术团队在 freebuf 发的文章，我的博客也有笔记：<a href="https://www.tr0y.wang/2018/11/07/CSRFMeiTuan/#CSRF-Token">传送门🚪</a></p>
+<p>总得来说，<strong>现在业界针对 CSRF 防御的常见方案就是 Token，Token 的生成、放置的位置、验证的方式可能会根据实际情况进行调整，但是二次认证的思路基本没变。</strong></p>
+<h3 id="用户防御">用户防御</h3>
+<p>作为用户，我们可以做些什么呢？</p>
+<ul>
+<li>使用网页版邮件的浏览邮件或者新闻也会带来额外的风险，因为查看邮件或者新闻消息有可能导致恶意代码的攻击。</li>
+<li>尽量不要打开可疑的链接，一定要打开时，使用不常用的浏览器。</li>
+<li>及时手动退出登录，尤其是那些重要的网站</li>
+</ul>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CSRF/">#CSRF</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CSRF 指北</div>
+      <div>https://www.tr0y.wang/2019/06/02/CSRF指北/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年6月2日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月14日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/02/28/%E4%B8%80%E6%9E%9A%E5%86%97%E4%BD%99%E4%BB%A3%E7%A0%81%E7%9A%84webshell%E5%88%86%E6%9E%90/" title="一枚冗余代码的 webshell 分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一枚冗余代码的 webshell 分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/02/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BCSRF/" title="OWASP Top10 系列之 CSRF">
+                        <span class="hidden-mobile">OWASP Top10 系列之 CSRF</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

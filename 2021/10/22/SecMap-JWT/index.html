@@ -1,0 +1,1130 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="SecMap 系列之 JWT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - JWT">
+<meta property="og:url" content="https://www.tr0y.wang/2021/10/22/SecMap-JWT/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="SecMap 系列之 JWT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+<meta property="article:published_time" content="2021-10-22T20:00:00.000Z">
+<meta property="article:modified_time" content="2025-04-15T14:01:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+  
+  
+  
+  <title>SecMap - JWT - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - JWT"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-10-22 20:00" pubdate>
+          2021年10月22日 20:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          45 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - JWT</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>SecMap 系列之 JWT</p>
+<span id="more"></span>
+<p>SecMap 系列停止更新有一段时间了，年初立的 Flag 不能倒！</p>
+<h2 id="介绍">介绍</h2>
+<h3 id="jwt-的理解">JWT 的理解</h3>
+<p>JWT(Json Web Token) 是一个非常轻量级的规范。它本质上是一个 token，这个 token 我们理解为 <code>访问资源的凭据</code> 即可，即它是一种基于 Token 的会话管理方案。JWT 一个很重要的特点就是，如果要想确认它是否有效，我们只需要看 JWT 本身的内容就可以验证了。</p>
+<p><strong>由于 JWT 的使用场景主要还是在认证上，所以本文就不多啰嗦其他场景了。</strong></p>
+<p>那在 JWT 之前，我们是怎么做访问资源凭据的验证呢？答案是 cookie-session 机制。对于 cookie-session 这一套我们是比较熟悉的，那 JWT 认证的流程是什么样的呢？</p>
+<p>别着急，先来看一个常见的误区。</p>
+<p>首先，JWT 标准（见资料 1）中是这么说的：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">...<br>The claims in a JWT are encoded as a JSON object <br>that is used as the payload of a JSON Web Signature (JWS) <br>structure or as the plaintext of a JSON Web Encryption (JWE) structure<br>...<br></code></pre></td></tr></table></figure></p>
+<p>所以，<strong>你可以这么说，一个 JWT 要么是一个 JWE，要么是一个 JWS，而我们常说的 JWT 其实特指的是 JWS。</strong></p>
+<p><strong>所以为了严谨，下文将严格区分它们。如果提到了 JWT 的话，那就是指的 JWS + JWS。</strong></p>
+<p>那么什么是 JWS、JWE 呢？</p>
+<h4 id="jws-的理解">JWS 的理解</h4>
+<p>JWS（JSON Web Signature）它其实就是一个 JSON，由 3 个字段组成，每个字段都需要经过 url 编码 + Base64Url 编码。它们之间用 <code>.</code> 连接：<br />
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs maxima"><span class="hljs-built_in">base64</span>.urlsafe_b64encode(header) + <span class="hljs-string">&quot;.&quot;</span> + <br><span class="hljs-built_in">base64</span>.urlsafe_b64encode(payload) + <span class="hljs-string">&quot;.&quot;</span> + <br><span class="hljs-built_in">base64</span>.urlsafe_b64encode(signture)<br></code></pre></td></tr></table></figure></p>
+<ol type="1">
+<li><code>header</code>: 记录 JWT 本身的一些信息，包含以下键
+<ol type="1">
+<li><code>typ</code>: token 类型，这个值是写死的，就是 <code>JWT</code>，它的作用在于出现嵌套的时候，可以识别出哪一层的 json 是个 JWS</li>
+<li><code>alg</code>: 签名算法（比如 HMAC 类: <code>HS256</code>等、RSASSA 类: <code>RS256</code>、ECDSA 类<code>ES256</code>等、<code>none</code>）。相信各位在小学六年级就知道了，这里的签名算法都是要用到密钥的。</li>
+<li><code>cty</code>: 可选，比较少见，如果这个 JWS 包含另一个 JWS 的话（注意与 typ 的区别），它就需要置为 <code>JWT</code></li>
+<li><code>jwk</code>: 可选，JSON Web Key, 当签名算法所用的密钥有很多个的时候（比如有一个统一提供 JWT 认证的服务，有很多应用接入），服务端在校验 JWT 的完整性时不知道要用哪一个私钥进行验证，有了这个键之后就知道之前颁发 JWT 的时候用的是哪个公钥了。这里的 jwk 需要按照资料 5 的规范，也是一个 json，里面有它自己的键，感兴趣的话可以自行查看 rfc，这里就不赘述了。</li>
+<li><code>kid</code>: 可选，jwk 的编号，如果签名算法所用的密钥很多的话（同上面的情况），可以通过这个标识来判断/查询用的是哪一个密钥。它与 jwk 有类似的作用。如果同时出现 kid 和 jwk 那么 kid 的含义是标识用的是哪个 jwk。</li>
+<li><code>jku</code>/<code>x5u</code>/<code>x5c</code>/<code>x5t</code>/<code>x5t#S256</code>/<code>crit</code>: 这些用得少就不赘述了，见 rfc 文档即可。</li>
+</ol></li>
+<li><code>payload</code>: JWT 标准将 Payload 中的键称为 JWT 声明（claims），有以下 3 类：
+<ol type="1">
+<li>JWT 标准预定义了一些声明，不强制但建议使用，叫 <code>registered claims</code>，包含：
+<ol type="1">
+<li><code>iss</code>: Issuer, 签发人</li>
+<li><code>sub</code>: Subject, 主题</li>
+<li><code>aud</code>: Audience, 使用对象</li>
+<li><code>exp</code>: Expiration Time, 到期时间，到达或者超过到期时间的应当拒绝处理</li>
+<li><code>nbf</code>: Not Before, 在此时间之前的应当拒绝处理</li>
+<li><code>iat</code>: Issued At, 签发时间</li>
+<li><code>jti</code>: JWT ID, JWT 的唯一标识符</li>
+</ol></li>
+<li>如果你想自定义一个类似 <code>registered claims</code> 这种申明，有两种选择，要么去 IANA JSON Web Token Registry 中注册（见资料 2），要么取一个不太会被用到的名字（防止重复），比如加上你的域名前缀。这种叫 <code>public claim</code>。我也没懂为啥会有这种需求，我的理解是这玩意自定义之后，可能是给一整个组织去使用的，算是一种定制化的 JWT 规范。</li>
+<li>最后，大多数键都是开发自定义的（比如身份信息等等），这个叫 <code>private claims</code>，需要注意的是这里的键名不要覆盖了上面两种键名，比如 exp 就是过期时间，不能把它当做用户名来用。当然如果服务端和客户端约定好了，非要这么干，那也不是不行，只是很不符合规范。</li>
+</ol></li>
+<li><code>signture</code>: 根据指定的算法，用密钥对 header + payload 进行签名，用于校验 JWS，避免 伪造/篡改</li>
+</ol>
+<p>最后有必要说明的是，我们常用的 JWS 其实是紧凑模式。相比之下还有一种通用模式和紧凑通用模式，它们的区别是什么呢？</p>
+<ul>
+<li>紧凑模式是经过 Base64Url 编码的，它只有一个数字签名，用来保护 header+paylaod</li>
+<li>通用模式提供了单独保护某一个 header 键的能力，但是它不经过 Base64Url 编码：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-JWT/16b9cbe4-8bfe-477a-8ae3-e3ec809e8ef6.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>紧凑通用模式就是在通用模式上增加了一步 Base64Url 编码</li>
+</ul>
+<h4 id="jwe-的理解">JWE 的理解</h4>
+<p>由于 JWS 只对整个 json 做了签名，其中 paylaod 还是明文的，Base64Url 解开就行。那如果我不想让别人看里面的内容怎么办呢？就可以用 JWE。</p>
+<p>JWE（JSON Web Encryption）也是一个 json，由 5 个字段组成，每个字段都需要经过 url 编码 + Base64Url 编码。它们之间用 <code>.</code> 连接：<br />
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs maxima"><span class="hljs-built_in">base64</span>.urlsafe_b64encode(header) + <span class="hljs-string">&quot;.&quot;</span> + <br><span class="hljs-built_in">base64</span>.urlsafe_b64encode(JEK) + <span class="hljs-string">&quot;.&quot;</span> + <br><span class="hljs-built_in">base64</span>.urlsafe_b64encode(JIV) + <span class="hljs-string">&quot;.&quot;</span> + <br><span class="hljs-built_in">base64</span>.urlsafe_b64encode(Ciphertext) + <span class="hljs-string">&quot;.&quot;</span> + <br><span class="hljs-built_in">base64</span>.urlsafe_b64encode(Tag)<br></code></pre></td></tr></table></figure></p>
+<ol type="1">
+<li><code>header</code>: 与 JWS 基本一致，但是有几个键不一样
+<ol type="1">
+<li><code>alg</code>: 算法名称，该算法用于下面的 JEK</li>
+<li><code>enc</code>: 算法名称，用于加密 payload</li>
+<li><code>zip</code>: 可选，在加密前压缩数据的算法</li>
+</ol></li>
+<li><code>JEK</code>: JWE Encryption Key，它是由随机生成的 CEK(Content Encryption Key) 通过加密得到的，至于是哪个加密算法，就是由 alg 指定的。这个 CEK 后面要用于加密 payload。</li>
+<li><code>JIV</code>: JWE Initialization Vector，初始的 IV，有些加密方式需要这玩意</li>
+<li><code>Ciphertext</code>: 对 payload 加密后的数据。</li>
+<li><code>Tag</code>: 就是 Authentication Tag，加密算法产生的附加数据，用于保护密文的完整性</li>
+</ol>
+<p>与 JWS 类似，JWE 也有三种模式：紧凑模式、通用模式和紧凑通用模式。</p>
+<p>最后举个例子来看一下 JWE 的加密过程，我觉得一图胜千言（紧凑模式）：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-JWT/2cea9f09-0a13-48f5-ab4c-fcdc09738d3c.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="jwt-认证流程">JWT 认证流程</h3>
+<ol type="1">
+<li>用户向服务器提交用户名和密码，服务器验证是否正确</li>
+<li>如果校验正确，服务器创建一个 JWT，发回给客户端（JWE 的话会有解密过程）</li>
+<li>浏览器获取到经过签名的 JWT，然后在之后的每个请求中都会附带 JWT</li>
+<li>服务器在每收到一次请求都会校验 JWT，检查 JWT 签名，确保这个是自己签发的（如果是 JWE 的话会有解密过程）。</li>
+<li>没有问题的话，返回响应</li>
+</ol>
+<p>非常好理解，其实就是服务端在验证身份之后，会给你发一个 token，然后之后你所有的请求都带上这个 token，服务端就知道是你了。</p>
+<h3 id="优缺点">优缺点</h3>
+<p>那么 JWT 什么好处呢？</p>
+<ol type="1">
+<li>非常明显的一点就是，它的可扩展性很好。现在很多应用是分布式部署的，如果是基于 session 去做的认证，那么就需要做数据共享（至少得保证 session 是一致的），做法可以是存在数据库或者缓存队列（比如 redis）里面。但是 JWT 不需要，因为手握密钥的服务器只要有 JWT 就可以验证它是否合法。</li>
+<li>无状态 —— JWT 不在服务端存储任何状态。RESTful API 的原则之一就是无状态。这里的“无状态”，很多人有不同的说法，我觉得意会一下就好了。论文的原文是 “such that each request from client to server must contain all of the information necessary to understand the request, and cannot take advantage of any stored context on the server.”。所以我们会发现 JWT 是很符合 RESTful 要求的</li>
+<li>抗 csrf —— 毕竟连 cookie 都没有了对吧。</li>
+<li>JWT 的 payload 中可以简单存储一些常用信息，取起来比较方便。</li>
+</ol>
+<p>那么 JWT 什么坏处呢？</p>
+<ol type="1">
+<li>通信的开销大。如果 JWT 的 payload 里存放了大量的数据，那么整个 JWT 就会很长（别忘了它还要经过 base64Url 编码）。而单个 cookie 是有大小限制的，一般是 4k 左右，所以 cookie 很可能放不下。因此 JWT 一般是放在 Header 里面发送，存储的话会放在 local storage 里面。而对比之前的 cookie-session，SessionId 要短的多。</li>
+<li>JWT 一旦签发，无法修改。这对应以下 3 个问题：
+<ol type="1">
+<li>数据有改动时会出现不一致的问题。假设 JWT 中存储了用户名，当用户将姓名修改之后，JWT 里的用户名就会和数据库里保存的用户名不一致。这个时候一个很直接的想法就是我们重新签发一个 JWT 就行，但是旧的 JWT 还没过期呢，这个旧的 JWT 依旧可以用于登录，那登录后服务端从 JWT 中拿到的信息就是过时的。那么怎么把旧的 JWT 弄失效呢？这就变成了下面这个问题。</li>
+<li>要把一个 JWT 变成失效状态，只能等它到期。比如退出登录这种场景，cookie-session 只需要服务端删掉相关的 session 就行；而原生的 JWT 是无法实现这个功能的。如果你非得用 JWT 实现这个功能，那么常见的有以下几种方案：
+<ol type="1">
+<li>一种方案是用户在点击退出的时候，客户端配合删除本地存储的 JWT。这种方案原理上行得通，但是服务端对这个过程是不可控的，只能祈祷客户端只有一个并且它成功删除了 Cookie。</li>
+<li>另一种方案是设置有效期较短的 JWT，但是这又会导致用户需要频繁登录（体验上的问题）。并且就算 JWT 有效期再短，距离用户点击“退出登录”和它失效之间肯定也是有一个窗口期的。</li>
+<li>另另一种方案是额外部署一个组件用于存储状态，比如在 redis 中设置一个黑名单，签发了新的 JWT 之后就把旧的就加入黑名单，避免被再次使用，最后等到期了再在 redis 中删除即可。但这不就是有状态吗？它违背了 JWT 的初衷，并且和基于 cookie-session 的方案已经相差无几了。</li>
+<li>另另另一种是基于 refresh token 的方案，我感觉是对方案 3 的优化。这种方案就是在客户端登录之后，额外颁发一个 Refresh token（有效时间长），来后续获取 JWT（有效时间短）。当客户端访问需要认证的接口时，先携带 JWT 发起访问，服务端校验是否过期，如果没有，那么鉴权通过后，返回成功的响应；如果 JWT 过期或者鉴权失败，则返回失败的响应，客户端这时需要使用 Refresh Token 来申请新的 JWT，如果 Refresh Token 没有过期，服务端鉴权通过后向客户端下发新的 JWT，客户端后续用这个新的 JWT 就可以了；如果 Refresh Token 也过期了那就引导用户去重新登录来获取新的 Refresh Token。由于 Refresh Token 不会在客户端请求业务接口时验证，只有在申请新的 JWT 时才会验证，所以相比方案 3，降低了服务端各个组件在响应时间上的压力。当登出或禁用用户时，只需要将 Refresh Token 删除，用户就会在 JWT 过期后，由于无法获取到新的 Access Token 而再也无法访问。这样的方式虽然还是会有一定的窗口期（需要等 Access Token 过期，不过相比方案 2 已经缓解了很多），但是结合方案 1，还算实用了。</li>
+</ol></li>
+<li>本文的重点内容：当 JWT 使用不当的时候，存在的安全问题。</li>
+</ol></li>
+</ol>
+<p>综上，我对 JWT 的看法是，没有银弹。你不能期望它解决所有认证问题。在使用 JWT 的时候，是否适合用它是需要仔细思考的，每种方案都有它的好、坏与适配的场景，我们在合适的场景下选择合适的方案就行了，不要执着于使用 JWT。</p>
+<h2 id="攻击思路">攻击思路</h2>
+<p>由于 JWE 的使用场景实在是太少了，我也没见过，所以下面就说 JWS 吧，等我遇到了再补上。</p>
+<p>JWS 的安全性全靠签名，所以大部分攻击场景都是针对签名的。</p>
+<h3 id="信息泄露">信息泄露</h3>
+<p>JWS 的 header 和 payload 都只经过简单的编码，所以不应该存放敏感数据。根据我的经验，现在其实还是有不少人认为 base64 是“加密算法”，如果是这么认为的那就很有可能将敏感信息放在里面，导致信息泄露。</p>
+<h3 id="爆破签名密钥">爆破签名密钥</h3>
+<p>只要你拥有密钥，那么你就可以构造任意内容的合法的 JWS。所以最直接的思路就是拿到一个 JWS 之后爆破它的签名密钥，这个过程还是离线的，所以速度会比较快。</p>
+<p>所以密钥空间一定要足够大。</p>
+<h3 id="签名算法置为-none">签名算法置为 none</h3>
+<p>上面提到 header 中有个键是 <code>alg</code>，用于标识 signature 的签名算法。而其中有一个值是 <code>none</code>，它是 JWT 规范中强制要求实现的（<code>...only HMAC SHA-256 ("HS256") and "none" MUST be implemented by conforming JWT implementations...</code>）。其实我不太理解为什么要加这个值。</p>
+<p>所以在自己实现 JWT 的时候，如果没有注意到这种特殊情况（可能有些库的实现也有问题，不过目前我还没找到），攻击者就可以设置 alg 为 none，这样 paylaod 就可以随便伪造了。</p>
+<p>比如：<br />
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">payload</span> = &#123;<br>    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Tr0y&quot;</span>,<br>&#125;<br></code></pre></td></tr></table></figure><br />
+它的 JWS 是 <code>eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJuYW1lIjoiVHIweSJ9.</code></p>
+<p>我们将 name 改为 <code>admin</code> 也可以通过验证。</p>
+<p>那我们应该怎么处理这种情况呢？如果我们认为所有算法是 none 的 JWS 都是不合法的，那么按照 rfc 文档的规定，这样粗暴地处理其实是不符合标准的，虽然我也感觉真的有这个需求的人应该特别特别少。</p>
+<p>我们可以参考 Python 的第三方库 <code>pyJWT</code> 的实现：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-JWT/b2d8e6e5-78dd-48ef-b4ca-34c95df82274.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>默认情况下，只要你的算法是 none，验签的时候直接一棍子打死。但是你可以加上一个参数来使用，这里附上 pyJWT 作者的吐槽：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-JWT/ff358d7b-bb7f-4c56-ade2-53a02d556e45.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以说是很豹笑了。我觉得这个做法不但比较安全，还符合 rfc 规范（可以让你这么用，但是你必须额外设置一个参数），值得我们学习。</p>
+<h3 id="签名算法从非对称类型改为对称类型">签名算法从非对称类型改为对称类型</h3>
+<p>这种情况本质上是服务端没有校验算法与密钥是否属于同一种类型的组合。</p>
+<p>场景：服务端只使用了 HS256 来做签名算法。那么自然就是用私钥签名，公钥验签。</p>
+<p>假设条件：服务端没有校验收到的 JWS header 里的算法是不是自己采用的算法，而是直接采用 JWS 里的算法来验签，且认为算法应该是 RS256（脑子里想的是要用 RS256 算法，手上却用了 JWS 里的算法，至于密钥？那当然用的是 RS256 的公钥了）。</p>
+<p>那么攻击者可以构造一个 JWS，算法为 HS256，利用公开的公钥作为签名密钥，那么就可以通过验签了。因为服务端会把算法设定为 HS256，而此时验证签名的密钥就是公钥。</p>
+<p>那么怎么避免这个问题呢？</p>
+<ul>
+<li>校验收到的 JWS 中的算法自己有没有使用，如果没有使用的话直接干掉。</li>
+<li>如果没有多种算法的话，不要采用 JWS 里的算法</li>
+<li>如果有多种算法（我觉得这种情况下出这个漏洞的可能性较低，因为肯定是有多个密钥的），那么密钥一定要保证与算法是一一配对的（这个大多数情况下也不会有问题）</li>
+</ul>
+<p>另外，有些库是禁止 HMAC 使用非对称加密的密钥的，比如 pyJWT:<br />
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">jwt.exceptions.InvalidKeyError: </span><br>The specified key is an asymmetric key <br><span class="hljs-keyword">or </span>x509 certificate <br><span class="hljs-keyword">and </span><span class="hljs-keyword">should </span>not <span class="hljs-keyword">be </span>used as an HMAC secret.<br></code></pre></td></tr></table></figure></p>
+<h3 id="kid-设计问题">kid 设计问题</h3>
+<p>这种大多出现在 CTF 上。</p>
+<p>当 JWS 的密钥很多的时候，可以通过 kid 来确定使用哪个密钥。如果 kid 的相关逻辑存在问题的话，就会出现安全问题。</p>
+<blockquote>
+<p>任意文件上传 + 可通过 kid 指定特定路径下的密钥</p>
+</blockquote>
+<p>例子：2017 HITB CTF: Pasty</p>
+<blockquote>
+<p>SQL 注入</p>
+</blockquote>
+<p>例子：2021 年网鼎杯的玄武组 Web 题: js_on</p>
+<h2 id="资料">资料</h2>
+<ul>
+<li>资料 1: rfc7519, https://datatracker.ietf.org/doc/html/rfc7519</li>
+<li>资料 2: IANA "JSON Web Token Claims", https://datatracker.ietf.org/doc/html/rfc7519#section-10.1</li>
+<li>资料 3: JWE, https://datatracker.ietf.org/doc/html/rfc7516</li>
+<li>资料 4: JWS, https://datatracker.ietf.org/doc/html/rfc7515</li>
+<li>资料 5: JWK, https://datatracker.ietf.org/doc/html/rfc7517</li>
+</ul>
+</br>
+<p style="text-align: center; font-weight: bolder">
+<font size="2" color="gray">其实 JWT 相关的知识点还有一些<br>但是不太常用<br>（看 rfc 文档真的是太痛苦了...）<br>橘友们可以慢慢研究<br>我就先看到这</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - JWT</div>
+      <div>https://www.tr0y.wang/2021/10/22/SecMap-JWT/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年10月22日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/12/11/zero-trust-1/" title="零信任（一）简史与 BeyondCorp">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">零信任（一）简史与 BeyondCorp</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/09/18/%E4%B8%80%E7%A8%8B%E5%B1%B1%E8%B7%AF/" title="一程山路">
+                        <span class="hidden-mobile">一程山路</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

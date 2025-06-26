@@ -1,0 +1,1179 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="编译原理系列，启动！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译原理（一）：词法分析">
+<meta property="og:url" content="https://www.tr0y.wang/2021/04/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="编译原理系列，启动！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2021-04-01T20:02:48.000Z">
+<meta property="article:modified_time" content="2025-03-19T11:44:26.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="编译原理">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>编译原理（一）：词法分析 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="编译原理（一）：词法分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-04-01 20:02" pubdate>
+          2021年4月1日 20:02:48
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          57 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">编译原理（一）：词法分析</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：3 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>编译原理系列，启动！</p>
+<span id="more"></span>
+<h1 id="编译原理一词法分析">编译原理（一）：词法分析</h1>
+<h2 id="系列开篇">系列开篇</h2>
+<p>为什么是编译原理？<br />
+大家可能觉得有点奇怪，作为一个安全从业者，为什么会去看编译原理这种没有直接相关的知识。</p>
+<p>这段时间我频繁遇到一类需求，即某个系统的自定义语句，如何转换为另一种固定的语句。以数据库的查询语句为例，MongoDB 的搜索，它的<code>查</code>是：<code>&#123;"ip": "1.1.1.1", "port": "80"&#125;</code> 和 <code>&#123;"$and": [&#123;ip": "1.1.1.1"&#125;, &#123;"port": "80"&#125;]&#125;</code>，都可以从数据库查询出来 ip 是 1.1.1.1 <strong>且</strong>端口是 80 的记录；又比如 <code>&#123;"$or": [&#123;ip": "1.1.1.1"&#125;, &#123;"port": "80"&#125;]&#125;</code>，可以从数据库查询出来 ip 是 1.1.1.1 <strong>或</strong>端口是 80 的记录。这样的语句呢，虽然看起来很直接，但是写起来还是稍显麻烦了一点，如果我们直接在前端的输入框照搬这个格式，用起来就比较麻烦，不如 <code>ip is 1.1.1.1 and port is 80</code>、<code>ip is 1.1.1.1 or port is 80</code> 这样来的简单，我相信大家在很多地方都见过这样的转换。我现在的处理方式是递归，一层一层解开用户传入的查询语句，然后解析成 MongoDB 的语句，虽然的确可以使用，但是需要考虑各种嵌套的情况、优先级的问题（比如<code>(ip is 1.1.1.1 and port is 443) or (ip is 2.2.2.2 and port is 80)</code>），所以有时候出现了 bug，查起来也比较麻烦。</p>
+<p>其实大学的时候我是学过编译原理的（虽然现在都还给老师了...），当时觉得挺有意思的，最后的大作业是编译一个老师给定的简单语言（我记得是一个绘图的语言），用 Python 实现了它的编译器，并且可以成功执行。我觉得我遇到的这个需求，比我之前做的那个大作业要简单一些，也更加常见，如果你是编译原理老师，可以考虑把它作为大作业，或者大作业前的一次 “小大作业”。</p>
+<p>编译原理的课程并不难，既然有缘再次遇到类似的问题，可以寻求编译原理的帮助，不如趁此机会重新复习一遍。大学很多课程里学到的知识，一开始确实会觉得没什么用，没事，先学了再说，等遇到相关问题的时候，你会发现自己可以想起能够使用什么手段解决，虽然比较笼统，但是大致有个方向，这还是很不错的。<strong>所以如果你还是在校学生，一定要好好学习哦。</strong></p>
+<p>2025-03-19 19:42:48：真的用上了 <a href="https://www.tr0y.wang/2025/03/19/SecMap-ReDos/">SecMap - ReDos</a></p>
+<p>这个系列是比较入门的，所以只专注于知识本身，会略掉一些的背景知识，也可能会有一些错误，希望各位大佬各位海涵。至于课程，我推荐网易公开课的这个：</p>
+<p>https://mooc.study.163.com/course/1000002001</p>
+<p>2 倍速看一遍也挺快的，各位如果有时间还是建议看一下。好了其他的就不说了，开始吧。</p>
+<h2 id="编译器的阶段划分">编译器的阶段划分</h2>
+<p>作为系列的第一篇，先简单介绍一下整体的知识点。按照惯例，最后一篇会有一个思维导图做总结。</p>
+<p>这是一个简单编译器的阶段划分：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210308162752.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>先看红色的路线，源程序作为编译器的输入，编译器负责把源程序翻译成目标程序输出。如果我们再进一步看的详细一些，在黄色线路里，编译器中做了什么事情呢？首先包含了一个前端和一个后端，源程序作为前端的输入，生成一个“中间表示”，后端接收中间表示，产出目标程序；更细节的，前端具体做了什么事情呢？蓝色路线，首先，源程序输入给词法分析器，生成 “记号”，也就是通常说的，词法分析器分析一个字符流，切分，生成记号流，输入给语法分析器，语法分析器生成抽象语法树，传给语义分析器，最后生成中间表示。</p>
+<p>如果看不懂，别着急，这些流程都会讲到。</p>
+<h2 id="词法分析器">词法分析器</h2>
+<p>那么第一篇自然就要从词法分析器开始。</p>
+<p>上面提到，词法分析器接受字符流，产出记号流。举个例子：<br />
+<figure class="highlight gml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gml"><span class="hljs-keyword">if</span> (<span class="hljs-variable language_">x</span> &gt; <span class="hljs-number">5</span>)<br>    <span class="hljs-variable language_">y</span> = <span class="hljs-string">&#x27;1&#x27;</span>;<br><span class="hljs-keyword">else</span><br>    <span class="hljs-variable language_">y</span> = <span class="hljs-string">&#x27;0&#x27;</span>;<br></code></pre></td></tr></table></figure><br />
+那么在词法分析器看来，这就是一个字符流：<code>if (x &gt; 5)\n    y = '1';\nelse\n    y = '0';</code>。那么词法分析器是怎么处理字符流的呢，它会将记号流切分为多个小块，然后识别里面的关键字、标识符、数字等等，将它们分类。经过分类之后，这个字符流，在词法分析器看起来是这样的：<br />
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs scss">IF LPAREN <span class="hljs-built_in">IDENT</span>(x) GT <span class="hljs-built_in">INT</span>(<span class="hljs-number">5</span>) RPAREN<br>    <span class="hljs-built_in">IDENT</span>(y) ASSIGN <span class="hljs-built_in">STRING</span>(&#x27;<span class="hljs-number">1</span>&#x27;) SEMICOLON<br>ELSE<br>    <span class="hljs-built_in">IDENT</span>(y) ASSIGN <span class="hljs-built_in">STRING</span>(&#x27;<span class="hljs-number">0</span>&#x27;) SEMICOLON<br></code></pre></td></tr></table></figure></p>
+<p>那么这就是记号流了，上面全大写的，就被称为一个 <code>记号</code>。具体来解释一下，对于记号流里面的记号，有些是比较明显的，例如我们知道 <code>IF</code> 这个记号，肯定对应的是 <code>if</code>，<code>GT</code> 对应的是 <code>&gt;</code>，那么还有另外一些比较特殊的，比如 <code>IDENT</code>，它是标识符，那么我们知道标识符可以有很多种，是一个很大的集合，比如你可以把变量取名叫 <code>x</code> 或者是 <code>xx</code>，所以我们还需要额外的信息去记录它具体是什么，所以这里是 <code>IDENT(x)</code>。与 <code>IDENT</code> 类似的还有 <code>INT</code>、<code>STRING</code>，就不多说了。</p>
+<p>那么，词法分析器的任务就很清晰了，那么接下来，就是详细的知识点了。</p>
+<h3 id="词法分析器的实现">词法分析器的实现</h3>
+<p>词法分析器有两大类实现方案：</p>
+<ol type="1">
+<li>手动构造
+<ul>
+<li>复杂，容易出错（毕竟一种语言的规则通常都比较多）</li>
+<li>比较可控，是主流的方案（GCC、LLVM 等采用此办法）</li>
+</ul></li>
+<li>自动构造
+<ul>
+<li>构造速度快，工作量少（可以搞个 demo）</li>
+<li>细节难以控制</li>
+</ul></li>
+</ol>
+<p>这里先介绍手动构造的方法。</p>
+<h4 id="手动构造">手动构造</h4>
+<p><code>状态转移图</code>是一个非常重要的概念。假设我们在分析一个语言，它有以下运算符：<code>&lt;</code>、<code>&gt;</code>、<code>&lt;=</code>、<code>&gt;=</code>、<code>&lt;&gt;</code>(不等于)，那么可以画出状态转移图示例如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210308172901.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>圆圈里的数字代表了这个节点是第几个状态，比如蓝色的就是状态 0。那么我们来看状态 1，例如词法分析器读入的第一个字符是 <code>&lt;</code>，那么我们没法判断它到底是 <code>&lt;</code>，还是 <code>&lt;=</code> 或者是 <code>&lt;&gt;</code>，所以还需要继续往后看，那么其中比较特殊的是 4，上面有个 <code>*</code>，代表的是回滚一个字符，因为走到 4 的时候，不管从输入字符流中拿的是什么，都是 <code>&lt;</code>，所以这时应该回滚，避免消耗了字符，却没有用到。</p>
+<p>那么同样，我们也可以画出 C 语言标识符的状态转移图：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210308173712.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么问题来了，对于 C 语言来说，<code>if</code> 是一个关键字，不应该当做标识符使用，所以在识别标识符的时候，应该去掉规定的关键字。</p>
+<p>有两种办法，第一种是，if 开头的情况单独拎出来，然后完成状态转移图，例如：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210310164825.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+当然，这里的状态 4 其实也不是真正的终点，毕竟类似 <code>ifxy</code> 的字符也是有可能出现的，所以这种方法还是稍微麻烦了一些。</p>
+<p>第二种，由于我们知道，关键字是标识符的一部分，所以可以先不考虑关键字，统一按照标识符来进行识别，等识别完成之后，查表判断一下这个标识符是不是关键字，O(1) 即可完成，非常简便。</p>
+<h4 id="自动构造">自动构造</h4>
+<p>自动构造的流程非常简单：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">声明式规范 <span class="hljs-operator">=</span>&gt; 某工具 <span class="hljs-operator">=</span>&gt; 词法分析器<br></code></pre></td></tr></table></figure></p>
+<p>接下来逐个介绍每个环节内部的一些细节：</p>
+<h5 id="声明式规范">声明式规范</h5>
+<p>这里的 <code>声明式规范</code>，就是我们熟知的<code>正则表达式</code>。这里给出更加规范的定义：<br />
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs markdown">对于给定的字符集：Σ = &#123;c1, c2, ..., cn&#125;，有<br><span class="hljs-bullet">1.</span> ε（空字符串）是正则表达式<br><span class="hljs-bullet">2.</span> 对于任意 c ∈ Σ，c 是正则表达式<br><span class="hljs-bullet">3.</span> 如果 M、N 是正则表达式，那么以下都是正则表达式<br><span class="hljs-bullet">   -</span> 选择：M | N == &#123;M, N&#125;<br><span class="hljs-bullet">   -</span> 连接：MN == &#123;mn | m ∈ M, n ∈ N&#125;<br><span class="hljs-bullet">   -</span> 闭包：M* == &#123;ε, M, MM, MMM, ...&#125;<br></code></pre></td></tr></table></figure></p>
+<p>这里举几个例子，例如我们想表达 C 语言里的关键字 <code>if</code>，正则表达式应该是什么样的呢？非常简单，就是 <code>if</code>。那么标识符应该怎么表示呢？标识符应该是以字母或者下划线开头，后面跟 0 个或者多个字母/数字/下划线，所以显然是：<br />
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">(a|<span class="hljs-string">b</span>|<span class="hljs-string">c</span>|<span class="hljs-string">...</span>|<span class="hljs-string">z</span>|<span class="hljs-string">A</span>|<span class="hljs-string">B</span>|<span class="hljs-string">...</span>|<span class="hljs-string">Z</span>|<span class="hljs-string">_)(a</span>|<span class="hljs-string">b</span>|<span class="hljs-string">c</span>|<span class="hljs-string">...</span>|<span class="hljs-string">z</span>|<span class="hljs-string">A</span>|<span class="hljs-string">B</span>|<span class="hljs-string">...</span>|<span class="hljs-string">Z</span>|<span class="hljs-string">_</span>|<span class="hljs-string">0</span>|<span class="hljs-string">1</span>|<span class="hljs-string">...</span>|<span class="hljs-string">9)*</span><br></code></pre></td></tr></table></figure></p>
+<p>为了篇幅，我省去中间的字符，用省略号代替。那么我们会发现一个非常明显的问题：太长了。所以为了简化正则表达式，就有了正则表达式的语法糖：<br />
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs llvm"><span class="hljs-number">1</span>. [<span class="hljs-keyword">c</span><span class="hljs-number">1</span>-cn] <span class="hljs-operator">=</span><span class="hljs-operator">=</span> <span class="hljs-keyword">c</span><span class="hljs-number">1</span>|<span class="hljs-keyword">c</span><span class="hljs-number">2</span>|...|cn<br><span class="hljs-number">2</span>. <span class="hljs-keyword">c</span>+ <span class="hljs-operator">=</span><span class="hljs-operator">=</span> 一个或者多个 <span class="hljs-keyword">c</span><br><span class="hljs-number">3</span>. <span class="hljs-keyword">c</span>? <span class="hljs-operator">=</span><span class="hljs-operator">=</span> 一个或者零个 <span class="hljs-keyword">c</span><br><span class="hljs-number">4</span>. <span class="hljs-string">&quot;c*&quot;</span> <span class="hljs-operator">=</span><span class="hljs-operator">=</span> 就是 <span class="hljs-keyword">c</span>* 本身，不是闭包，类似转义<br><span class="hljs-number">5</span>. <span class="hljs-keyword">c</span>&#123;i<span class="hljs-punctuation">,</span> j&#125; <span class="hljs-operator">=</span><span class="hljs-operator">=</span> i 个到 j 个 <span class="hljs-keyword">c</span> 的连接<br><span class="hljs-number">6</span>. 点 (.) <span class="hljs-operator">=</span><span class="hljs-operator">=</span> 除了 &#x27;\n&#x27; 之外的任意字符<br></code></pre></td></tr></table></figure></p>
+<p>这就是我们常用的正则表达式。</p>
+<h5 id="某工具">某工具</h5>
+<p>“某工具”，常见的有 lex、flex、jlex 等。对比与手动构造，我们不需要再去自己实现状态转移图，只需要说明我们想要的东西，然后输入给这个工具，这个工具就会生成一个我们想要的词法分析器。所以，如果我们选用自动构造，那么词法分析器的工作就变成了如何去声明式规范。</p>
+<h5 id="自动机">自动机</h5>
+<p>那么“某工具”的输出是什么呢？这就引出了 <code>有限状态自动机</code>。</p>
+<p>有限状态自动机（FA）非常简单：<br />
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs livescript">输入的字符串 =&gt; FA =&gt; <span class="hljs-literal">yes</span>/<span class="hljs-literal">no</span><br></code></pre></td></tr></table></figure></p>
+<p>即，FA 会告诉你，它能不能接受或者说识别你输入的字符串，可以回答 yes，否则回答 no。更加规范的描述是：<br />
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">M = (Σ, S, q0, F, δ)<br><br><span class="hljs-bullet">- </span>Σ: 字母表<br><span class="hljs-bullet">- </span>S: 状态集<br><span class="hljs-bullet">- </span>q0: 初始状态 <br><span class="hljs-bullet">- </span>F: 终结状态集<br><span class="hljs-bullet">- </span>δ: 转移函数<br></code></pre></td></tr></table></figure></p>
+<h6 id="确定状态的有限状态自动机dfa">确定状态的有限状态自动机（DFA）</h6>
+<p>有点抽象吧？举个例子：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210310184236.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>对于这个图来说：<br />
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs livescript">- Σ: &#123;a, b&#125;<br>- S: &#123;<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>&#125;<br>- q0: &#123;<span class="hljs-number">0</span>&#125;<br>- F: &#123;<span class="hljs-number">2</span>&#125;<br>- δ: &#123;<br>  <span class="hljs-function"><span class="hljs-params">(q0, a)</span> -&gt;</span> q1,<br>  <span class="hljs-function"><span class="hljs-params">(q0, b)</span> -&gt;</span> q0,<br>  <span class="hljs-function"><span class="hljs-params">(q1, a)</span> -&gt;</span> q2,<br>  <span class="hljs-function"><span class="hljs-params">(q1, b)</span> -&gt;</span> q1,<br>  <span class="hljs-function"><span class="hljs-params">(q2, a)</span> -&gt;</span> q2,<br>  <span class="hljs-function"><span class="hljs-params">(q2, b)</span> -&gt;</span> q2,<br>&#125;<br></code></pre></td></tr></table></figure></p>
+<p>接受的定义是，输入串消耗完毕之后，最后的状态一定要是终结状态，假如输入的字符串 <code>S = abab</code>，那显然是可以被接受的。</p>
+<p>我们再详细地看它的转移函数，每个状态，遇到特定的一个输入，都只有一个路线可以走，那么这种 FA 就叫做 <code>DFA</code>。</p>
+<h6 id="非确定状态的有限状态自动机nfa">非确定状态的有限状态自动机（NFA）</h6>
+<p>再来看一个更有意思的例子：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210310185146.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>状态 0，假如给一个输入是 a，那么它既可以到达状态 0，也可以到达状态 1；对于状态 1 来说，如果遇到 b 那么也有 2 条路可以走。所以，这个自动机是非确定性的，即 <code>NFA</code>。</p>
+<p>来看上面 DFA 与 NFA 的对比，主要的区别就在于判断 “接受” 的难度不同。由于 NFA，走的路线多种多样，我们就需要不断尝试，如果在某一条路线上不能被接受，NFA 不能直接回答 “no”，而是需要回滚路线，重新尝试，直到所有可能路线都无法接受，才能回答 “no”。例如，假设输入 <code>S = a</code>，那么如果选择走 a 回到状态 0，此时输入完毕，而状态是 0，不是终结状态 1，所以呢，应该回答 no；但是如果选择走 a 到达状态 1，则可以接受。在这里，我们应该选择后者，因为不管怎么走，只要能走到终结状态，就应该被接受。</p>
+<p>那么显然，我们更喜欢 DFA，因为实现起来更加简单，并且 NFA 是可以转换为 DFA 的，具体的我们后面再说。</p>
+<p><br><br />
+<br></p>
+<p>回到最开始的那个流程：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">声明式规范 <span class="hljs-operator">=</span>&gt; 某工具 <span class="hljs-operator">=</span>&gt; 词法分析器<br></code></pre></td></tr></table></figure></p>
+<p>经过我们上面的介绍，就可以具体化为：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">正则表达式（re） <span class="hljs-operator">=</span>&gt; NFA <span class="hljs-operator">=</span>&gt; DFA <span class="hljs-operator">=</span>&gt; 词法分析器代码<br></code></pre></td></tr></table></figure></p>
+<p>那么这些转换是怎么实现的呢？</p>
+<h5 id="re-nfa">re =&gt; NFA</h5>
+<p>常用的是 <code>Thomson 算法</code>。基本方式是递归：</p>
+<ol type="1">
+<li>对于基本的 re，直接构造</li>
+<li>对于复合的 re，递归构造</li>
+</ol>
+<p>回想一下，上面提到的正则表达式，有这几种可能（e 均为正则表达式）：</p>
+<ol type="1">
+<li>ε，即空字符串</li>
+<li>c，即单个字符</li>
+<li>e1e2，连接</li>
+<li>e1|e2，选择</li>
+<li>e1*，闭包</li>
+</ol>
+<p>对于前两种，是基本的 re，可以直接构造：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210310195458.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>对于 3，就要复合构造了。首先，直接拼接 2 个基本构造，中间使用 ε 连接即可，即第一行所示：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210311111803.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么显然，对于后面那个基本构造，原先的初始状态 0 不再是初始状态；对于前面那个基本构造，终结状态 1 不再是终结状态，所以调整之后就变成了第二行的形式。那么你可能会想，为什么不简化为第三行的形式呢？直接去掉 ε，多简洁？其实第二行与第三行，本质上是完全一样的，但是第二行用代码实现起来比较容易，形式统一，所以不化简更好，因为我们后面的流程中，会专门对状态转移图进行化简，所以现在不要去做节点的合并。在画这种图的时候，还注意一下，使得一个状态发生转移的情况，只能有一种，如果必须要加一种新的情况，则要改成加一个新的节点，然后用 ε 连接这两个节点。</p>
+<p>比如 <code>e1|e2</code> 画成这样，其实也可以：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210311112552.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但是就有 2 种情况可以使得状态 0 发生转移，所以我们可以新加一个节点，<code>e1|e2</code> 就是这样：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210310200849.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>对于 <code>e1*</code>，就是这样：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210315110457.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>有了这 5 种基本构造之后，我们就可以构造更加复杂的正则表达式了，比如 <code>a(b|c)*</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210311115605.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，Thomson 算法理解起来比较容易，代码实现就是递归，比较方便，所以 re 转换成 NFA 确实是不难的。</p>
+<h5 id="nfa-dfa">NFA =&gt; DFA</h5>
+<p>之前也提到过，NFA 不好直接用于构造词法分析器，因为会有大量的回溯。NFA 转换成 DFA 的算法为 <code>子集构造算法</code>。</p>
+<p>以 <code>a(b|c)*</code> 为例子：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210311115605.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>我们用 n 来代表状态。首先，把定义一个集合 q0，只包含初始节点。然后，对于这个集合里面的 n0，我们考虑它在接受什么字符的时候，可以转移到哪些状态。那么只要有一个输入 <code>a</code>，它就可以走到 n1。但是从 n1 后面到 n2，其实是不需要消耗字符的，所以 n0 如果可以走到 n1，那么它必然也可以走到 n2，因为它不需要读取输入，根据这个思路，那么 n0 消耗一个 <code>a</code> 之后，可以走到的节点有 <code>&#123;n1, n2, n3, n4, n6, n9&#125;</code>：<br />
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs armasm">&#123;n0&#125;, 记为 <span class="hljs-built_in">q0</span><br><span class="hljs-symbol">n0</span> + a: &#123;n1, n2, n3, n4, n6, n9&#125;, 记为 <span class="hljs-built_in">q1</span><br></code></pre></td></tr></table></figure><br />
+接着同理，我们考虑 q1 里面所有状态，接收到所有可能的输入后（注意不能是 ε），可以走到的节点：<br />
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs css">&#123;n0&#125;, 记为 q0<br>n0 + <span class="hljs-selector-tag">a</span>: &#123;n1, n2, n3, n4, n6, n9&#125;, 记为 q1<br>q1 + <span class="hljs-selector-tag">b</span>: &#123;n5, n8, n9, n3, n4, n6&#125;, 记为 q2<br>q2 + <span class="hljs-selector-tag">b</span>: &#123;n5, n8, n9, n3, n4, n6&#125;, 记为 q3<br></code></pre></td></tr></table></figure></p>
+<p>那么，大家可以发现，q2、q3 实际上是一样的，那么这条分支就可以停止了。接下来应该求解 <code>q1 + c</code> 了，具体的过程就不多写了。需要注意的是，由于 q1 中含有原终结状态 9，所以，状态集 q1 就是一个终结状态。</p>
+<p>在上面的过程中，我们求解都有 2 个步骤：</p>
+<ol type="1">
+<li>状态集消耗一个字符，能够走到的状态集。所以很明显，这里要消耗，所以不能是 ε，并且只能消耗一个。</li>
+<li>得到步骤 1 中的状态集之后，还需要考虑，这里面的所有节点，通过 ε 能走到的所有状态。注意，这里的每个状态，只要可以通过 ε 走，就必须一直走下去，我们把这个步骤称为求解 <code>ε-闭包</code>。这一步得到状态集的就是最后的结果。</li>
+</ol>
+<p>上面我们提到了，这个算法在得出状态集之后，如果发现这个状态集之前遇到过，那么就不继续深入了。现在的问题是，这个算法一定会运行结束吗？会不会死循环呢？其实是不会的，因为其实最多只会生成 2^n 个状态集，n 是状态转移图里的状态数量，所以这个算法在生成所有状态集之后，就停止了，并且这是最糟糕的情况，实际情况中，不太可能有所有状态的组合。例如我们上面那个例子，状态转移图里的状态数量一共是 10 个，理论上会生成 <code>2^10 = 1024</code> 个不同的 q，肯定没有这么多。</p>
+<p>经过求解呢，我们就可以得到这么一个状态转移图：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210311195310.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h5 id="dfa-词法分析器代码">DFA =&gt; 词法分析器代码</h5>
+<p>在上一步我们通过 NFA 的转换，得到了一个 DFA：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210311195310.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>在变成最后的词法分析器代码之前，首先需要进行最小化。</p>
+<blockquote>
+<p>DFA 的最小化</p>
+</blockquote>
+<p>仔细看的话，实际上有些状态是可以进行合并的。q2 可以通过 b 到 q2，也可以通过 c 到 q3；q3 可以通过 c 到 q3，也可以通过 b 到 q2。所以 q2 和 q3 其实是可以合并的。合并完 q2、q3 得到 q4 之后我们会发现，q1 和 q4 同样可以合并，整个过程如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210311195709.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>最终我们的 DFA 状态就是最简洁的形式，直观地看起来，可以轻松地与 <code>a(b|c)*</code> 的含义对上。</p>
+<p>那么，这个应该怎么用代码实现呢？最有名的就是 <code>Hopcroft 算法</code> 了，它的基本思想就是，合并状态。来举个例子，<code>f(ee|ie)</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210312143353.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<ol type="1">
+<li>首先把整个状态，按照接受状态和非接受状态进行划分，分别得到 N、A，即：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210312143604.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>那么首先，q3、q5 都无法接受字符继续往下，所以 A 是不可分割的</li>
+<li>由于 q2、q4 都可以接受 e 这个字符，转移至 A，所以 q2、q4 就是一个等价状态，可以合并：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210312144220.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>对于 N1 来说，由于 q1 接收的是 e 转移到 N2，而 q0 就不行，所以要继续拆分：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210312144734.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>最后得到：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210312144743.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+</ol>
+<p>大家可能会在想，具体实现起来，怎么知道 N1 会被 e 或者 i 分割呢？最粗暴的就是直接遍历所有可能的字符，看 N1 是否会被某个字符分割，例如 C 的标识符，只能是 ASCII 码，也就 256 种可能性。</p>
+<p>最小化之后，就剩下最后一步了，将前面得到的最小化的 DFA 实际上是一个数据结构。</p>
+<blockquote>
+<p>DFA 转为词法分析器代码</p>
+</blockquote>
+<p>DFA，它实际上是一个有向图。具体用代码实现起来，有几种方式：</p>
+<ol type="1">
+<li>转移表（类似邻接矩阵）</li>
+<li>跳转表</li>
+<li>...</li>
+</ol>
+<p>没有通用的标准，大家按照实际情况选择。下面依旧是以 <code>a(b|c)*</code> 为例：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210312173013.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>首先来看 <code>转移表</code>。</p>
+<table>
+<thead>
+<tr class="header">
+<th>状态</th>
+<th>a</th>
+<th>b</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>1</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td></td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>a、b、c 代表可能使得状态发送转移的字符；0、1 代表状态，对于表中不存在的字符，统一返回 error 即可。</p>
+<p>那么对应的代码就可以是这样：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">next_token</span>(<span class="hljs-params">string</span>):<br>    token = []<br>    loc = [<span class="hljs-number">0</span>]<br><br>    <span class="hljs-keyword">while</span> string:<br>        char = string.pop()<br>        new_loc = table[loc[-<span class="hljs-number">1</span>]].get(char, <span class="hljs-literal">None</span>)<br>        <span class="hljs-keyword">if</span> new_loc <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>            string.append(char)<br>            <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">else</span>:<br>            token.append(char)<br>            loc.append(new_loc)<br><br>    <span class="hljs-keyword">while</span> <span class="hljs-built_in">len</span>(loc) &gt; <span class="hljs-number">1</span>:<br>        new_loc = loc.pop()<br>        <span class="hljs-keyword">if</span> new_loc <span class="hljs-keyword">in</span> end_status:<br>            <span class="hljs-comment"># 产出 token 之后，是终结状态</span><br>            <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">else</span>:<br>            string.append(token.pop())<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(token)<br><br><br>table = &#123;<br>  <span class="hljs-number">0</span>: &#123;<br>    <span class="hljs-string">&#x27;a&#x27;</span>: <span class="hljs-number">1</span>,<br>  &#125;,<br>  <span class="hljs-number">1</span>: &#123;<br>    <span class="hljs-string">&#x27;b&#x27;</span>: <span class="hljs-number">1</span>,<br>    <span class="hljs-string">&#x27;c&#x27;</span>: <span class="hljs-number">1</span>,<br>  &#125;<br>&#125;<br><br><span class="hljs-comment"># 终结状态集</span><br>end_status = [<span class="hljs-number">1</span>]<br><br>string = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;S = &quot;</span>))[::-<span class="hljs-number">1</span>]<br><br><span class="hljs-keyword">while</span> string:<br>    token = next_token(string)<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> token:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;invalid string: <span class="hljs-subst">&#123;<span class="hljs-string">&quot;&quot;</span>.join(string[::-<span class="hljs-number">1</span>])&#125;</span>&#x27;</span>)<br>        <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;got token: <span class="hljs-subst">&#123;token&#125;</span>&#x27;</span>)<br><br></code></pre></td></tr></table></figure></p>
+<p>接下来，来看 <code>跳转表</code> 的实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">python 没有 goto 语句，可以借助第三方库完成</span><br><span class="hljs-string">pip install goto-statement</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><br><span class="hljs-keyword">from</span> goto <span class="hljs-keyword">import</span> with_goto<br><br><br><span class="hljs-meta">@with_goto</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">next_token</span>(<span class="hljs-params">string</span>):<br>    token = []<br>    goto .q0<br><br>    label .q0<br>    char = string.pop()<br>    <span class="hljs-keyword">if</span> char <span class="hljs-keyword">in</span> [<span class="hljs-string">&#x27;a&#x27;</span>]:<br>        token.append(char)<br>        goto .q1<br>    <span class="hljs-keyword">else</span>:<br>        string.append(char)<br><br>    label .q1<br>    <span class="hljs-keyword">if</span> string:<br>      char = string.pop()<br>      <span class="hljs-keyword">if</span> char <span class="hljs-keyword">in</span> [<span class="hljs-string">&#x27;b&#x27;</span>, <span class="hljs-string">&#x27;c&#x27;</span>]:<br>          token.append(char)<br>          goto .q1<br>      <span class="hljs-keyword">else</span>:<br>          string.append(char)<br>  <br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(token)<br><br><br>string = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;S = &quot;</span>))[::-<span class="hljs-number">1</span>]<br><br><span class="hljs-keyword">while</span> string:<br>    token = next_token(string)<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> token:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;invalid string: <span class="hljs-subst">&#123;<span class="hljs-string">&quot;&quot;</span>.join(string[::-<span class="hljs-number">1</span>])&#125;</span>&#x27;</span>)<br>        <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;got token: <span class="hljs-subst">&#123;token&#125;</span>&#x27;</span>)<br><br></code></pre></td></tr></table></figure>
+<p>可以看到，跳转表不需要预先存储 table，利用一个 goto 块代表一个节点，所以更加省内存，如果是一个大型的项目，可能 table 就很大了。但是也要看到，这种实现方式不是很通用，不但 goto 语句并不是所有编程语言都有，而且往往不同的状态转移图需要写不同的 goto 块，我这上面写的跳转表代码还没考虑到回滚的问题，大家有时间可以尝试实现一下这种状态转移图：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（一）：词法分析/20210315103950.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>需要注意的是，实现要遵循 <code>最长匹配原则</code>，如果输入的是 <code>ififii</code>，那么识别出的 token 应该是合法的 <code>ifif</code> 和非法的 <code>ii</code>。如果你使用转移表来完成，则只需要修改 table 就好了；如果要用跳转表，要修改的东西就多咯，所以我还是建议大家使用转移表。</p>
+<h2 id="总结">总结</h2>
+<p>词法分析到这就结束啦，只要写好正则，然后画出状态转移图，把这个 NFA 转为 DFA，最小化一下，再用转移表实现即可。有了词法分析器之后，下一篇自然就是语法分析器咯，橘友们敬请期待~</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">距离上一篇文章发布差不多有一个月半了<br>原因是这次尝试写完整个系列一起发<br>编译原理系列一共有四篇<br>也就是接下来三天<br>都！<br>有！<br>新的文章！</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">#编译原理</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>编译原理（一）：词法分析</div>
+      <div>https://www.tr0y.wang/2021/04/01/编译原理（一）：词法分析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年4月1日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年3月19日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/04/02/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E4%B9%8B%E8%87%AA%E9%A1%B6%E5%90%91%E4%B8%8B%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95/" title="编译原理（二）：语法分析之自顶向下分析算法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">编译原理（二）：语法分析之自顶向下分析算法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/02/22/about-dashboard/" title="小议 Dashboard">
+                        <span class="hidden-mobile">小议 Dashboard</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

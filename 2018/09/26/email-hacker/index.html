@@ -1,0 +1,1095 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="想必熟悉 kali 或者接触过 smtp 相关分析的人都听说过 Swaks 这个工具。它号称 SMTP 界的瑞士军刀。工具会使固然厉害，但是不知道原理总觉得缺了点什么。于是我就用 Python 自己写了一个类似的工具，加上了邮件炸弹的功能，顺带分析一波原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="伪造电子邮件以及制造电子邮件炸弹的攻防探讨">
+<meta property="og:url" content="https://www.tr0y.wang/2018/09/26/email-hacker/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="想必熟悉 kali 或者接触过 smtp 相关分析的人都听说过 Swaks 这个工具。它号称 SMTP 界的瑞士军刀。工具会使固然厉害，但是不知道原理总觉得缺了点什么。于是我就用 Python 自己写了一个类似的工具，加上了邮件炸弹的功能，顺带分析一波原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926032127345.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926033046062.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926033109564.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926034525047.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926034938455.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926034952214.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035008621.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035029984.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/1540348953.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/1540348955.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035107935.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035116773.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041011992.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041021292.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041034442.png!blog">
+<meta property="og:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041045421.png!blog">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2018-09-26T15:18:11.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926032127345.png!blog">
+  
+  
+  
+  <title>伪造电子邮件以及制造电子邮件炸弹的攻防探讨 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="伪造电子邮件以及制造电子邮件炸弹的攻防探讨"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-09-26 15:18" pubdate>
+          2018年9月26日 15:18:11
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="知识输出"
+        id="heading-77f0ee1b8a872569d52f43f678e2970f" role="tab" data-toggle="collapse" href="#collapse-77f0ee1b8a872569d52f43f678e2970f"
+        aria-expanded="true"
+      >
+        知识输出
+        <span class="list-group-count">(16)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-77f0ee1b8a872569d52f43f678e2970f"
+           role="tabpanel" aria-labelledby="heading-77f0ee1b8a872569d52f43f678e2970f">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/13/fake_toa/" title="ChatGPT 指导下的 TOA 伪造之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ChatGPT 指导下的 TOA 伪造之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/14/MATLABstegsolve/" title="MATLAB 实现 stegsolve"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">MATLAB 实现 stegsolve</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/29/ReIPdog/" title="ReIPdog - 查询旁站的脚本"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ReIPdog - 查询旁站的脚本</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/01/28/WlanSniffer/" title="WLANSniffer"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">WLANSniffer</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/04/parselmouth/" title="parselmouth 介绍"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">parselmouth 介绍</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/08/09/SwSpider/" title="书蜗抢座爬虫"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">书蜗抢座爬虫</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/09/26/email-hacker/" title="伪造电子邮件以及制造电子邮件炸弹的攻防探讨"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">伪造电子邮件以及制造电子邮件炸弹的攻防探讨</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/08/09/SwRenew/" title="利用书蜗自动续借图书"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">利用书蜗自动续借图书</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/02/FireTSP/" title="模拟退火之 TSP 问题"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">模拟退火之 TSP 问题</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/03/FireFunction/" title="模拟退火之函数最值"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">模拟退火之函数最值</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%9F%A5%E8%AF%86%E8%BE%93%E5%87%BA/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">伪造电子邮件以及制造电子邮件炸弹的攻防探讨</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>想必熟悉 kali 或者接触过 smtp 相关分析的人都听说过 Swaks 这个工具。它号称 SMTP 界的瑞士军刀。工具会使固然厉害，但是不知道原理总觉得缺了点什么。于是我就用 Python 自己写了一个类似的工具，加上了邮件炸弹的功能，顺带分析一波原理。</p>
+<span id="more"></span>
+<p>此篇文章已在 <a target="_blank" rel="noopener" href="http://www.freebuf.com/sectool/184555.html">freebuf</a> 发表。</p>
+<h2 id="smtp-协议">SMTP 协议</h2>
+<p>SMTP 协议即简单邮件传输协议，属于 TCP/IP 协议簇，它是一组用于由源地址到目的地址传送邮件的规则，由它来控制信件的中转方式。SMTP 服务器则是遵循 SMTP 协议的发送邮件服务器，用来发送或中转发出的电子邮件。</p>
+<p>SMTP 模型如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926032127345.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>为了与 SMTP 服务器通信，我们先获取 163.com 的 SMTP 服务器地址：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs stylus">&gt; nslookup -q=MX <span class="hljs-number">163</span><span class="hljs-selector-class">.com</span><br>Server:   <span class="hljs-number">202.117</span>.<span class="hljs-number">112.3</span><br>Address:  <span class="hljs-number">202.117</span>.<span class="hljs-number">112.3</span>#<span class="hljs-number">53</span><br><br>Non-authoritative answer:<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> mail exchanger = <span class="hljs-number">10</span> <span class="hljs-number">163</span>mx01<span class="hljs-selector-class">.mxmail</span><span class="hljs-selector-class">.netease</span><span class="hljs-selector-class">.com</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> mail exchanger = <span class="hljs-number">10</span> <span class="hljs-number">163</span>mx02<span class="hljs-selector-class">.mxmail</span><span class="hljs-selector-class">.netease</span><span class="hljs-selector-class">.com</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> mail exchanger = <span class="hljs-number">10</span> <span class="hljs-number">163</span>mx03<span class="hljs-selector-class">.mxmail</span><span class="hljs-selector-class">.netease</span><span class="hljs-selector-class">.com</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> mail exchanger = <span class="hljs-number">50</span> <span class="hljs-number">163</span>mx00<span class="hljs-selector-class">.mxmail</span><span class="hljs-selector-class">.netease</span><span class="hljs-selector-class">.com</span>.<br><br>Authoritative answers can be found from:<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> nameserver = ns2.<span class="hljs-number">166</span><span class="hljs-selector-class">.com</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> nameserver = ns6<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> nameserver = ns1<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> nameserver = ns8.<span class="hljs-number">166</span><span class="hljs-selector-class">.com</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> nameserver = ns4<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> nameserver = ns3<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span> nameserver = ns5<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br>ns1<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span> internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">123.58</span>.<span class="hljs-number">173.177</span><br>ns3<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span> internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">220.181</span>.<span class="hljs-number">36.234</span><br>ns4<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span> internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">123.125</span>.<span class="hljs-number">48.245</span><br>ns5<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span> internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">121.195</span>.<span class="hljs-number">179.18</span><br>ns6<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span> internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">52.215</span>.<span class="hljs-number">24.44</span><br></code></pre></td></tr></table></figure></p>
+<p>选一个 <code>mail exchanger</code> 即可，一般选数值最小的那个。具体这个数值代表什么含义，简单地说是 <code>MX 记录的值代表邮件的路由过程</code>，具体可在 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/MX%E8%AE%B0%E5%BD%95">维基百科</a> 看看。</p>
+<p>简单的通信过程如下（以 163 邮箱为例；以下返回均为正常情况）：</p>
+<ol type="1">
+<li>第一步是请求建立连接：
+<ul>
+<li><code>telnet：telnet 163mx03.mxmail.netease.com 25</code></li>
+<li>返回：<code>220 163.com Anti-spam GT for Coremail System (163com[20141201])</code></li>
+</ul></li>
+<li>第二步是打开传输通道：
+<ul>
+<li>发送：<code>HELO &lt;domain&gt; &lt;CRLF&gt; 或 EHLO &lt;domain/address-literal&gt; &lt;CRLF&gt;</code>。有什么区别呢？<code>EHLO</code> 更新一些，会返回 smtp 服务器支持的命令，相对比 <code>HELO</code> 要有用，所以基本用的都是 <code>EHLO</code>。<code>HELO/EHLO</code> 命令用于主机介绍它自己，可以被翻译为 <code>Hello, I am &lt;domain&gt;</code>。</li>
+<li>返回：<code>250 OK</code> 或：<br />
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-number">250</span>-mail<br><span class="hljs-number">250</span>-PIPELINING<br><span class="hljs-number">250</span>-AUTH LOGIN PLAIN<br><span class="hljs-number">250</span>-AUTH=LOGIN PLAIN<br><span class="hljs-number">250</span>-co<span class="hljs-comment">remail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2Urz44XGUCa0xDrUUUUj</span><br><span class="hljs-number">250</span>-STARTTLS<br><span class="hljs-number">250</span>-SIZE <span class="hljs-number">73400320</span><br><span class="hljs-symbol">250 </span><span class="hljs-number">8</span>BITMIME<br></code></pre></td></tr></table></figure><br />
+可以看到，<code>EHLO</code> 返回信息更加详细。</li>
+</ul></li>
+<li>第三步是 <code>MAIL</code> 命令：
+<ul>
+<li>发送：<code>MAIL FROM:&lt;发送者邮箱&gt; &lt;CRLF&gt;</code></li>
+<li>返回：<code>250 Mail OK</code></li>
+</ul></li>
+<li>第四步是 <code>RCPT</code> 命令：
+<ul>
+<li>发送：<code>RCPT TO:&lt;接受者邮箱&gt;</code></li>
+<li>返回：<code>250 Mail OK</code></li>
+</ul></li>
+<li>第五步是 <code>DATA</code> 命令：
+<ul>
+<li>发送：<code>DATA &lt;CRLF&gt;</code></li>
+<li>返回：<code>354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;</code></li>
+<li>然后就可以输入邮件内容了，包括主题，邮件正文等等。</li>
+</ul></li>
+<li>第五步结束后，服务端会返回邮件发送成功与否的情况：
+<ul>
+<li>返回：<code>&lt;= 250 Mail OK queued as mx13,P8CowAB3KDAxa5tbCxAiEg--.29768S2 1536912177</code></li>
+</ul></li>
+</ol>
+<p>这样，一封简单的邮件就发出去了。当然，邮件服务器在这个过程中会做各种判断，以免轻易接受垃圾邮件。<br />
+完整的演示如下：<br />
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs excel">&lt;= <span class="hljs-number">220</span> <span class="hljs-number">163</span>.com Anti-spam GT for Coremail System (<span class="hljs-number">163</span>com[<span class="hljs-number">20141201</span>])<br>=&gt; ehlo antispam<br>&lt;= <span class="hljs-number">250</span>-mail<br>&lt;= <span class="hljs-number">250</span>-PIPELINING<br>&lt;= <span class="hljs-number">250</span>-AUTH LOGIN PLAIN<br>&lt;= <span class="hljs-number">250</span>-AUTH=LOGIN PLAIN<br>&lt;= <span class="hljs-number">250</span>-coremail <span class="hljs-number">1</span>Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFQXaMIUCa0xDrUUUUj<br>&lt;= <span class="hljs-number">250</span>-STARTTLS<br>&lt;= <span class="hljs-number">250</span>-SIZE <span class="hljs-number">73400320</span><br>&lt;= <span class="hljs-number">250</span> <span class="hljs-number">8</span>BITMIME<br>=&gt; mail fr<span class="hljs-symbol">om:</span>&lt;hr@huawei.com&gt;<br>&lt;= <span class="hljs-number">250</span> Mail OK<br>=&gt; rcpt <span class="hljs-symbol">to:</span>&lt;手动打码@<span class="hljs-number">163</span>.com&gt;<br>&lt;= <span class="hljs-number">250</span> Mail OK<br>=&gt; data<br>&lt;= <span class="hljs-number">354</span> End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;<br>=&gt; <span class="hljs-symbol">to:</span> 手动打码@<span class="hljs-number">163</span>.com<br>=&gt; fr<span class="hljs-symbol">om:</span> hr@huawei.com<br>=&gt; subje<span class="hljs-symbol">ct:</span> 这是一封垃圾邮件<br>=&gt;<br>=&gt; DKIM？听上去很好吃<br>=&gt; SPF 不是防晒系数吗<br>=&gt; 我觉得 SMTP 很安全啊<br>=&gt; 我们不存在垃圾邮件，那些都是正常的邮件<br>=&gt; 邮件炸弹也是不存在的<br>=&gt; .<br>&lt;= <span class="hljs-number">250</span> Mail OK queued as <span class="hljs-symbol">mx3</span>,NcCowADX4z1_bJtbcsNOQw--.<span class="hljs-number">37583</span>S2 <span class="hljs-number">1536912511</span><br></code></pre></td></tr></table></figure></p>
+<p>邮箱结果：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926033046062.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="Telnet" /></p>
+<p>那么，说了这么多 Telnet 发邮件，和正常发邮件的的方式很不一样。我们都是通过 web 界面或者 GUI 发的，如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926033109564.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="正常发邮件" /><br />
+而我们使用 Telnet 直接发邮件，实际上是在模拟第二个 Send。<br />
+说清楚 SMTP 了，接下来说伪造邮件发件人。</p>
+<h2 id="伪造邮件发件人">伪造邮件发件人</h2>
+<p>回顾之前的 Telnet 发邮件的过程，我们可以看到，我们使用 <code>mail from:</code> 声称自己是 <code>hr@huawei.com</code>，而且 SMTP 协议本身也不要求对此声明做认证，所以伪造就是这样达成的。那么，经过这么多年的发展，厂商有对此做出了什么努力来解决这一问题呢？</p>
+<h3 id="spf发送方策略框架">SPF：发送方策略框架</h3>
+<p>SPF 是为了防范垃圾邮件而提出来的一种 DNS 记录类型，它是一种 TXT 类型的记录，它用于登记某个域名拥有的用来外发邮件的所有 IP 地址。发送人向接收方发送一封电子邮件后，邮件接收服务器接收电子邮件并执行如下操作：</p>
+<blockquote>
+<ol type="1">
+<li>检查哪一个域声称发送了该邮件并检查该域的 SPF 记录的 DNS。</li>
+<li>确定发送服务器的 IP 地址是否与 SPF 记录中的某个已发布 IP 地址相匹配。</li>
+<li>对电子邮件进行打分：如果 IP 地址匹配，则邮件通过身份验证并获得一个正分。如果 IP 地址不匹配，则邮件无法通过身份验证并获得一个负分。然后，对现有的防垃圾邮件筛选策略和启发式筛选应用这些结果。或者直接拒绝接受，返回 550 MI:SPF。</li>
+</ol>
+</blockquote>
+<p>我们查一下 163 的 SPF 记录：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs stylus">&gt; nslookup -q=TXT <span class="hljs-number">163</span><span class="hljs-selector-class">.com</span><br>Server:        <span class="hljs-number">202.117</span>.<span class="hljs-number">112.3</span><br>Address:    <span class="hljs-number">202.117</span>.<span class="hljs-number">112.3</span>#<span class="hljs-number">53</span><br><br>Non-authoritative answer:<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    <span class="hljs-selector-tag">text</span> = <span class="hljs-string">&quot;v=spf1 include:spf.163.com -all&quot;</span><br><br>Authoritative answers can be found from:<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    nameserver = ns5<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    nameserver = ns3<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    nameserver = ns6<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    nameserver = ns1<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    nameserver = ns4<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    nameserver = ns8.<span class="hljs-number">166</span><span class="hljs-selector-class">.com</span>.<br><span class="hljs-number">163</span><span class="hljs-selector-class">.com</span>    nameserver = ns2.<span class="hljs-number">166</span><span class="hljs-selector-class">.com</span>.<br>ns1<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>    internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">123.58</span>.<span class="hljs-number">173.177</span><br>ns3<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>    internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">220.181</span>.<span class="hljs-number">36.234</span><br>ns4<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>    internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">123.125</span>.<span class="hljs-number">48.245</span><br>ns5<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>    internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">121.195</span>.<span class="hljs-number">179.18</span><br>ns6<span class="hljs-selector-class">.nease</span><span class="hljs-selector-class">.net</span>    internet <span class="hljs-selector-tag">address</span> = <span class="hljs-number">52.215</span>.<span class="hljs-number">24.44</span><br></code></pre></td></tr></table></figure></p>
+<p><code>v=spf1 include:spf.163.com -all</code> 是什么意思呢？SPF 记录包含在一个 TXT 记录之中，格式为：<code>v=spf1 [[pre] type [ext] ] ... [mod]</code></p>
+<p>解释一下：</p>
+<ol type="1">
+<li><code>v=spf1</code>：SPF 的版本。如果使用 Sender ID 的话，这个字段就应该是 v=spf2</li>
+<li><code>pre</code>：定义匹配时的返回值。可能的返回值包括：
+<ul>
+<li><code>+</code>：缺省值。在测试完成的时候表示通过。</li>
+<li><code>-</code>：表示测试失败。这个值通常是 -all，表示没有其他任何匹配发生。</li>
+<li><code>~</code>：表示软失败，通常表示测试没有完成。</li>
+<li><code>?</code>：表示不置可否。这个值也通常在测试没有完成的时候使用。</li>
+</ul></li>
+<li>type：定义使用的确认测试的类型：
+<ul>
+<li><code>include</code>：包含一个给定的域名的测试。以 <code>include:domain</code> 的形式书写。</li>
+<li><code>all</code>：终止测试序列。比如，如果选项是 -all，那么到达这条记录也就意味着测试失败了。但是如果无法确定，可以使用 <code>?all</code> 来表示，这样，测试将被接受。</li>
+<li><code>ip4</code>：使用 IPv4 进行验证。这个可以以 <code>ip4:ipv4</code> 或 <code>ip4:ipv4/cidr</code> 的形式使用。</li>
+</ul></li>
+<li><code>ext</code>：定义对 type 的可选扩展。如果没有这个字段，那么仅使用单个记录进行问询。</li>
+<li><code>mod</code>：这是最后的类型指示，作为记录的一个修正值。测试后有以下结果：<br />
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs">通过；SPF 记录指定要允许发送的主机；接受<br>硬失败；SPF 记录已将主机指定为不允许发送；拒绝<br>软失败；SPF 记录已将主机指定为不被允许发送但正在转换；接受但标记<br>中性；SPF 记录明确指出，对有效性无关；接受<br>没有；该域没有 SPF 记录，或者 SPF 记录不对结果进行评估；接受<br></code></pre></td></tr></table></figure><br />
+所以，当我们声称 <code>hr@qq.com</code> 向 163 发送邮件的时候，163 会不予接受（因为 qq 是有 spf 记录的）：<br />
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs excel">&lt;= <span class="hljs-number">220</span> <span class="hljs-number">163</span>.com Anti-spam GT for Coremail System (<span class="hljs-number">163</span>com[<span class="hljs-number">20141201</span>])<br>=&gt; ehlo antispam<br>&lt;= <span class="hljs-number">250</span>-mail<br>&lt;= <span class="hljs-number">250</span>-PIPELINING<br>&lt;= <span class="hljs-number">250</span>-AUTH LOGIN PLAIN<br>&lt;= <span class="hljs-number">250</span>-AUTH=LOGIN PLAIN<br>&lt;= <span class="hljs-number">250</span>-coremail <span class="hljs-number">1</span>Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFsDjanUCa0xDrUUUUj<br>&lt;= <span class="hljs-number">250</span>-STARTTLS<br>&lt;= <span class="hljs-number">250</span>-SIZE <span class="hljs-number">73400320</span><br>&lt;= <span class="hljs-number">250</span> <span class="hljs-number">8</span>BITMIME<br>=&gt; mail fr<span class="hljs-symbol">om:</span>&lt;hr@qq.com&gt;<br>&lt;= <span class="hljs-number">550</span> <span class="hljs-symbol">MI:SP</span>F <span class="hljs-number">163</span> <span class="hljs-symbol">mx45</span>,X8CowEB5qUXsdZtbeT4JTQ--.<span class="hljs-number">35331</span>S2 <span class="hljs-number">1536914924</span> ht<span class="hljs-symbol">tp:</span>//mail.<span class="hljs-number">163</span>.com/help/help_spam_16.htm?ip=手动打码&amp;hostid=<span class="hljs-symbol">mx45</span>&amp;<span class="hljs-built_in">time</span>=<span class="hljs-number">1536914924</span><br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926034525047.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="SPF" /></li>
+</ol>
+<h3 id="dkim-与-dmarc">DKIM 与 DMARC</h3>
+<p>DKIM 是一种防范电子邮件欺诈的验证技术，通过消息加密认证的方式对邮件发送域名进行验证。</p>
+<p>DMARC 是一种基于现有的 SPF 和 DKIM 协议的可扩展电子邮件认证协议，在邮件收发双方建立了邮件反馈机制，便于邮件发送方和邮件接收方共同对域名的管理进行完善和监督。</p>
+<p>感兴趣的话可以自行查阅资料。</p>
+<h3 id="漏网之鱼">漏网之鱼</h3>
+<p>又说了那么多，那么是否有了 SPF 可以一劳永逸呢？其实并不是。拿 163 与 qq 举例，查到发送方的 spf 记录，并且是标记的是硬失败，当然是最好的，直接进行判断。但是如果发送方用的是软失败甚至没有 spf 记录呢？比如 <code>huawei.com</code> 就是软失败：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">huawei.com text = &quot;v=spf1 ip<span class="hljs-number">4:45.249.212</span>.<span class="hljs-number">32</span> ip<span class="hljs-number">4:45.249.212</span>.<span class="hljs-number">35</span> ip<span class="hljs-number">4:119.145.14</span>.<span class="hljs-number">93</span> ip<span class="hljs-number">4:58.251.152</span>.<span class="hljs-number">93</span> ip<span class="hljs-number">4:194.213.3</span>.<span class="hljs-number">17</span> ip<span class="hljs-number">4:206.16.17</span>.<span class="hljs-number">72</span> ip<span class="hljs-number">4:45.249.212</span>.<span class="hljs-number">255</span> ip<span class="hljs-number">4:45.249.212</span>.<span class="hljs-number">187</span>/<span class="hljs-number">29</span> ip<span class="hljs-number">4:45.249.212</span>.<span class="hljs-number">191</span> ip<span class="hljs-number">4:185.176.76</span>.<span class="hljs-number">210</span> ~all&quot;<br></code></pre></td></tr></table></figure>
+<p>如果出现这样的情况，就得看厂商怎么做了，一般来说都是放行，那就有机可乘了。</p>
+<h2 id="邮件炸弹">邮件炸弹</h2>
+<p>说完了伪造发件人，再来说说邮件炸弹。</p>
+<p>电子邮件炸弹是最古老的匿名攻击之一，通过设置一台机器不断的大量的向同一地址发送电子邮件，攻击者能够耗尽接受者网络的宽带。由于这种攻击方式简单易用，也有很多发匿名邮件的工具，而且只要对方获悉你的电子邮件地址就可以进行攻击，所以这是大家最值得防范的一个攻击手段。</p>
+<p>既然能伪造发件人，那么发送邮件炸弹看上去也不难。事实上的确如此。另外，由于大量的请求以及链接，会触发接收方各种抵制。接下来通过邮件炸弹的三种不同的方式谈谈。</p>
+<h3 id="单线程">单线程</h3>
+<p>单线程，发就好了，拿起死循环就是干：<code>while 1: xxxx</code></p>
+<h3 id="多线程短连接">多线程：短连接</h3>
+<p>短连接就是我们最容易想到的，多线程，每个线程发起一次链接请求，发完一封就停止。线程数少点还好，一多就疯狂提示：<code>421 Too many connections</code>。在 <code>ehlo antispam</code> 的时候就被干掉了。实测大多数情况，100 线程发 能成功 20 封就已经很好了。而且发完一封就释放链接，蛮浪费的。而且在 smtp 服务器对频繁的连接请求很敏感的时候， ip 容易被 ban（如 qq）。</p>
+<h3 id="多线程长连接">多线程：长连接</h3>
+<p>设定好线程数后，一旦 <code>ehlo antispam</code> 成功，就不停地重复 <code>mail from</code> 到 <code>data</code>，邮件发送成功后也不释放链接，一直发。若接收方 smtp 服务器强制释放此链接，则重新 <code>ehlo antispam</code>。这样的话，如果不手动停止，就会一直尝试链接、发邮件。轰炸效率 plus。</p>
+<h3 id="email_hacker">email_hacker</h3>
+<p>根据上述的原理以及想法，我自己写了一个命令行的工具： <code>email_hacker</code></p>
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs delphi">usage: email_hack.py [-h] -faddr FROM_ADDRESS -taddr TO_ADDRESS<br>                     [-tnum THREADS_NUM] [-v VERBOSE] [-c CRAZY_MODE]<br><br>optional arguments:<br>  -h, --help            show this help <span class="hljs-keyword">message</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">exit</span><br>  -faddr FROM_ADDRESS, --from_address FROM_ADDRESS<br>                        fake from address<br>  -taddr TO_ADDRESS, --to_address TO_ADDRESS<br>                        the address you want <span class="hljs-keyword">to</span> delivery<br>  -tnum THREADS_NUM, --threads_num THREADS_NUM<br>                        how many threads you want<br>  -v VERBOSE, --verbose VERBOSE<br>                        verbose level<br>  -c CRAZY_MODE, --crazy_mode CRAZY_MODE<br>                        Keep sending fake email <span class="hljs-comment">(** Use with caution **)</span><br></code></pre></td></tr></table></figure>
+<p>详细内容可以到 gayhub 看看：https://github.com/Macr0phag3/email_hack</p>
+<p><strong>伪造邮件效果</strong><br />
+163<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926034938455.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="伪造效果" /></p>
+<p>qq<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926034952214.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="伪造效果" /></p>
+<p><strong>邮件炸弹效果</strong><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035008621.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="炸弹效果" /></p>
+<figure>
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035029984.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="炸弹效果" /><figcaption aria-hidden="true">炸弹效果</figcaption>
+</figure>
+<figure>
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/1540348953.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="no_argv" /><figcaption aria-hidden="true">no_argv</figcaption>
+</figure>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/1540348955.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h2 id="防御">防御</h2>
+<h3 id="伪造邮件发件人-1">伪造邮件发件人</h3>
+<ol type="1">
+<li>厂商：对 spf 记录采用 <strong>硬失败</strong> 的标记。且验证时遇到软失败标记的时候，尽可能拒绝。有可能的话，上 <code>DKIM</code> 与 <code>DMARC</code></li>
+<li>用户：对于很重要的邮件信息，不妨查看一下邮件原文。<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035107935.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="邮件原文" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926035116773.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="邮件原文" /></li>
+</ol>
+<p>若只有一个 Received，且列出的 IP 与宣称的地址不一致，则就是伪造的。虽然 Received 头可以伪造，但是新的 Received 头会添加在消息的头部。<strong>所以，如果存在伪造的 Received，那么它总是在后面。</strong></p>
+<p>若有多个 Received，第一个 Received 中是正规的（网易、腾讯等等）SMTP 服务器 转发过的，那么肯定是经过验证的合法用户才能转发过来，因为这些厂商都不会开匿名转发，此时只需要看 IP 与宣称身份是否一致，一致就 OK。若看着就不正规，则就要小心一些了。</p>
+<p>举 2 个例子：<br />
+未被伪造：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041011992.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="未被伪造" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041021292.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="未被伪造" /><br />
+伪造：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041034442.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="伪造" /><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/email-hacker/20180926041045421.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload alt="伪造" /></p>
+<h3 id="邮件炸弹-1">邮件炸弹</h3>
+<p>对大量并发的连接请求，不但要拒绝，而且要禁止其 IP 一段时间。经过测试，qq 在大量请求后会进行封禁，163 只是拒绝连接，返回类似 “请 15 分钟后再试”，其实还是可以接着发起连接请求的... ╮(╯▽╰)╭。最后，在邮件多次发送失败的时候，直接断开连接，不要保留通道，强制发送端重新发起连接请求。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%9F%A5%E8%AF%86%E8%BE%93%E5%87%BA/" class="category-chain-item">知识输出</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>伪造电子邮件以及制造电子邮件炸弹的攻防探讨</div>
+      <div>https://www.tr0y.wang/2018/09/26/email-hacker/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年9月26日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/10/08/pytrick/" title="Python 进阶">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Python 进阶</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/09/13/py-coding-type/" title="一文说清楚如何处理 Python 的编码">
+                        <span class="hidden-mobile">一文说清楚如何处理 Python 的编码</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1051 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="SecMap - 找回密码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecMap - 找回密码">
+<meta property="og:url" content="https://www.tr0y.wang/2021/04/25/SecMap-%E6%89%BE%E5%9B%9E%E5%AF%86%E7%A0%81/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="SecMap - 找回密码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+<meta property="article:published_time" content="2021-04-25T20:00:00.000Z">
+<meta property="article:modified_time" content="2025-04-15T14:01:31.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="SecMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/secmap.jpg/cover">
+  
+  
+  
+  <title>SecMap - 找回密码 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecMap - 找回密码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-04-25 20:00" pubdate>
+          2021年4月25日 20:00:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SecMap - 找回密码</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>SecMap - 找回密码</p>
+<span id="more"></span>
+<h1 id="secmap---找回密码">SecMap - 找回密码</h1>
+<h2 id="系列开篇">系列开篇</h2>
+<p>1 月份的时候我发过一篇文章，提到我今年最重要的学习计划是整理自己的技能树。思来想去过好几种方式，不管是经典的思维导图，还是比较新的链式笔记，都有各自好与不好的地方。最后还是觉得思维导图最好用，最简单，可移植性比较强，也容易共享。</p>
+<p>整理的方式也让我一度陷入纠结，安全相关的知识实在是太多了，有基础知识，有攻击手段，有检测手段，有预防手段...以及到底要按照漏洞去梳理呢，还是要按照服务/功能去梳理呢？最后确定了一版最合适的分类方案，我打算按照服务按部就班地整理知识点。由于整理还在进行中，所以我也没法做整体详细的规划，最后的结果估计要整理完才能发出来，所以目前我打算先按照每一个知识点走，边整理边发文章，最后再发整体的思维导图，所以每篇文章目前看起来没啥关联性，但到最后就能看到关联性了。</p>
+<p>还有一点要说明的是，由于微信公众号无法更新文章（只能改几个字...），所以这个系列后续的更新都会放到博客上去。</p>
+<p>整个整理计划分为几大块，我给自己的梳理计划起了个名字：<code>SecMap</code>，以后大家看到文章标题是这个开头的就是这个系列的啦。</p>
+<p>这篇是第一篇，先从 http 服务入手：找回密码 功能点。</p>
+<h2 id="功能点介绍">功能点介绍</h2>
+<p>找回密码相关的安全问题，基本上都是逻辑问题。找回密码的途径一般有两种：</p>
+<ol type="1">
+<li>通过回答密保问题重置密码</li>
+<li>通过绑定的手机/邮箱重置密码</li>
+</ol>
+<p>第一种没啥好说的，可以考虑猜解或者社工，有时候数据包里面可能自带了密保答案，比如在 js 里...第二种，现在一般都是往账号绑定的手机发一个 token，或者邮箱发一个重置密码的链接。而发给邮箱的重置密码链接，其实都包含了特殊的参数，本质上也是 token。<strong>所以不管是手机短信验证码还是邮件链接，本文统一称为 token，故本文就以邮箱为例。</strong></p>
+<p>而细分的话又有 2 种形式，一种是不需要输入账号绑定的邮箱，点击忘记密码，后台会自己从数据库中获取账户的邮箱，然后在用户点击确认之后，发送一个 token；另一种是要求用户输入此账号绑定的邮箱，然后再发 token。显然，前者的用户体验更好，也避免了用户不但忘记密码同时还忘记手机号/邮箱的尴尬局面。</p>
+<h2 id="攻击思路">攻击思路</h2>
+<h3 id="客户端直接回显-token">客户端直接回显 Token</h3>
+<p>有些程序会将 token 放在响应包中，这个时候只要拦截发送的请求，查看响应就可以获得 token 了。如果是后台自动获取的邮箱，那么就可以重置任意用户的密码。织梦 CMS 就出现过这样的漏洞。</p>
+<p>修复方法：避免将 token 回显在响应包中，验证的比对应该放在服务端进行。</p>
+<h3 id="token-可暴力破解">Token 可暴力破解</h3>
+<p>暴力破解可分为几种：</p>
+<ol type="1">
+<li><code>好且快</code>的暴力破解：后端没有对 token 的尝试次数做限制时，则可暴力破解 token。知道 token 格式后，例如是 4 位数字、6 位数字等等，然后爆破就完事了。</li>
+<li><code>差但快</code>的暴力破解：后端未对错误次数做限制，只对 token 的有效期做限制，比如 30 分钟，如果是 4 位数字，就很容易爆破出来；对于更加复杂的 token，比如 6 位数字，攻击者可以考虑通过多线程、多进程、分布式等手段加快速度，赶在 token 失效之前尝试完毕（显然，这个速度是有上限的，取决于信道容量、网速、目标服务器的并发量）。</li>
+<li><code>差且慢</code>的暴力破解：后端未对错误次数做限制，只对 token 的有效期做限制（比如一天甚至无限），并限制了提交频率，比如一分钟只能提交（验证）5 次。这个限制会有效降低攻击者尝试的速度，但如果 token 的有效期足够长，攻击者还是可以慢慢试出来的，取决于攻击者在目标的预期成本。</li>
+</ol>
+<p>修复方法：对 token 错误的次数做限制、按照业务需求，给定过期时间，限制提交频率，避免被爆破；必要时可以再加大其复杂度（6 位数字，甚至添加英文字母）</p>
+<h3 id="token-可重放">Token 可重放</h3>
+<p>这个很好理解，如果 token 验证通过之后依然有效，只要它没被覆盖，攻击者获得之后就可以重置密码。</p>
+<p>修复方法：token 一旦验证成功，就要销毁，防止重放攻击。</p>
+<h3 id="篡改-用户名或找回地址">篡改 用户名或找回地址</h3>
+<ol type="1">
+<li>点击忘记密码时，后端生成页面的时候就自动拿到了邮箱，然后放在前端展示，用户点击确定之后，后端收到一个请求，这个请求包含了用户名和前端传来的邮箱。如果后端直接使用这个用户名和邮箱，生成此用户重置密码的 token，并且发送这个邮箱去，那么就可以篡改了：
+<ol type="1">
+<li>前端填受害者的用户名，这个时候前端给后端的邮箱是受害者的邮箱，然后拦截数据包，篡改里面的邮箱为自己的，这样后端会发送重置密码的 token 到自己的邮箱，就可以重置受害者的密码。</li>
+<li>前端填自己的用户名，这个时候前端给后端的邮箱是自己的邮箱，然后拦截数据包，篡改里面的用户名为受害者的，就可以重置受害者的密码。</li>
+</ol></li>
+<li>流程进行到最后一步，填密码的时候，前端会把用户名发到后端去，后端以这个用户名为准来重置密码，那么只要修改这个用户名就可以重置此用户的密码。</li>
+<li>找回密码凭证发到邮箱中，url 中包含用户名以及 token，这个 token 可以用于修改其他用户的密码。即服务端只校验 token 是否有效，而不校验 token 是否对应特定某个用户，那么只要修改用户名就可以重置任意用户的密码。</li>
+</ol>
+<p>显然，这几种都可以重置任意用户的密码。</p>
+<p>修复方法：生成 token 的时候，要验证用户名与邮箱是否对应；验证 token 的时候，注意用户名、token 要对应。</p>
+<h3 id="跳过-token-的验证流程">跳过 Token 的验证流程</h3>
+<p>填写 token 之后提交，后端收到 token 验证通过后，服务器返回类似 ok、1、success、true 这种的状态值。我们知道这个只需要拦截响应包就可以欺骗前端进入下一步，一般就可以修改密码了。填写新的密码之后，如果后端没有校验步骤是否进行到这一步，那么就可以跳过 Token 的验证流程，直接重置任意用户的密码。</p>
+<p>修复方法：后端在进行找回密码的最后一步：覆盖数据库中的密码 之前，验证一下此账户找回密码的流程是否达到了最后一步（最好就是在整个流程中，每步都验证上一步的操作是否已经完成）；可以缩短流程，把校验 token 和修改密码合并到一个步骤里。</p>
+<h3 id="session-复用">session 复用</h3>
+<p>需要满足 2 个条件：</p>
+<ol type="1">
+<li>在用户进入到找回密码页面的时候，后端没有 set-cookie</li>
+<li>后端在进行找回密码的最后一步的时候，从 session 中取的用户名</li>
+</ol>
+<p>攻击的时候，先用自己的账户找回密码，收到邮件的时候，后端的 session 里的用户是我们自己。接下来新开一个标签页，用受害者的用户名进行找回密码，此时用的还是上一步的 session-id，所以等到邮件发出之后，此时后端的 session 里的用户名就变成受害者了，然后打开刚才收到的链接进行重置密码操作就可以重置受害者的密码。橘友们可以自行搜索 <code>wooyun-2014-085843</code>，是一个比较经典的案例。</p>
+<p>当然啦，这个也是任意用户密码重置。</p>
+<p>修复方法：找回密码功能，如果要依赖 session 完成，那么一定要做好 session-id 的销毁机制，避免 session 里重要的值被覆盖。</p>
+<h3 id="token-可预测">Token 可预测</h3>
+<p>重置密码的 token 应该是极难预测的。但是有些实现的就不安全，例如：</p>
+<ol type="1">
+<li>使用时间戳作为 token</li>
+<li>用户 id 或者时间戳 经过 md5/base64 作为 token</li>
+<li>有个特定的 api 可以生成 token，若未授权，攻击者可以直接调用</li>
+</ol>
+<p>如果后端没有验证找回密码流程，则找到规律后，直接伪造 url 就可以重置任意用户的密码；如果后端验证了找回密码的流程，就按照流程正常走，发完 token 后，猜解一下 token，完成任意用户密码重置。</p>
+<p>修复方法：token 尽可能随机，不要有规律可循；token 尝试次数做限制；验证找回密码的流程是否到了最后一步（最好就是在整个流程中，每步都验证上一步的操作是否已经完成）。</p>
+<h3 id="用户骚扰">用户骚扰</h3>
+<p>这里以绑定的手机号为例。</p>
+<p>不断地重复找回密码的过程，让后端不断发送 token。如果后端不验证账户与手机号的话，则可以短信轰炸任意手机号；如果后端在验证了账户与手机号之后，才发送 token 的话，则只能轰炸指定的手机号。</p>
+<p>修复方法：限制找回密码的频率；注意，攻击者可以恶意消耗找回密码次数，导致真正的用户无法使用找回密码功能，所以加验证码提高攻击者恶意消耗次数的成本，也是一个非常常见的措施。</p>
+<h3 id="其他">其他</h3>
+<h4 id="重复注册">重复注册</h4>
+<p>可以注册一个已存在的用户，导致密码被覆盖，但原用户的所有信息（用户的信息，姓名、身份证、手机号等等）却没有改变。</p>
+<p>案例：<code>wooyun-2014-088708</code></p>
+<h2 id="总结">总结</h2>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/SecMap-找回密码/20210507114610.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>找回密码是一个非常常见的功能，但不是那么容易写得完善的，需要注意的地方有很多，逻辑稍有不完善就会出现漏洞。</p>
+<p>上面的几点都好理解，最后不妨再思考一个问题：假如有个网站，它的找回密码功能没有对 token 的有效时间加以限制，也就是说派发的 token 是没有过期时间的，但是有错误次数限制，如何看待这样的设计方案？</p>
+<p>首先，过期时间实现起来要比次数限制简单，业务方一般喜欢做简单的；如果过期时间与次数限制只能做一个的话，对于防御爆破来说，肯定是次数限制来得彻底；但是只做次数限制的话，增加了 token 泄露的风险，因为 token 不会过期，在漫长的生命周期里有很大的可能泄露，而且不是所有的 token 都会被使用（用户可能手抖了或者是由攻击者发起的找回密码），如果还有 token 可重放的问题，那风险就更大了。所以我认为这样的方案并不完美，但是可以接受。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">逻辑漏洞的类型其实挺多的<br>毕竟你不知道开发会写出什么样的神仙代码<br><br>另外现在虽然有乌云的镜像站<br>但是很多漏洞有点旧了<br>所以参考一下就好</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/SecMap/">#SecMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecMap - 找回密码</div>
+      <div>https://www.tr0y.wang/2021/04/25/SecMap-找回密码/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年4月25日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年4月15日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/04/29/SecMap-%E9%AA%8C%E8%AF%81%E7%A0%81/" title="SecMap - 验证码">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SecMap - 验证码</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/04/04/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9A%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90/" title="编译原理（四）：语义分析">
+                        <span class="hidden-mobile">编译原理（四）：语义分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

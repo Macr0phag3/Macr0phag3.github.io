@@ -1,0 +1,1098 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="本文主要梳理与介绍 DNS 的基础知识，如果有些地方没懂不如带着疑问继续往下看。涉及 DNS 攻防的将在下一篇介绍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DNS 安全（一）：基础知识复习">
+<meta property="og:url" content="https://www.tr0y.wang/2020/09/14/DNS-1-basic/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="本文主要梳理与介绍 DNS 的基础知识，如果有些地方没懂不如带着疑问继续往下看。涉及 DNS 攻防的将在下一篇介绍。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/dns.jpg/cover">
+<meta property="article:published_time" content="2020-09-14T10:37:01.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="DNS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/dns.jpg/cover">
+  
+  
+  
+  <title>DNS 安全（一）：基础知识复习 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DNS 安全（一）：基础知识复习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-09-14 10:37" pubdate>
+          2020年9月14日 10:37:01
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          6.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">DNS 安全（一）：基础知识复习</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文主要梳理与介绍 DNS 的基础知识，如果有些地方没懂不如带着疑问继续往下看。涉及 DNS 攻防的将在下一篇介绍。</p>
+<span id="more"></span>
+<h2 id="起源">起源</h2>
+<p>很久很久以前，是没有“域名”这个概念的。我服务器的 ip 是 100.100.100.100，对外暴露一个端口，比如 80，用于提供 http 服务，用户就得输入 http://100.100.100.100 ，浏览器一看是 http 协议，就自动向 100.100.100.100 的 80 端口发起 http 请求，于是你就开始愉快地网上冲浪了。</p>
+<p>问题在于，手动输入 ip 实在是过于麻烦，也不好记，并且如果你的网站改了 ip，还得提前声明一下：“本站的 ip 即将改为 200.200.200.200，请使用新的 ip 地址”。所以人们发明了域名，通常是一些好记的、有意义的单词组合，并将域名与 ip 绑定到一块，这样我们输入域名之后，浏览器就会先把域名解析成 ip 地址，然后向这个 ip 地址发起请求。</p>
+<p>还有一个小故事，在我懵懂无知的年纪，特别喜欢使用 360 管家，因为真的能解决很多小问题。有一天我的电脑没法上网，着急下 CF 呢，这怎么行呢？掏出 360 管家，找到上网诊断，一键解决。我还记得有个提示大意是“...如果 qq 能正常聊天但是浏览器无法上网...”。当时当然看不懂了，现在就知道原因就是 DNS 出了问题，导致域名无法解析成 ip，那么使用域名的服务自然也就无法使用了，而 qq 聊天直接用 ip 进行通信，所以功能正常。</p>
+<p>那么，这一切都是怎么实现的呢？</p>
+<h2 id="解析流程">解析流程</h2>
+<p>DNS 解析其实比较简单，但是涉及到的细节会多一些。</p>
+<h3 id="区域zone">区域（Zone）</h3>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104025076.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>其中顶级域（TLD）有 <code>arpa</code>、<code>com</code>、<code>edu</code>、<code>gov</code>...</p>
+<p>顶级域分为两种类型：</p>
+<ol type="1">
+<li><code>gTLDs</code>: <code>.com</code>、<code>.org</code> 等叫做<code>一般通用顶级域</code>（generic Top-Level Domains）</li>
+<li><code>ccTLDs</code>: <code>.cn</code>、<code>.jp</code> 等叫做<code>国家顶级域</code>（country code Top-Level Domains）</li>
+<li><code>arpa</code>：特殊域，比较特殊放在下面讲</li>
+</ol>
+<p>一个 DNS 子树（独立管理的）就称为一个<code>区域</code>，举个例子，比如 <code>sina.com.cn</code> 这个二级域，可以将它的区域划分为更小的区域，比如一般会根据用途来划分区域，假设 <code>blog.sina.com.cn</code> 为博客相关的域名等等。划分完子区域之后，需要经过父区域的授权，这样父区域遇到属于子区域下的域名，就会转给子区域来解析。</p>
+<h3 id="查询方式">查询方式</h3>
+<p>在说流程之前，先说一下查询方式。很简单，分为 2 种：</p>
+<ol type="1">
+<li>递归查询：A -&gt; B -&gt; C，A 向 B 发起 DNS 解析的请求之后，B 帮 A 去 C 那里查找，拿到结果之后返回给 A，这个时候 A、B 各发起了一次解析请求。</li>
+<li>迭代查询：A -&gt; B, A -&gt; C，A 向 B 发起 DNS 解析的请求之后，B 告诉 A 要去 C 那里查找，A 再向 C 发起 DNS 解析请求，这个时候 A 一共发起了两次解析请求，B 没有发起 DNS 解析请求。</li>
+</ol>
+<h3 id="hosts-文件静态-dns-服务器">Hosts 文件（静态 DNS 服务器）</h3>
+<p>如果你用的是 macOS 或者 Linux，可以看一下这个文件：<code>/etc/hosts</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104053213.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>其中有我们上小学就知道的 <code>127.0.0.1</code>、<code>localhost</code>。所以你访问 <code>localhost</code> 就是访问 <code>127.0.0.1</code>。</p>
+<p>Hosts 文件，可以直接理解为是本地静态的 DNS 服务器。需要解析 DNS 的时候，系统会首先自动从 Hosts 文件中寻找对应的 ip-域名 映射关系，一旦找到那么就完成解析了，如果没有找到，则继续解析流程。</p>
+<p>显然，配置 Hosts 像极了没有域名的年代，谁会把所有的要访问的域名都加到 Hosts 里呢？但是，它的确可以加快域名解析、屏蔽垃圾网站、广告等等...具体的留在下一篇介绍吧~</p>
+<h3 id="localdns-服务器">LocalDNS 服务器</h3>
+<p>若 Hosts 文件中没有相关域名的记录，则来到了 LocalDNS。</p>
+<p>如果你用的是 macOS 或者 Linux，可以看一下这个文件：<code>/etc/resolv.conf</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104111748.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个文件一般是自动生成的，什么时候生成的呢？DHCP 的时候。需要注意的是，这个文件里的 ip 经常是内网 ip，并且 LocalDNS 里面有个 “local”，大家可能会认为 LocalDNS 的服务器 ip 都是内网 ip，实际上也可以是外网 ip，比如其他组织提供的 DNS，像谷歌的<code>8.8.8.8</code>啦，国内的<code>114.114.114.114</code>啦。个人感觉是这些 DNS 的地址填写在我们本地的电脑或者移动设备上，所以称为 LocalDNS。</p>
+<p>需要注意的是，LocalDNS 本身不具备真正的解析域名的功能。它的作用有两个：</p>
+<ol type="1">
+<li>代替用户的设备参与域名解析</li>
+<li>缓存域名的查询记录，当其他设备发起相同的域名查询请求时可以直接返回查询结果，可以加快域名查询速度。</li>
+</ol>
+<p>用户设备 -&gt; LocalDNS 一般是递归查询，而 LocalDNS 发现它自己没有缓存对应的数据后，则需要向 DNS 根服务器发起查询请求，这个请求，一般是迭代查询。所以任何 LocalDNS 都需知道 DNS 根服务器的 ip 地址，这没得说。</p>
+<h3 id="dns-根服务器">DNS 根服务器</h3>
+<p>DNS 根服务器（root name server），全球只有 <code>13</code> 个，编号从 <code>a.root-servers.net</code> 一直到 <code>m.root-servers.net</code>。之所以不说 13 台，是因为每个 DNS 根节点都会有多个服务器负责均衡查询（即任播节点），你可以在这个网站查询：https://root-servers.org/ 。例如杭州就有 <code>J</code>、<code>F</code> 根服务器的任播节点：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104436224.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>现在解析 DNS 的时候，已经不再需要知道 DNS 根服务器的真正的 ip 地址，只需要知道任播地址就可以在世界各地与当地的最优节点进行通信了，所以现在大多数的 DNS 根服务器的 ip 地址都是任播节点 的 ip 地址。</p>
+<p>至于为什么是 <code>13</code> 这个数字，这有一篇挺不错的文章，大家可以参考一下：https://zhuanlan.zhihu.com/p/107492241</p>
+<p>所以，DNS 根服务器掌管着所有 <code>DNS 顶级域名服务器</code> 的地址，比如大家熟悉的 <code>.com</code>、<code>.org</code>、<code>.edu</code>、<code>.gov</code> 等等。假如我们查询的顶级域名是 <code>.com</code>，DNS 根服务器会将<code>.com</code> 顶级域名服务器的地址发回给 LocalDNS 服务器，让它自己去那里查。于是 LocalDNS 服务器再向手握 <code>.com</code> 的 DNS 顶级域名服务器发起查询。</p>
+<h3 id="dns-顶级域名服务器">DNS 顶级域名服务器</h3>
+<p>手握 <code>.com</code> 的 DNS 顶级域名服务器一看来源的查询是 <code>xxx.com</code>，按理来说应该可以找到对应的 ip 并直接返回了。但是现在基本上都是授权给其他厂家去做的，被授权的叫<code>DNS 权威域名服务器</code>，例如万网，或者企业自建的 DNS 服务器。举个例子，对 <code>weibo.com</code> 进行 DNS 解析：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104458805.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这里表明对于 <code>weibo.com</code>，DNS 权威域名服务器是 <code>ns1.sina.com.cn.</code>，也就是 DNS 查询的请求到了 <code>.com</code> DNS 顶级域名服务器的时候，它会返回经过自己授权的 DNS 权威域名服务器：<code>ns1.sina.com.cn.</code>，告诉 LocalDNS 服务器自己去那里查吧。</p>
+<p>这个时候 LocalDNS 服务器就会缓存 <code>weibo.com</code> 的 DNS 权威域名服务器，免得下次查的时候还得再走一遍之前的流程（当然是在缓存未过期的情况下）。</p>
+<h3 id="dns-权威域名服务器">DNS 权威域名服务器</h3>
+<p>DNS 权威域名服务器要提前申请 DNS 解析授权，这类 DNS 域名服务器一般掌管着特定域下所有的子域和主机，比如它不仅知道 <code>weibo.com</code> 的 ip，同样也知道 <code>www.weibo.com</code> 的 ip。所以它可以直接返回结果，这一步没啥好说的。</p>
+<p>同样， LocalDNS 服务器也会缓存 <code>weibo.com</code> 的 ip，免得下次查的时候还得再走一遍之前的流程（当然也是在缓存未过期的情况下）。</p>
+<p>各大公司一般都有自己的权威域名服务器，自己维护 DNS，好处有很多，比如：</p>
+<ol type="1">
+<li>方便管理。假如不自己维护域名信息，域名生效时间和缓存时间都是不可控的，而自己搭建可以避免这些问题。</li>
+<li>动态管理。比如通过一些软件来更新自己的 DNS 信息更方便，还可以做动态域名解析。</li>
+</ol>
+<h3 id="流程总结">流程总结</h3>
+<p>（以下流程以 A 记录为例）</p>
+<ol type="1">
+<li>设备 -&gt; LocalDNS 服务器（递归查询）</li>
+<li>LocalDNS 服务器 -&gt; DNS 根服务器（迭代查询）</li>
+<li>LocalDNS 服务器 &lt;- DNS 根服务器（返回顶级域名服务器的地址）</li>
+<li>LocalDNS 服务器 -&gt; DNS 顶级域名服务器（迭代查询）</li>
+<li>LocalDNS 服务器 &lt;- DNS 顶级域名服务器（返回权威域名服务器的地址）</li>
+<li>LocalDNS 服务器 -&gt; DNS 权威域名服务器（迭代查询）</li>
+<li>LocalDNS 服务器 &lt;- DNS 权威域名服务器（返回 ip）</li>
+<li>设备 &lt;- LocalDNS 服务器（返回 ip）</li>
+</ol>
+<h2 id="dns-的几个重要概念">DNS 的几个重要概念</h2>
+<p>在掌握了流程之后，再来看这些概念会更容易理解。</p>
+<h3 id="dns-资源记录resource-record-rr">DNS 资源记录（Resource Record, RR）</h3>
+<p>DNS 服务器有自己的域文件（zone file），zone file 是由多个记录组成的，每一个记录就被称为资源记录。</p>
+<p>假如你买了一个域名，需要绑定到对应的 ip 上来提供 web 服务，或者要提供其他服务，这个时候域名的销售方会让你选择解析的类型，常见的有以下几种：</p>
+<ol type="1">
+<li><code>A</code> 记录：将域名指向一个 IPv4 地址（例如：100.100.100.100）</li>
+<li><code>CNAME</code> 记录：将域名指向一个域名，实现与被指向域名相同的访问效果，可以简单地理解为域名的别名。比如 <code>www.weibo.com</code> 就是 cname 到 <code>weibo.com</code> 上，然后 <code>weibo.com</code> 是有自己的 A 记录的，这样有个好处就是假如有很多个域名，<code>a.weibo.com</code>、<code>b.weibo.com</code>...，但是 ip 只有 1 个，如果不用 cname，当这个 ip 变更的时候，每个与此 ip 绑定的域名都要去改 A 记录；用了 cname 之后，只需要改 cname 的域名（<code>weibo.com</code>）的 A 记录即可。（CDN 加速就是这样做的对吧~）</li>
+<li><code>MX</code> 记录：指向电子邮件服务器地址，一般会根据邮箱服务商提供的 MX 记录填写此记录。</li>
+<li><code>NS</code> 记录：权威域名服务器记录，即将某些域名指定让某个 DNS 域名服务器来解析。需要注意的是，只有顶级域名（或者说一级域名）才有 ns 记录，比如 <code>www.weibo.com</code> 是没有 ns 记录的。</li>
+<li><code>TXT</code> 记录：可任意填写、可为空。一般做一些验证记录时会使用此项，例如：SPF 记录（用于反垃圾邮件）</li>
+<li><code>AAAA</code> 记录：将域名指向一个 IPv6 地址（例如：ff03:0:0:0:0:0:0:c1）</li>
+<li><code>SOA</code> 记录：SOA（Start of Authority）叫做起始授权机构记录。通俗地来讲，一个域名可能有很多个 NS 记录，因为会有多台服务器在进行解析（负责均衡或者备份），但哪一个才是主 DNS 权威服务器呢？这个就要看 SOA 记录了，它说明了在众多 NS 记录里哪一台才是主 DNS 权威服务器。这个主 DNS 权威服务器会负责其他事情，比如告诉其他 NS 权威服务器什么时候该更新数据（通过域传送的方式，下面会讲），甚至记录里还有对应联系人的邮件、TTL 等信息，这里就不多赘述了。</li>
+<li><code>PTR</code> 记录：PTR 记录是 A 记录的逆向记录，负责将 IP 反向解析为域名，这个内容稍多，单独放在下面讲</li>
+<li><code>AXFR</code>、<code>IXFR</code> 记录：涉及区域传送，单独放在下面讲</li>
+</ol>
+<p>其他的都比较好理解，SOA 可能稍微有点饶，举个例子：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104539279.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>下面红框里的就是联系方式，在 SOA 记录中，<code>admin.example.com</code> 等效于 <code>admin@example.com</code>。</p>
+<h3 id="fqdn">FQDN</h3>
+<p>FQDN（<code>Fully Qualified Domain Name</code>），完整合格域名（不知道是不是这样翻译的...）。与我们日常见到的域名相比，最后还有一个<code>.</code>，例如 <code>weibo.com.</code>。其实这样反应出了 DNS 系统完整的层级关系，最开始是 <code>.</code>，即<code>根（root）域名</code>，接下来是 <code>TLDs</code>，表示<code>顶级域名</code>。</p>
+<p>所以如果我们查询 <code>.</code> 的 DNS NS 记录得到的是什么呢？<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104602577.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以 <code>.</code> 是由 DNS 根服务充当 DNS 权威服务进行解析，但是 <code>.</code> 其实是没有 A 记录的。</p>
+<h3 id="ddns">DDNS</h3>
+<p>DDNS 相比 DDNS 多了一个 D，即“动态”的意思，可以通过 DDNS 提供动态域名解析服务。</p>
+<p>举个例子，如果你想搞一个自己的网站，并且有自己的公网服务器，那么一般都有一个公网 ip，绑定在某个域名之后，其他人就可以直接访问了。但是如果你没有一个公网服务器，想要用自己的家庭网络来搭建网站，首先不说大部分人都是运营商的内网 ip，即便少部分人申请到了公网 ip 也都不是固定的。那么你虽然可以把自己家的 ip 地址绑定在域名上，但是你可能需要一天换绑一次 ip...因为 IPv4 资源还是很紧张的，不可能给每个人都分配公网 ip，这个问题虽然到 IPv6 可以解决，但是那也是以后的事情了。所以自己去做 <code>发现出口 ip 变化</code> + <code>更换 DNS 绑定</code> 显然是反人类的。</p>
+<p>但是我们就想在外网想要访问我们在家里的台式机上搭建的网站怎么办呢？这就需要 DDNS 了。DDNS 会将用户的动态 ip 地址映射到一个固定的域名解析服务上：当台式机出口 ip 变化的时候，DDNS 客户端程序就会把新的出口 ip 地址传给位于 DDNS 服务商主机上的服务端程序，而服务端程序负责提供 DNS 服务并实现换绑 DNS。相当于把 <code>发现出口 ip 变化</code> + <code>更换 DNS 绑定</code> 给自动化了。当然，最大缓存时间需要调短一些，要不因为 DNS 的缓存机制，可能用户用的还是之前的解析记录。大家比较熟悉的“花生壳”就可以搞这个事情。</p>
+<h2 id="其他零碎的细节">其他零碎的细节</h2>
+<h3 id="non-authoritative-answer">Non-authoritative answer</h3>
+<p>nslookup 经常会出现 <code>Non-authoritative answer</code>，这是什么意思？</p>
+<p>示例：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104620008.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>其实这个意思就是这个解析记录是从 LocalDNS 的缓存里拿来的，而不是向真正负责这个域名的 DNS 权威服务器拿来的。</p>
+<h3 id="ptrip-反查域名">PTR，ip 反查域名</h3>
+<p>ip 反查域名主要用在到电子邮件服务器中来拦截垃圾邮件，不过现在用的似乎也不多了。</p>
+<p>举个例子：比如你用 <code>admin@tr0y.wang</code> 这个邮箱给我的邮箱 <code>macr0phag3@qq.com</code> 发了一封邮件，qq 邮件服务器收到这封信之后，会查看这封信是由哪个 ip 地址发出来的，然后根据这个 ip 地址进行反向域名解析，如果反向解析到这个 ip 所对应的域名是 <code>tr0y.wang</code> 那么就说明这封邮件真的是 <code>tr0y.wang</code> 发出来的，那么就接受这封邮件；反之就拒收这封邮件。</p>
+<p>但是这就引起了另一个问题：反查域名的过程是什么样的？或者说是怎么实现的？由于一个 ip 地址可以对应多个域名，因此从 ip 出发去找域名，理论上应该遍历整个域名树去挨个找，但这肯定是不现实的，因为效率太低下了。所以为了快速完成反向域名解析，前辈发明了<code>特别域</code>，称为逆向解析域 <code>in-addr.arpa</code>。在上面的例子里，就是需要 <code>tr0y.wang</code> 提供一个 <code>特别域</code>。这样要反向解析的 ip 地址就会变成一种像域名一样的形式，后缀是逆向解析域的域名 <code>in-addr.arpa</code>。</p>
+<p>例如一个 ip 地址：<code>12.23.34.45</code>，其逆向域名表达方式为：<code>45.34.23.12.in-addr.arpa</code>（注意，逆向域名中的 ip 地址部分与原 ip 的顺序是相反的）。举个例子：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104645102.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果你不想用手动写逆向解析域，也可以用 dig 提供的 <code>-x</code>，<code>dig ptr 179.189.99.211.in-addr.arpa.</code> 等价于 <code>dig -x 211.99.189.179</code></p>
+<p>最后，建议可以自己试试 <code>dig +trace  -x 211.99.189.179</code>，你就能看到解析的顺序是 <code>.</code> -&gt; <code>in-addr.arpa.</code> -&gt; <code>211.in-addr.arpa.</code> -&gt; <code>99.211.in-addr.arpa.</code> -&gt; <code>189.99.211.in-addr.arpa.</code></p>
+<h3 id="dns-区域传送">DNS 区域传送</h3>
+<p>DNS 区域传送，是一台从 DNS 服务器用来获取主 DNS 服务器（SOA 记录的那个服务）的数据，更新自己数据用的，可以防止在主 DNS 服务器因意外故障时，从服务器也可以正常工作。DNS区域传送有两种方式：</p>
+<ol type="1">
+<li><code>axfr</code>：完整区域传送</li>
+<li><code>ixfr</code>：增量区域传送</li>
+</ol>
+<p>所以，正常情况下 DNS 区域传送操作只有经过授权的 DNS 服务器才有权执行，但许多 DNS 服务器却被错误地配置成只要有人发出请求，就直接提供一个 zone 的 DNS 内容。DNS 域传送漏洞会在下一篇详细介绍，这个手段是前些年用于信息收集的手段之一。</p>
+<h3 id="additional-section">ADDITIONAL SECTION</h3>
+<p>如果你用过 <code>dig</code>，你就会发现查询结果里经常会有一个 <code>ADDITIONAL SECTION</code>：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/DNS-1-basic/20200914104703237.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么这个是干嘛用的呢？简单来说，<code>ADDITIONAL SECTION</code> 里的所有数据都不是你没有明确要求返回的数据，就是服务器认为你可能会有用，就给你了。举个例子，假如你查询 <code>.</code> 的 ns 记录，查询到了 DNS 根服务器之后，它会认为你在查询完 ns 记录（例如 <code>a.root-servers.net.</code>）之后大概率会继续查 <code>a.root-servers.net.</code> 的 A 记录，所以它就在 ADDITIONAL SECTION 里告诉你 <code>a.root-servers.net.</code> 的 ip 是 <code>198.41.0.4</code>，这样你的 localDNS 就会缓存这个记录，等你真正去查 <code>a.root-servers.net.</code> ip 的时候就直接从缓存拿里给你了，省得你又去绕一大圈。</p>
+<h2 id="完结撒花">完结撒花</h2>
+<p>DNS 内容其实还有一些，但不是很重要就不梳理了，如果下一篇需要某个知识点，会再补讲一下。DNS 是很重要的协议，后面很多攻击手段，如果对 DNS 的一些重要细节模棱两可，很难完全理解。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/DNS/">#DNS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DNS 安全（一）：基础知识复习</div>
+      <div>https://www.tr0y.wang/2020/09/14/DNS-1-basic/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年9月14日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/09/30/DNS-2-attack-dns/" title="DNS 安全（二）：针对 DNS 协议的攻击">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DNS 安全（二）：针对 DNS 协议的攻击</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/09/04/vulner-in-sec-products/" title="安全产品的灯下黑">
+                        <span class="hidden-mobile">安全产品的灯下黑</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

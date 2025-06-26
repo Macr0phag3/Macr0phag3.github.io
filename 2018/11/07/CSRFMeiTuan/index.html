@@ -1,0 +1,1121 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="前端安全系列（二）：如何防止CSRF攻击？[美团技术团队]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeBuf 文章：如何防止CSRF攻击？">
+<meta property="og:url" content="https://www.tr0y.wang/2018/11/07/CSRFMeiTuan/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="前端安全系列（二）：如何防止CSRF攻击？[美团技术团队]">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/csrf.jpeg/cover">
+<meta property="article:published_time" content="2018-11-07T13:56:46.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="CSRF">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/csrf.jpeg/cover">
+  
+  
+  
+  <title>FreeBuf 文章：如何防止CSRF攻击？ - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="FreeBuf 文章：如何防止CSRF攻击？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-11-07 13:56" pubdate>
+          2018年11月7日 13:56:46
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          8.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="阅读笔记"
+        id="heading-1dc2a11297f6b1a1a33974a34749e3d6" role="tab" data-toggle="collapse" href="#collapse-1dc2a11297f6b1a1a33974a34749e3d6"
+        aria-expanded="true"
+      >
+        阅读笔记
+        <span class="list-group-count">(11)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-1dc2a11297f6b1a1a33974a34749e3d6"
+           role="tabpanel" aria-labelledby="heading-1dc2a11297f6b1a1a33974a34749e3d6">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2018/11/07/CSRFMeiTuan/" title="FreeBuf 文章：如何防止CSRF攻击？"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">FreeBuf 文章：如何防止CSRF攻击？</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/06/18/MySQL%E7%9A%84BIGINT%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5/" title="MySQL 的 BIGINT 报错注入"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">MySQL 的 BIGINT 报错注入</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/07/SQL%E6%B3%A8%E5%85%A5%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90-WooYun/" title="SQL 注入关联分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SQL 注入关联分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/08/WinPHPBug/" title="Windows+PHP=路径爆破?"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Windows+PHP=路径爆破?</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/11/11/JSDomBook/" title="《JavaScript DOM 编程艺术》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《JavaScript DOM 编程艺术》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/24/SQLInjection/" title="《SQL 注入攻击与防御》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《SQL 注入攻击与防御》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/01/22/WEBFS/" title="《Web 前端黑客技术揭秘》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《Web 前端黑客技术揭秘》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/11/04/TJMMX-BOOK/" title="《图解密码学》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《图解密码学》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/10/14/sorts/" title="九大排序算法的 Python 实现"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">九大排序算法的 Python 实现</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/11/03/XSSMeiTuan/" title="如何防止XSS攻击？"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">如何防止XSS攻击？</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">FreeBuf 文章：如何防止CSRF攻击？</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>前端安全系列（二）：如何防止CSRF攻击？[美团技术团队]</p>
+<span id="more"></span>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/186880.html">原文</a></p>
+<h2 id="笔记">笔记</h2>
+<h3 id="csrf-的特点">CSRF 的特点</h3>
+<ol type="1">
+<li>后端接口不能将安全寄托在仅允许POST上面</li>
+<li>CSRF的特点
+<ul>
+<li>攻击一般发起在第三方网站，而不是被攻击的网站。被攻击的网站无法防止攻击发生。</li>
+<li>攻击利用受害者在被攻击网站的登录凭证，冒充受害者提交操作；而不是直接窃取数据。</li>
+<li>整个过程攻击者并不能获取到受害者的登录凭证，仅仅是“冒用”。</li>
+<li>跨站请求可以用各种方式：图片URL、超链接、CORS、Form 提交等等。部分请求方式可以直接嵌入在第三方论坛、文章中，难以进行追踪。</li>
+</ul></li>
+</ol>
+<h3 id="csrf-的防护">CSRF 的防护</h3>
+<h4 id="整体防护策略">整体防护策略</h4>
+<ul>
+<li><p>CSRF（通常）发生在第三方域名<br />
+&gt; 阻止不明外域的访问：同源检测、Samesite Cookie</p></li>
+<li><p>CSRF攻击者不能获取到Cookie等信息，只是使用<br />
+&gt; 提交时要求附加本域才能获取的信息：CSRF Token、双重 Cookie 验证</p></li>
+</ul>
+<h4 id="同源检测">同源检测</h4>
+<blockquote>
+<p>既然 CSRF 大多来自第三方网站，那么我们就直接禁止外域（或者不受信任的域名）对我们发起请求。如何判断请求是否来自外域呢？</p>
+</blockquote>
+<p>在 HTTP 协议中，每一个异步请求都会携带两个 Header，用于标记来源域名：<br />
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs lasso">* Origin <span class="hljs-keyword">Header</span><br>* <span class="hljs-keyword">Referer</span> <span class="hljs-keyword">Header</span><br></code></pre></td></tr></table></figure><br />
+这两个 Header 在浏览器发起请求时，大多数情况会自动带上，并且不能由前端自定义内容。服务器可以通过解析这两个 Header 中的域名，确定请求的来源域。</p>
+<ol type="1">
+<li>使用 <code>Origin Header</code> 确定来源域名<br />
+在部分与 CSRF 有关的请求中，请求的 Header 中会携带 Origin 字段。字段内包含请求的域名（不包含 path 及 query）。<br />
+如果 Origin 存在，那么直接使用 Origin 中的字段确认来源域名就可以。<br />
+但是 Origin 在以下两种情况下并不存在：
+<ul>
+<li><strong>IE11 同源策略</strong>：IE11 不会在跨站 CORS 请求上添加 Origin 标头，Referer 头将仍然是唯一的标识。最根本原因是因为 IE11 对同源的定义和其他浏览器有不同，有两个主要的区别，可以参考<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy#IE_Exceptions">MDN Same-origin_policy#IE_Exceptions</a></li>
+<li><strong>302 重定向</strong>：在 302 重定向之后 Origin 不包含在重定向的请求中，因为 Origin 可能会被认为是其他来源的敏感信息。对于 302 重定向的情况来说都是定向到新的服务器上的 URL，因此浏览器不想将 Origin 泄漏到新的服务器上。</li>
+</ul></li>
+</ol>
+<h4 id="使用-referer-header-确定来源域名">使用 Referer Header 确定来源域名</h4>
+<p>根据 HTTP 协议，在 HTTP 头中有一个字段叫 <code>Referer</code>，记录了该 HTTP 请求的来源地址。<br />
+对于 Ajax 请求，图片和 script 等资源请求，Referer 为发起请求的页面地址。对于页面跳转，Referer 为打开页面历史记录的前一个页面地址。因此我们使用 Referer 中链接的 Origin 部分可以得知请求的来源域名。<br />
+这种方法并非万无一失，Referer 的值是由浏览器提供的，虽然 HTTP 协议上有明确的要求，但是每个浏览器对于 Referer 的具体实现可能有差别，并不能保证浏览器自身没有安全漏洞。<br />
+<strong>使用验证 Referer 值的方法，就是把安全性都依赖于第三方（即浏览器）来保障，从理论上来讲，这样并不是很安全。</strong>在部分情况下，攻击者可以隐藏，甚至修改自己请求的 Referer。</p>
+<h4 id="隐藏-referer">隐藏 Referer</h4>
+<p>攻击者可以在自己的请求中隐藏 Referer。如<br />
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">&lt;img <span class="hljs-attribute">src</span>=<span class="hljs-string">&quot;http://bank.example/withdraw?amount=10000&amp;for=hacker&quot;</span> <span class="hljs-attribute">referrerpolicy</span>=<span class="hljs-string">&quot;no-referrer&quot;</span>&gt; <br></code></pre></td></tr></table></figure><br />
+那么这个请求发起的攻击将不携带Referer。</p>
+<p>另外在以下情况下 Referer 没有或者不可信：</p>
+<ol type="1">
+<li>IE6、7 下使用 <code>window.location.href=url</code> 进行界面的跳转，会丢失 Referer。</li>
+<li>IE6、7 下使用 <code>window.open</code>，也会缺失 Referer。</li>
+<li><code>HTTPS</code> 页面跳转到 <code>HTTP</code> 页面，所有浏览器 Referer 都丢失。</li>
+<li>点击 <code>Flash</code> 上到达另外一个网站的时候，Referer 的情况就比较杂乱，不太可信。</li>
+</ol>
+<h4 id="无法确认来源域名情况">无法确认来源域名情况</h4>
+<p>当 Origin 和 Referer 头文件不存在时该怎么办？如果 Origin 和 Referer 都不存在，建议直接进行阻止，特别是如果您没有使用随机 CSRF Token（参考下方）作为第二次检查。</p>
+<h4 id="如何阻止外域请求">如何阻止外域请求</h4>
+<p>通过 Header 的验证，我们可以知道发起请求的来源域名，这些来源域名可能是网站本域，或者子域名，或者有授权的第三方域名，又或者来自不可信的未知域名。</p>
+<p>我们已经知道了请求域名是否是来自不可信的域名，我们直接阻止掉这些的请求，就能防御 CSRF 攻击了吗？<br />
+且慢！当一个请求是页面请求（比如网站的主页），而来源是搜索引擎的链接（例如百度的搜索结果），也会被当成疑似 CSRF 攻击。所以在判断的时候需要过滤掉页面请求情况，通常Header符合以下情况：<br />
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">Accept: text/html<br><span class="hljs-keyword">Method</span>: GET<br></code></pre></td></tr></table></figure></p>
+<p>但相应的，页面请求就暴露在了 CSRF 的攻击范围之中。如果你的网站中，在页面的 GET 请求中对当前用户做了什么操作的话，防范就失效了。</p>
+<p>另外，前面说过，CSRF大多数情况下来自第三方域名，但并不能排除本域发起。如果攻击者有权限在本域发布评论（含链接、图片等，统称UGC），那么它可以直接在本域发起攻击，这种情况下同源策略无法达到防护的作用。</p>
+<p>综上所述：同源验证是一个相对简单的防范方法，能够防范绝大多数的 CSRF 攻击。但这并不是万无一失的，对于安全性要求较高，或者有较多用户输入内容的网站，我们就要对关键的接口做额外的防护措施。</p>
+<h4 id="csrf-token">CSRF Token</h4>
+<p>前面讲到 CSRF 的另一个特征是，攻击者无法直接窃取到用户的信息（Cookie，Header，网站内容等），仅仅是冒用 Cookie 中的信息。</p>
+<p>而 CSRF 攻击之所以能够成功，是因为服务器误把攻击者发送的请求当成了用户自己的请求。那么我们可以要求所有的用户请求都携带一个 CSRF 攻击者无法获取到的Token。服务器通过校验请求是否携带正确的 Token，来把正常的请求和攻击的请求区分开，也可以防范 CSRF 的攻击。</p>
+<ol type="1">
+<li>将CSRF Token输出到页面中<br />
+首先，用户打开页面的时候，服务器需要给这个用户生成一个 Token，该 Token 通过加密算法对数据进行加密，一般 Token 都包括随机字符串和时间戳的组合，显然在提交时 Token 不能再放在 Cookie 中了，否则又会被攻击者冒用。因此，为了安全起见 Token 最好还是存在服务器的 Session 中，之后在每次页面加载时，使用 JS 遍历整个 DOM 树，对于 DOM 中所有的 a 和 form 标签后加入 Token。这样可以解决大部分的请求，但是对于在页面加载之后动态生成的 HTML 代码，这种方法就没有作用，还需要程序员在编码时手动添加 Token。</li>
+<li>页面提交的请求携带这个 Token<br />
+对于 GET 请求，Token 将附在请求地址之后，这样 URL 就变成 <code>http://url?csrftoken=tokenvalue</code>。而对于 POST 请求来说，要在 form 的最后加上 <code>&lt;input type="hidden" name="csrftoken" value="tokenvalue" /&gt;</code></li>
+<li>服务器验证 Token 是否正确<br />
+当用户从客户端得到了 Token，再次提交给服务器的时候，服务器需要判断 Token 的有效性，验证过程是先解密 Token，对比加密字符串以及时间戳，如果加密字符串一致且时间未过期，那么这个 Token 就是有效的。</li>
+</ol>
+<p>这种方法要比之前检查 Referer 或者 Origin 要安全一些，Token 可以在产生并放于 Session 之中，然后在每次请求时把 Token 从 Session 中拿出，与请求中的 Token 进行比对，但这种方法的比较麻烦的在于如何把 Token 以参数的形式加入请求。如果在请求中找不到 Token，或者提供的值与会话中的值不匹配，则应中止请求，应重置 Token 并将事件记录为正在进行的潜在 CSRF 攻击。</p>
+<blockquote>
+<p>分布式校验</p>
+</blockquote>
+<p>在大型网站中，使用 Session 存储 CSRF Token 会带来很大的压力。访问单台服务器 session 是同一个，但是现在的大型网站中，我们的服务器通常不止一台，可能是几十台甚至几百台之多，甚至多个机房都可能在不同的省份，用户发起的 HTTP 请求通常要经过像 Ngnix 之类的负载均衡器之后，再路由到具体的服务器上，由于 Session 默认存储在单机服务器内存中，因此在分布式环境下同一个用户发送的多次 HTTP 请求可能会先后落到不同的服务器上，导致后面发起的 HTTP 请求无法拿到之前的 HTTP 请求存储在服务器中的 Session 数据，从而使得 Session 机制在分布式环境下失效，因此在分布式集群中 CSRF Token 需要存储在 Redis 之类的公共存储空间。</p>
+<p>由于使用 Session 存储，读取和验证 CSRF Token 会引起比较大的复杂度和性能问题，目前很多网站采用 <code>Encrypted Token Pattern</code> 方式。这种方法的 Token 是一个计算出来的结果，而非随机生成的字符串。这样在校验时无需再去读取存储的 Token，只用再次计算一次即可。</p>
+<p>这种 Token 的值通常是使用 <code>UserID</code>、<code>时间戳</code> 和 <code>随机数</code>，通过加密的方法生成。这样既可以保证分布式服务的 Token 一致，又能保证 Token 不容易被破解。</p>
+<p>在 Token 解密成功之后，服务器可以访问解析值， Token 中包含的 UserID 和时间戳将会被拿来被验证有效性，将 UserID 与当前登录的 UserID 进行比较，并将时间戳与当前时间进行比较。</p>
+<blockquote>
+<p>Token 防御总结</p>
+</blockquote>
+<p>Token 是一个比较有效的 CSRF 防护方法，只要页面没有 XSS 漏洞泄露 Token，那么接口的 CSRF 攻击就无法成功。<br />
+但是此方法的实现比较复杂，需要给每一个页面都写入 Token（前端无法使用纯静态页面），每一个 Form 及 Ajax 请求都携带这个 Token，后端对每一个接口都进行校验，并保证页面 Token 及请求 Token 一致。这就使得这个防护策略不能在通用的拦截上统一拦截处理，而需要每一个页面和接口都添加对应的输出和校验。这种方法工作量巨大，且有可能遗漏。（验证码和密码其实也可以起到 CSRF Token 的作用，而且更安全）</p>
+<h4 id="双重-cookie-验证">双重 Cookie 验证</h4>
+<p>在会话中存储 CSRF Token 比较繁琐，而且不能在通用的拦截上统一处理所有的接口。<br />
+那么另一种防御措施是使用双重提交 Cookie。利用 CSRF 攻击不能获取到用户 Cookie 的特点，我们可以要求 Ajax 和表单请求携带一个 Cookie 中的值。</p>
+<p>双重Cookie采用以下流程：</p>
+<ol type="1">
+<li>在用户访问网站页面时，向请求域名注入一个 Cookie，内容为随机字符串（例如 <code>csrfcookie=v8g9e4ksfhw</code>）。</li>
+<li>在前端向后端发起请求时，取出 Cookie，并添加到 URL 的参数中（接上例 <code>POST https://www.a.com/comment?csrfcookie=v8g9e4ksfhw</code>）。</li>
+<li>后端接口验证 Cookie 中的字段与 URL 参数中的字段是否一致，不一致则拒绝。</li>
+</ol>
+<p>此方法相对于 CSRF Token 就简单了许多，可以直接通过前后端拦截的的方法自动化实现。后端校验也更加方便，只需进行请求中字段的对比，而不需要再进行查询和存储 Token。</p>
+<p>但是此方法并没有大规模应用，其在大型网站上的安全性还是没有 CSRF Token 高，原因我们举例进行说明。</p>
+<p>由于任何跨域都会导致前端无法获取 Cookie 中的字段（包括子域名之间），于是发生了如下情况：</p>
+<ol type="1">
+<li>如果用户访问的网站为 <code>www.a.com</code>，而后端的 api 域名为 <code>api.a.com</code>。那么在 <code>www.a.com</code> 下，前端拿不到 <code>api.a.com</code> 的 Cookie，也就无法完成双重 Cookie 认证。</li>
+<li>于是这个认证 Cookie 必须被种在 <code>a.com</code> 下，这样每个子域都可以访问。</li>
+<li>任何一个子域都可以修改 <code>a.com</code> 下的 Cookie。</li>
+<li>某个子域名存在漏洞被 XSS 攻击（例如 <code>upload.a.com</code>）。虽然这个子域下并没有什么值得窃取的信息，但攻击者修改了 <code>a.com</code> 下的 Cookie。</li>
+<li>攻击者可以直接使用自己配置的 Cookie，对 XSS 中招的用户再向 <code>www.a.com</code> 下，发起 CSRF 攻击。</li>
+</ol>
+<blockquote>
+<p>双重 Cookie 验证 总结</p>
+</blockquote>
+<p>用双重 Cookie 防御 CSRF 的优点：</p>
+<ul>
+<li>无需使用 Session，适用面更广，易于实施。</li>
+<li>Token 储存于客户端中，不会给服务器带来压力。</li>
+<li>相对于 Token，实施成本更低，可以在前后端统一拦截校验，而不需要一个个接口和页面添加。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>Cookie 中增加了额外的字段。</li>
+<li>如果有其他漏洞（例如 XSS），攻击者可以注入 Cookie，那么该防御方式失效。</li>
+<li>难以做到子域名的隔离。</li>
+<li>为了确保 Cookie 传输安全，采用这种防御方式的最好确保用整站 HTTPS 的方式，如果还没切 HTTPS 的使用这种方式也会有风险。</li>
+</ul>
+<h4 id="samesite-cookie">Samesite Cookie</h4>
+<p>防止 CSRF 攻击的办法已经有上面的预防措施。为了从源头上解决这个问题，Google 起草了一份草案来改进 HTTP 协议，那就是为 Set-Cookie 响应头新增 Samesite 属性，它用来标明这个 Cookie 是个 <code>同站 Cookie</code>，同站 Cookie 只能作为第一方 Cookie，不能作为第三方 Cookie，Samesite 有两个属性值，分别是 Strict 和 Lax，下面分别讲解：</p>
+<blockquote>
+<p>Samesite=Strict</p>
+</blockquote>
+<p>这种称为 <code>严格模式</code>，表明这个 Cookie 在任何情况下都不可能作为第三方 Cookie，绝无例外。比如说 b.com 设置了如下 Cookie：<br />
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">Set-Cookie: <span class="hljs-attribute">foo</span>=1; <span class="hljs-attribute">Samesite</span>=Strict<br>Set-Cookie: <span class="hljs-attribute">bar</span>=2; <span class="hljs-attribute">Samesite</span>=Lax<br>Set-Cookie: <span class="hljs-attribute">baz</span>=3<br></code></pre></td></tr></table></figure></p>
+<p>我们在 a.com 下发起对 b.com 的任意请求，foo 这个 Cookie 都不会被包含在 Cookie 请求头中，但 bar 会。举个实际的例子就是，假如淘宝网站用来识别用户登录与否的 Cookie 被设置成了 Samesite=Strict，那么用户从百度搜索页面甚至天猫页面的链接点击进入淘宝后，淘宝都不会是登录状态，因为淘宝的服务器不会接受到那个 Cookie，其它网站发起的对淘宝的任意请求都不会带上那个 Cookie。</p>
+<blockquote>
+<p>Samesite=Lax</p>
+</blockquote>
+<p>这种称为 <code>宽松模式</code>，比 Strict 放宽了点限制：假如这个请求是这种请求（改变了当前页面或者打开了新页面）且同时是个 GET 请求，则这个 Cookie 可以作为第三方 Cookie。比如说 b.com 设置了如下 Cookie：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">Set-Cookie: <span class="hljs-attribute">foo</span>=1; <span class="hljs-attribute">Samesite</span>=Strict<br>Set-Cookie: <span class="hljs-attribute">bar</span>=2; <span class="hljs-attribute">Samesite</span>=Lax<br>Set-Cookie: <span class="hljs-attribute">baz</span>=3<br></code></pre></td></tr></table></figure>
+<p>当用户从 a.com 点击链接进入 b.com 时，foo 这个 Cookie 不会被包含在 Cookie 请求头中，但 bar 和 baz 会，也就是说用户在不同网站之间通过链接跳转是不受影响了。但假如这个请求是从 a.com 发起的对 b.com 的异步请求，或者页面跳转是通过表单的 post 提交触发的，则 bar 也不会发送。</p>
+<blockquote>
+<p>Samesite 的问题</p>
+</blockquote>
+<p>Samesite的兼容性不是很好，现阶段除了从新版 Chrome 和 Firefox 支持以外，Safari 以及 iOS Safari 都还不支持，现阶段看来暂时还不能普及。</p>
+<p>而且，Samesite Cookie 目前有一个致命的缺陷：不支持子域。例如，种在 topic.a.com 下的 Cookie，并不能使用 a.com 下种植的 SamesiteCookie。这就导致了当我们网站有多个子域名时，不能使用 SamesiteCookie 在主域名存储用户登录信息。每个子域名都需要用户重新登录一次。</p>
+<p><strong>总之，SamesiteCookie是一个可能替代同源验证的方案，但目前还并不成熟，其应用场景有待观望。</strong></p>
+<h2 id="查缺补漏">查缺补漏</h2>
+<h3 id="x-content-type-options-nosniff">X-Content-Type-Options: nosniff</h3>
+<p>如果服务器发送响应头 <code>X-Content-Type-Options: nosniff</code>，则 script 和 styleSheet 元素会拒绝包含错误的 MIME 类型的响应。这是一种安全功能，有助于防止基于 MIME 类型混淆的攻击。</p>
+<h3 id="jwt">JWT</h3>
+<p>JWT 即 <code>JSON Web Token</code>，是目前最流行的跨域身份验证解决方案，服务器不保存任何会话数据，即服务器变为无状态，使其更容易扩展。</p>
+<p>JSON Web Token 由三部分组成使用 <code>.</code> 分割开：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Header</span><br><span class="hljs-attribute">Payload</span><br><span class="hljs-attribute">Signature</span><br></code></pre></td></tr></table></figure></p>
+<p>一个 JWT 形式上类似于下面的样子：<br />
+<code>xxxxx.yyyy.zzzz</code></p>
+<h4 id="header">Header</h4>
+<p>Header 一般由两个部分组成：</p>
+<ul>
+<li>alg：alg 是所使用的 hash 算法例如 HMAC SHA256 或 RSA</li>
+<li>typ：typ 是 Token 的类型自然就是 JWT。</li>
+</ul>
+<p>如：<br />
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;alg&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;HS256&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;typ&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;JWT&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure></p>
+<p>然后使用 Base64Url 编码成第一部分：<br />
+<code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.&lt;second part&gt;.&lt;third part&gt;</code></p>
+<h4 id="payload">Payload</h4>
+<p>这一部分是 JWT 主要的信息存储部分，其中包含了许多种的声明（claims）。<br />
+Claims 的实体一般包含用户和一些元数据，这些 claims 分成三种类型：reserved, public, 和 private claims。</p>
+<ul>
+<li>(保留声明）reserved claims ：预定义的 一些声明，并不是强制的但是推荐，它们包括 iss (issuer), exp (expiration time), sub (subject),aud(audience) 等。</li>
+<li>（公有声明）public claims : 这个部分可以随便定义，但是要注意和 IANA JSON Web Token 冲突。</li>
+<li>（私有声明）private claims : 这个部分是共享被认定信息中自定义部分。</li>
+</ul>
+<p>一个 Pyload 可以是这样子的：<br />
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;sub&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1234567890&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;John Doe&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;admin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure></p>
+<p>这部分同样使用 <code>Base64Url</code> 编码成第二部分：<br />
+<code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.&lt;third part&gt;</code></p>
+<h4 id="signature">Signature</h4>
+<p>在创建该部分时候你应该已经有了编码后的 Header 和 Payload 还需要一个秘钥，这个加密的算法应该 Header 中指定。密钥是保存在服务端的，服务端会根据这个密钥进行生成 Token 和验证，所以需要保护好。<br />
+一个使用 HMAC SHA256 的例子如下:<br />
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs lisp">HMACSHA256(<br>  <span class="hljs-name">base64UrlEncode</span>(<span class="hljs-name">header</span>) + <span class="hljs-string">&quot;.&quot;</span> +<br>  base64UrlEncode(<span class="hljs-name">payload</span>),<br>  secret)<br></code></pre></td></tr></table></figure></p>
+<p>这个 signature 是用来验证发送者的 JWT 的同时也能确保在期间不被篡改。</p>
+<p>所以，做后你的一个完整的 JWT 应该是如下形式：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9<span class="hljs-selector-class">.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9</span>.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ<br></code></pre></td></tr></table></figure></p>
+<h4 id="json-web-token-的工作流程">JSON Web Token 的工作流程</h4>
+<p>在用户使用证书或者账号密码登入的时候，服务器返回一个 JSON Web Token，同时可以把这个 JWT 存储在 local storage、或者 cookie 中，用来替代传统的在服务器端创建一个 session 返回一个 cookie。</p>
+<p>此后，客户端在与服务器交互中都会带上 JWT。注意，将它存储在 Cookie 中不能跨域，因此一般是将它放入 HTTP 请求的 Header Authorization 中：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/CSRFMeiTuan/20181107030612423.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+也可以将 JWT 放置于 POST 请求中。<br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="category-chain-item">阅读笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CSRF/">#CSRF</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>FreeBuf 文章：如何防止CSRF攻击？</div>
+      <div>https://www.tr0y.wang/2018/11/07/CSRFMeiTuan/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年11月7日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/12/31/openvas/" title="OpenVAS 踩坑指南">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OpenVAS 踩坑指南</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/11/03/XSSMeiTuan/" title="如何防止XSS攻击？">
+                        <span class="hidden-mobile">如何防止XSS攻击？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

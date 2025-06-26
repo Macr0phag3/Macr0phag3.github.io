@@ -1,0 +1,1431 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="编译原理系列第三篇，更加实用的语法分析算法~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译原理（三）：语法分析之自底向上分析算法">
+<meta property="og:url" content="https://www.tr0y.wang/2021/04/03/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E4%B9%8B%E8%87%AA%E5%BA%95%E5%90%91%E4%B8%8A%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="编译原理系列第三篇，更加实用的语法分析算法~">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+<meta property="article:published_time" content="2021-04-03T20:00:26.000Z">
+<meta property="article:modified_time" content="2023-12-14T06:19:30.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="编译原理">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/defaultcover.jpeg/cover">
+  
+  
+  
+  <title>编译原理（三）：语法分析之自底向上分析算法 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="编译原理（三）：语法分析之自底向上分析算法"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-04-03 20:00" pubdate>
+          2021年4月3日 20:00:26
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">编译原理（三）：语法分析之自底向上分析算法</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>编译原理系列第三篇，更加实用的语法分析算法~</p>
+<span id="more"></span>
+<h1 id="编译原理三语法分析之自底向上分析算法">编译原理（三）：语法分析之自底向上分析算法</h1>
+<h2 id="自底向上分析算法">自底向上分析算法</h2>
+<p>自顶向下的算法貌似到头了，是时候寻找新的算法了！</p>
+<h3 id="lr-算法">LR 算法</h3>
+<p><code>LR 分析算法</code>也被叫做<code>移进-规约 算法</code>，是语法分析器的自动生成器中广泛采用的算法，例如：YACC 等。相比于 LL(1)，它的分析同样高效，并且不需要对文法进行特殊处理。LR 算法之所以被称为是 <code>移进-规约算法</code>，是因为算法中两个核心操作是：移进（shift）和规约（reduce）。</p>
+<ol type="1">
+<li>移进：不规约，继续展开右边的式子</li>
+<li>规约：把推导式右边的部分，归成左边的非终结符</li>
+</ol>
+<h4 id="lr0-算法">LR(0) 算法</h4>
+<p>先来介绍 LR 中最简单的 LR(0)：从左（L）向右读入程序，最右（L）推导（严格来说是最右推导的逆过程），不用前看符号来决定产生式的选择（0 个前看符号，这里的 0 有点特殊，后面会提到）。它容易实现，但是有一些缺点，比如导致错误发现延后、会出现冲突（后面会看到）。</p>
+<blockquote>
+<p>算法 3.0</p>
+</blockquote>
+<p>为了方便标记语法分析器已经读入了多少输入，先引入一个<code>点记号</code>：<code>•</code>，• 左边表示已经读入的输入，• 右边表示剩余的输入。</p>
+<p>接下来以这个文法为例子：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: E -&gt; E + T<br>1:    | T<br>2: T -&gt; T * F<br>3:    | F<br>4: F -&gt; num<br></code></pre></td></tr></table></figure></p>
+<p>先看看 LR(0) 算法处理 <code>3 + 4 * 5</code> 的过程：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs txt">• 2 + 3 * 4  # 开始<br>2 • + 3 * 4  # 首先读入 2，移进<br>F • + 3 * 4  # 根据语法规则 4 进行规约，得到<br>T • + 3 * 4  # 根据语法规则 3 进行规约，得到<br>E • + 3 * 4  # 根据语法规则 1 进行规约，得到<br>E + • 3 * 4  # 继续读入 +，移进<br>E + 3 • * 4  # 继续读入 3，移进<br>E + F • * 4  # 根据语法规则 4 进行规约，得到<br>E + T • * 4  # 根据语法规则 3 进行规约，得到<br>E + T * • 4  # 继续读入 *，移进<br>E + T * 4 •  # 继续读入 4，移进<br>E + T * F •  # 根据语法规则 4 进行规约，得到<br>E + T •  # 根据语法规则 2 进行规约，得到<br>E •  # 根据语法规则 0 进行规约，得到<br>S •  # 回到初始符<br></code></pre></td></tr></table></figure></p>
+<p>如果从下往上看整个过程，其实就是文法的最右推导，那么自然，LR(0) 算法就是文法最右推导的逆过程。</p>
+<p>接下来，最重要的问题是，怎么确定某一步是要移进还是要规约呢？例如当我们得到了 <code>E • + 3 * 4</code> 之后，为什么不把 E 规约成 S 呢？</p>
+<p>要回答这个问题，我们再看一个更加简单的例子：<br />
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs coq"><span class="hljs-number">0</span>: S&#x27; -&gt; S$<br><span class="hljs-number">1</span>: S -&gt; xxT<br><span class="hljs-number">2</span>: T -&gt; y<br></code></pre></td></tr></table></figure></p>
+<p>分析输入串 <code>xxy$</code>。</p>
+<p>这个文法的语法要求其实非常简单，就是 <code>xxy</code>。那么第 0 条规则的作用是什么呢？</p>
+<ol type="1">
+<li>保证即起始的非终结符符号，不出现在任何推导的右部。当然，起始符号是有可能出现在推导的右部的，在加上 <code>S'</code> 之后就可以避免这种情况。</li>
+<li>$ 是输入的结束标记符，放在输入的最后。各位可以类比于 C 语言字符串的 <code>EOF</code>。当然每个语法分析器可以自己来规定结束符号，这边先利用 <code>$</code> 统一表示一下。</li>
+</ol>
+<p>接下来类比词法分析的状态转移图，我们也可以画出文法的状态转移图：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210326111944.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>有以下几点需要解释一下：</p>
+<ol type="1">
+<li>在节点 1 中，<code>S' -&gt; •S$</code> 表示接下来碰到的输入，要可以匹配 • 右边的 S。</li>
+<li>既然接下来期待匹配的是 S，那么匹配 S 其实就是匹配 xxT，所以 <code>S' -&gt; •S$</code> 和 <code>S -&gt; •xxT</code> 就合并到了一起。对于节点 3 同理。</li>
+<li>那么方向上的字符表示什么意思呢？比如 1-&gt;2 的 x，就是碰到 x 后，状态怎么转移。所以非常直观，碰到一个 x 之后 • 自然就往后挪动了一位，就是节点 2 了。其他的也是同理的。</li>
+<li>那么还有 2 条特殊的边，1-&gt;6、3-&gt;5。注意，上面那一条中，我用的是“...碰到 x...”，这里用 “碰到” 而不是 “读入”，含义就是这个图表示的整个转移过程，不仅有移进，还会有规约，如果这里没法理解也没事，下面会有例子来直观地表示什么叫 “碰到”；以 3-&gt;5 为例，在碰到 T 之后，就转移到了节点 5；1-&gt;6 同理，并且 6 号节点还比较特殊，其实是即将终结的状态，如果继续读入读到一个结束符，那么就分析成功了。</li>
+<li>识别出了某一个推导式完整的右部，就要开始规约；否则继续移进；输入消耗完毕之后，在终结状态上，那么就接受，反正拒绝。</li>
+</ol>
+<p>依旧有些抽象吧？来看个具体的例子，那我们就假设输入是 <code>S = xxy$</code> 好了：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs txt">•xxy$  # 开始；在节点 1<br>x•xy$  # 读入 x；节点 1 在碰到 x 之后，走向节点 2<br>xx•y$  # 读入 x；节点 2 在碰到 x 之后，走向节点 3<br>xxy•$  # 读入 y；节点 3 在碰到 y 之后，走向 4<br>xx•T$  # 到节点 4 后，即 T-&gt; y•，由于此时 • 已经在最后了，这个时候说明已经识别出了某一个推导式完整的右部，就要开始规约：移除规则 2 的右部，压入规则 2 的左部，返回节点 3<br>xxT•$  # 走到节点 3 后，• 前面是非终结符 T，节点 3 在碰到 T 之后，走到节点 5<br>•S$  # 到节点 5 后，同理，开始规约，移除规则 1 的右部，压入规则 1 的左部，返回节点 1<br>S•$  # 走到节点 1 后，• 前面是非终结符 S，节点 1 在碰到 S 之后，走到节点 6<br>S$•  # 读入 $；节点 6 就是期待一个结束符 $，那么就接受了。<br></code></pre></td></tr></table></figure></p>
+<p>（再放一次这个图，方便对照）<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210326111944.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果我们把图中的方框，变成圆圈的话，就非常类似词法分析里的 DFA 了。整个过程是先走出去，再走回来，最后要走到终结状态。</p>
+<p>那么有了这有一个DFA 之后，同样类比词法分析里的转移表，我们也可以构造出语法分析的分析表：</p>
+<table class="tg">
+<thead>
+<tr>
+<th class="tg-nrix">
+</th>
+<th class="tg-nrix" colspan="3">
+动作（ACTION）
+</th>
+<th class="tg-nrix" colspan="2">
+转移（GOTO）
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tg-nrix">
+状态
+</td>
+<td class="tg-nrix">
+x
+</td>
+<td class="tg-nrix">
+y
+</td>
+<td class="tg-nrix">
+$
+</td>
+<td class="tg-nrix">
+S
+</td>
+<td class="tg-nrix">
+T
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+1
+</td>
+<td class="tg-nrix">
+s2
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+g6
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+2
+</td>
+<td class="tg-nrix">
+s3
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+3
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+s4
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+g5
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+4
+</td>
+<td class="tg-nrix">
+r2
+</td>
+<td class="tg-nrix">
+r2
+</td>
+<td class="tg-nrix">
+r2
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+5
+</td>
+<td class="tg-nrix">
+r1
+</td>
+<td class="tg-nrix">
+r1
+</td>
+<td class="tg-nrix">
+r1
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+6
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+accept
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+</tbody>
+</table>
+<p>其中，s 是 shift，后面跟着的数字代表转移图里的状态；r 就 reduce，后面跟着的数字代表规则的编号；g 与 s 类似，区别在于 s 是遇到一个终结符，而 g 是遇到一个非终结符。有了这个表之后呢，就很容易指导语法分析的过程了，用一个栈实现，非常直观：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs txt">输入: S = xxy$<br><br>stack = [1]  # 栈里面存储的是状态与符号。那么初始状态自然只有一个节点 1 在栈里面<br>stack = [1, x, 2]  # 栈顶是 1，查表可得 s2，需要读一个输入 x，然后压入 x、2<br>stack = [1, x, 2, x, 3]  # 栈顶是 2，查表可得 s3，需要读一个输入 x，然后压入 x、3<br>stack = [1, x, 2, x, 3, y, 4]  # 栈顶是 3，查表可得 s4，需要读一个输入 y，然后压入 y、4<br>stack = [1, x, 2, x, 3, T, 5]  # 栈顶是 4，查表得 r2，需要按照规则 2 进行规约，弹出规则 2 的右部与栈中的状态：4、y，压入规则 2 的左部 T，然后查表可得 g5，还需要压入 5<br>stack = [1, S, 6]  # 栈顶是 5，查表可得 r1，需要按照规则 1 进行规约，弹出规则 1 的右部与栈中的状态：5、T、3、x、2、x，压入规则 1 的左部 S，然后查表可得 g6，还需要压入 6<br>accept = True  # 栈顶是 6，读入一个字符 $，查表可得 accept，即接受<br></code></pre></td></tr></table></figure></p>
+<p>大家可以尝试用代码实现一下 LR(0) 分析表的构造，以及在有了分析表之后，通过分析表实现语法分析，我这里为了避免篇幅过长，就省略了。</p>
+<p>前面提到，LR(0) 有 2 个缺陷，一个是错误发现的时机延迟；一个是会出现冲突。</p>
+<blockquote>
+<p>LR(0) 的错误时机延后问题</p>
+</blockquote>
+<p>先来看错误发现的时机延迟：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: S&#x27; -&gt; S$<br>1: S  -&gt; xS<br>2  S  -&gt; y<br></code></pre></td></tr></table></figure></p>
+<p>对于这么一个文法来说，它的转移图为：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210326155216.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+分析表为：<br />
+
+<table class="tg">
+<thead>
+<tr>
+<th class="tg-nrix">
+</th>
+<th class="tg-nrix" colspan="3">
+动作（ACTION）
+</th>
+<th class="tg-nrix" colspan="1">
+转移（GOTO）
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tg-nrix">
+状态
+</td>
+<td class="tg-nrix">
+x
+</td>
+<td class="tg-nrix">
+y
+</td>
+<td class="tg-nrix">
+$
+</td>
+<td class="tg-nrix">
+S
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+1
+</td>
+<td class="tg-nrix">
+s2
+</td>
+<td class="tg-nrix">
+s3
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+g4
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+2
+</td>
+<td class="tg-nrix">
+s2
+</td>
+<td class="tg-nrix">
+s3
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+g5
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+3
+</td>
+<td class="tg-nrix">
+r2
+</td>
+<td class="tg-nrix">
+r2
+</td>
+<td class="tg-nrix">
+r2
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+4
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+accept
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+5
+</td>
+<td class="tg-nrix">
+r1
+</td>
+<td class="tg-nrix">
+r1
+</td>
+<td class="tg-nrix">
+r1
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+</tbody>
+</table>
+<p>假设输入 <code>S = xyx</code>：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs txt">输入: S = xyx$<br><br>stack = [1]  # 栈里面存储的是状态与符号。那么初始状态自然只有一个节点 1 在栈里面<br>stack = [1, x, 2]  # 栈顶是 1，查表可得 s2，需要读一个输入 x，然后压入 x、2<br>stack = [1, x, 2, y, 3]  # 栈顶是 2，查表可得 s3，需要读一个输入 x，然后压入 x、3<br>stack = [1, x, 2, S, 5]  # 栈顶是 3，查表得 r2，需要按照规则 2 进行规约，弹出规则 2 的右部与栈中的状态：3、y，压入规则 2 的左部 S，然后查表可得 g5，还需要压入 5<br>stack = [1, S, 4]  # 栈顶是 5，查表可得 r1，需要按照规则 1 进行规约，弹出规则 1 的右部与栈中的状态：5、S、2、x，压入规则 1 的左部 S，然后查表可得 g4，还需要压入 4<br>accept = False  # 栈顶是 4，读入一个字符 x，查表为空，即拒绝<br></code></pre></td></tr></table></figure></p>
+我们结合上面的过程，在仔细观察表中的状态 3，其实可以这么理解：当栈顶是状态 3 的时候，不管输入的符号是什么，都要开始规约，所以状态 3 的那一行，有 3 个 r2。状态 5 也同理。而我们观察文法可以发现，S 后面只能跟 $，那么在状态 4 的时候，输入必须只剩 $，否则就不能被接受，继续倒退一步，如果我们在状态 3 上即将开始规约的时候（即已经得到了 <code>stack = [1, x, 2, y, 3]</code> 后），发现剩下的输入不是 <span class="math inline">\(，其实就可以报错了，否则继续规约，最后也得报错，早报错当然比晚报错好。状态 5 也同理。反映在分析表上，就是状态 3、5 遇到 x、y 的时候，直接报错而不是规约： &lt;table class=&quot;tg&quot;&gt; &lt;thead&gt;  &lt;tr&gt;  &lt;th class=&quot;tg-nrix&quot;&gt;&lt;/th&gt;  &lt;th class=&quot;tg-nrix&quot; colspan=&quot;3&quot;&gt;动作（ACTION）&lt;/th&gt;  &lt;th class=&quot;tg-nrix&quot; colspan=&quot;1&quot;&gt;转移（GOTO）&lt;/th&gt;  &lt;/tr&gt; &lt;/thead&gt; &lt;tbody&gt;  &lt;tr&gt;  &lt;td class=&quot;tg-nrix&quot;&gt;状态\符号&lt;/td&gt;  &lt;td class=&quot;tg-nrix&quot;&gt;x&lt;/td&gt;  &lt;td class=&quot;tg-nrix&quot;&gt;y&lt;/td&gt;  &lt;td class=&quot;tg-nrix&quot;&gt;\)</span>
+</td>
+<pre><code class="hljs">&lt;td class=&quot;tg-nrix&quot;&gt;S&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<td class="tg-nrix">
+1
+</td>
+<td class="tg-nrix">
+s2
+</td>
+<td class="tg-nrix">
+s3
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+g4
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+2
+</td>
+<td class="tg-nrix">
+s2
+</td>
+<td class="tg-nrix">
+s3
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+g5
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+3
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+r2
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+4
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+accept
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+<tr>
+<td class="tg-nrix">
+5
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+</td>
+<td class="tg-nrix">
+r1
+</td>
+<td class="tg-nrix">
+</td>
+</tr>
+</tbody>
+</table>
+<p>这么做的话，就可以将报错的时机提前。并且分析表的规模也会减小，对于一个比较大的语言来说，分析表可能会很大，能够节省肯定是件好事。</p>
+<blockquote>
+<p>LR(0) 的冲突</p>
+</blockquote>
+<p>接下来看这个文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">0: S -&gt; E$<br>1: E -&gt; T+E<br>2: E -&gt; T<br>3: T -&gt; n<br></code></pre></td></tr></table></figure></p>
+<p>转移图如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210326160146.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，对于状态 3 来说，既可以规约，也可以移进，这就出现了 移进-规约冲突。如果我们按照解决错误发现时机延迟的方式来看的话，在这里，3号状态应该只在遇到 $ 的时候做规约，其他情况做移进，如果所有情况都做规约的话，4、6 节点就不可能到达了。</p>
+<h4 id="slr-算法">SLR 算法</h4>
+<blockquote>
+<p>算法 3.1</p>
+</blockquote>
+<p>那么可以总结出来，LR(0) 算法的两个缺陷，解决方式为：只对在 FOLLOW 集的非终结符进行规约。这个算法就是 <code>SLR</code> 算法。SLR 算法和 LR(0) 分析算法基本步骤相同，仅区别于对归约的处理：对于状态 i 上的项目 <code>X -&gt; α •</code>，仅对 <code>y ∈ FOLLOW(X)</code> 添加 <code>ACTION[i, y]</code>。</p>
+<p>但是，SLR 也仅仅是解决了部分冲突。来看这个文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">S&#x27; -&gt; S$<br>S  -&gt; L=R<br>S  -&gt; R<br>L  -&gt; *R<br>L  -&gt; id<br>R  -&gt; L<br></code></pre></td></tr></table></figure></p>
+<p>它的转移图如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210329151307.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，节点 2，出现了移进-规约冲突。我们可以按照 SLR 算法来试试， 首先计算 FOLLOW(R)，如果你已经忘记怎么计算了，可以去第二篇里回顾一下 FOLLOW 集的计算方式：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs txt">FOLLOW 集计算过程如下：<br># 对于规则 0，开始计算<br>temp = FOLLOW(S&#x27;)  # temp = &#123;&#125;<br>temp = &#123;$&#125;<br>FOLLOW(S) |= temp  # FOLLOW(S) = &#123;$&#125;<br>temp = FIRST(S)<br><br># 对于规则 1，开始计算<br>temp = FOLLOW(S)  # temp = &#123;$&#125;<br>FOLLOW(R) |= temp  # FOLLOW(R) = &#123;$&#125;<br>temp = FIRST(R)  # temp = &#123;*, id&#125;<br>temp = &#123;=&#125;<br>FOLLOW(L) |= temp  # FOLLOW(L) = &#123;=&#125;<br>temp = FIRST(L)<br><br># 对于规则 2，开始计算<br>temp = FOLLOW(S)  # temp = &#123;$&#125;<br>FOLLOW(R) |= temp  # FOLLOW(R) = &#123;$&#125;<br><br># 对于规则 3，开始计算<br>temp = FOLLOW(L)  # temp = &#123;=&#125;<br>FOLLOW(R) |= temp  # FOLLOW(R) = &#123;$, =&#125;<br>...  # 避免篇幅过长，省略<br><br></code></pre></td></tr></table></figure></p>
+<p>可以看到 FOLLOW(R) 中包含了 <code>=</code>，所以按照 SLR 算法，这里是可以规约的。所以，利用 FOLLOW 集试图来消除移进-规约冲突是不够完善的。</p>
+<h4 id="lr1-算法">LR(1) 算法</h4>
+<blockquote>
+<p>算法 3.2</p>
+</blockquote>
+<p>首先，将为 <code>[A -&gt; α•β, a]</code> 的项称为 LR(1) 项，其中 <code>A-&gt; α•β</code> 是一个产生式，a 是一个终结符（<code>$</code> 也视为一个终结符），它表示在当前状态下，A 后面必须紧跟的终结符，即该项的前看符号。</p>
+<p>可以看到，LR(1) 的<code>项</code>（即转移图中一个状态中的一行），对比 LR(0) 的项就是多了一个元素；而对比 SLR 与 LR(1)，区别就是 SLR 的前看符号是 FOLLOW(A)，而 LR(1) 的前看符号则需要求 FIRST_S 集。</p>
+<p>那么 LR(1) 的前看符号具体是怎么计算的呢？对项目 <code>[X -&gt; α•Yβ, a]</code>，添加 <code>[Y -&gt; •Y, b]</code>到项目集，其中 <code>b ∈ FIRST_S(βa)</code>。</p>
+<p>举几个例子，还是来看这个文法：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">S&#x27; -&gt; S$<br>S  -&gt; L=R<br>S  -&gt; R<br>L  -&gt; *R<br>L  -&gt; id<br>R  -&gt; L<br></code></pre></td></tr></table></figure></p>
+<p>转移图如下：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210329151307.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>计算节点 1 中的项的前看符号：<br />
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs txt">1. S&#x27; -&gt; •S$:  [S&#x27; -&gt; •S$   ,  $]  # 第一条的前看符号肯定是 $；β 为空，a 为 $<br>2. S  -&gt; •L=R: [S  -&gt; •L=R  ,  $]  # 看 1，计算 FIRST_S($)，就是 $；β 为 =R，a 为 $<br>3. S  -&gt; •R:   [S  -&gt; •R    ,  $]  # 看 1，计算 FIRST_S($)，就是 $；β 为空，a 为 $<br>4. L  -&gt; •*R:  [L  -&gt; •id   ,  $]  # 看 2，计算 FIRST_S(=R$)，就是 =<br>5. L  -&gt; •id:  [L  -&gt; •id   ,  $]  # 看 2，计算 FIRST_S(=R$)，就是 =<br>6. R  -&gt; •L:   [R  -&gt; •L    ,  $]  # 看 3，计算 FIRST_S($)，就是 $；β 为空，a 为 $<br>7. L  -&gt; •*R:  [R  -&gt; •L    ,  $]  # 看 6，计算 FIRST_S($)，就是 $<br>8. L  -&gt; •id:  [L  -&gt; •id   ,  $]  # 看 6，计算 FIRST_S($)，就是 $<br></code></pre></td></tr></table></figure></p>
+<p>其他节点的计算方式与上面这个一致，为了避免篇幅过长就不写过程了。</p>
+<p>这样，前看符号就更加精确了，避免了错误发现延后，以及冲突的出现。</p>
+<p>那么 LR(1) 有没有缺点呢？当然有，就是<code>二义性文法</code>。实际上目前也没有什么算法可以处理所有的二义性文法。不过，有几类二义性文法是很容易理解的，因此，在 LR 分析器的生成工具中，可以对它们特殊处理，比如：<code>优先级</code>（* 比 + 高）、<code>结合性</code>（算数符左结合或者右结合）、<code>悬空 else</code>（多个 if-esle 块，if 应该与哪个 else 配对），这几种二义性文法都非常常见。</p>
+<p>例如：<br />
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-built_in">E</span> <span class="hljs-operator">-&gt;</span> <span class="hljs-built_in">E</span> <span class="hljs-operator">+</span> <span class="hljs-built_in">E</span> •<br><span class="hljs-built_in">E</span> <span class="hljs-operator">-&gt;</span> <span class="hljs-built_in">E</span> • <span class="hljs-operator">+</span> <span class="hljs-built_in">E</span><br><span class="hljs-built_in">E</span> <span class="hljs-operator">-&gt;</span> <span class="hljs-built_in">E</span> • <span class="hljs-operator">*</span> <span class="hljs-built_in">E</span><br></code></pre></td></tr></table></figure><br />
+按照第一条我们应该规约，按照后面两条应该移进。但如果我们告诉语法分析器，加法是左结合的，并且乘法比加法优先级高，那么分析器只需要看一下后面是加号还是乘号，如果后面是加号那么就规约，因为加号是左结合的，遇到完整的 E+E 就可以先做计算了；如果后面是乘号就移进，因为乘号优先高，移进来保证乘法先做计算。</p>
+<p>所以理论上 LR(1) 是不能分析二义性文法的，但是我们可以通过提示语法分析器来解决二义性的问题。</p>
+<h2 id="抽象语法树ast">抽象语法树（AST）</h2>
+<p>这是一个简单编译器的阶段划分：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210308162752.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>可以看到，语法分析器的输入的记号流，输出是抽象语法树。但目前，我们仅仅能对一个输入 S 回答是否符合语法，然后回答 Yes 或者 No，所以我们还需生成抽象语法树，然后传给语义分析器做处理。</p>
+<p>在讲抽象语法树之前，先来回顾一下分析树，其实它也可以叫“具体分析树”（CST），我们在系列第二篇讲 CFG 的推导的时候，提到了它。</p>
+<p>来看这么一个分析树：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210330190659.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>我们知道，分析树很具体地表明对句子推导的过程，也就是其中包含了语法，但是同时也包含了不必要的信息，而这些信息在实现的过程中，也是要占用内存的（编译器要可以编译上万行的代码）。那么问题来了，什么是“不必要的信息”呢？对于这个例子来说，编译只需要知道运算符和运算数，至于优先级、结合性等已经在语法分析部分处理掉了。</p>
+<p>因此，这个分析树就可以“抽象”为这样一个抽象语法树：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/编译原理（三）：语法分析之自底向上分析算法/20210330200700.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>抽象语法树（abstract syntax code，AST）是源代码的抽象语法结构的树状表示，树上的每个节点都表示源代码中的一种结构，这所以说是抽象的，是因为抽象语法树并不会表示出真实语法出现的每一个细节，比如说，嵌套括号被隐含在树的结构中，并没有以节点的形式呈现。抽象语法树并不依赖于源语言的语法，也就是说语法分析阶段所采用的上下文无文文法，因为在写文法时，经常会对文法进行等价的转换（消除左递归，回溯，二义性等），这样会给文法分析引入一些多余的成分，对后续阶段造成不利影响，甚至会使各个阶段变得混乱。因此，很多编译器经常要独立地构造语法分析树，建立一个清晰的接口。</p>
+<p>具体实现起来，AST 就是一组预定义的数据结构，抽象地描述了语法规则，对于 C 语言来说，可以用结构体；对于 Python 来说可以用类。</p>
+<p>最后有个需要注意的地方，源程序一旦被转换成抽象语法树，那么源代码就都被丢弃了，后续的阶段只处理抽象语法树。所以抽象语法树必须保留足够的源代码信息，例如每个语法结构在源代码中的位置（文件、行号、列号等），这样后续的检查阶段才能精确的报错，所以抽象语法树必须仔细地设计。</p>
+<h2 id="总结">总结</h2>
+<p>至此，语法分析相关的知识都讲完了。</p>
+<p>相关算法稍多，来总结一下吧：</p>
+<p>语法分析器的实现方法：</p>
+<ol type="1">
+<li>手工方式
+<ul>
+<li>递归下降分析器</li>
+</ul></li>
+<li>使用语法分析器的自动生成器
+<ul>
+<li>LL(1)</li>
+<li>LR(1)</li>
+</ul></li>
+</ol>
+<p>两种方式在实际的编译器中都有广泛的应用，自动的方式更适合快速对系统进行原型。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">这个系列别的不说<br>画图表都画的累死了...<br>好在编译原理系列马上结束了！</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">#编译原理</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>编译原理（三）：语法分析之自底向上分析算法</div>
+      <div>https://www.tr0y.wang/2021/04/03/编译原理（三）：语法分析之自底向上分析算法/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年4月3日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月14日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/04/04/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9A%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90/" title="编译原理（四）：语义分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">编译原理（四）：语义分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/04/02/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90%E4%B9%8B%E8%87%AA%E9%A1%B6%E5%90%91%E4%B8%8B%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95/" title="编译原理（二）：语法分析之自顶向下分析算法">
+                        <span class="hidden-mobile">编译原理（二）：语法分析之自顶向下分析算法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

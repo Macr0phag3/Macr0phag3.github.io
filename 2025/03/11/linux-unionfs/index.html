@@ -1,0 +1,1141 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="Linux 基础系列之 Union File System">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 基础-Union File System">
+<meta property="og:url" content="https://www.tr0y.wang/2025/03/11/linux-unionfs/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="Linux 基础系列之 Union File System">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/linux.jpeg/cover">
+<meta property="article:published_time" content="2025-03-11T19:22:53.000Z">
+<meta property="article:modified_time" content="2025-03-11T11:45:04.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/linux.jpeg/cover">
+  
+  
+  
+  <title>Linux 基础-Union File System - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 基础-Union File System"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-11 19:22" pubdate>
+          2025年3月11日 19:22:53
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          8.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          51 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux 基础-Union File System</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：3 个月前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Linux 基础系列之 Union File System</p>
+<span id="more"></span>
+<h2 id="unionfs-介绍">UnionFS 介绍</h2>
+<p>Union File System，简称 UnionFS，是一种为 Linux 等操作系统设计的，是一种文件系统服务的实现方式。</p>
+<p>UnionFS 最显著的特点是它支持将多个目录或文件系统层次「叠加」起来，这些「层」可以设置为 <strong>只读（read-only）</strong> 或 <strong>读写（read-write）</strong> 模式，同时提供 <strong>写时复制（Copy-on-Write, COW）</strong> 的机制。</p>
+<p>其核心要点如下：</p>
+<ol type="1">
+<li>层（Layers）：UnionFS 将多个底层的文件系统组织成 Layers。每个层可以是物理文件系统（如 ext4、xfs），也可以是一个目录（如 <code>/dir1</code>, <code>/dir2</code>），这些层被叠加（overlay），并形成一个统一的虚拟层次结构。这样应用在使用这个文件系统的时候，不用去关心它到底是个目录还是个物理磁盘</li>
+<li>写时复制（Copy-on-Write, CoW）：当 layer 是“只读”时，若用户试图修改文件，UnionFS 会将需要修改的文件复制到一份放到上层，成为一个写入层，并在该层进行修改，而底层的只读数据不会被直接更改，这保证了既保证了基础层的完整性，同时支持用户对该层的定制化。虚拟机快照也有 COW 机制，虽然虚拟机快照并未直接使用 UnionFS，但其实现机制与分层文件系统非常相似</li>
+<li>优先级顺序：在文件查找时，UnionFS 会按照层的优先级顺序，从上层依次向下查找文件，一旦找到所需文件，就停止继续查找</li>
+</ol>
+<p>回想我们在使用容器技术的时候，对容器做出的任何修改都不会影响其镜像，其中便是 cow 的机制在发挥作用。UnionFS 是最早的一种实现，但因为其复杂的实现和性能问题，在实际应用中不够高效。在 UnionFS 的基础上涌现出了非常多的实现版本，无法逐一研究，本文只聚焦于最常见的 AUFS 和 overlayFS。</p>
+<p>易混淆的另外一个概念是 <code>UFS</code>，UFS 通常指的是 Unix File System（也叫 伯克利快速文件系统，Berkeley Fast File System），这是一种在 Unix 系统中使用的传统文件系统。对于 Union File System，常用的缩写是 UnionFS。</p>
+<h2 id="aufs">AUFS</h2>
+<p>AUFS，英文全称是 Advanced Multi-Layered Unification Filesystem</p>
+<p>AUFS 是对 UnionFS 的改进版本，是早期版本的 Docker 的默认存储驱动。但可惜，它并未被合并到 Linux 主线内核（没有被 Linux 官方完全接纳），需要额外安装补丁。随着 OverlayFS 的发展，AUFS 在主流容器技术中逐渐被淘汰。</p>
+<p>我在学习的过程中发现 AUFS 理论看着挺好理解的，实际上还是蛮多坑的。为了理解，我做了几个实验模拟一下 docker 的容器层与镜像层。</p>
+<h3 id="环境搭建">环境搭建</h3>
+<ol type="1">
+<li><code>mkdir aufs-demo</code> 创建一个文件夹，并通过 <code>mkdir aufs-demo/image-layer&#123;1,2,3&#125;</code> 创建 3 个模拟镜像层的文件夹，一共是 3 层；然后在建一个容器层文件夹 <code>mkdir aufs-demo/container-layer</code>；最后建一个 mnt 文件夹，用于 aufs 挂载测试 <code>mkdir aufs-demo/mnt</code>。最后在容器层、镜像层的文件夹分别写入一些文件</li>
+<li>然后把 <code>mnt</code> 挂载成 aufs：<code>mount -t aufs -o dirs=./container-layer:./image-layer1:./image-layer2:./image-layer3 none ./mnt</code>
+<ol type="1">
+<li><code>-t</code> 表示指定文件系统的类型，这里是 aufs</li>
+<li><code>-o</code> 用于指定挂载选项，<code>dirs=...</code> 表示 AUFS 的层次结构，定义了哪些目录或文件系统会参与联合挂载，以及它们的顺序，各层的目录通过 <code>:</code> 分隔，顺序从左到右。因此这里 <code>./container-layer</code> 即为“顶层”（Upper Layer）</li>
+<li><code>none</code> 说明不绑定到具体的设备。AUFS 不需要挂载实际的存储设备（如硬盘分区或文件系统），它是基于目录联合挂载的逻辑文件系统</li>
+<li><code>./mnt</code> 表示挂载点，挂载完成后，用户可以通过 <code>./mnt</code> 这个目录访问联合后的文件视图</li>
+</ol></li>
+</ol>
+<p>为了方便测试，可以写个简单的脚本，这样方便重复测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">umount /root/zaemon/aufs-demo/mnt<br><span class="hljs-built_in">sleep</span> 1<br><br><span class="hljs-built_in">rm</span> -rf ./container-layer/ image-layer1/ image-layer2/ image-layer3/-layer/ ./image-layer1/ ./image-layer2/ ./image-layer3/ ./mnt/<br><span class="hljs-built_in">sleep</span> 2<br><br><span class="hljs-built_in">mkdir</span> ./image-layer&#123;1,2,3&#125;<br><span class="hljs-built_in">mkdir</span> ./mnt ./container-layer<br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am image layer 1&quot;</span> &gt; image-layer1/image-1.txt<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am image layer 3&quot;</span> &gt; image-layer3/image-3.txt<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am image layer 2&quot;</span> &gt; image-layer2/image-2.txt<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am container layer&quot;</span> &gt; container-layer/container.txt<br><br>mount -t aufs -o <span class="hljs-built_in">dirs</span>=./container-layer:./image-layer1:./image-layer2:./image-layer3 none ./mnt<br></code></pre></td></tr></table></figure>
+<p><em>注意，这里要加 sleep，重建执行太快的话，会导致 aufs 挂载出现异常，现象是在只读层创建的文件不会反馈到 mnt 中，导致结论出现错误...原因不详</em></p>
+<p>现在，作为顶层的 <code>./container-layer</code> 即为可写层，所有新建或修改的文件都会存储在这个层中，如果修改了下层文件，AUFS 会通过写时复制（CoW）将这些文件复制到这里。</p>
+<p>通过 <code>/sys/fs/aufs/</code> 下的目录可以看到，mnt 这个目录的确是一个分层的结构，并且只有 container-layer 是可写的，其他都是只读层：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/bdb04612-64f3-4e4c-b990-e4348ad042c6.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="查找文件">查找文件</h3>
+<p>查询的顺序是：mnt =&gt; 读写层 =&gt; 只读层。且读写层中无法查到只读层的文件。因此如果一个文件同时存在于读写层和只读层，mnt 读到的是只读层的文件，此时文件认为存在于只读层。</p>
+<h3 id="修改文件">修改文件</h3>
+<ol type="1">
+<li>在 mnt 中修改：对于读写层文件，会被反馈到原本的 <code>container-layer/</code> 中，而其他只读层的修改并不会反馈到原目录中，而是在 mnt 下复制了一个一个同名的文件，修改内容反馈在这里面<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/7df2cf2f-58fe-46f7-890e-8aa3a5be16bd.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>在 读写层 中修改：不论是读写层独有的文件，还是只读层同名文件，修改都只会反馈到 mnt 中</li>
+<li>在 只读层 中修改：修改只会反馈到 mnt 中。即使读写层有同名文件，也不会同步修改。<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/9b4aaf62-6b5b-46a2-9cd9-2ef78de768f2.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+</ol>
+<h3 id="新增文件">新增文件</h3>
+<ol type="1">
+<li>在 mnt 中新增：读写层创建同名文件，只读层保持不变：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/db4d9dee-ef64-4020-81c0-656b4240cf7a.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>在读写层中新增，mnt 会创建同名文件，只读层不变</li>
+<li>在只读层中新增，mnt 会创建同名文件，读写层不变</li>
+</ol>
+<h3 id="删除文件">删除文件</h3>
+<p><strong>删除逻辑是最为复杂的，测试过程也较为繁琐...</strong></p>
+<p>对于 AUFS 来说，删除文件本质上是在做 whiteout。AUFS 通过一种叫 whiteout 的机制来隐藏文件，使其看起来像是从读写层视角被删除了，但实际文件仍然存在于只读层中。白化操作会在读写层中生成对应文件的 <code>.wh.</code> 文件，内容为空</p>
+<ol type="1">
+<li>在 mnt 中删除文件：如果删除的文件位于读写层，则读写层文件被删除，且不会生产白化文件；只读层同名文件无变化<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/41b17ee8-3e7a-4ea5-ba42-2aa779a6c643.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+如果文件存在于只读层，则读写层会生成白化文件，但只读层文件不变：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/68d207a4-606b-4cef-b827-66c2a8c7fc9a.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>在读写层中删除文件：mnt 文件同步被删除，不产生白化文件（<em>注：如果此时只读层也有同名文件的话，见下方：“对 在 mnt 与只读层都有的 文件执行删除” 的测试</em>）；只读层同名文件无变化</li>
+<li>在只读层中删除文件：那就看文件在哪了，如果文件在只读层，则 mnt 文件同步被删除，不产生白化文件；如果文件在读写层，则无变化，不会被删，因为此时文件从上到下找到的本来就是只读层的文件</li>
+</ol>
+<h3 id="手动新增白化文件的测试">手动新增白化文件的测试</h3>
+<p>反向思考一下，如果我们主动在读写层中创建白化文件，是不是就可以在 mnt 中隐藏这个文件？</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/22cfd07d-098b-420d-a65a-5d3f1d28dda8.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>看来的确如此。不论文件位于读写层还是只读层，mnt 中都会消失。<strong>但此时 mnt 目录对于这个文件还是可以访问的，只是看不到了，并且可以修改，那么这里就可以用来藏文件了</strong></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/ea5f2283-26cf-427a-b669-490274c6df56.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>并且即使 umount 也不会恢复正常，因为白化文件并不会随着 umount 而删除。能发现这种文件的办法一个就是检查 mount 信息，另外一个就是扫描白化文件。</p>
+<p>这种手法有几个细节：</p>
+<ol type="1">
+<li>如果文件是在 mnt 中直接创建的，不论是先创建文件再创建白化文件，还是顺序对调，白化文件都是没有效果的</li>
+<li>对于挂载之后在读写层中新增的文件，不论是先新建白化文件，还是后新建白化文件，都能够进行隐藏（<code>touch container-layer/test.txt; ls mnt/; bash -c "touch container-layer/.wh.test.txt; ls mnt/test.txt"</code>）。不过注意，mnt 里的文件过一小会才会消失，原因不详。如果你遇到报错：<code>cat: mnt/test.txt: Input/output error</code>，说明你重建环境的时候太快了，需要加上 sleep，或者是你 touch 文件没有使用新的进程，或者没有读取 <code>mnt</code> 文件。<em>这里的原因我不过多深入研究了，总之现象非常奇葩</em><br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/a3b40be7-d701-4805-9189-d0292bb943a5.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>对于挂载之后在只读层中新增的文件，不论是先新建白化文件，还是后新建白化文件，都能够进行隐藏。不过注意，这里命令不能放在一行完成（同上测试现象类似），否则 mnt 下这个文件会读不到，原因不详。解决办法我测试了下有两个，要么用 bash 将命令拆开执行（<code>touch image-layer1/test.txt; ls mnt/; bash -c "touch container-layer/.wh.test.txt; ls mnt/test.txt"</code>），要么直接往该文件写内容：<code>touch image-layer1/test.txt; touch container-layer/.wh.test.txt; echo 666 &gt; mnt/test.txt; cat mnt/test.txt</code></li>
+</ol>
+<h3 id="手动删除白化文件的测试">手动删除白化文件的测试</h3>
+<p>主动删除一个白化文件，如果这个文件是在只读层，即使删除这个白化文件，mnt 中也不会重新出现该文件：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/37142efc-9599-44ec-8c04-b9c85b9e415a.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>此时可以重新进行挂载，便能恢复正常。</p>
+<p>如果文件位于读写层，文件会重新出现，内容与当前读写层的文件保持一致：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/0f0ab099-82ef-43e6-a2e8-7d6bc95d137e.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="对-在-mnt-与只读层都有的-文件的删除测试">对 在 mnt 与只读层都有的 文件的删除测试</h3>
+<p>有趣的是，如果我们创建一个与只读层相同的文件，在读写层执行 rm 只会删除读写层的这个文件，但 mnt 中还会有这个文件，此时它其实就是只读层的那个文件内容；如果是在 mnt 中删除这个文件，则会直接产生白化文件，同时 mnt 中的文件也直接消失：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/26ef6145-f8cb-43ab-96ff-0866f9807715.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="aufs-实验总结">AUFS 实验总结</h3>
+<p>直接看图吧：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/67c878d8-8ab0-429c-81b8-17a233593e36.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h2 id="overlayfsoverlay2">overlayFS/Overlay2</h2>
+<p>overlayFS 是目前最流行的 Union File System 实现，性能优越，被内核直接支持（从 Linux Kernel 3.18 开始）。它广泛用于 Docker 和 Kubernetes。比如 Docker 用的 UnionFS 自 18.09 后从 AUFS 改为 Overlay2。Overlay2 是基于 OverlayFS 技术的一种优化版本。可以将它们看作是父子关系，Overlay2 是 Docker 为容器存储场景优化了的 OverlayFS 的一种实现。</p>
+<p>overlayfs/overlay2 通过三个目录来实现：<code>lower</code> 目录、<code>upper</code> 目录、以及 <code>work</code> 目录（可选）。三种目录合并出来的目录称为 merged 目录。</p>
+<ul>
+<li><code>lower</code> 目录：可以是多个，是处于最底层的目录，作为只读层</li>
+<li><code>upper</code> 目录：只有一个，作为读写层</li>
+<li><code>work</code> 目录：为工作基础目录，挂载后内容会被清空，且在使用过程中其内容用户不可见</li>
+<li><code>merged</code> 目录：为最后联合挂载完成给用户呈现的统一视图，也就是说 merged 目录里面本身并没有任何实体文件，给我们展示的只是参与联合挂载的目录里面文件而已，真正的文件还是在 lower 和 upper 中。所以，在 merged 目录下编辑文件，或者直接编辑 lower 或 upper 目录里面的文件都会影响到 merged 里面的视图展示。</li>
+</ul>
+<p>同上，理论看着挺好理解的，但为了好理解，还是做了几个实验模拟一下 docker 的容器层与镜像层。</p>
+<h3 id="环境搭建-1">环境搭建</h3>
+<p>这里直接贴初始化脚本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">umount /root/zaemon/overlayFS/merged_dir<br><br><span class="hljs-built_in">rm</span> -rf ./container-layer/ image-layer1/ image-layer2/ image-layer3/-layer/ ./image-layer1/ ./image-layer2/ ./image-layer3/ ./work_dir ./merged_dir<br><br><span class="hljs-built_in">mkdir</span> ./image-layer&#123;1,2,3&#125;<br><span class="hljs-built_in">mkdir</span> ./work_dir ./container-layer ./merged_dir<br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am image layer 1&quot;</span> &gt; image-layer1/image-1.txt<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am image layer 3&quot;</span> &gt; image-layer3/image-3.txt<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am image layer 2&quot;</span> &gt; image-layer2/image-2.txt<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;I am container layer&quot;</span> &gt; container-layer/container.txt<br><br>mount -t overlay overlay -o lowerdir=image-layer1:image-layer2:image-layer3,upperdir=container-layer,workdir=work_dir merged_dir<br></code></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/ffcf9f4f-4b36-4781-9ec5-406109afcf48.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="查找文件-1">查找文件</h3>
+<p>查询的顺序是：merged =&gt; 读写层（upper） =&gt; 只读层（lower）。且读写层中无法查到只读层的文件。因此如果一个文件同时存在于读写层和只读层，merged 读到的是只读层的文件，此时文件认为存在于只读层。</p>
+<h3 id="修改文件-1">修改文件</h3>
+<ol type="1">
+<li>在 merged 中修改：对于读写层文件，会被反馈到原本的 <code>container-layer/</code> 中，而其他只读层的修改并不会反馈到原目录中，而是在 merged 下复制了一个一个同名的文件，修改内容反馈在这里面<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/a81f41b6-4427-47fe-9017-c9519bb19585.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>在 读写层 中修改：不论是读写层独有的文件，还是只读层同名文件，修改都只会反馈到 merged 中</li>
+<li>在 只读层 中修改：修改只会反馈到 merged 中。即使读写层有同名文件，也不会同步修改</li>
+</ol>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/d71b34da-8488-4223-82ee-ce26bdf43c72.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="新增文件-1">新增文件</h3>
+<ol type="1">
+<li>在 merged 中新增：读写层创建同名文件，只读层保持不变：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/055e824e-402d-4c8d-9fe9-c05f710b047b.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>在读写层中新增，merged 会创建同名文件，只读层不变</li>
+<li>在只读层中新增，merged 会创建同名文件，读写层不变</li>
+</ol>
+<h3 id="删除文件-1">删除文件</h3>
+<p><strong>删除逻辑是最为复杂的，测试过程也较为繁琐...</strong></p>
+<p>overlayFS/overlay2 也是通过 whiteout 来标记删除文件，但这个白化文件是一个字符设备文件。</p>
+<ol type="1">
+<li>在 merged 中删除文件：如果删除的文件位于读写层，则读写层文件被删除，且不会生产白化文件；只读层同名文件无变化<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/c69906c2-c5d9-4324-b14c-d5a298c00fa9.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /><br />
+如果文件存在于只读层，则读写层会生成白化文件，但只读层文件不变：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/46019dcb-7ed6-4734-98f7-2e440c379cf8.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></li>
+<li>在读写层中删除文件：merged 文件同步被删除，不产生白化文件（<em>注：如果此时只读层也有同名文件的话，见下方：“对 在 merged_dir 与只读层都有的 文件执行删除” 的测试</em>）；只读层同名文件无变化</li>
+<li>在只读层中删除文件：那就看文件在哪了，如果文件在只读层，则 merged 文件同步被删除，不产生白化文件；如果文件在读写层，则无变化，不会被删，因为此时文件从上到下找到的本来就是只读层的文件</li>
+</ol>
+<h3 id="手动新增白化文件的测试-1">手动新增白化文件的测试</h3>
+<p>如果我们主动在读写层中创建白化文件（<code>mknod container-layer/image-1.txt c 0 0</code>），就可以在 merged 中隐藏这个文件（但无法通过这种方式隐藏读写层或者 merged 中已有的文件，前者是因为在读写层这种白化文件的文件名与原文件是一模一样的，后者是因为白化文件会随着新增同名文件而被删除）：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/925b264b-e0c2-46b4-b41a-f27b0c94aad4.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p><strong>但是此时 merged 目录下无法访问这个文件</strong></p>
+<p>如果尝试重新创建这个文件，白化文件就会消失</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/bd6eaa39-9915-4413-8959-536f4ef06d3d.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>此时如果在 merged 中删除这个文件，则白化文件又会重新出现。</p>
+<p><strong>如果要隐藏文件，可行的手法为：</strong></p>
+<ol type="1">
+<li>在 merged_dir 中创建需要隐藏的文件（这个文件最好选择只读层中没有同名文件的，否则需要按照后面的说法搞个白化文件出来）</li>
+<li>在读写层中删除这个文件</li>
+<li>merged_dir 下这个文件还能读到，可写，可执行</li>
+</ol>
+<p><strong>这个方式连白化文件都没有，非常非常隐蔽，不过重新挂载之后这个文件就没有了</strong></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/00033a16-26c4-47dc-97b8-9d446ee8c81c.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果希望实现重新挂载之后还可以隐藏，就需要在第 2 步之后，通过 <code>mknod</code> 在读写层中生成白化文件，实现该文件隐藏的效果，不过这样就能看到白化文件了。</p>
+<p>能发现这种文件的办法，我感觉只能检查 mount 信息了。</p>
+<h3 id="手动删除白化文件的测试-1">手动删除白化文件的测试</h3>
+<p>主动删除一个白化文件，如果这个文件是在只读层，即使删除这个白化文件，mnt 中也不会重新出现该文件：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/aadfec3d-ad76-4df5-b392-812d2667a703.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>此时可以重新进行挂载，便能恢复正常。</p>
+<p>如果文件位于读写层，删除时本来就不产生白化文件，即使手动新增白化文件后再删除，文件也不会重新在 merged_dir 中出现</p>
+<h3 id="对-在-merged_dir-与只读层都有的-文件的删除测试">对 在 merged_dir 与只读层都有的 文件的删除测试</h3>
+<p>有趣的是，如果我们创建一个与只读层相同的文件，在读写层执行 rm 只会删除读写层的这个文件（这里其实就是上面隐藏文件的手法的一个步骤），但 merged_dir 中还会有这个文件，区别于 AUFS，这个文件不能再被删除，否则会报 <code>rm: cannot remove 'merged_dir/image-1.txt': Stale file handle</code>。此时这个文件其实就是只读层的那个文件内容；如果是在 merged_dir 中删除这个文件，则会直接产生白化文件，同时 merged_dir 中的文件也直接消失。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/87f78e19-74a3-4a14-9084-c41c361e8ced.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="overlayfsoverlay2-实验总结">overlayFS/Overlay2 实验总结</h3>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/3a0f17ca-fba6-4d21-b6ca-ac679b5fb6b9.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h2 id="利用-overlay2-在容器中隐藏文件">利用 overlay2 在容器中隐藏文件</h2>
+<p>既然现在 Docker 用的就是 overlay2，那是不是可以用上面的手法在容器内部隐藏文件？</p>
+<p>对于容器的目录结构这里暂时不多说了，后面容器篇有会介绍。容器内部删除文件之后，如何在宿主机上查看 whiteout 文件？</p>
+<ol type="1">
+<li><code>docker ps</code> 确定目标容器 id</li>
+<li><code>docker inspect --format='&#123;&#123;.GraphDriver.Data.UpperDir&#125;&#125;' bdbc559eb858</code> 查看读写层</li>
+<li>这里面有被删除文件在容器内部目录的对应目录，查看即可</li>
+</ol>
+<p>我们首先在容器里创建一个文件（对应上面实验中的 “在 merged_dir 中创建需要隐藏的文件”），然后在宿主机上该容器的读写层目录中删除这个文件（对应上面实验中的 “在读写层中删除这个文件”），查看容器内部，这个文件的确看着消失了，但其实这个文件还在，只是看不到了。删除会同样出现 <code>rm: cannot remove 'hhh': Stale file handle</code>，所有现象都与上面的实验一模一样：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/linux-unionfs/613c071f-59f0-4170-bb0b-ac3223b2a442.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>同理，这里只需要重新挂载这个文件就会消失，由于这里是由容器负责挂载的，所以需要停止容器再启动。如果只是重启的话，不会触发文件清理，这是因为如果该挂载点属于某个运行中的容器，停止容器会自动卸载挂载点，或者直接在宿主机上重启 Docker 服务，会重新初始化所有容器的挂载点。</p>
+<h2 id="总结">总结</h2>
+<p>Union File System 是一种强大且灵活的文件系统技术，通过将多个文件系统或目录叠加成单一视图，广泛用于容器技术（如 Docker）、只读文件系统（如 LiveCD）和嵌入式系统等场景。其核心特点是「层叠叠加」和「写时复制」，极大地提升了系统的灵活性和存储效率。然而，在某些复杂场景中，它也可能引入一定的性能开销和实现复杂性。</p>
+<p>由于我对 Linux 内核不是很了解，整个测试过程非常折磨人...算了，慢慢来吧</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">还是蛮佩服 Linux 内核的维护方的<br>这得写多少测试用例...</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 基础-Union File System</div>
+      <div>https://www.tr0y.wang/2025/03/11/linux-unionfs/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月11日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年3月11日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/03/14/2024/" title="2024 年度总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2024 年度总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/07/linux-cgroup/" title="Linux 基础-CGroup">
+                        <span class="hidden-mobile">Linux 基础-CGroup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

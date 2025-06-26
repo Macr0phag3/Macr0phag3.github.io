@@ -1,0 +1,942 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="九大排序算法的 Python 实现。继续加油~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="九大排序算法的 Python 实现">
+<meta property="og:url" content="https://www.tr0y.wang/2018/10/14/sorts/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="九大排序算法的 Python 实现。继续加油~">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/sf.jpeg/cover">
+<meta property="article:published_time" content="2018-10-14T22:28:49.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/sf.jpeg/cover">
+  
+  
+  
+  <title>九大排序算法的 Python 实现 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="九大排序算法的 Python 实现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-10-14 22:28" pubdate>
+          2018年10月14日 22:28:49
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="阅读笔记"
+        id="heading-1dc2a11297f6b1a1a33974a34749e3d6" role="tab" data-toggle="collapse" href="#collapse-1dc2a11297f6b1a1a33974a34749e3d6"
+        aria-expanded="true"
+      >
+        阅读笔记
+        <span class="list-group-count">(11)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-1dc2a11297f6b1a1a33974a34749e3d6"
+           role="tabpanel" aria-labelledby="heading-1dc2a11297f6b1a1a33974a34749e3d6">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2018/11/07/CSRFMeiTuan/" title="FreeBuf 文章：如何防止CSRF攻击？"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">FreeBuf 文章：如何防止CSRF攻击？</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/06/18/MySQL%E7%9A%84BIGINT%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5/" title="MySQL 的 BIGINT 报错注入"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">MySQL 的 BIGINT 报错注入</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/07/SQL%E6%B3%A8%E5%85%A5%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90-WooYun/" title="SQL 注入关联分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SQL 注入关联分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/08/WinPHPBug/" title="Windows+PHP=路径爆破?"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Windows+PHP=路径爆破?</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/11/11/JSDomBook/" title="《JavaScript DOM 编程艺术》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《JavaScript DOM 编程艺术》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/24/SQLInjection/" title="《SQL 注入攻击与防御》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《SQL 注入攻击与防御》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/01/22/WEBFS/" title="《Web 前端黑客技术揭秘》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《Web 前端黑客技术揭秘》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/11/04/TJMMX-BOOK/" title="《图解密码学》"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">《图解密码学》</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/10/14/sorts/" title="九大排序算法的 Python 实现"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">九大排序算法的 Python 实现</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/11/03/XSSMeiTuan/" title="如何防止XSS攻击？"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">如何防止XSS攻击？</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">九大排序算法的 Python 实现</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>九大排序算法的 Python 实现。继续加油~</p>
+<span id="more"></span>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/sorts/20181014103033500.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>在此基础上加了 桶排序</p>
+<h2 id="代码">代码</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># -*- coding: utf-8 -*-</span><br><span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> print_function<br><span class="hljs-keyword">import</span> random<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">func</span>(<span class="hljs-params">a, b, <span class="hljs-built_in">reversed</span></span>):<br>    <span class="hljs-keyword">return</span> a &lt; b <span class="hljs-keyword">if</span> <span class="hljs-built_in">reversed</span> <span class="hljs-keyword">else</span> a &gt; b<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">insertSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    直接插入排序</span><br><span class="hljs-string">    把 n 个待排序的元素看成一个有序表和一个无序表，</span><br><span class="hljs-string">    开始时有序表中只有一个元素，无序表中有 n-1 个元素。</span><br><span class="hljs-string">    排序过程即每次从无序表中取出第一个元素，</span><br><span class="hljs-string">    将它插入到有序表中，使之成为新的有序表，重复 n-1 次完成整个排序过程。</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">len</span>(unsorted_list)):<br>        j = i-<span class="hljs-number">1</span><br>        cmp = unsorted_list[i]<br><br>        <span class="hljs-keyword">while</span> j &gt; -<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> func(unsorted_list[j], cmp, <span class="hljs-built_in">reversed</span>):<br>            unsorted_list[j+<span class="hljs-number">1</span>], unsorted_list[j] = unsorted_list[j], cmp<br>            j -= <span class="hljs-number">1</span><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;NO.%d:&quot;</span> % i, unsorted_list)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br>    <span class="hljs-keyword">return</span> unsorted_list<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">shellSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    希尔排序是一种插入排序算法，又称作缩小增量排序。是对直接插入排序算法的改进。其基本思想是： </span><br><span class="hljs-string">    先取一个小于 n 的整数作为第一个增量，把全部数据分成个组。所有距离为的倍数的记录放在同一个组中。</span><br><span class="hljs-string">    先在各组内进行直接插入排序；</span><br><span class="hljs-string">    然后，取第二个增量重复上述的分组和排序，直至所取的增量，即所有记录放在同一组中进行直接插入排序为止。</span><br><span class="hljs-string">    该方法实质上是一种分组插入方法。</span><br><span class="hljs-string">    1 2 3 4 5 6 7 8 9 10 11</span><br><span class="hljs-string">    -----------</span><br><span class="hljs-string">      -----------</span><br><span class="hljs-string">        -----------</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br>    n = <span class="hljs-built_in">len</span>(unsorted_list)/<span class="hljs-number">2</span><br>    num = <span class="hljs-number">1</span><br>    <span class="hljs-keyword">while</span> n:<br>        <span class="hljs-keyword">for</span> ni <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):<br>            group = <span class="hljs-built_in">range</span>(ni, <span class="hljs-built_in">len</span>(unsorted_list), n)<br>            <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">len</span>(group)):<br>                j = i-<span class="hljs-number">1</span><br>                cmp = unsorted_list[group[i]]<br>                <span class="hljs-keyword">while</span> j &gt; -<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> func(unsorted_list[group[j]], cmp, <span class="hljs-built_in">reversed</span>):<br>                    unsorted_list[group[j+<span class="hljs-number">1</span>]], unsorted_list[group[j]] = unsorted_list[group[j]], cmp<br>                    j -= <span class="hljs-number">1</span><br><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;NO.%d:&quot;</span> % num, unsorted_list)<br>        n /= <span class="hljs-number">2</span><br>        num += <span class="hljs-number">1</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br>    <span class="hljs-keyword">return</span> unsorted_list<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">selectSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    每一趟从待排序的数据元素中选出最小（最大）的元素，</span><br><span class="hljs-string">    顺序放在待排序的数列最前，直到全部待排序的数据元素全部排完。</span><br><span class="hljs-string">    一共需要 n-1 趟</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br>    <span class="hljs-keyword">for</span> loc <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(unsorted_list)-<span class="hljs-number">1</span>):<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(loc, <span class="hljs-built_in">len</span>(unsorted_list)):<br>            <span class="hljs-keyword">if</span> func(unsorted_list[loc], unsorted_list[i], <span class="hljs-built_in">reversed</span>):<br>                unsorted_list[i], unsorted_list[loc] = unsorted_list[loc], unsorted_list[i]<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;NO.%d:&quot;</span> % loc, unsorted_list)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br>    <span class="hljs-keyword">return</span> unsorted_list<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">heapSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    堆排序涉及到的概念</span><br><span class="hljs-string">    - 堆排序是利用 堆进行排序的</span><br><span class="hljs-string">    - 堆是一种完全二叉树</span><br><span class="hljs-string">    - 堆有两种类型: 大根堆 小根堆</span><br><span class="hljs-string">    - 两种类型的概念如下：</span><br><span class="hljs-string">        - 大根堆：每个结点的值都大于或等于左右孩子结点</span><br><span class="hljs-string">        - 小根堆：每个结点的值都小于或等于左右孩子结点</span><br><span class="hljs-string"></span><br><span class="hljs-string">    首先将待排序的数组构造出一个大根堆</span><br><span class="hljs-string">    取出这个大根堆的堆顶节点(最大值)，与堆的最下最右的元素进行交换，</span><br><span class="hljs-string">    然后把剩下的元素再构造出一个大根堆。</span><br><span class="hljs-string">    重复第二步，直到这个大根堆的长度为 1，此时完成排序。</span><br><span class="hljs-string"></span><br><span class="hljs-string">    例子：</span><br><span class="hljs-string">     1  2   3  4  5  6  7  8  9  10</span><br><span class="hljs-string">    [3, 4, 10, 6, 8, 2, 5, 1, 7, 9]</span><br><span class="hljs-string"></span><br><span class="hljs-string">            3</span><br><span class="hljs-string">       4        10</span><br><span class="hljs-string">     6   8    2    5</span><br><span class="hljs-string">    1 7 9 x  x x  x x</span><br><span class="hljs-string"></span><br><span class="hljs-string">    规律：</span><br><span class="hljs-string">    - 如何找到 6 这个节点：(length-1)/2 =&gt; (10-1)/2=4</span><br><span class="hljs-string">    - https://www.jianshu.com/p/d174f1862601</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">heap_adjust</span>(<span class="hljs-params">L, start, end</span>):<br>        temp = L[start]<br>        i = start<br>        j = <span class="hljs-number">2</span> * i<br>        <span class="hljs-keyword">while</span> j &lt;= end:<br>            <span class="hljs-keyword">if</span> (j &lt; end) <span class="hljs-keyword">and</span> func(L[j+<span class="hljs-number">1</span>], L[j], <span class="hljs-built_in">reversed</span>):<br>                j += <span class="hljs-number">1</span><br>            <span class="hljs-keyword">if</span> func(L[j], temp, <span class="hljs-built_in">reversed</span>):<br>                L[i], i, j = L[j], j, <span class="hljs-number">2</span>*j<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-keyword">break</span><br>        L[i] = temp<br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br>    unsorted_list.insert(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)<br>    L_length = <span class="hljs-built_in">len</span>(unsorted_list) - <span class="hljs-number">1</span><br><br>    first_Sort_count = L_length / <span class="hljs-number">2</span><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(first_Sort_count):<br>        heap_adjust(unsorted_list, first_Sort_count - i, L_length)<br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Heap:&quot;</span>, unsorted_list[<span class="hljs-number">1</span>:])<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(L_length - <span class="hljs-number">1</span>):<br>        unsorted_list[<span class="hljs-number">1</span>], unsorted_list[L_length -<br>                                        i] = unsorted_list[L_length - i], unsorted_list[<span class="hljs-number">1</span>]<br>        heap_adjust(unsorted_list, <span class="hljs-number">1</span>, L_length - i - <span class="hljs-number">1</span>)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;No.%d:&quot;</span> % i, unsorted_list[<span class="hljs-number">1</span>:])<br><br>    unsorted_list.pop(<span class="hljs-number">0</span>)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br>    <span class="hljs-keyword">return</span> unsorted_list<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">bubbleSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    S1：从待排序序列的起始位置开始，从前往后依次比较各个位置和其后一位置的大小并执行 S2。 </span><br><span class="hljs-string">    S2：如果当前位置的值大于其后一位置的值，就把他俩的值交换</span><br><span class="hljs-string">       （完成一次全序列比较后，序列最后位置的值即此序列最大值，所以其不需要再参与冒泡）。 </span><br><span class="hljs-string">    S3：将序列的最后位置从待排序序列中移除。若移除后的待排序序列不为空则继续执行 S1，否则冒泡结束。</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br>    num = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">while</span> <span class="hljs-built_in">len</span>(unsorted_list)-num:<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(unsorted_list)-num-<span class="hljs-number">1</span>):<br>            <span class="hljs-keyword">if</span> func(unsorted_list[i], unsorted_list[i+<span class="hljs-number">1</span>], <span class="hljs-built_in">reversed</span>):<br>                unsorted_list[i], unsorted_list[i+<span class="hljs-number">1</span>] = unsorted_list[i+<span class="hljs-number">1</span>], unsorted_list[i]<br><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;No.%d:&quot;</span> % num, unsorted_list)<br>        num += <span class="hljs-number">1</span><br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">quickSort</span>(<span class="hljs-params">unsorted_list, base_loc=<span class="hljs-number">0</span>, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    快速排序是对冒泡排序的一种改进。</span><br><span class="hljs-string">    基本思想是：通过一趟排序将要排序的数据分割成独立的两部分，</span><br><span class="hljs-string">    其中一部分的所有数据都比另外一部分的所有数据都要小，</span><br><span class="hljs-string">    然后再按此方法对这两部分数据分别进行快速排序，</span><br><span class="hljs-string">    整个排序过程可以递归进行，以此实现整个数据变成有序序列。</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br>    num = [<span class="hljs-number">0</span>]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_sort</span>(<span class="hljs-params">l, r</span>):<br>        <span class="hljs-keyword">if</span> l &lt; r:<br>            <span class="hljs-keyword">if</span> num[<span class="hljs-number">0</span>]:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;No.%d:&quot;</span> % num[<span class="hljs-number">0</span>], unsorted_list)<br>            num[<span class="hljs-number">0</span>] += <span class="hljs-number">1</span><br>            <span class="hljs-keyword">if</span> base_loc:<br>                q = partition_final(unsorted_list, l, r)<br>            <span class="hljs-keyword">else</span>:<br>                q = partition_first(unsorted_list, l, r)<br>            _sort(l, q - <span class="hljs-number">1</span>)<br>            _sort(q + <span class="hljs-number">1</span>, r)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">partition_final</span>(<span class="hljs-params">unsorted_list, l, r</span>):<br>        x = unsorted_list[r]<br>        i = l - <span class="hljs-number">1</span><br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(l, r):<br>            <span class="hljs-keyword">if</span> x &gt; unsorted_list[j]:<br>                i += <span class="hljs-number">1</span><br>                unsorted_list[i], unsorted_list[j] = unsorted_list[j], unsorted_list[i]<br>        unsorted_list[i+<span class="hljs-number">1</span>], unsorted_list[r] = unsorted_list[r], unsorted_list[i+<span class="hljs-number">1</span>]<br>        <span class="hljs-keyword">return</span> i+<span class="hljs-number">1</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">partition_first</span>(<span class="hljs-params">unsorted_list, l, r</span>):<br>        x = unsorted_list[l]<br>        i = r + <span class="hljs-number">1</span><br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(r, l, -<span class="hljs-number">1</span>):<br>            <span class="hljs-keyword">if</span> x &lt; unsorted_list[j]:<br>                i -= <span class="hljs-number">1</span><br>                unsorted_list[i], unsorted_list[j] = unsorted_list[j], unsorted_list[i]<br>        unsorted_list[i-<span class="hljs-number">1</span>], unsorted_list[l] = unsorted_list[l], unsorted_list[i-<span class="hljs-number">1</span>]<br>        <span class="hljs-keyword">return</span> i-<span class="hljs-number">1</span><br><br>    _sort(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(unsorted_list)-<span class="hljs-number">1</span>)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">mergeSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    合并两个已排序好的列表，产生一个新的已排序好的列表</span><br><span class="hljs-string">    归并排序的算法我们通常用递归实现。</span><br><span class="hljs-string">    先把待排序区间[s,t]以中点二分，接着把左边子区间排序，</span><br><span class="hljs-string">    再把右边子区间排序，最后把左区间和右区间用一次归并操作合并成有序的区间[s,t]。</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_sort</span>(<span class="hljs-params">unsorted_list</span>):<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(unsorted_list) &lt;= <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">return</span> unsorted_list<br><br>        mid = <span class="hljs-built_in">len</span>(unsorted_list) / <span class="hljs-number">2</span><br>        left = _sort(unsorted_list[:mid])<br>        right = _sort(unsorted_list[mid:])<br>        result = merge(left, right)<br>        <span class="hljs-keyword">return</span> result<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">merge</span>(<span class="hljs-params">left, right</span>):<br>        result = []  <span class="hljs-comment"># 新的已排序好的列表</span><br><br>        left = left[::-<span class="hljs-number">1</span>]<br>        right = right[::-<span class="hljs-number">1</span>]<br><br>        <span class="hljs-keyword">while</span> left <span class="hljs-keyword">and</span> right:<br>            left_num = left.pop()<br>            right_num = right.pop()<br><br>            <span class="hljs-keyword">if</span> func(right_num, left_num, <span class="hljs-built_in">reversed</span>):<br>                result.append(left_num)<br>                right.append(right_num)<br>            <span class="hljs-keyword">else</span>:<br>                result.append(right_num)<br>                left.append(left_num)<br><br>        <span class="hljs-keyword">return</span> result+left[::-<span class="hljs-number">1</span>]+right[::-<span class="hljs-number">1</span>]<br><br>    unsorted_list = _sort(unsorted_list)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br>    <span class="hljs-keyword">return</span> unsorted_list<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">bucketSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    桶排序</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;raw: &quot;</span>, unsorted_list)<br>    buckets = [<span class="hljs-number">0</span>] * ((<span class="hljs-built_in">max</span>(unsorted_list)-<span class="hljs-built_in">min</span>(unsorted_list))+<span class="hljs-number">1</span>)<br>    <span class="hljs-keyword">for</span> num <span class="hljs-keyword">in</span> unsorted_list:<br>        buckets[num-<span class="hljs-built_in">min</span>(unsorted_list)] += <span class="hljs-number">1</span><br><br>    unsorted_list = <span class="hljs-built_in">sum</span>([[i+<span class="hljs-built_in">min</span>(unsorted_list)]*num <span class="hljs-keyword">for</span> i, num <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(buckets)], [])<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;last:&quot;</span>, unsorted_list)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">radixSort</span>(<span class="hljs-params">unsorted_list, <span class="hljs-built_in">reversed</span>=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    将所有待比较数值统一为同样的数位长度，数位较短的数前面补零。</span><br><span class="hljs-string">    然后，从最低位开始，依次进行一次排序。</span><br><span class="hljs-string">    这样从最低位排序一直到最高位排序完成以后, 数列就变成一个有序序列。</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    <span class="hljs-keyword">import</span> math<br><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">int</span>(math.log10(<span class="hljs-built_in">max</span>(unsorted_list)))+<span class="hljs-number">1</span>):<br>        bucket = [[] <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>)]<br>        <span class="hljs-keyword">for</span> val <span class="hljs-keyword">in</span> unsorted_list:<br>            bucket[<span class="hljs-built_in">int</span>(val % (<span class="hljs-number">10</span> ** (i+<span class="hljs-number">1</span>)) / (<span class="hljs-number">10</span> ** i))].append(val)<br><br>        unsorted_list = <span class="hljs-built_in">sum</span>(bucket, [])<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">reversed</span>:<br>        unsorted_list = unsorted_list[::-<span class="hljs-number">1</span>]<br><br>    <span class="hljs-built_in">print</span>(unsorted_list)<br>    <span class="hljs-keyword">return</span> unsorted_list<br><br>unsorted_list = <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>, <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>)<br>random.shuffle(unsorted_list)<br><br><span class="hljs-comment"># insertSort(unsorted_list)</span><br><span class="hljs-comment"># shellSort(unsorted_list)</span><br><span class="hljs-comment"># selectSort(unsorted_list)</span><br><span class="hljs-comment"># heapSort(unsorted_list)</span><br><span class="hljs-comment"># bubbleSort(unsorted_list)</span><br><span class="hljs-comment"># quickSort(unsorted_list)</span><br><span class="hljs-comment"># mergeSort(unsorted_list)</span><br><span class="hljs-comment"># bucketSort(unsorted_list)</span><br><span class="hljs-comment"># radixSort(unsorted_list)</span><br></code></pre></td></tr></table></figure>
+<h2 id="一些感想">一些感想</h2>
+<p>算法的精妙之处，有时候自己实现一遍才能体会到。而且我在实现的过程中，会到了算法与代码结合的难点（明明知道意思，却不知道怎么用代码表达出来）。</p>
+ACM 大佬是真的大佬。<br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="category-chain-item">阅读笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>九大排序算法的 Python 实现</div>
+      <div>https://www.tr0y.wang/2018/10/14/sorts/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年10月14日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/11/03/XSSMeiTuan/" title="如何防止XSS攻击？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">如何防止XSS攻击？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/10/08/pytrick/" title="Python 进阶">
+                        <span class="hidden-mobile">Python 进阶</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

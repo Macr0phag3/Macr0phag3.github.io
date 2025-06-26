@@ -1,0 +1,1032 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head><!-- hexo injector head_begin start --><script defer src="/injector/toolbox.js"></script><!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/apple-touch-icon.png">
+  <link rel="icon" href="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tr0y">
+  <meta name="keywords" content="Tr0y, tr0y, Hexo, Blog, 博客, 信息安全">
+  
+    <meta name="description" content="用 Python 进行四舍五入是一个很常见的需求。但是经常有人用习惯性的思维去理解，导致出现与期望不同的现象，进而引发各种问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 Python 中如何正确地四舍五入？">
+<meta property="og:url" content="https://www.tr0y.wang/2019/04/08/Python%E5%9B%9B%E8%88%8D%E4%BA%94%E5%85%A5/">
+<meta property="og:site_name" content="Tr0y&#39;s Blog">
+<meta property="og:description" content="用 Python 进行四舍五入是一个很常见的需求。但是经常有人用习惯性的思维去理解，导致出现与期望不同的现象，进而引发各种问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+<meta property="article:published_time" content="2019-04-08T19:00:55.000Z">
+<meta property="article:modified_time" content="2023-12-13T10:02:13.000Z">
+<meta property="article:author" content="Tr0y">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogcovers-1252075454.cos.ap-shanghai.myqcloud.com/python.jpeg/cover">
+  
+  
+  
+  <title>在 Python 中如何正确地四舍五入？ - Tr0y&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/my.css">
+<link rel="stylesheet" href="/css/my-piczoom.css">
+<link rel="stylesheet" href="/css/my-code.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.tr0y.wang","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":60,"cursorChar":"丨","loop":false,"scope":["archives","post","tags","categories","about","links","page","404"]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"🌧"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"8e9bf819abf5fa586aeb29b27a17930f","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"HvSx6ik6SYrERWriMqKHJgxY-gzGzoHsz","app_key":"Ehx7kqAi6icjCXaw5jdD5sIs","server_url":"https://hvsx6ik6.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8e9bf819abf5fa586aeb29b27a17930f";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<!-- hexo injector head_end start --><script defer src="/injector/post.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Tr0y's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Tr0y&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-books"></i>
+                生命线
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-archive-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/gallery/">
+                <i class="iconfont icon-images"></i>
+                摄影集
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/page.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="在 Python 中如何正确地四舍五入？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-04-08 19:00" pubdate>
+          2019年4月8日 19:00:55
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="经验总结"
+        id="heading-14f81b61393e65e2be86c2b4bcc0434a" role="tab" data-toggle="collapse" href="#collapse-14f81b61393e65e2be86c2b4bcc0434a"
+        aria-expanded="true"
+      >
+        经验总结
+        <span class="list-group-count">(85)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-14f81b61393e65e2be86c2b4bcc0434a"
+           role="tabpanel" aria-labelledby="heading-14f81b61393e65e2be86c2b4bcc0434a">
+        
+        
+          
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2021/12/31/2021/" title="2021 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2021/01/12/flag-in-2021/" title="2021，来立些 flag 吧"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2021，来立些 flag 吧</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2023/01/31/2022/" title="2022 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2022 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/03/15/2023/" title="2023 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2024/05/06/%E4%BA%91%E5%8D%97%E4%B9%8B%E6%97%85/" title="2024 云南之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 云南之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/03/14/2024/" title="2024 年度总结"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 年度总结</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2025/02/20/%E6%96%90%E6%B5%8E%E4%B9%8B%E6%97%85/" title="2024 🇫🇯 斐济之旅"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2024 🇫🇯 斐济之旅</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2019/06/02/CSRF%E6%8C%87%E5%8C%97/" title="CSRF 指北"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CSRF 指北</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2017/06/07/CtfMiscStega/" title="CTF 杂项之隐写术"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CTF 杂项之隐写术</span>
+        </a>
+      
+    
+      
+      
+        <a href="/2020/09/14/DNS-1-basic/" title="DNS 安全（一）：基础知识复习"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">DNS 安全（一）：基础知识复习</span>
+        </a>
+      
+    
+      
+      
+        <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="list-group-item list-group-item-action">
+          <span class="category-post">More...</span>
+        </a>
+        
+  </div>
+
+          
+  
+    
+    
+    
+    <div class="category-sub row nomargin-x">
+      <a class="category-subitem collapsed
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="过程记录"
+        id="heading-82bd63cbf8d855f8a95d66283f2e4114" role="tab" data-toggle="collapse" href="#collapse-82bd63cbf8d855f8a95d66283f2e4114"
+        aria-expanded="false"
+      >
+        过程记录
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse " id="collapse-82bd63cbf8d855f8a95d66283f2e4114"
+           role="tabpanel" aria-labelledby="heading-82bd63cbf8d855f8a95d66283f2e4114">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/2023/12/22/qwb2023-pyjail/" title="2023 强网杯三道 pyjail 的题解"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">2023 强网杯三道 pyjail 的题解</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">在 Python 中如何正确地四舍五入？</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2 年前
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>用 Python 进行四舍五入是一个很常见的需求。但是经常有人用习惯性的思维去理解，导致出现与期望不同的现象，进而引发各种问题。</p>
+<span id="more"></span>
+<p>以下均以保留 2 位小数为例</p>
+<h2 id="round-函数的问题">round 函数的问题</h2>
+<p>这是网上的普遍的用法：<br />
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs applescript">In [<span class="hljs-number">3</span>]: <span class="hljs-built_in">round</span>(<span class="hljs-number">1.115</span>, <span class="hljs-number">2</span>)<br>Out[<span class="hljs-number">3</span>]: <span class="hljs-number">1.11</span> <span class="hljs-comment"># 错误，应该是 1.12</span><br><br>In [<span class="hljs-number">8</span>]: <span class="hljs-built_in">round</span>(<span class="hljs-number">0.375</span>, <span class="hljs-number">2</span>)<br>Out[<span class="hljs-number">8</span>]: <span class="hljs-number">0.38</span> <span class="hljs-comment"># 正确</span><br></code></pre></td></tr></table></figure><br />
+可见，round 并不总是能返回我们想要的结果的。</p>
+<p>一个容易发现的原因就是十进制小数转二进制时精度丢失的问题，即 Python 存储 <code>1.115</code> 的时候实际上是 <code>1.1149...</code>:<br />
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">In</span> [<span class="hljs-number">11</span>]: <span class="hljs-keyword">from</span> <span class="hljs-type">decimal</span> <span class="hljs-keyword">import</span> <span class="hljs-type">Decimal</span> # <span class="hljs-type">decimal</span> 是 Python 专门处理高精度的库<br><br><span class="hljs-keyword">In</span> [<span class="hljs-number">12</span>]: <span class="hljs-type">Decimal</span>(<span class="hljs-number">1.115</span>)<br><span class="hljs-keyword">Out</span>[<span class="hljs-number">12</span>]: <span class="hljs-type">Decimal</span>(<span class="hljs-string">&#x27;1.1149999999999999911182158029987476766109466552734375&#x27;</span>)<br></code></pre></td></tr></table></figure><br />
+而对 <code>1.1149</code> 保留2位小数，当然是 <code>1.11</code> 而不是 <code>1.12</code> 了。</p>
+<p>但是，十进制小数转二进制的时候也会出现能完全转换的，例如：<code>1.125</code>：<br />
+<figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-variable"><span class="hljs-keyword">In</span></span> [<span class="hljs-number">15</span>]: <span class="hljs-function"><span class="hljs-title">Decimal</span>(<span class="hljs-number">1.125</span>)</span><br><span class="hljs-variable">Out</span>[<span class="hljs-number">15</span>]: <span class="hljs-function"><span class="hljs-title">Decimal</span>(<span class="hljs-string">&#x27;1.125&#x27;</span>)</span><br></code></pre></td></tr></table></figure></p>
+<p>那么这时 round 的结果会符合我们的预期吗？<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[16]</span>: <span class="hljs-built_in">round</span>(<span class="hljs-number">1.125</span>, <span class="hljs-number">2</span>)<br>Out<span class="hljs-selector-attr">[16]</span>: <span class="hljs-number">1.12</span><br></code></pre></td></tr></table></figure><br />
+依然不行。这又是什么原因呢？</p>
+<p>实际上，计算机语言都是这样处理的，这个方式叫：<code>奇进偶舍</code>：<br />
+&gt; 例如数 a.bcd，我们需要保留 2 位小数的话，要看小数点后第三位：</p>
+<ol type="1">
+<li>如果 d&lt;5，直接舍去</li>
+<li>如果 d&lt;5，直接进位</li>
+<li>如果 d == 5：
+<ol type="1">
+<li>d 后面还有非 0 数字，例如 a.bcdef，f 非 0，那么要进位</li>
+<li>d 后面没有数据，且 c 为偶数，那么不进位</li>
+<li>d 后面没有数据，且 c 为奇数，那么要进位</li>
+</ol></li>
+</ol>
+<p>所以，我们可以总结一下，假如你要使用 round 来保留位数，那么你需要考虑 2 个问题：</p>
+<ol type="1">
+<li>这个数可能无法被计算机精确地表示，这个误差是否能接受？</li>
+<li>奇进偶舍这个方法的误差是否能接受？</li>
+</ol>
+<p>如果有一个答案是：不能，你就需要 decimal（其他的方法不考虑，见文章最后）。</p>
+<h2 id="decimal-高精度解决方案">decimal: 高精度解决方案</h2>
+<p>由我们自己去关注上面提到的问题显然是反人类的。于是 Python 提供了用于处理高精度数字的库：<code>decimal</code>。</p>
+<p>这个库直接解决了上面的第一个问题。</p>
+<p>但是使用的时候需要注意给 <code>Decimal</code> 传字符串与浮点数的区别：<br />
+<figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-variable"><span class="hljs-keyword">In</span></span> [<span class="hljs-number">24</span>]: <span class="hljs-function"><span class="hljs-title">Decimal</span>(<span class="hljs-number">1.115</span>)</span><br><span class="hljs-variable">Out</span>[<span class="hljs-number">24</span>]: <span class="hljs-function"><span class="hljs-title">Decimal</span>(<span class="hljs-string">&#x27;1.1149999999999999911182158029987476766109466552734375&#x27;</span>)</span><br><br><span class="hljs-variable"><span class="hljs-keyword">In</span></span> [<span class="hljs-number">25</span>]: <span class="hljs-function"><span class="hljs-title">Decimal</span>(<span class="hljs-string">&#x27;1.115&#x27;</span>)</span><br><span class="hljs-variable">Out</span>[<span class="hljs-number">25</span>]: <span class="hljs-function"><span class="hljs-title">Decimal</span>(<span class="hljs-string">&#x27;1.115&#x27;</span>)</span><br></code></pre></td></tr></table></figure></p>
+<p>为什么两种不同呢？原因在于直接传浮点的时候，Python 没法存下 <code>1.115</code>，将 <code>1.115</code> 转为 <code>1.11499...</code>，所以在给 <code>Decimal</code> 的时候就已经丢失精度了。所以使用 decimal 的时候最好用字符串传参。并且，一定要全程使用 <code>Decimal</code> 类型，不要混用 float 与 <code>Decimal</code> 类型</p>
+<p>接下来我们对 <code>1.115</code> 试试四舍五入，看看是不是我们需要的：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[27]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;1.115&#x27;</span>)<span class="hljs-selector-class">.quantize</span>(<span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.00&#x27;</span>))<br>Out<span class="hljs-selector-attr">[27]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;1.12&#x27;</span>)<br></code></pre></td></tr></table></figure><br />
+不错，是我们需要的。再试试 <code>0.125</code>：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[33]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.125&#x27;</span>)<span class="hljs-selector-class">.quantize</span>(<span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.00&#x27;</span>))<br>Out<span class="hljs-selector-attr">[33]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.12&#x27;</span>)<br></code></pre></td></tr></table></figure><br />
+居然还是不行。问题又出在哪呢？其实和之前的 <code>round</code> 一样，也是 <code>奇进偶舍</code>。为了证明这一点，我们可以去 Python 的官方文档查阅 <code>quantize</code> 的用法：<br />
+<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/decimal.html?highlight=quantize#decimal.Decimal.quantize">quantize</a></p>
+<p>可以看到：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python%E5%9B%9B%E8%88%8D%E4%BA%94%E5%85%A5/20190408094712113.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>简单的翻译一下就是：<code>quantize</code> 有个可选参数 <code>rounding</code>。如果不指定它的话，使用的是 <code>context</code> 的值。如果 <code>context</code> 也没指定值，那就用此线程的上下文中的 <code>rounding</code>。</p>
+<p>那么问题来了，<code>rounding</code> 到底有哪些值可选呢？文档也有：<br />
+<img src="https://rzx1szyykpugqc-1252075454.piccd.myqcloud.com/Python%E5%9B%9B%E8%88%8D%E4%BA%94%E5%85%A5/20190408095307127.png!blog" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload /></p>
+<p>那么我们显然没指定 <code>rounding</code>，上下文用的是哪个呢？我们打印一下看看：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[42]</span>: from decimal import getcontext<br><br>In <span class="hljs-selector-attr">[43]</span>: <span class="hljs-built_in">getcontext</span>()<span class="hljs-selector-class">.rounding</span><br>Out<span class="hljs-selector-attr">[43]</span>: <span class="hljs-string">&#x27;ROUND_HALF_EVEN&#x27;</span><br></code></pre></td></tr></table></figure></p>
+<p><code>ROUND_HALF_EVEN</code> 即 <code>Round to nearest with ties going to nearest even integer.</code>，就是我们上面提到的 <code>奇进偶舍</code>。</p>
+<p>而 <code>ROUND_HALF_UP</code> 才是我们想要的：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[65]</span>: import decimal<br><br>In <span class="hljs-selector-attr">[66]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;1.115&#x27;</span>)<span class="hljs-selector-class">.quantize</span>(<span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.00&#x27;</span>), rounding=decimal.ROUND_HALF_UP)<br>Out<span class="hljs-selector-attr">[66]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;1.12&#x27;</span>)<br><br>In <span class="hljs-selector-attr">[67]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.125&#x27;</span>)<span class="hljs-selector-class">.quantize</span>(<span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.00&#x27;</span>), rounding=decimal.ROUND_HALF_UP)<br>Out<span class="hljs-selector-attr">[67]</span>: <span class="hljs-built_in">Decimal</span>(<span class="hljs-string">&#x27;0.13&#x27;</span>)<br></code></pre></td></tr></table></figure></p>
+<p>这下第二个问题也解决了。</p>
+<h2 id="后记">后记</h2>
+<p>感慨于这么简单的需求实际上有很多东西蕴含在里面。Python 尚且如此，其他语言呢？我特意问了一下擅长 C++ 的 Barriery，他说 C++里是这样四舍五入的：<br />
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">int</span>(<span class="hljs-number">0</span>.<span class="hljs-number">115</span>*<span class="hljs-number">100</span>+<span class="hljs-number">0</span>.<span class="hljs-number">5</span>)/<span class="hljs-number">100</span><br></code></pre></td></tr></table></figure></p>
+<p>2 位就是 100，3 位就是 1000，以此类推。我拿到 Python 里试了一下，还真的可以：<br />
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus">In <span class="hljs-selector-attr">[68]</span>: <span class="hljs-built_in">int</span>(<span class="hljs-number">0.115</span>*<span class="hljs-number">100</span>+<span class="hljs-number">0.5</span>)/<span class="hljs-number">100</span><br>Out<span class="hljs-selector-attr">[68]</span>: <span class="hljs-number">0.12</span><br><br>In <span class="hljs-selector-attr">[69]</span>: <span class="hljs-built_in">int</span>(<span class="hljs-number">0.125</span>*<span class="hljs-number">100</span>+<span class="hljs-number">0.5</span>)/<span class="hljs-number">100</span><br>Out<span class="hljs-selector-attr">[69]</span>: <span class="hljs-number">0.13</span><br></code></pre></td></tr></table></figure></p>
+<p>原理嘛，就是利用了 int 直接截断的特性。不得不说思路真是无奇不有啊。不过我还是推荐 decimal 这个库，专门处理高精度的数字，相当好用。</p>
+<br>
+<p style="text-align: center;">
+<font size="2px" color="gray">来呀快活呀</font><br />
+<img src="https://clean-1252075454.cos.ap-nanjing.myqcloud.com/20200528120800990.png" srcset="https://blog-theme-source-1252075454.cos.ap-nanjing.myqcloud.com/img/loading.gif" lazyload style="zoom:30%" />
+</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="category-chain-item">经验总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>在 Python 中如何正确地四舍五入？</div>
+      <div>https://www.tr0y.wang/2019/04/08/Python四舍五入/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tr0y</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年4月8日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年12月13日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/04/16/%E7%94%A8Docker%E5%AE%89%E8%A3%85Oracle/" title="Docker 安装 Oracle">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Docker 安装 Oracle</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/03/27/Python%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" title="Python 中的异常处理">
+                        <span class="hidden-mobile">Python 中的异常处理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Macr0phag3/Macr0phag3.github.io');
+      s.setAttribute('issue-term', 'title');
+      
+      s.setAttribute('label', 'comment');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
